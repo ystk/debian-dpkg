@@ -3,7 +3,7 @@
 # dpkg-name
 #
 # Copyright © 1995,1996 Erick Branderhorst <branderh@debian.org>.
-# Copyright © 2009 Guillem Jover <guillem@debian.org>.
+# Copyright © 2006-2010,2012 Guillem Jover <guillem@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ Options:
   -k, --symlink            don't create a new file, but a symlink.
   -s, --subdir [dir]       move file into subdir (use with care).
   -c, --create-dir         create target dir if not there (use with care).
-  -h, --help               show this help message.
+  -?, --help               show this help message.
   -v, --version            show the version.
 
 file.deb changes to <package>_<version>_<architecture>.<package_type>
@@ -219,7 +219,7 @@ sub move($)
 
 while (@ARGV) {
     $_ = shift(@ARGV);
-    if (m/^-[h?]|--help$/) {
+    if (m/^-\?|--help$/) {
         usage();
         exit(0);
     } elsif (m/^-v|--version$/) {
@@ -233,7 +233,7 @@ while (@ARGV) {
             $options{destdir} = shift(@ARGV);
         }
     } elsif (m/^-o|--overwrite$/) {
-        $options{overwite} = 1;
+        $options{overwrite} = 1;
     } elsif (m/^-k|--symlink$/) {
         $options{symlink} = 1;
     } elsif (m/^-a|--no-architecture$/) {
@@ -249,4 +249,3 @@ while (@ARGV) {
 }
 
 0;
-

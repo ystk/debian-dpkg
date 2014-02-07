@@ -1,14 +1,32 @@
+.\" dpkg manual page - dpkg-statoverride(8)
+.\"
+.\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2009-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-statoverride 8 2009\-06\-26 Debianprojektet dpkg\-verktygen
+.TH dpkg\-statoverride 8 2011\-07\-04 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-statoverride \- överstyr ägarskap och läge för filer
 .
 .SH SYNOPS
-\fBdpkg\-statoverride\fP [\fIflaggor\fP] \fIåtgärd\fP
+\fBdpkg\-statoverride\fP [\fIflagga\fP...] \fIåtgärd\fP
 .
 .SH BESKRIVNING
 "\fBstat\-överstyrningar\fP" är ett sätt att tala om för \fBdpkg\fP(1) att en annan
@@ -68,6 +86,12 @@ läget.
 \fB\-\-quiet\fP
 Var mindre pratsom om vad som görs.
 .
+.SH MILJÖVARIABLER
+.TP 
+\fBDPKG_ADMINDIR\fP
+Om satt, och flaggan \fB\-\-admindir\fP inte har angivits, används värdet som
+datakatalog för dpkg.
+.
 .SH FILER
 .TP 
 \fI/var/lib/dpkg/statoverride\fP
@@ -80,11 +104,5 @@ tillägget "\-old" innan den ersätts med den nya.
 .
 .SH "SE ÄVEN"
 \fBdpkg\fP(1).
-.
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 2000 Wichert Akkerman
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
 .SH "ÖVERSÄTTNING"
 Peter Krefting och Daniel Nylander.

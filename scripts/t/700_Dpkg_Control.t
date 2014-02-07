@@ -13,16 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-use Test::More tests => 11;
+use Test::More tests => 22;
 
 use strict;
 use warnings;
 use IO::String;
 
-use_ok('Dpkg::Control::Info');
+BEGIN {
+    use_ok('Dpkg::Control');
+    use_ok('Dpkg::Control::Info');
+}
 
 my $srcdir = $ENV{srcdir} || '.';
 my $datadir = $srcdir . '/t/700_Dpkg_Control';
+
+sub parse_dsc {
+    my ($path) = @_;
+
+    my $dsc = Dpkg::Control->new(type => CTRL_PKG_SRC);
+    eval {
+        $dsc->load($path);
+        1;
+    } or return;
+
+    return $dsc;
+}
 
 my $c = Dpkg::Control::Info->new("$datadir/control-1");
 
@@ -41,12 +56,15 @@ Long-Field: line1
 Empty-Field: 
 
 Package: mypackage1
+Architecture: any
 Depends: libc6
 
 Package: mypackage2
+Architecture: all
 Depends: hello
 
 Package: mypackage3
+Architecture: all
 Depends: hello
 Description: short one
  long one
@@ -80,6 +98,34 @@ $pkg->output($io);
 
 is(${$io->string_ref()},
 'Package: mypackage2
+Architecture: all
 Depends: hello
 ', "Dump of second binary package of $datadir/control-1");
 
+# Check OpenPGP armored signatures in source control files
+
+my $dsc;
+
+$dsc = parse_dsc("$datadir/bogus-unsigned.dsc");
+is($dsc, undef, 'Unsigned .dsc w/ OpenPGP armor');
+
+$dsc = parse_dsc("$datadir/bogus-armor-no-sig.dsc");
+is($dsc, undef, 'Signed .dsc w/ OpenPGP armor missing signature');
+
+$dsc = parse_dsc("$datadir/bogus-armor-trail.dsc");
+is($dsc, undef, 'Signed .dsc w/ bogus OpenPGP armor trailer');
+
+$dsc = parse_dsc("$datadir/bogus-armor-inline.dsc");
+is($dsc, undef, 'Signed .dsc w/ bogus OpenPGP inline armor');
+
+$dsc = parse_dsc("$datadir/bogus-armor-double.dsc");
+ok(defined $dsc, 'Signed .dsc w/ two OpenPGP armor signatures');
+is($dsc->{Source}, 'pass', 'Signed spaced .dsc package name');
+
+$dsc = parse_dsc("$datadir/bogus-armor-spaces.dsc");
+ok(defined $dsc, 'Signed .dsc w/ spaced OpenPGP armor');
+is($dsc->{Source}, 'pass', 'Signed spaced .dsc package name');
+
+$dsc = parse_dsc("$datadir/bogus-armor-nested.dsc");
+ok(defined $dsc, 'Signed .dsc w/ nested OpenPGP armor');
+is($dsc->{Source}, 'pass', 'Signed nested .dsc package name');

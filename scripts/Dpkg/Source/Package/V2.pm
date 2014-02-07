@@ -1,4 +1,4 @@
-# Copyright © 2008 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2008-2011 Raphaël Hertzog <hertzog@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,10 @@ use Dpkg::Compression;
 use Dpkg::Source::Archive;
 use Dpkg::Source::Patch;
 use Dpkg::Exit;
-use Dpkg::Source::Functions qw(erasedir is_binary);
+use Dpkg::Source::Functions qw(erasedir is_binary fs_time);
+use Dpkg::Vendor qw(run_vendor_hook);
+use Dpkg::Control;
+use Dpkg::Changelog::Parse;
 
 use POSIX;
 use File::Basename;
@@ -37,6 +40,7 @@ use File::Temp qw(tempfile tempdir);
 use File::Path;
 use File::Spec;
 use File::Find;
+use File::Copy;
 
 our $CURRENT_MINOR_VERSION = "0";
 
@@ -53,14 +57,14 @@ sub init_options {
         unless exists $self->{'options'}{'preparation'};
     $self->{'options'}{'skip_patches'} = 0
         unless exists $self->{'options'}{'skip_patches'};
-    $self->{'options'}{'unapply_patches'} = 0
+    $self->{'options'}{'unapply_patches'} = 'auto'
         unless exists $self->{'options'}{'unapply_patches'};
     $self->{'options'}{'skip_debianization'} = 0
         unless exists $self->{'options'}{'skip_debianization'};
     $self->{'options'}{'create_empty_orig'} = 0
         unless exists $self->{'options'}{'create_empty_orig'};
-    $self->{'options'}{'abort_on_upstream_changes'} = 0
-        unless exists $self->{'options'}{'abort_on_upstream_changes'};
+    $self->{'options'}{'auto_commit'} = 0
+        unless exists $self->{'options'}{'auto_commit'};
 }
 
 sub parse_cmdline_option {
@@ -81,7 +85,10 @@ sub parse_cmdline_option {
         $self->{'options'}{'skip_patches'} = 1;
         return 1;
     } elsif ($opt =~ /^--unapply-patches$/) {
-        $self->{'options'}{'unapply_patches'} = 1;
+        $self->{'options'}{'unapply_patches'} = 'yes';
+        return 1;
+    } elsif ($opt =~ /^--no-unapply-patches$/) {
+        $self->{'options'}{'unapply_patches'} = 'no';
         return 1;
     } elsif ($opt =~ /^--skip-debianization$/) {
         $self->{'options'}{'skip_debianization'} = 1;
@@ -90,7 +97,10 @@ sub parse_cmdline_option {
         $self->{'options'}{'create_empty_orig'} = 1;
         return 1;
     } elsif ($opt =~ /^--abort-on-upstream-changes$/) {
-        $self->{'options'}{'abort_on_upstream_changes'} = 1;
+        $self->{'options'}{'auto_commit'} = 0;
+        return 1;
+    } elsif ($opt =~ /^--auto-commit$/) {
+        $self->{'options'}{'auto_commit'} = 1;
         return 1;
     }
     return 0;
@@ -206,9 +216,10 @@ sub apply_patches {
     $opts{"skip_auto"} = 0 unless defined($opts{"skip_auto"});
     my @patches = $self->get_patches($dir, %opts);
     return unless scalar(@patches);
-    my $timestamp = time();
     my $applied = File::Spec->catfile($dir, "debian", "patches", ".dpkg-source-applied");
     open(APPLIED, '>', $applied) || syserr(_g("cannot write %s"), $applied);
+    print APPLIED "# During $opts{'usage'}\n";
+    my $timestamp = fs_time($applied);
     foreach my $patch ($self->get_patches($dir, %opts)) {
         my $path = File::Spec->catfile($dir, "debian", "patches", $patch);
         info(_g("applying %s"), $patch) unless $opts{"skip_auto"};
@@ -225,17 +236,26 @@ sub unapply_patches {
     my ($self, $dir, %opts) = @_;
     my @patches = reverse($self->get_patches($dir, %opts));
     return unless scalar(@patches);
-    my $timestamp = time();
     my $applied = File::Spec->catfile($dir, "debian", "patches", ".dpkg-source-applied");
+    my $timestamp = fs_time($applied);
     foreach my $patch (@patches) {
         my $path = File::Spec->catfile($dir, "debian", "patches", $patch);
         info(_g("unapplying %s"), $patch) unless $opts{"quiet"};
         my $patch_obj = Dpkg::Source::Patch->new(filename => $path);
-        $patch_obj->apply($dir, force_timestamp => 1,
+        $patch_obj->apply($dir, force_timestamp => 1, verbose => 0,
                           timestamp => $timestamp,
                           add_options => [ '-E', '-R' ]);
     }
     unlink($applied);
+}
+
+sub upstream_tarball_template {
+    my ($self) = @_;
+    my $ext = "{" . join(",",
+        sort map {
+            compression_get_property($_, "file_ext")
+        } compression_get_list()) . "}";
+    return "../" . $self->get_basename() . ".orig.tar.$ext";
 }
 
 sub can_build {
@@ -243,7 +263,8 @@ sub can_build {
     return 1 if $self->find_original_tarballs(include_supplementary => 0);
     return 1 if $self->{'options'}{'create_empty_orig'} and
                 $self->find_original_tarballs(include_main => 0);
-    return (0, _g("no orig.tar file found"));
+    return (0, sprintf(_g("no upstream tarball found at %s"),
+                       $self->upstream_tarball_template()));
 }
 
 sub before_build {
@@ -253,13 +274,25 @@ sub before_build {
 
 sub after_build {
     my ($self, $dir) = @_;
-    $self->unapply_patches($dir) if $self->{'options'}{'unapply_patches'};
+    my $applied = File::Spec->catfile($dir, "debian", "patches", ".dpkg-source-applied");
+    my $reason = "";
+    if (-e $applied) {
+        open(APPLIED, "<", $applied) || syserr(_g("cannot read %s"), $applied);
+        $reason = <APPLIED>;
+        close(APPLIED);
+    }
+    my $opt_unapply = $self->{'options'}{'unapply_patches'};
+    if (($opt_unapply eq "auto" and $reason =~ /^# During preparation/) or
+        $opt_unapply eq "yes") {
+        $self->unapply_patches($dir);
+    }
 }
 
 sub prepare_build {
     my ($self, $dir) = @_;
     $self->{'diff_options'} = {
-        diff_ignore_regexp => $self->{'options'}{'diff_ignore_regexp'},
+        diff_ignore_regexp => $self->{'options'}{'diff_ignore_regexp'} .
+                              '|(^|/)debian/patches/.dpkg-source-applied$',
         include_removal => $self->{'options'}{'include_removal'},
         include_timestamp => $self->{'options'}{'include_timestamp'},
         use_dev_null => 1,
@@ -282,28 +315,15 @@ sub check_patches_applied {
     my ($self, $dir) = @_;
     my $applied = File::Spec->catfile($dir, "debian", "patches", ".dpkg-source-applied");
     unless (-e $applied) {
-        warning(_g("patches have not been applied, applying them now (use --no-preparation to override)"));
+        info(_g("patches are not applied, applying them now"));
         $self->apply_patches($dir, usage => 'preparation');
     }
 }
 
-sub do_build {
-    my ($self, $dir) = @_;
+sub generate_patch {
+    my ($self, $dir, %opts) = @_;
     my ($dirname, $updir) = fileparse($dir);
-    my @argv = @{$self->{'options'}{'ARGV'}};
-    if (scalar(@argv)) {
-        usageerr(_g("-b takes only one parameter with format `%s'"),
-                 $self->{'fields'}{'Format'});
-    }
-    $self->prepare_build($dir);
-
-    my $include_binaries = $self->{'options'}{'include_binaries'};
-    my @tar_ignore = map { "--exclude=$_" } @{$self->{'options'}{'tar_ignore'}};
-
-    my $sourcepackage = $self->{'fields'}{'Source'};
-    my $basenamerev = $self->get_basename(1);
-    my $basename = $self->get_basename();
-    my $basedirname = $basename;
+    my $basedirname = $self->get_basename();
     $basedirname =~ s/_/-/;
 
     # Identify original tarballs
@@ -325,10 +345,13 @@ sub do_build {
         }
     }
 
-    error(_g("no orig.tar file found")) unless $tarfile;
+    error(_g("no upstream tarball found at %s"),
+          $self->upstream_tarball_template()) unless $tarfile;
 
-    info(_g("building %s using existing %s"),
-	 $sourcepackage, "@origtarballs");
+    if ($opts{'usage'} eq "build") {
+        info(_g("building %s using existing %s"),
+             $self->{'fields'}{'Source'}, "@origtarballs");
+    }
 
     # Unpack a second copy for comparison
     my $tmp = tempdir("$dirname.orig.XXXXXX", DIR => $updir);
@@ -351,45 +374,69 @@ sub do_build {
     subprocerr(_g("copy of the debian directory")) if $?;
 
     # Apply all patches except the last automatic one
-    $self->apply_patches($tmp, skip_auto => 1, usage => 'build');
+    $opts{'skip_auto'} //= 0;
+    $self->apply_patches($tmp, skip_auto => $opts{'skip_auto'}, usage => 'build');
 
-    # Prepare handling of binary files
-    my %auth_bin_files;
-    my $incbin_file = File::Spec->catfile($dir, "debian", "source", "include-binaries");
-    if (-f $incbin_file) {
-        open(INC, "<", $incbin_file) || syserr(_g("cannot read %s"), $incbin_file);
-        while(defined($_ = <INC>)) {
-            chomp; s/^\s*//; s/\s*$//;
-            next if /^#/ or /^$/;
-            $auth_bin_files{$_} = 1;
-        }
-        close(INC);
+    # Create a patch
+    my ($difffh, $tmpdiff) = tempfile($self->get_basename(1) . ".diff.XXXXXX",
+                                      DIR => File::Spec->tmpdir(), UNLINK => 0);
+    push @Dpkg::Exit::handlers, sub { unlink($tmpdiff) };
+    my $diff = Dpkg::Source::Patch->new(filename => $tmpdiff,
+                                        compression => "none");
+    $diff->create();
+    if ($opts{'header_from'} and -e $opts{'header_from'}) {
+        my $header_from = Dpkg::Source::Patch->new(
+            filename => $opts{'header_from'});
+        my $analysis = $header_from->analyze($dir, verbose => 0);
+        $diff->set_header($analysis->{'patchheader'});
+    } else {
+        $diff->set_header($self->get_patch_header($dir));
     }
-    my @binary_files;
-    my $handle_binary = sub {
-        my ($self, $old, $new) = @_;
-        my $relfn = File::Spec->abs2rel($new, $dir);
-        # Include binaries if they are whitelisted or if
-        # --include-binaries has been given
-        if ($include_binaries or $auth_bin_files{$relfn}) {
-            push @binary_files, $relfn;
-        } else {
-            errormsg(_g("cannot represent change to %s: %s"), $new,
-                     _g("binary file contents changed"));
-            errormsg(_g("add %s in debian/source/include-binaries if you want" .
-                     " to store the modified binary in the debian tarball"),
-                     $relfn);
-            $self->register_error();
+    $diff->add_diff_directory($tmp, $dir, basedirname => $basedirname,
+            %{$self->{'diff_options'}},
+            handle_binary_func => $opts{'handle_binary'},
+            order_from => $opts{'order_from'});
+    error(_g("unrepresentable changes to source")) if not $diff->finish();
+
+    if (-s $tmpdiff) {
+        info(_g("local changes detected, the modified files are:"));
+        my $analysis = $diff->analyze($dir, verbose => 0);
+        foreach my $fn (sort keys %{$analysis->{'filepatched'}}) {
+            print " $fn\n";
         }
-    };
+    }
+
+    # Remove the temporary directory
+    erasedir($tmp);
+    pop @Dpkg::Exit::handlers;
+    pop @Dpkg::Exit::handlers;
+
+    return $tmpdiff;
+}
+
+sub do_build {
+    my ($self, $dir) = @_;
+    my @argv = @{$self->{'options'}{'ARGV'}};
+    if (scalar(@argv)) {
+        usageerr(_g("-b takes only one parameter with format `%s'"),
+                 $self->{'fields'}{'Format'});
+    }
+    $self->prepare_build($dir);
+
+    my $include_binaries = $self->{'options'}{'include_binaries'};
+    my @tar_ignore = map { "--exclude=$_" } @{$self->{'options'}{'tar_ignore'}};
+
+    my $sourcepackage = $self->{'fields'}{'Source'};
+    my $basenamerev = $self->get_basename(1);
+
     # Check if the debian directory contains unwanted binary files
+    my $binaryfiles = Dpkg::Source::Package::V2::BinaryFiles->new($dir);
     my $unwanted_binaries = 0;
     my $check_binary = sub {
-        my $fn = File::Spec->abs2rel($_, $dir);
         if (-f $_ and is_binary($_)) {
-            if ($include_binaries or $auth_bin_files{$fn}) {
-                push @binary_files, $fn;
-            } else {
+            my $fn = File::Spec->abs2rel($_, $dir);
+            $binaryfiles->new_binary_found($fn);
+            unless ($include_binaries or $binaryfiles->binary_is_allowed($fn)) {
                 errormsg(_g("unwanted binary file: %s"), $fn);
                 $unwanted_binaries++;
             }
@@ -406,9 +453,15 @@ sub do_build {
         # tarball due to ignores.
         my %exclude;
         my $reldir = File::Spec->abs2rel($File::Find::dir, $dir);
-        foreach my $fn (glob($tar_ignore_glob)) {
-            $exclude{$fn} = 1;
-        }
+        my $cwd = getcwd();
+        # Apply the pattern both from the top dir and from the inspected dir
+        chdir($dir) || syserr(_g("unable to chdir to `%s'"), $dir);
+        $exclude{$_} = 1 foreach glob($tar_ignore_glob);
+        chdir($cwd) || syserr(_g("unable to chdir to `%s'"), $cwd);
+        chdir($File::Find::dir) ||
+            syserr(_g("unable to chdir to `%s'"), $File::Find::dir);
+        $exclude{$_} = 1 foreach glob($tar_ignore_glob);
+        chdir($cwd) || syserr(_g("unable to chdir to `%s'"), $cwd);
         my @result;
         foreach my $fn (@_) {
             unless (exists $exclude{$fn} or exists $exclude{"$reldir/$fn"}) {
@@ -426,69 +479,57 @@ sub do_build {
              $unwanted_binaries), $unwanted_binaries)
          if $unwanted_binaries;
 
+    # Handle modified binary files detected by the auto-patch generation
+    my $handle_binary = sub {
+        my ($self, $old, $new) = @_;
+        my $relfn = File::Spec->abs2rel($new, $dir);
+        $binaryfiles->new_binary_found($relfn);
+        unless ($include_binaries or $binaryfiles->binary_is_allowed($relfn)) {
+            errormsg(_g("cannot represent change to %s: %s"), $relfn,
+                     _g("binary file contents changed"));
+            errormsg(_g("add %s in debian/source/include-binaries if you want" .
+                     " to store the modified binary in the debian tarball"),
+                     $relfn);
+            $self->register_error();
+        }
+    };
+
     # Create a patch
     my $autopatch = File::Spec->catfile($dir, "debian", "patches",
                                         $self->get_autopatch_name());
-    my ($difffh, $tmpdiff) = tempfile("$basenamerev.diff.XXXXXX",
-                                      DIR => $updir, UNLINK => 0);
+    my $tmpdiff = $self->generate_patch($dir, order_from => $autopatch,
+                                        header_from => $autopatch,
+                                        handle_binary => $handle_binary,
+                                        skip_auto => $self->{'options'}{'auto_commit'},
+                                        usage => 'build');
+    unless (-z $tmpdiff or $self->{'options'}{'auto_commit'}) {
+        info(_g("you can integrate the local changes with %s"),
+             "dpkg-source --commit");
+        error(_g("aborting due to unexpected upstream changes, see %s"),
+              $tmpdiff);
+    }
     push @Dpkg::Exit::handlers, sub { unlink($tmpdiff) };
-    my $diff = Dpkg::Source::Patch->new(filename => $tmpdiff,
-                                        compression => "none");
-    $diff->create();
-    $diff->set_header($self->get_patch_header($dir, $autopatch));
-    $diff->add_diff_directory($tmp, $dir, basedirname => $basedirname,
-            %{$self->{'diff_options'}}, handle_binary_func => $handle_binary);
-    error(_g("unrepresentable changes to source")) if not $diff->finish();
-    # The previous auto-patch must be removed, it has not been used and it
-    # will be recreated if it's still needed
-    if (-e $autopatch) {
-        unlink($autopatch) || syserr(_g("cannot remove %s"), $autopatch);
-    }
+    $binaryfiles->update_debian_source_include_binaries() if $include_binaries;
+
     # Install the diff as the new autopatch
-    if (not -s $tmpdiff) {
-        unlink($tmpdiff) || syserr(_g("cannot remove %s"), $tmpdiff);
-    } else {
+    if ($self->{'options'}{'auto_commit'}) {
         mkpath(File::Spec->catdir($dir, "debian", "patches"));
-        info(_g("local changes stored in %s, the modified files are:"), $autopatch);
-        my $analysis = $diff->analyze($dir);
-        foreach my $fn (sort keys %{$analysis->{'filepatched'}}) {
-            print " $fn\n";
-        }
-        rename($tmpdiff, $autopatch) ||
-                syserr(_g("cannot rename %s to %s"), $tmpdiff, $autopatch);
-        chmod(0666 & ~ umask(), $autopatch) ||
-                syserr(_g("unable to change permission of `%s'"), $autopatch);
+        $autopatch = $self->register_patch($dir, $tmpdiff,
+                                           $self->get_autopatch_name());
+        info(_g("local changes have been recorded in a new patch: %s"),
+             $autopatch) if -e $autopatch;
+        rmdir(File::Spec->catdir($dir, "debian", "patches")); # No check on purpose
     }
-    $self->register_autopatch($dir);
-    if (-e $autopatch and $self->{'options'}{'abort_on_upstream_changes'}) {
-        error(_g("aborting due to --abort-on-upstream-changes"));
-    }
-    rmdir(File::Spec->catdir($dir, "debian", "patches")); # No check on purpose
+    unlink($tmpdiff) || syserr(_g("cannot remove %s"), $tmpdiff);
     pop @Dpkg::Exit::handlers;
 
-    # Remove the temporary directory
-    erasedir($tmp);
-    pop @Dpkg::Exit::handlers;
-
-    # Update debian/source/include-binaries if needed
-    if (scalar(@binary_files) and $include_binaries) {
-        mkpath(File::Spec->catdir($dir, "debian", "source"));
-        open(INC, ">>", $incbin_file) || syserr(_g("cannot write %s"), $incbin_file);
-        foreach my $binary (@binary_files) {
-            unless ($auth_bin_files{$binary}) {
-                print INC "$binary\n";
-                info(_g("adding %s to %s"), $binary, "debian/source/include-binaries");
-            }
-        }
-        close(INC);
-    }
     # Create the debian.tar
     my $debianfile = "$basenamerev.debian.tar." . $self->{'options'}{'comp_ext'};
     info(_g("building %s in %s"), $sourcepackage, $debianfile);
-    $tar = Dpkg::Source::Archive->new(filename => $debianfile);
+    my $tar = Dpkg::Source::Archive->new(filename => $debianfile);
     $tar->create(options => \@tar_ignore, 'chdir' => $dir);
     $tar->add_directory("debian");
-    foreach my $binary (@binary_files) {
+    foreach my $binary ($binaryfiles->get_seen_binaries()) {
         $tar->add_file($binary) unless $binary =~ m{^debian/};
     }
     $tar->finish();
@@ -497,8 +538,11 @@ sub do_build {
 }
 
 sub get_patch_header {
-    my ($self, $dir, $previous) = @_;
-    my $ph = File::Spec->catfile($dir, "debian", "source", "patch-header");
+    my ($self, $dir) = @_;
+    my $ph = File::Spec->catfile($dir, "debian", "source", "local-patch-header");
+    unless (-f $ph) {
+        $ph = File::Spec->catfile($dir, "debian", "source", "patch-header");
+    }
     my $text;
     if (-f $ph) {
         open(PH, "<", $ph) || syserr(_g("cannot read %s"), $ph);
@@ -506,22 +550,186 @@ sub get_patch_header {
         close(PH);
         return $text;
     }
-    return "Description: Undocumented upstream changes
- This patch has been created by dpkg-source during the package build
- but it might have accumulated changes from several uploads. Please
- check the changelog to (hopefully) learn more on those changes.\n\n";
+    my $ch_info = changelog_parse(offset => 0, count => 1,
+        file => File::Spec->catfile($dir, "debian", "changelog"));
+    return '' if not defined $ch_info;
+    my $header = Dpkg::Control->new(type => CTRL_UNKNOWN);
+    $header->{'Description'} = "<short summary of the patch>\n";
+    $header->{'Description'} .=
+"TODO: Put a short summary on the line above and replace this paragraph
+with a longer explanation of this change. Complete the meta-information
+with other relevant fields (see below for details). To make it easier, the
+information below has been extracted from the changelog. Adjust it or drop
+it.\n";
+    $header->{'Description'} .= $ch_info->{'Changes'} . "\n";
+    $header->{'Author'} = $ch_info->{'Maintainer'};
+    $text = "$header";
+    run_vendor_hook("extend-patch-header", \$text, $ch_info);
+    $text .= "\n---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>\n\n";
+    return $text;
 }
 
-sub register_autopatch {
-    my ($self, $dir) = @_;
-    my $autopatch = File::Spec->catfile($dir, "debian", "patches",
-                                        $self->get_autopatch_name());
-    if (-e $autopatch) {
+sub register_patch {
+    my ($self, $dir, $patch_file, $patch_name) = @_;
+    my $patch = File::Spec->catfile($dir, "debian", "patches", $patch_name);
+    if (-s $patch_file) {
+        copy($patch_file, $patch) ||
+            syserr(_g("failed to copy %s to %s"), $patch_file, $patch);
+        chmod(0666 & ~ umask(), $patch) ||
+                syserr(_g("unable to change permission of `%s'"), $patch);
         my $applied = File::Spec->catfile($dir, "debian", "patches", ".dpkg-source-applied");
         open(APPLIED, '>>', $applied) || syserr(_g("cannot write %s"), $applied);
-        print APPLIED ($self->get_autopatch_name() . "\n");
-        close(APPLIED);
+        print APPLIED "$patch\n";
+        close(APPLIED) || syserr(_g("cannot close %s"), $applied);
+    } elsif (-e $patch) {
+        unlink($patch) || syserr(_g("cannot remove %s"), $patch);
     }
+    return $patch;
+}
+
+sub do_commit {
+    my ($self, $dir) = @_;
+    my ($patch_name, $tmpdiff) = @{$self->{'options'}{'ARGV'}};
+
+    sub bad_patch_name {
+        my ($dir, $patch_name) = @_;
+        return 1 if not defined($patch_name);
+        return 1 if not length($patch_name);
+        my $patch = File::Spec->catfile($dir, "debian", "patches", $patch_name);
+        if (-e $patch) {
+            warning(_g("cannot register changes in %s, this patch already exists"), $patch);
+            return 1;
+        }
+        return 0;
+    }
+
+    $self->prepare_build($dir);
+
+    # Try to fix up a broken relative filename for the patch
+    if ($tmpdiff and not -e $tmpdiff) {
+        $tmpdiff = File::Spec->catfile($dir, $tmpdiff)
+            unless File::Spec->file_name_is_absolute($tmpdiff);
+        error(_g("patch file '%s' doesn't exist"), $tmpdiff) if not -e $tmpdiff;
+    }
+
+    my $binaryfiles = Dpkg::Source::Package::V2::BinaryFiles->new($dir);
+    my $handle_binary = sub {
+        my ($self, $old, $new) = @_;
+        my $fn = File::Spec->abs2rel($new, $dir);
+        $binaryfiles->new_binary_found($fn);
+    };
+
+    unless ($tmpdiff) {
+        $tmpdiff = $self->generate_patch($dir, handle_binary => $handle_binary,
+                                         usage => "commit");
+        $binaryfiles->update_debian_source_include_binaries();
+    }
+    push @Dpkg::Exit::handlers, sub { unlink($tmpdiff) };
+    unless (-s $tmpdiff) {
+        unlink($tmpdiff) || syserr(_g("cannot remove %s"), $tmpdiff);
+        info(_g("there are no local changes to record"));
+        return;
+    }
+    while (bad_patch_name($dir, $patch_name)) {
+        # Ask the patch name interactively
+        print STDOUT _g("Enter the desired patch name: ");
+        chomp($patch_name = <STDIN>);
+        $patch_name =~ s/\s+/-/g;
+        $patch_name =~ s/\///g;
+    }
+    mkpath(File::Spec->catdir($dir, "debian", "patches"));
+    my $patch = $self->register_patch($dir, $tmpdiff, $patch_name);
+    system("sensible-editor", $patch);
+    unlink($tmpdiff) || syserr(_g("cannot remove %s"), $tmpdiff);
+    pop @Dpkg::Exit::handlers;
+    info(_g("local changes have been recorded in a new patch: %s"), $patch);
+}
+
+package Dpkg::Source::Package::V2::BinaryFiles;
+
+use Dpkg::ErrorHandling;
+use Dpkg::Gettext;
+
+use File::Path;
+
+sub new {
+    my ($this, $dir) = @_;
+    my $class = ref($this) || $this;
+
+    my $self = {
+        dir => $dir,
+        allowed_binaries => {},
+        seen_binaries => {},
+        include_binaries_path =>
+            File::Spec->catfile($dir, "debian", "source", "include-binaries"),
+    };
+    bless $self, $class;
+    $self->load_allowed_binaries();
+    return $self;
+}
+
+sub new_binary_found {
+    my ($self, $path) = @_;
+
+    $self->{'seen_binaries'}{$path} = 1;
+}
+
+sub load_allowed_binaries {
+    my ($self) = @_;
+    my $incbin_file = $self->{'include_binaries_path'};
+    if (-f $incbin_file) {
+        open(INC, "<", $incbin_file) || syserr(_g("cannot read %s"), $incbin_file);
+        while(defined($_ = <INC>)) {
+            chomp; s/^\s*//; s/\s*$//;
+            next if /^#/ or /^$/;
+            $self->{'allowed_binaries'}{$_} = 1;
+        }
+        close(INC);
+    }
+}
+
+sub binary_is_allowed {
+    my ($self, $path) = @_;
+    return 1 if exists $self->{'allowed_binaries'}{$path};
+    return 0;
+}
+
+sub update_debian_source_include_binaries {
+    my ($self) = @_;
+
+    my @unknown_binaries = $self->get_unknown_binaries();
+    return unless scalar(@unknown_binaries);
+
+    my $incbin_file = $self->{'include_binaries_path'};
+    mkpath(File::Spec->catdir($self->{'dir'}, "debian", "source"));
+    open(INC, ">>", $incbin_file) || syserr(_g("cannot write %s"), $incbin_file);
+    foreach my $binary (@unknown_binaries) {
+        print INC "$binary\n";
+        info(_g("adding %s to %s"), $binary, "debian/source/include-binaries");
+        $self->{'allowed_binaries'}{$binary} = 1;
+    }
+    close(INC);
+}
+
+sub get_unknown_binaries {
+    my ($self) = @_;
+    return grep { not $self->binary_is_allowed($_) } $self->get_seen_binaries();
+}
+
+sub get_seen_binaries {
+    my ($self) = @_;
+    return sort keys %{$self->{'seen_binaries'}};
 }
 
 # vim:et:sw=4:ts=8

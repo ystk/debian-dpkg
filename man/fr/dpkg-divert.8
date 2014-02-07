@@ -1,14 +1,34 @@
+.\" dpkg manual page - dpkg-divert(8)
+.\"
+.\" Copyright Â© 1995 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 1999 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
+.\" Copyright Â© 2007-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-divert 8 18\-08\-2008 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-divert 8 14\-08\-2011 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-divert \- remplacer la version d'un fichier contenu dans un paquet.
 .
 .SH SYNOPSIS
-\fBdpkg\-divert\fP [\fIoptions\fP] \fIcommande\fP
+\fBdpkg\-divert\fP [\fIoption\fP...] \fIcommande\fP
 .
 .SH DESCRIPTION
 \fBdpkg\-divert\fP sert à créer et à mettre à jour la liste des détournements.
@@ -72,16 +92,16 @@ Met en fait le fichier de côté. Quand le fichier de destination existe,
 \fB\-\-test\fP
 Mode de test, ne rien modifier réellement, seulement montrer.
 .TP 
-\fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
 Affiche le numéro de version puis quitte.
 .
 .SH NOTES
-Pour l'ajout, le défaut est \fB\-\-local\fP et \fB\-\-divert\fP \fI
-<original>.distrib\fP. Pour la suppression, \fB\-\-package\fP ou \fB\-\-local\fP
-et \fB\-\-divert\fP doivent correspondre quand ils sont précisés.
+Pour l'ajout, le défaut est \fB\-\-local\fP et \fB\-\-divert\fP
+\fIoriginal\fP\fB.distrib\fP. Pour la suppression, \fB\-\-package\fP ou \fB\-\-local\fP et
+\fB\-\-divert\fP doivent correspondre quand ils sont précisés.
 
 On ne peut pas détourner des répertoires avec \fBdpkg\-divert\fP.
 
@@ -115,10 +135,21 @@ Pour supprimer ce détournement\ :
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/example
 .
+.SH ENVIRONNEMENT
+.TP 
+\fBDPKG_ADMINDIR\fP
+Si cette variable est positionnée et que l'option \fB\-\-admindir\fP n'est pas
+précisée, ce répertoire sera utilisé comme répertoire de données pour dpkg.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Si cette variable est positionnée et que les options \fB\-\-local\fP et
+\fB\-\-package\fP ne le sont pas, \fBdpkg\-divert\fP en utilisera la valeur comme nom
+de paquet.
+.
 .SH FICHIERS
 .TP 
 \fI/var/lib/dpkg/diversions\fP
-Ce fichier contient la liste des détournements en oeuvre sur le système. Il
+Ce fichier contient la liste des détournements en ?uvre sur le système. Il
 se trouve dans le répertoire d'administration de dpkg, avec d'autres
 fichiers importants comme «\ status\ » ou «\ available\ ».
 .br
@@ -127,12 +158,6 @@ l'extension «\ \-old\ », avant de la remplacer par la nouvelle.
 .
 .SH "VOIR AUSSI"
 \fBdpkg\fP(1).
-.
-.SH AUTEUR
-Copyright \(co 1995 Ian Jackson
-.sp
-Ce programme est un logiciel libre\ ; voyez la «\ GNU General Public Licence\ »
-version 2 ou supérieure pour le copyright. Il n'y a PAS de garantie.
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

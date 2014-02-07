@@ -1,15 +1,36 @@
-.\" Authors: Ian Jackson, RaphaÃ«l Hertzog
+.\" dpkg manual page - dpkg-source(1)
+.\"
+.\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2006-2007 Frank Lichtenheld <djpig@debian.org>
+.\" Copyright Â© 2006-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2010 Joey Hess <joeyh@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-source 1 2009\-11\-11 Debianprojektet dpkg\-verktygen
+.TH dpkg\-source 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-source \- Verktyg för att manipulera Debiankällkodspaket (.dsc)
 .
 .SH SYNOPS
-\fBdpkg\-source\fP [\fIflaggor\fP] \fIåtgärd\fP
+\fBdpkg\-source\fP [\fIflagga\fP...] \fIåtgärd\fP
 .
 .SH BESKRIVNING
 \fBdpkg\-source\fP packar och packar upp Debiankällkodsarkiv.
@@ -67,23 +88,29 @@ samma parametrar).
 
 .TP 
 \fB\-\-before\-build\fP \fIkatalog\fP
-Kommandot bör anropas innan paketet byggs (\fBdpkg\-buildpakcage\fP anropar det
-väldigt tidigt, till och med före \fBdebian/rules clean\fP). Kommandot bör vara
-idempotent och kunna anropas flera gånger. Det är inte alla källkodsformat
-som implementerar något i den här kroken, och de som gör det förbereder
-oftast källkodsträdet för att byggas, till exempel genom att se till att
-Debianpatchar har applicerats.
+Kör motsvarande krok för källkodspaketformatet. Kroken anropas innan något
+från paketet byggs (\fBdpkg\-buildpakcage\fP anropar det väldigt tidigt, till
+och med före \fBdebian/rules clean\fP). Kommandot är idempotent och kan anropas
+flera gånger. Det är inte alla källkodsformat som implementerar något i den
+här kroken, och de som gör det förbereder oftast källkodsträdet för att
+byggas, till exempel genom att se till att Debianpatchar har applicerats.
 
 .TP 
 \fB\-\-after\-build\fP \fIkatalog\fP
-Kommandot bör anropas efter paketet har byggts (\fBdpkg\-buildpackage\fP anropar
-det sist). Kommandot bör vara idempotent och kunna anropas flera gånger. Det
-är inte alla källkodsformat som implementerar något i den här kroken, och de
-som gör det använder den normalt för att återställa det som
-\fB\-\-before\-build\fP har gjort.
+Kör motsvarande krok för källkodspaketformatet. Kroken anropas efter att
+allt från paketet byggts (\fBdpkg\-buildpakcage\fP anropar det sist). Kommandot
+är idempotent och kan anropas flera gånger. Det är inte alla källkodsformat
+som implementerar något i den här kroken, och de som gör det använder den
+normalt för att återställa det som \fB\-\-before\-build\fP har gjort.
 
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-\-commit\fP [\fIkatalog\fP] ...
+Spara ändringar i källkodsträdet som har packats upp i \fIkatalog\fP. Kommandot
+kan ta ytterligare parametrar beroende på källkodsformatet. Ett fel kommer
+rapporteras för format där operationen inte har någon betydelse.
+
+.TP 
+\fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
 \fB\-\-version\fP
@@ -102,9 +129,8 @@ Anger ändringsloggsfil som information skall läsas från. Standardvärde är
 källkodsträdets toppnivåkatalog.
 .TP 
 \fB\-F\fP\fIändringsloggformat\fP
-Anger format på ändringsloggen. Som standard läses formatet från en speciell
-rad nära slutet av ändringsloggen, eller så används Debians standardformat
-om ingen information hittas.
+Anger format på ändringsloggen. Se \fBdpkg\-parsechangelog\fP(1) för information
+om alternativa format.
 .TP 
 \fB\-\-format=\fP\fIvärde\fP
 Använd det givna formatet för att bygga källkodspaketet. Det överstyr inte
@@ -135,7 +161,7 @@ finns bara från och med dpkg\-dev 1.15.5.
 \fB\-z\fP\fInivå\fP, \fB\-\-compression\-level\fP=\fInivå\fP
 Komprimeringsnivå att använda. Som med \fB\-Z\fP påverkas bara filer som
 nyskapas. Värden som stöds är: \fI1\fP till \fI9\fP, \fIbest\fP (bäst) och \fIfast\fP
-(snabb). \fI9\fP är förval.
+(snabb). \fI9\fP är förval för gzip och bzip2, \fI6\fP för xz och lzma.
 .TP 
 \fB\-i\fP[\fIreg.uttr\fP], \fB\-\-diff\-ignore\fP[=\fIreg.uttr\fP]
 Du kan ange ett reguljärt uttryck i perlformat för att matcha filer som du
@@ -160,11 +186,11 @@ måste du själv lägga till de förankringar som är nödvändiga (t.ex '(^|/)',
 \&'($|/)').
 .TP 
 \fB\-\-extend\-diff\-ignore\fP=\fIreg.uttr\fP
-Det reguljära uttrycket i perlformat som angavs utökar standarduttrycket för
-\fB\-i\fP genom att lägga till "\fB|\fP\fIreg.uttry\fP" efter
-standarduttrycket. Flaggan är nyttig för \fBdebian/source/options\fP för att
-exkludera en del automatiskt genererade filer från skapandet av automatiska
-patchar.
+Det reguljära uttrycket i perlformat som angavs utökar standardvärdet för
+\fB\-\-diff\-ignore\fP och dess nuvarande värde (om satt). Det gör så genom att
+lägga till "\fB|\fP\fIreg.uttry\fP" efter standarduttrycket. Flaggan är nyttig för
+\fBdebian/source/options\fP för att exkludera en del automatiskt genererade
+filer från skapandet av automatiska patchar.
 .TP 
 \fB\-I\fP[\fIfilmönster\fP], \fB\-\-tar\-ignore\fP[=\fIfilmönster\fP]
 Om flaggan anges kommer filnamnet att sändas vidare till \fBtar\fP(1):s
@@ -371,6 +397,11 @@ och det förväntar sig att patchar kan tillämpas med flaggan \fB\-p1\fP till
 \fBpatch\fP. Det kommer därför visa en varning sådana flaggor upptäcks, och
 bygget kommer troligen att misslyckas.
 .PP
+Till skillnad mot quilt:s originalbeteende förväntas det att patchar kan
+appliceras utan någon "fuzz". När så inte är fallet bör du uppdatera
+patcharna med hjälp av quilt, om inte kommer dpkg\-source rapportera ett
+felmeddelande när det försöker tillämpa dem.
+.PP
 Patchar kan även ta bort filer, på ungfär samma sätt som quilt normalt
 fungerar.
 .PP
@@ -384,9 +415,11 @@ temporär katalog med samma logik som i uppackningen, debian\-katalogen
 kopieras över i den temporära katalogen och alla patchar, förutom den
 automatiska patchen (\fBdebian\-changes\fP\fIversion\fP eller \fBdebian\-changes\fP,
 beroende på \fB\-\-single\-debian\-patch\fP) tillämpas. Temporärkatalogen jämförs
-därefter mot källkodskatalogen och diffen (om den inte är tom) lagras i
-denautomatiska patchen. Om den automatiska patchen skapas/tas bort, läggs
-den till/tas bort från series\-filen och från quilt\-metadata.
+därefter mot källkodskatalogen. Om diffen inte är tom misslyckas bygget,
+såvida inte \fB\-\-single\-debian\-patch\fP eller \fB\-\-auto\-commit\fP använts, i
+vilket fall diffen lagras i den automatiska patchen. Om den automatiska
+patchen skapas/tas bort, läggs den till/tas bort från series\-filen och från
+quilt\-metadata.
 
 Eventuella ändringar på binärfiler kan inte representeras i en diff och
 kommer därmed att leda till ett felmeddelande, såvida inte paketansvariga
@@ -404,18 +437,35 @@ VCS\-specifika filer eller för många temporära filer (se standardvärdet som
 katalogen \fB.pc\fP som används av quilt, katalogen kommer att ignoreras när
 den automatiska patchen skapas.
 
-Observera: \fBdpkg\-source\fP förväntar att källkodspaketet har alla patchar som
-anges i seriefilen tillämpade när källkodspaketet genereras. Detta gäller
-inte när källkodsträdet har hämtats genom att packa upp ett källkodspaket
-med till exempel Format: 1.0. För att motverka detta problem kommer
-\fBdpkg\-source\fP självt att tillämpa patchar om det tror att de ännu inte har
-tillämpats. För att upptäcka om så är fallet används följande heuristik: om
-en lista över förmodligen ej applicerade patchar (de listas i
-\fBseries\fP\-filen men inte i \fB.pc/applied\-patches\fP), och om den första
-patchen i listan kan tillämpas utan fel kommer samtliga att
+Observera: \fBdpkg\-source\fP \fB\-\-before\-build\fP (och \fB\-b\fP) ser till att alla
+patchar som anges i seriefilen tillämpas så att paketbygget alltid har alla
+patchar tillämpade. Detta görs genom att hitta alla icke\-tillämpade patchar
+(som anges i filen \fBseries\fP men inte i \fB.pc/applied\-patches\fP), och om den
+första patchen i listan kan tillämpas utan fel kommer samtliga att
 tillämpas. Flaggan \fB\-\-no\-preparation\fP kan användas för att slå av detta
-beteende. Operationen utförs normalt som en del av kommandot
-\fB\-\-prepare\-build\fP.
+beteende.
+
+.PP
+\fBLagra ändringar\fP
+.TP 
+\fB\-\-commit\fP [\fIkatalog\fP] [\fIpatchnamn\fP] [\fIpatch\-fil\fP]
+Skapar en patch som motsvarar de lokala ändringar som inte hanteras av
+quilt\-patch\-systemet och integrerar dem i patch\-systemet under namnet
+\fIpatchnamn\fP. Om namnet saknas kommer programmet be om ett interaktivt. Om
+\fIpatch\-fil\fP anges används den som patch som motsvarar de lokala ändringar
+som skall integreras. När patchen är integrerad startas ett
+redigeringsprogram så att du kan ange metainformationen i patchhuvudet.
+
+Det är oftast nyttigt att sända med \fIpatchfil\fP efter att ett bygge där
+filen skapats i förväg misslyckas, och att patchfilen därför skall tas bort
+efter integrering. Observera även att ändringarna som finns i patchfilen
+redan måste ha applicerats på trädet och att filerna som modifieras av
+patchen inte får innehålla ytterligare ej beskrivna ändringar.
+
+Om genereringen av patchar upptäcker ändringar i binärfiler kommer de
+automatiskt att läggas in i \fBdebian/source/include\-binaries\fP så att de
+dyker upp i debian\-tarbollen (precis som \fBdpkg\-source \-\-include\-binaries
+\-b\fP skulle gjort).
 .PP
 \fBByggflaggor\fP
 .TP 
@@ -447,8 +497,9 @@ Använd \fBdebian/patches/debian\-changes\fP istället för
 \fBdebian/patches/debian\-changes\-\fP\fIversion\fP som namn på den automatiska
 patch som genereras vid bygget. Denna flagga är speciellt nyttig när paketet
 hanteras i ett versionshanteringssystem och en patch inte kan skapas på ett
-pålitligt sätt. När den här flaggan används rekommenderar vi att du skapar
-en debian/source/patch\-header\-fil som förklarar hur Debianändringarna bäst
+pålitligt sätt. Den aktuella diffen mot uppströms lagras istället i en ensam
+patch. Flaggan bör anges i \fBdebian/source/local\-options\fP och följs av filen
+\fBdebian/source/local\-patch\-header\fP som beskricer hur Debianändringarna bäst
 kan ses, till exempel i det versionshanteringssystem som används.
 .TP 
 \fB\-\-create\-empty\-orig\fP
@@ -457,19 +508,23 @@ finns supplement\-originaltarbollar. Flaggan är tänkt att användas när
 källkodspaketet bara är en samling av flera uppströmsprogram och där det
 inte finns något "huvud"\-program.
 .TP 
-\fB\-\-unapply\-patches\fP
-Ta bort patchar i kroken \fB\-\-after\-build\fP. Flaggan är huvudsakligen
-användbar när du bygger direkt från ett versionshanteringssystem som
-innehåller opatchad uppströmskod och du vill hålla trädet opatchat även
-efter ett paketbygge. Flaggan läggs normalt i \fBdebian/source/local\-options\fP
-(den är inte tillåten i \fBdebian/source/options\fP så att alla genererade
-källkodspaket som standard har samma beteende).
+\fB\-\-no\-unapply\-patches, \-\-unapply\-patches\fP
+Som standard kommer dpkg\-source att automatiskt ta bort patchar i kroken
+\fB\-\-after\-build\fP om de applicerades under \fB\-\-before\-build\fP. De här
+flaggorna låter dig överstyra om du vill inaktivera eller aktivera
+proceduren för borttagning av patchar. Flaggorna tillåts endast i
+\fBdebian/source/local\-options\fP så att alla genererade källkodspaket som
+standard har samma beteende.
 .TP 
 \fB\-\-abort\-on\-upstream\-changes\fP
 Processen misslyckas om en automatisk patch har genererats. Flaggan kan
 användas för att se till att alla ändringar har lagrats undan korrekt i
 separata quilt\-patchar innan källkodspaketet byggts. Flaggan tillåts inte i
 \fBdebian/source/options\fP, men kan användas i \fBdebian/source/local\-options\fP.
+.TP 
+\fB\-\-auto\-commit\fP
+Processen misslyckas inte om en automatisk patch har skapats, den läggs
+istället direkt in i quilt\-serien.
 
 .PP
 \fBExtraheringsflaggor\fP
@@ -608,6 +663,8 @@ värdet. Här är ett exempel på en sådan fil:
   compression\-level = 9
   # använd debian/patches/debian\-changes som en automatisk patch
   single\-debian\-patch
+  # ignorera ändringar i config.{sub,guess}
+  extend\-diff\-ignore = "(^|/)(config.sub|config.guess)$"
 .P
 Observera: \fBformat\fP\-flaggor tillåts inte i den här filen, du bör använda
 filen \fBdebian/source/format\fP istället.
@@ -615,9 +672,11 @@ filen \fBdebian/source/format\fP istället.
 Precis som \fBdebian/source/options\fP förutom att filen inte inkluderas i det
 genererade källkodspaketet. Det kan vara användbart för att spara ett val
 som gäller för paketansvariga eller VCS\-systemet källkodspaketet hanteras i.
+.SS debian/source/local\-patch\-header
 .SS debian/source/patch\-header
 Friformstext som läggs in på toppen av den automatiskt genererade patchen i
-formaten "2.0" eller "3.0 (quilt)".
+formaten "2.0" eller "3.0 (quilt)". \fBlocal\-patch\-header\fP tas inte med i det
+genererade källkodspaketet medan \fBpatch\-header\fP tas med.
 .SS debian/patches/series
 Listar alla patchar som måste tillämpas (i den givna ordningen) ovanpå
 uppströmskällkodspaketet. Inledande och avslutande blanksteg tas bort. Rader
@@ -632,15 +691,5 @@ Tidpunkten på fältöverstyrning inträffar jämfört med inställning av vissa
 standardutdatafält är ganska förvirrad.
 .SH "SE ÄVEN"
 \fBdpkg\-deb\fP(1), \fBdpkg\fP(1), \fBdselect\fP(1).
-.
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 1995\-1996 Ian Jackson
-.br
-Upphovsrättsskyddat © 2000 Wichert Akkerman
-.br
-Upphovsrättsskyddat © 2008\-2010 Raphaël Hertzog
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
 .SH "ÖVERSÄTTNING"
 Peter Krefting och Daniel Nylander.

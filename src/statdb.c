@@ -4,6 +4,7 @@
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2000, 2001 Wichert Akkerman <wakkerma@debian.org>
+ * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,28 +37,30 @@
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
-#include <dpkg/buffer.h>
+#include <dpkg/fdio.h>
 
 #include "filesdb.h"
 #include "main.h"
 
 static FILE *statoverridefile = NULL;
+static char *statoverridename;
 
 uid_t
 statdb_parse_uid(const char *str)
 {
-	char* endptr;
+	char *endptr;
 	uid_t uid;
 
 	if (str[0] == '#') {
 		long int value;
 
+		errno = 0;
 		value = strtol(str + 1, &endptr, 10);
-		if (str + 1 == endptr || *endptr || value < 0)
+		if (str + 1 == endptr || *endptr || value < 0 || errno != 0)
 			ohshit(_("syntax error: invalid uid in statoverride file"));
 		uid = (uid_t)value;
 	} else {
-		struct passwd* pw = getpwnam(str);
+		struct passwd *pw = getpwnam(str);
 		if (pw == NULL)
 			ohshit(_("syntax error: unknown user '%s' in statoverride file"),
 			       str);
@@ -70,18 +73,19 @@ statdb_parse_uid(const char *str)
 gid_t
 statdb_parse_gid(const char *str)
 {
-	char* endptr;
+	char *endptr;
 	gid_t gid;
 
 	if (str[0] == '#') {
 		long int value;
 
+		errno = 0;
 		value = strtol(str + 1, &endptr, 10);
-		if (str + 1 == endptr || *endptr || value < 0)
+		if (str + 1 == endptr || *endptr || value < 0 || errno != 0)
 			ohshit(_("syntax error: invalid gid in statoverride file"));
 		gid = (gid_t)value;
 	} else {
-		struct group* gr = getgrnam(str);
+		struct group *gr = getgrnam(str);
 		if (gr == NULL)
 			ohshit(_("syntax error: unknown group '%s' in statoverride file"),
 			       str);
@@ -94,7 +98,7 @@ statdb_parse_gid(const char *str)
 mode_t
 statdb_parse_mode(const char *str)
 {
-	char* endptr;
+	char *endptr;
 	long int mode;
 
 	mode = strtol(str, &endptr, 8);
@@ -107,22 +111,19 @@ statdb_parse_mode(const char *str)
 void
 ensure_statoverrides(void)
 {
-	static struct varbuf vb;
-
 	struct stat stab1, stab2;
 	FILE *file;
 	char *loaded_list, *loaded_list_end, *thisline, *nextline, *ptr;
-	struct filestatoverride *fso;
+	struct file_stat *fso;
 	struct filenamenode *fnn;
 
-	varbufreset(&vb);
-	varbufaddstr(&vb, admindir);
-	varbufaddstr(&vb, "/" STATOVERRIDEFILE);
-	varbufaddc(&vb, 0);
+	if (statoverridename != NULL)
+		free(statoverridename);
+	statoverridename = dpkg_db_get_path(STATOVERRIDEFILE);
 
 	onerr_abort++;
 
-	file = fopen(vb.buf,"r");
+	file = fopen(statoverridename, "r");
 	if (!file) {
 		if (errno != ENOENT)
 			ohshite(_("failed to open statoverride file"));
@@ -147,7 +148,7 @@ ensure_statoverrides(void)
 	if (statoverridefile)
 		fclose(statoverridefile);
 	statoverridefile = file;
-	setcloexec(fileno(statoverridefile), vb.buf);
+	setcloexec(fileno(statoverridefile), statoverridename);
 
 	/* If the statoverride list is empty we don't need to bother
 	 * reading it. */
@@ -159,12 +160,12 @@ ensure_statoverrides(void)
 	loaded_list = nfmalloc(stab2.st_size);
 	loaded_list_end = loaded_list + stab2.st_size;
 
-	fd_buf_copy(fileno(file), loaded_list, stab2.st_size,
-	            _("statoverride file `%.250s'"), vb.buf);
+	if (fd_read(fileno(file), loaded_list, stab2.st_size) < 0)
+		ohshite(_("reading statoverride file '%.250s'"), statoverridename);
 
 	thisline = loaded_list;
 	while (thisline < loaded_list_end) {
-		fso = nfmalloc(sizeof(struct filestatoverride));
+		fso = nfmalloc(sizeof(struct file_stat));
 
 		if (!(ptr = memchr(thisline, '\n', loaded_list_end - thisline)))
 			ohshit(_("statoverride file is missing final newline"));
@@ -212,14 +213,13 @@ ensure_statoverrides(void)
 
 		fnn = findnamenode(thisline, 0);
 		if (fnn->statoverride)
-			ohshit(_("multiple statusoverrides present for file '%.250s'"),
+			ohshit(_("multiple statoverrides present for file '%.250s'"),
 			       thisline);
 		fnn->statoverride = fso;
 
-		/* Moving on.. */
+		/* Moving on... */
 		thisline = nextline;
 	}
 
 	onerr_abort--;
 }
-

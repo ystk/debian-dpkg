@@ -50,6 +50,9 @@ our %FIELDS = (
     'Binary' => {
         allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES,
     },
+    'Binary-Only' => {
+        allowed => ALL_CHANGES,
+    },
     'Breaks' => {
         allowed => ALL_PKG,
         dependency => 'union',
@@ -61,22 +64,37 @@ our %FIELDS = (
     'Build-Conflicts' => {
         allowed => ALL_SRC,
         dependency => 'union',
-        dep_order => 3,
+        dep_order => 4,
+    },
+    'Build-Conflicts-Arch' => {
+        allowed => ALL_SRC,
+        dependency => 'union',
+        dep_order => 5,
     },
     'Build-Conflicts-Indep' => {
         allowed => ALL_SRC,
         dependency => 'union',
-        dep_order => 4,
+        dep_order => 6,
     },
     'Build-Depends' => {
         allowed => ALL_SRC,
         dependency => 'normal',
         dep_order => 1,
     },
-    'Build-Depends-Indep' => {
+    'Build-Depends-Arch' => {
         allowed => ALL_SRC,
         dependency => 'normal',
         dep_order => 2,
+    },
+    'Build-Depends-Indep' => {
+        allowed => ALL_SRC,
+        dependency => 'normal',
+        dep_order => 3,
+    },
+    'Built-Using' => {
+        allowed => ALL_PKG,
+        dependency => 'union',
+        dep_order => 10,
     },
     'Changed-By' => {
         allowed => CTRL_FILE_CHANGES,
@@ -155,6 +173,9 @@ our %FIELDS = (
     },
     'Package' => {
         allowed => ALL_PKG,
+    },
+    'Package-List' => {
+        allowed => ALL_SRC & ~CTRL_INFO_SRC,
     },
     'Package-Type' => {
         allowed => ALL_PKG,
@@ -266,16 +287,16 @@ our %FIELDS = (
     },
 );
 
-my @checksum_fields = map { field_capitalize("Checksums-$_") } checksums_get_list();
-my @sum_fields = map { $_ eq "md5" ? "MD5sum" : field_capitalize($_) }
+my @checksum_fields = map { &field_capitalize("Checksums-$_") } checksums_get_list();
+my @sum_fields = map { $_ eq "md5" ? "MD5sum" : &field_capitalize($_) }
                  checksums_get_list();
 &field_register($_, CTRL_PKG_SRC | CTRL_FILE_CHANGES) foreach @checksum_fields;
 &field_register($_, CTRL_INDEX_PKG) foreach @sum_fields;
 
 our %FIELD_ORDER = (
     CTRL_PKG_DEB() => [
-        qw(Package Package-Type Source Version Kernel-Version Architecture
-        Subarchitecture Installer-Menu-Item Essential Origin Bugs
+        qw(Package Package-Type Source Version Built-Using Kernel-Version
+        Architecture Subarchitecture Installer-Menu-Item Essential Origin Bugs
         Maintainer Installed-Size), &field_list_pkg_dep(),
         qw(Section Priority Multi-Arch Homepage Description Tag Task)
     ],
@@ -283,21 +304,22 @@ our %FIELD_ORDER = (
         qw(Format Source Binary Architecture Version Origin Maintainer
         Uploaders Homepage Standards-Version Vcs-Browser
         Vcs-Arch Vcs-Bzr Vcs-Cvs Vcs-Darcs Vcs-Git Vcs-Hg Vcs-Mtn
-        Vcs-Svn), &field_list_src_dep(), @checksum_fields, qw(Files)
+        Vcs-Svn), &field_list_src_dep(), qw(Package-List),
+        @checksum_fields, qw(Files)
     ],
     CTRL_FILE_CHANGES() => [
-        qw(Format Date Source Binary Architecture Version Distribution
-        Urgency Maintainer Changed-By Description Closes Changes),
+        qw(Format Date Source Binary Binary-Only Architecture Version
+        Distribution Urgency Maintainer Changed-By Description
+        Closes Changes),
         @checksum_fields, qw(Files)
     ],
     CTRL_CHANGELOG() => [
-        qw(Source Version Distribution Urgency Maintainer Date Closes
-        Changes Timestamp Header Items Trailer Urgency_comment
-        Urgency_lc)
+        qw(Source Binary-Only Version Distribution Urgency Maintainer
+        Date Closes Changes)
     ],
     CTRL_FILE_STATUS() => [ # Same as fieldinfos in lib/dpkg/parse.c
         qw(Package Essential Status Priority Section Installed-Size Origin
-        Maintainer Bugs Architecture Source Version Config-Version
+        Maintainer Bugs Architecture Multi-Arch Source Version Config-Version
         Replaces Provides Depends Pre-Depends Recommends Suggests Breaks
         Conflicts Enhances Conffiles Description Triggers-Pending
         Triggers-Awaited)

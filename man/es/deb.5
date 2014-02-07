@@ -1,9 +1,29 @@
+.\" dpkg manual page - deb(5)
+.\"
+.\" Copyright Â© 1995 Raul Miller
+.\" Copyright Â© 1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2006-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb 5 "27 de Febrero de 2009" "Proyecto Debian" Debian
+.TH deb 5 "16 de junio del 2012" "Proyecto Debian" Debian
 .SH NOMBRE
 deb \- Formato de paquete binario de Debian
 .SH SINOPSIS
@@ -18,8 +38,11 @@ El formato descrito aquí se usa desde Debian 0.93; los detalles sobre el
 anterior formato se describen en \fBdeb\-old\fP(5).
 .SH FORMATO
 El fichero es un archivo \fBar\fP con un valor mágico de
-\fB!<arch>\fP. Los nombres de fichero pueden contener una barra al
-final.
+\fB!<arch>\fP. Solo se admite el formato de archivo \fBar\fP común, sin
+nombres de ficheros con extensiones largas, pero con nombres de ficheros que
+contienen una barra final opcional, que limita su longitud a 15 caracteres
+(de los 16 permitidos). El tamaño del fichero está limitado a 10 dígitos
+decimales ASCII; lo que permite un máximo aproximado de 9536,74 MB.
 .PP
 Los archivos \fBtar\fP compatibles son el viejo formato (v7), el formato
 pre\-POSIX ustar, un subconjunto del formato GNU (sólo los nombres de ruta y

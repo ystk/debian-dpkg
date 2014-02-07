@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * test.h - test suite support
  *
- * Copyright © 2009 Guillem Jover <guillem@debian.org>
+ * Copyright © 2009-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,42 +25,39 @@
 #include <string.h>
 
 #ifndef TEST_MAIN_PROVIDED
-#include <dpkg/dpkg.h>
+#include <dpkg/ehandle.h>
 #endif
 
-/* XXX: Using assert is problematic with NDEBUG. */
+/* Make sure NDEBUG is never defined, as we rely on the assert() macro. */
+#undef NDEBUG
+
+/**
+ * @defgroup dpkg_test Test suite support
+ * @ingroup dpkg-internal
+ * @{
+ */
 
 #define test_pass(a)			assert((a))
 #define test_fail(a)			assert(!(a))
 #define test_str(a, op, b)		assert(strcmp((a), (b)) op 0)
 #define test_mem(a, op, b, size)	assert(memcmp((a), (b), (size)) op 0)
 
+/** @} */
+
 #ifndef TEST_MAIN_PROVIDED
 static void test(void);
-
-const char thisname[] = "test";
 
 int
 main(int argc, char **argv)
 {
-	jmp_buf ejbuf;
-
-	/* Initialize environment. */
-	if (setjmp(ejbuf)) {
-		error_unwind(ehflag_bombout);
-		return 2;
-	}
-	push_error_handler(&ejbuf, print_error_fatal, NULL);
+	push_error_context();
 
 	test();
 
-	/* Shutdown. */
-	set_error_display(NULL, NULL);
-	error_unwind(ehflag_normaltidy);
+	pop_error_context(ehflag_normaltidy);
 
 	return 0;
 }
 #endif
 
 #endif
-

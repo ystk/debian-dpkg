@@ -1,14 +1,34 @@
+.\" dpkg manual page - dpkg-divert(8)
+.\"
+.\" Copyright Â© 1995 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 1999 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
+.\" Copyright Â© 2007-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-divert 8 2008\-08\-18 Debianprojektet dpkg\-verktygen
+.TH dpkg\-divert 8 2011\-08\-14 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-divert \- överstyr ett pakets version av en fil
 .
 .SH SYNOPS
-\fBdpkg\-divert\fP [\fIflaggor\fP] \fIåtgärd\fP
+\fBdpkg\-divert\fP [\fIflagga\fP...] \fIåtgärd\fP
 .
 .SH BESKRIVNING
 \fBdpkg\-divert\fP är verktyget som används för att ställa in och uppdatera
@@ -70,7 +90,7 @@ avbryta körningen om destinationsfilen redan existerar.
 Testläge, dvs. utför inga faktiska ändringar, bara visa vad som skulle
 hända.
 .TP 
-\fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
 \fB\-\-version\fP
@@ -78,8 +98,8 @@ Visar version och avslutar.
 .
 .SH ANTECKNINGAR
 Vid tillägg är standard \fB\-\-local\fP och \fB\-\-divert\fP
-\fI<original>.distrib\fP. Vid borttagning måste \fB\-\-package\fP eller
-\fB\-\-local\fP och \fB\-\-divert\fP matcha om de anges.
+\fIoriginal\fP\fB.distrib\fP. Vid borttagning måste \fB\-\-package\fP eller \fB\-\-local\fP
+och \fB\-\-divert\fP matcha om de anges.
 
 Kataloger kan inte omdirigeras med \fBdpkg\-divert\fP.
 
@@ -114,6 +134,16 @@ För att ta bort omdirigeringen:
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/exempel
 .
+.SH MILJÖVARIABLER
+.TP 
+\fBDPKG_ADMINDIR\fP
+Om satt, och flaggan \fB\-\-admindir\fP inte har angivits, används värdet som
+datakatalog för dpkg.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Om satt, och flaggorna \fB\-\-local\fP och \fB\-\-package\fP inte har angivits, kommer
+\fBdpkg\-divert\fP använda det som paketnamn.
+.
 .SH FILER
 .TP 
 \fI/var/lib/dpkg/diversions\fP
@@ -126,11 +156,5 @@ filtillägget \fIold\fP, innan den ersätter den med den nya.
 .
 .SH "SE ÄVEN"
 \fBdpkg\fP(1).
-.
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 1995 Ian Jackson.
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
 .SH "ÖVERSÄTTNING"
 Peter Krefting och Daniel Nylander.

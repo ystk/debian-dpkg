@@ -3,7 +3,7 @@
  *
  * Copyright © 1995 Ian Jackson <ian@davenant.greenend.org.uk>
  * Copyright © 2000-2002 Wichert Akkerman <wakkerma@debian.org>
- * Copyright © 2006-2010 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
  * Copyright © 2008 Pierre Habouzit <madcoder@debian.org>
  * Copyright © 2009-2010 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -51,7 +51,7 @@
 #define PROGNAME "update-alternatives"
 
 static const char *altdir = SYSCONFDIR "/alternatives";
-static const char *admdir = ADMINDIR "/alternatives";
+static const char *admdir;
 
 static const char *prog_path = "update-alternatives";
 
@@ -81,11 +81,6 @@ version(void)
 	printf("\n");
 
 	printf(_(
-"Copyright (C) 1995 Ian Jackson.\n"
-"Copyright (C) 2000-2002 Wichert Akkerman.\n"
-"Copyright (C) 2009-2010 Raphael Hertzog.\n"));
-
-	printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
 "later for copying conditions. There is NO warranty.\n"));
 }
@@ -95,7 +90,9 @@ usage(void)
 {
 	printf(_(
 "Usage: %s [<option> ...] <command>\n"
-"\n"
+"\n"), PROGNAME);
+
+	printf(_(
 "Commands:\n"
 "  --install <link> <name> <path> <priority>\n"
 "    [--slave <link> <name> <path>] ...\n"
@@ -106,11 +103,15 @@ usage(void)
 "  --display <name>         display information about the <name> group.\n"
 "  --query <name>           machine parseable version of --display <name>.\n"
 "  --list <name>            display all targets of the <name> group.\n"
+"  --get-selections         list master alternative names and their status.\n"
+"  --set-selections         read alternative status from standard input.\n"
 "  --config <name>          show alternatives for the <name> group and ask the\n"
 "                           user to select which one to use.\n"
 "  --set <name> <path>      set <path> as alternative for <name>.\n"
 "  --all                    call --config on all alternatives.\n"
-"\n"
+"\n"));
+
+	printf(_(
 "<link> is the symlink pointing to %s/<name>.\n"
 "  (e.g. /usr/bin/pager)\n"
 "<name> is the master name for this link group.\n"
@@ -119,17 +120,21 @@ usage(void)
 "  (e.g. /usr/bin/less)\n"
 "<priority> is an integer; options with higher numbers have higher priority in\n"
 "  automatic mode.\n"
-"\n"
+"\n"), altdir);
+
+	printf(_(
 "Options:\n"
 "  --altdir <directory>     change the alternatives directory.\n"
 "  --admindir <directory>   change the administrative directory.\n"
+"  --log <file>             change the log file.\n"
+"  --force                  allow replacing files with alternative links.\n"
 "  --skip-auto              skip prompt for alternatives correctly configured\n"
 "                           in automatic mode (relevant for --config only)\n"
 "  --verbose                verbose operation, more output.\n"
 "  --quiet                  quiet operation, minimal output.\n"
 "  --help                   show this help message.\n"
 "  --version                show the version.\n"
-), PROGNAME, altdir);
+));
 }
 
 static void DPKG_ATTR_NORET DPKG_ATTR_PRINTF(1)
@@ -137,7 +142,7 @@ error(char const *fmt, ...)
 {
 	va_list args;
 
-	fprintf(stderr, PROGNAME ": %s: ", _("error"));
+	fprintf(stderr, "%s: %s: ", PROGNAME, _("error"));
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);
 	va_end(args);
@@ -146,11 +151,24 @@ error(char const *fmt, ...)
 }
 
 static void DPKG_ATTR_NORET DPKG_ATTR_PRINTF(1)
+syserr(char const *fmt, ...)
+{
+	va_list args;
+
+	fprintf(stderr, "%s: %s: ", PROGNAME, _("error"));
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fprintf(stderr, ": %s\n", strerror(errno));
+	exit(2);
+}
+
+static void DPKG_ATTR_NORET DPKG_ATTR_PRINTF(1)
 badusage(char const *fmt, ...)
 {
 	va_list args;
 
-	fprintf(stderr, PROGNAME ": ");
+	fprintf(stderr, "%s: ", PROGNAME);
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);
 	va_end(args);
@@ -167,7 +185,7 @@ warning(char const *fmt, ...)
 	if (opt_verbose < 0)
 		return;
 
-	fprintf(stderr, PROGNAME ": %s: ", _("warning"));
+	fprintf(stderr, "%s: %s: ", PROGNAME, _("warning"));
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);
 	va_end(args);
@@ -196,7 +214,7 @@ verbose(char const *fmt, ...)
 	if (opt_verbose < 1)
 		return;
 
-	printf(PROGNAME ": ");
+	printf("%s: ", PROGNAME);
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
@@ -211,7 +229,7 @@ info(char const *fmt, ...)
 	if (opt_verbose < 0)
 		return;
 
-	printf(PROGNAME ": ");
+	printf("%s: ", PROGNAME);
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
@@ -236,7 +254,7 @@ xmalloc(size_t size)
 
 	r = malloc(size);
 	if (!r)
-		error(_("malloc failed (%ld bytes)"), (long)size);
+		error(_("malloc failed (%zu bytes)"), size);
 
 	return r;
 }
@@ -257,32 +275,60 @@ xstrdup(const char *str)
 }
 
 static char *
-xreadlink(const char *linkname, bool error_out)
+areadlink(const char *linkname)
 {
 	struct stat st;
 	char *buf;
 	ssize_t size;
 
 	/* Allocate required memory to store the value of the symlink */
-	if (lstat(linkname, &st)) {
-		if (!error_out)
-			return NULL;
-		error(_("cannot stat %s: %s"), linkname, strerror(errno));
+	if (lstat(linkname, &st))
+		return NULL;
+
+	if (!S_ISLNK(st.st_mode)) {
+		errno = EINVAL;
+		return NULL;
 	}
+
 	buf = xmalloc(st.st_size + 1);
 
 	/* Read it and terminate the string properly */
 	size = readlink(linkname, buf, st.st_size);
 	if (size == -1) {
-		if (!error_out) {
-			free(buf);
-			return NULL;
-		}
-		error(_("readlink(%s) failed: %s"), linkname, strerror(errno));
+		int saved_errno = errno;
+
+		free(buf);
+		errno = saved_errno;
+
+		return NULL;
 	}
 	buf[size] = '\0';
 
 	return buf;
+}
+
+static char *
+xreadlink(const char *linkname)
+{
+	char *buf;
+
+	buf = areadlink(linkname);
+	if (buf == NULL)
+		syserr(_("unable to read link `%.255s'"), linkname);
+
+	return buf;
+}
+
+static int DPKG_ATTR_VPRINTF(2)
+xvasprintf(char **strp, const char *fmt, va_list args)
+{
+	int ret;
+
+	ret = vasprintf(strp, fmt, args);
+	if (ret < 0)
+		error(_("failed to allocate memory"));
+
+	return ret;
 }
 
 static int DPKG_ATTR_PRINTF(2)
@@ -292,10 +338,8 @@ xasprintf(char **strp, const char *fmt, ...)
 	int ret;
 
 	va_start(args, fmt);
-	ret = vasprintf(strp, fmt, args);
+	ret = xvasprintf(strp, fmt, args);
 	va_end(args);
-	if (ret < 0)
-		error(_("failed to allocate memory"));
 
 	return ret;
 }
@@ -303,9 +347,27 @@ xasprintf(char **strp, const char *fmt, ...)
 static void
 set_action(const char *new_action)
 {
-    if (action)
-	badusage(_("two commands specified: --%s and --%s"), action, new_action);
-    action = new_action;
+	if (action)
+		badusage(_("two commands specified: --%s and --%s"),
+		         action, new_action);
+	action = new_action;
+}
+
+static const char *
+admindir_init(void)
+{
+	const char *basedir, *dpkg_basedir;
+	char *admindir;
+
+	dpkg_basedir = getenv("DPKG_ADMINDIR");
+	if (dpkg_basedir)
+		basedir = dpkg_basedir;
+	else
+		basedir = ADMINDIR;
+
+	xasprintf(&admindir, "%s/%s", basedir, "alternatives");
+
+	return admindir;
 }
 
 static FILE *fh_log = NULL;
@@ -318,7 +380,7 @@ log_msg(const char *fmt, ...)
 	if (fh_log == NULL) {
 		fh_log = fopen(log_file, "a");
 		if (fh_log == NULL && errno != EACCES)
-			error(_("cannot append to %s: %s"), log_file, strerror(errno));
+			syserr(_("cannot append to '%s'"), log_file);
 	}
 
 	if (fh_log) {
@@ -327,37 +389,13 @@ log_msg(const char *fmt, ...)
 
 		time(&now);
 		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S",
-			 localtime(&now));
-		fprintf(fh_log, "%s " PROGNAME ": ", timestamp);
+		         localtime(&now));
+		fprintf(fh_log, "%s %s: ", PROGNAME, timestamp);
 		va_start(args, fmt);
 		vfprintf(fh_log, fmt, args);
 		va_end(args);
 		fprintf(fh_log, "\n");
 	}
-}
-
-static int
-filter_altdir(const struct dirent *entry)
-{
-	if (strcmp(entry->d_name, ".") == 0 ||
-	    strcmp(entry->d_name, "..") == 0 ||
-	    (strlen(entry->d_name) > strlen(DPKG_TMP_EXT) &&
-	     strcmp(entry->d_name + strlen(entry->d_name) -
-	            strlen(DPKG_TMP_EXT), DPKG_TMP_EXT) == 0))
-		return 0;
-	return 1;
-}
-
-static int
-get_all_alternatives(struct dirent ***table)
-{
-	int count;
-
-	count = scandir(admdir, table, filter_altdir, alphasort);
-	if (count < 0)
-		error(_("scan of %s failed: %s"), admdir, strerror(errno));
-
-	return count;
 }
 
 static int
@@ -380,7 +418,7 @@ spawn(const char *prog, const char *args[])
 		error(_("fork failed"));
 	if (pid == 0) {
 		execvp(prog, (char *const *)cmd);
-		error(_("failed to execute %s: %s"), prog, strerror(errno));
+		syserr(_("unable to execute %s (%s)"), prog, prog);
 	}
 	while ((r = waitpid(pid, &status, 0)) == -1 && errno == EINTR) ;
 	if (r != pid)
@@ -417,24 +455,12 @@ subcall(const char *prog, ...)
 
 	/* Run the command */
 	res = spawn(prog, cmd);
+	free(cmd);
 	if (WIFEXITED(res) && WEXITSTATUS(res) == 0)
 		return;
 	if (WIFEXITED(res))
 		exit(WEXITSTATUS(res));
 	exit(128);
-}
-
-static void
-config_all(void)
-{
-	struct dirent **table;
-	int i, count;
-
-	count = get_all_alternatives(&table);
-	for (i = 0; i < count; i++) {
-		subcall(prog_path, "--config", table[i]->d_name, NULL);
-		printf("\n");
-	}
 }
 
 static bool
@@ -461,15 +487,14 @@ static void
 checked_symlink(const char *filename, const char *linkname)
 {
 	if (symlink(filename, linkname))
-		error(_("unable to make %s a symlink to %s: %s"), linkname,
-		      filename, strerror(errno));
+		syserr(_("error creating symbolic link `%.255s'"), linkname);
 }
 
 static void
 checked_mv(const char *src, const char *dst)
 {
 	if (!rename_mv(src, dst))
-		error(_("unable to install %s as %s: %s"), src, dst, strerror(errno));
+		syserr(_("unable to install `%.250s' as `%.250s'"), src, dst);
 }
 
 static void
@@ -479,7 +504,21 @@ checked_rm(const char *f)
 		return;
 
 	if (errno != ENOENT)
-		error(_("unable to remove %s: %s"), f, strerror(errno));
+		syserr(_("unable to remove '%s'"), f);
+}
+
+static void DPKG_ATTR_PRINTF(1)
+checked_rm_args(const char *fmt, ...)
+{
+	va_list args;
+	char *path;
+
+	va_start(args, fmt);
+	xvasprintf(&path, fmt, args);
+	va_end(args);
+
+	checked_rm(path);
+	free(path);
 }
 
 /*
@@ -576,14 +615,13 @@ fileset_has_slave(struct fileset *fs, const char *name)
 	if (file == NULL)
 		return false;
 
-	return strlen(file) ? true : false;
+	return file[0] != '\0';
 }
 
 static bool
 fileset_can_install_slave(struct fileset *fs, const char *slave_name)
 {
 	struct stat st;
-	bool install_slave = false;
 
 	/* Decide whether the slave alternative must be setup */
 	if (fileset_has_slave(fs, slave_name)) {
@@ -591,12 +629,12 @@ fileset_can_install_slave(struct fileset *fs, const char *slave_name)
 
 		errno = 0;
 		if (stat(slave, &st) == -1 && errno != ENOENT)
-			error(_("cannot stat %s: %s"), slave,
-			      strerror(errno));
-		install_slave = (errno == 0) ? true : false;
+			syserr(_("cannot stat file '%s'"), slave);
+		if (errno == 0)
+			return true;
 	}
 
-	return install_slave;
+	return false;
 }
 
 struct slave_link {
@@ -632,6 +670,7 @@ struct alternative {
 
 	struct commit_operation *commit_ops;
 
+	int ref_count;
 	bool modified;
 };
 
@@ -664,8 +703,21 @@ alternative_new(const char *name)
 	alt->choices = NULL;
 	alt->commit_ops = NULL;
 	alt->modified = false;
+	alt->ref_count = 1;
 
 	return alt;
+}
+
+static inline void
+alternative_ref(struct alternative *a)
+{
+	a->ref_count++;
+}
+
+static inline bool
+alternative_unref(struct alternative *a)
+{
+	return --a->ref_count == 0;
 }
 
 static void
@@ -684,10 +736,21 @@ alternative_choices_free(struct alternative *a)
 }
 
 static void
+alternative_commit_operations_free(struct alternative *a)
+{
+	struct commit_operation *op;
+
+	while (a->commit_ops) {
+		op = a->commit_ops;
+		a->commit_ops = op->next;
+		commit_operation_free(op);
+	}
+}
+
+static void
 alternative_reset(struct alternative *alt)
 {
 	struct slave_link *slave;
-	struct commit_operation *commit_op;
 
 	free(alt->master_link);
 	alt->master_link = NULL;
@@ -697,17 +760,16 @@ alternative_reset(struct alternative *alt)
 		slave_link_free(slave);
 	}
 	alternative_choices_free(alt);
-	while (alt->commit_ops) {
-		commit_op = alt->commit_ops;
-		alt->commit_ops = commit_op->next;
-		commit_operation_free(commit_op);
-	}
+	alternative_commit_operations_free(alt);
 	alt->modified = false;
 }
 
 static void
 alternative_free(struct alternative *alt)
 {
+	if (!alternative_unref(alt))
+		return;
+
 	alternative_reset(alt);
 	free(alt->master_name);
 	free(alt);
@@ -841,13 +903,13 @@ alternative_get_slave(struct alternative *a, const char *name)
 static bool
 alternative_has_slave(struct alternative *a, const char *name)
 {
-	return alternative_get_slave(a, name) ? true : false;
+	return alternative_get_slave(a, name) != NULL;
 }
 
 static bool
 alternative_has_choice(struct alternative *a, const char *file)
 {
-	return alternative_get_fileset(a, file) ? true : false;
+	return alternative_get_fileset(a, file) != NULL;
 }
 
 static void
@@ -864,7 +926,9 @@ alternative_add_choice(struct alternative *a, struct fileset *fs)
 				prev->next = fs;
 			else
 				a->choices = fs;
-			a->modified = true; /* XXX: be smarter in detecting change? */
+
+			/* XXX: Be smarter in detecting change? */
+			a->modified = true;
 			return;
 		}
 		prev = cur;
@@ -965,12 +1029,52 @@ alternative_remove_choice(struct alternative *a, const char *file)
  * Alternatives Database Load/Store functions.
  */
 
+enum altdb_flags {
+	altdb_lax_parser = 1 << 0,
+	altdb_warn_parser = 1 << 1,
+};
+
 struct altdb_context {
 	FILE *fh;
 	char *filename;
-	void DPKG_ATTR_PRINTF(2) (*bad_format)(struct altdb_context *, const char *format, ...);
+	enum altdb_flags flags;
+	bool modified;
+	void DPKG_ATTR_PRINTF(2) (*bad_format)(struct altdb_context *,
+	                                       const char *format, ...);
 	jmp_buf on_error;
 };
+
+static int
+altdb_filter_namelist(const struct dirent *entry)
+{
+	if (strcmp(entry->d_name, ".") == 0 ||
+	    strcmp(entry->d_name, "..") == 0 ||
+	    (strlen(entry->d_name) > strlen(DPKG_TMP_EXT) &&
+	     strcmp(entry->d_name + strlen(entry->d_name) -
+	            strlen(DPKG_TMP_EXT), DPKG_TMP_EXT) == 0))
+		return 0;
+	return 1;
+}
+
+static int
+altdb_get_namelist(struct dirent ***table)
+{
+	int count;
+
+	count = scandir(admdir, table, altdb_filter_namelist, alphasort);
+	if (count < 0)
+		syserr(_("cannot scan directory `%.255s'"), admdir);
+
+	return count;
+}
+
+static void
+altdb_free_namelist(struct dirent **table, int n)
+{
+	while (n--)
+		free(table[n]);
+	free(table);
+}
 
 static char *
 altdb_get_line(struct altdb_context *ctx, const char *name)
@@ -1016,19 +1120,16 @@ altdb_parse_error(struct altdb_context *ctx, const char *format, ...)
 {
 	char *msg;
 	va_list args;
-	int ret;
 
 	va_start(args, format);
-	ret = vasprintf(&msg, format, args);
+	xvasprintf(&msg, format, args);
 	va_end(args);
-	if (ret < 0)
-		error(_("failed to allocate memory"));
 
 	error(_("%s corrupt: %s"), ctx->filename, msg);
 }
 
 static void DPKG_ATTR_NORET DPKG_ATTR_PRINTF(2)
-altdb_interrupt_parsing(struct altdb_context *ctx, const char *format, ...)
+altdb_parse_stop(struct altdb_context *ctx, const char *format, ...)
 {
 	longjmp(ctx->on_error, 1);
 }
@@ -1041,7 +1142,7 @@ altdb_print_line(struct altdb_context *ctx, const char *line)
 		      line);
 
 	if (fprintf(ctx->fh, "%s\n", line) < (int) strlen(line) + 1)
-		error(_("while writing %s: %s"), ctx->filename, strerror(errno));
+		syserr(_("unable to write file '%s'"), ctx->filename);
 }
 
 static bool
@@ -1058,7 +1159,7 @@ alternative_parse_slave(struct alternative *a, struct altdb_context *ctx)
 	if (alternative_has_slave(a, name)) {
 		sl = alternative_get_slave(a, name);
 		free(name);
-		ctx->bad_format(ctx, _("duplicate slave %s"), sl->name);
+		ctx->bad_format(ctx, _("duplicate slave name %s"), sl->name);
 	}
 
 	linkname = altdb_get_line(ctx, _("slave link"));
@@ -1068,7 +1169,7 @@ alternative_parse_slave(struct alternative *a, struct altdb_context *ctx)
 		ctx->bad_format(ctx, _("slave link same as main link %s"),
 		                a->master_link);
 	}
-	for(sl = a->slaves; sl; sl = sl->next) {
+	for (sl = a->slaves; sl; sl = sl->next) {
 		if (strcmp(linkname, sl->link) == 0) {
 			free(linkname);
 			free(name);
@@ -1083,8 +1184,7 @@ alternative_parse_slave(struct alternative *a, struct altdb_context *ctx)
 }
 
 static bool
-alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx,
-			  bool *modified, bool must_not_die)
+alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx)
 {
 	struct fileset *fs;
 	struct slave_link *sl;
@@ -1109,32 +1209,36 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx,
 		char *junk;
 
 		if (errno != ENOENT)
-			error(_("cannot stat %s: %s"), master_file,
-			      strerror(errno));
+			syserr(_("cannot stat file '%s'"), master_file);
 
 		/* File not found - remove. */
-		if (!must_not_die)
+		if (ctx->flags & altdb_warn_parser)
 			warning(_("alternative %s (part of link group %s) "
-			          "doesn't exist. Removing from list of "
-			          "alternatives."), master_file, a->master_name);
+			          "doesn't exist; removing from list of "
+			          "alternatives"), master_file, a->master_name);
 		junk = altdb_get_line(ctx, _("priority"));
 		free(junk);
 		for (sl = a->slaves; sl; sl = sl->next) {
 			junk = altdb_get_line(ctx, _("slave file"));
 			free(junk);
 		}
-		*modified = true;
+		ctx->modified = true;
 	} else {
-		char *endptr, *prio;
-		long int iprio;
+		char *prio_str, *prio_end;
+		long prio;
 
-		prio = altdb_get_line(ctx, _("priority"));
-		iprio = strtol(prio, &endptr, 10);
-		/* XXX: Leak master_file/prio on non-fatal error */
-		if (*endptr != '\0')
+		prio_str = altdb_get_line(ctx, _("priority"));
+		errno = 0;
+		prio = strtol(prio_str, &prio_end, 10);
+		/* XXX: Leak master_file/prio_str on non-fatal error */
+		if (prio_str == prio_end || *prio_end != '\0')
 			ctx->bad_format(ctx, _("priority of %s: %s"),
-			                master_file, prio);
-		fs = fileset_new(master_file, (int) iprio);
+			                master_file, prio_str);
+		if (prio < INT_MIN || prio > INT_MAX || errno == ERANGE)
+			ctx->bad_format(ctx,
+			                _("priority of %s is out of range: %s"),
+			                master_file, prio_str);
+		fs = fileset_new(master_file, prio);
 		for (sl = a->slaves; sl; sl = sl->next) {
 			fileset_add_slave(fs, xstrdup(sl->name),
 			                  altdb_get_line(ctx, _("slave file")));
@@ -1145,12 +1249,11 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx,
 }
 
 static bool
-alternative_load(struct alternative *a, bool must_not_die)
+alternative_load(struct alternative *a, enum altdb_flags flags)
 {
 	struct altdb_context ctx;
 	struct stat st;
 	char *fn, *status;
-	bool modified = false;
 
 	/* Initialize parse context */
 	if (setjmp(ctx.on_error)) {
@@ -1160,8 +1263,10 @@ alternative_load(struct alternative *a, bool must_not_die)
 		alternative_reset(a);
 		return false;
 	}
-	if (must_not_die)
-		ctx.bad_format = altdb_interrupt_parsing;
+	ctx.modified = false;
+	ctx.flags = flags;
+	if (flags & altdb_lax_parser)
+		ctx.bad_format = altdb_parse_stop;
 	else
 		ctx.bad_format = altdb_parse_error;
 	xasprintf(&fn, "%s/%s", admdir, a->master_name);
@@ -1172,8 +1277,7 @@ alternative_load(struct alternative *a, bool must_not_die)
 		if (errno == ENOENT)
 			return false;
 		else
-			error(_("unable to stat %s: %s"), ctx.filename,
-			      strerror(errno));
+			syserr(_("cannot stat file '%s'"), ctx.filename);
 	}
 	if (st.st_size == 0) {
 		return false;
@@ -1182,7 +1286,7 @@ alternative_load(struct alternative *a, bool must_not_die)
 	/* Open the database file */
 	ctx.fh = fopen(ctx.filename, "r");
 	if (ctx.fh == NULL)
-		error(_("unable to read %s: %s"), ctx.filename, strerror(errno));
+		syserr(_("unable to open file '%s'"), ctx.filename);
 
 	/* Start parsing mandatory attributes (link+status) of the alternative */
 	alternative_reset(a);
@@ -1199,27 +1303,28 @@ alternative_load(struct alternative *a, bool must_not_die)
 	while (alternative_parse_slave(a, &ctx));
 
 	/* Parse the available choices in the alternative */
-	while (alternative_parse_fileset(a, &ctx, &modified, must_not_die));
+	while (alternative_parse_fileset(a, &ctx)) ;
 
 	/* Close database file */
 	if (fclose(ctx.fh))
-		error(_("unable to close %s: %s"), ctx.filename, strerror(errno));
+		syserr(_("unable to close file '%s'"), ctx.filename);
 	free(ctx.filename);
 
 	/* Initialize the modified field which has been erroneously changed
 	 * by the various alternative_(add|set)_* calls:
 	 * false unless a choice has been auto-cleaned */
-	a->modified = modified;
+	a->modified = ctx.modified;
 
 	return true;
 }
 
 static void
-alternative_save(struct alternative *a, const char *file)
+alternative_save(struct alternative *a)
 {
 	struct altdb_context ctx;
 	struct slave_link *sl, *sl_prev;
 	struct fileset *fs;
+	char *filenew, *file;
 
 	/* Cleanup unused slaves before writing admin file. */
 	sl_prev = NULL;
@@ -1236,7 +1341,7 @@ alternative_save(struct alternative *a, const char *file)
 		if (!has_slave) {
 			struct slave_link *sl_rm;
 
-			verbose(_("discarding obsolete slave link %s (%s)."),
+			verbose(_("discarding obsolete slave link %s (%s)"),
 			        sl->name, sl->link);
 			if (sl_prev)
 				sl_prev->next = sl->next;
@@ -1246,7 +1351,7 @@ alternative_save(struct alternative *a, const char *file)
 			sl = sl_prev ? sl_prev : a->slaves;
 			slave_link_free(sl_rm);
 			if (!sl)
-				break; /* no other slave left */
+				break; /* No other slave left. */
 		}
 	}
 
@@ -1255,10 +1360,13 @@ alternative_save(struct alternative *a, const char *file)
 	alternative_sort_choices(a);
 
 	/* Write admin file. */
-	ctx.filename = xstrdup(file);
-	ctx.fh = fopen(file, "w");
+	xasprintf(&file, "%s/%s", admdir, a->master_name);
+	xasprintf(&filenew, "%s" DPKG_TMP_EXT, file);
+
+	ctx.filename = filenew;
+	ctx.fh = fopen(ctx.filename, "w");
 	if (ctx.fh == NULL)
-		error(_("cannot write %s: %s"), file, strerror(errno));
+		syserr(_("unable to create file '%s'"), ctx.filename);
 
 	altdb_print_line(&ctx, alternative_status_string(a->status));
 	altdb_print_line(&ctx, a->master_link);
@@ -1288,8 +1396,18 @@ alternative_save(struct alternative *a, const char *file)
 	altdb_print_line(&ctx, "");
 
 	/* Close database file */
+	if (fflush(ctx.fh))
+		syserr(_("unable to flush file '%s'"), ctx.filename);
+	if (fsync(fileno(ctx.fh)))
+		syserr(_("unable to sync file '%s'"), ctx.filename);
 	if (fclose(ctx.fh))
-		error(_("unable to close %s: %s"), ctx.filename, strerror(errno));
+		syserr(_("unable to close file '%s'"), ctx.filename);
+
+	/* Put in place atomically. */
+	checked_mv(filenew, file);
+
+	free(filenew);
+	free(file);
 }
 
 static struct fileset *
@@ -1304,35 +1422,23 @@ alternative_get_best(struct alternative *a)
 	return best;
 }
 
-static bool
-alternative_has_current_link(struct alternative *a)
+static char *
+alternative_get_current(struct alternative *a)
 {
 	struct stat st;
 	char *curlink;
+	char *file;
 
 	xasprintf(&curlink, "%s/%s", altdir, a->master_name);
 	if (lstat(curlink, &st)) {
 		if (errno == ENOENT) {
 			free(curlink);
-			return false;
+			return NULL;
 		}
-		error(_("cannot stat %s: %s"), curlink, strerror(errno));
-	} else {
-		free(curlink);
-		return true;
+		syserr(_("cannot stat file '%s'"), curlink);
 	}
-}
 
-static char *
-alternative_get_current(struct alternative *a)
-{
-	char *curlink, *file;
-
-	if (!alternative_has_current_link(a))
-		return NULL;
-
-	xasprintf(&curlink, "%s/%s", altdir, a->master_name);
-	file = xreadlink(curlink, true);
+	file = xreadlink(curlink);
 	free(curlink);
 
 	return file;
@@ -1345,18 +1451,20 @@ alternative_display_query(struct alternative *a)
 	struct slave_link *sl;
 	char *current;
 
-	pr("Link: %s", a->master_name);
+	pr("Name: %s", a->master_name);
+	pr("Link: %s", a->master_link);
+	if (alternative_slaves_count(a) > 0) {
+		pr("Slaves:");
+		for (sl = a->slaves; sl; sl = sl->next)
+			pr(" %s %s", sl->name, sl->link);
+	}
 	pr("Status: %s", alternative_status_string(a->status));
 	best = alternative_get_best(a);
 	if (best)
 		pr("Best: %s", best->master_file);
 	current = alternative_get_current(a);
-	if (current) {
-		pr("Value: %s", current);
-		free(current);
-	} else {
-		pr("Value: none");
-	}
+	pr("Value: %s", current ? current : "none");
+	free(current);
 
 	for (fs = a->choices; fs; fs = fs->next) {
 		printf("\n");
@@ -1471,7 +1579,10 @@ alternative_select_choice(struct alternative *a)
 		selection[strlen(selection) - 1] = '\0';
 		if (strlen(selection) == 0)
 			return current;
+		errno = 0;
 		idx = strtol(selection, &ret, 10);
+		if (idx < 0 || errno != 0)
+			continue;
 		if (*ret == '\0') {
 			/* Look up by index */
 			if (idx == 0) {
@@ -1498,13 +1609,25 @@ alternative_select_choice(struct alternative *a)
 			}
 		}
 	}
-	free(current);
-	return NULL;
+}
+
+static void
+alternative_config_all(void)
+{
+	struct dirent **table;
+	int i, count;
+
+	count = altdb_get_namelist(&table);
+	for (i = 0; i < count; i++) {
+		subcall(prog_path, "--config", table[i]->d_name, NULL);
+		printf("\n");
+	}
+	altdb_free_namelist(table, count);
 }
 
 static void
 alternative_add_commit_op(struct alternative *a, enum opcode opcode,
-			  const char *arg_a, const char *arg_b)
+                          const char *arg_a, const char *arg_b)
 {
 	struct commit_operation *op, *cur;
 
@@ -1542,20 +1665,77 @@ alternative_commit(struct alternative *a)
 		}
 	}
 
-	while (a->commit_ops) {
-		op = a->commit_ops;
-		a->commit_ops = op->next;
-		commit_operation_free(op);
+	alternative_commit_operations_free(a);
+}
+
+enum alternative_path_status {
+	ALT_PATH_SYMLINK,
+	ALT_PATH_MISSING,
+	ALT_PATH_OTHER,
+};
+
+static enum alternative_path_status
+alternative_path_classify(const char *linkname)
+{
+	struct stat st;
+
+	errno = 0;
+	if (lstat(linkname, &st) == -1) {
+		if (errno != ENOENT)
+			syserr(_("cannot stat file '%s'"), linkname);
+		return ALT_PATH_MISSING;
+	} else if (S_ISLNK(st.st_mode)) {
+		return ALT_PATH_SYMLINK;
+	} else {
+		return ALT_PATH_OTHER;
+	}
+}
+
+static bool
+alternative_path_can_remove(const char *linkname)
+{
+	if (opt_force)
+		return true;
+
+	if (alternative_path_classify(linkname) == ALT_PATH_OTHER)
+		return false;
+	else
+		return true;
+}
+
+static bool
+alternative_path_needs_update(const char *linkname, const char *filename)
+{
+	char *linktarget;
+	bool update;
+
+	if (opt_force)
+		return true;
+
+	switch (alternative_path_classify(linkname)) {
+	case ALT_PATH_SYMLINK:
+		linktarget = xreadlink(linkname);
+		if (strcmp(linktarget, filename) == 0)
+			update = false;
+		else
+			update = true;
+		free(linktarget);
+
+		return update;
+	case ALT_PATH_OTHER:
+		warning(_("not replacing %s with a link"), linkname);
+		return false;
+	case ALT_PATH_MISSING:
+	default:
+		return true;
 	}
 }
 
 static void
 alternative_prepare_install_single(struct alternative *a, const char *name,
-				   const char *linkname, const char *file)
+                                   const char *linkname, const char *file)
 {
 	char *fntmp, *fn;
-	struct stat st;
-	bool create_link;
 
 	/* Create link in /etc/alternatives. */
 	xasprintf(&fntmp, "%s/%s" DPKG_TMP_EXT, altdir, name);
@@ -1565,24 +1745,13 @@ alternative_prepare_install_single(struct alternative *a, const char *name,
 	alternative_add_commit_op(a, opcode_mv, fntmp, fn);
 	free(fntmp);
 
-	errno = 0;
-	if (lstat(linkname, &st) == -1) {
-		if (errno != ENOENT)
-			error(_("cannot stat %s: %s"), linkname,
-			      strerror(errno));
-		create_link = true;
-	} else {
-		create_link = S_ISLNK(st.st_mode);
-	}
-	if (create_link || opt_force) {
+	if (alternative_path_needs_update(linkname, fn)) {
 		/* Create alternative link. */
 		xasprintf(&fntmp, "%s" DPKG_TMP_EXT, linkname);
 		checked_rm(fntmp);
 		checked_symlink(fn, fntmp);
 		alternative_add_commit_op(a, opcode_mv, fntmp, linkname);
 		free(fntmp);
-	} else {
-		warning(_("not replacing %s with a link."), linkname);
 	}
 	free(fn);
 }
@@ -1614,13 +1783,17 @@ alternative_prepare_install(struct alternative *a, const char *choice)
 		/* Slave can't be installed */
 		if (fileset_has_slave(fs, sl->name))
 			warning(_("skip creation of %s because associated "
-			          "file %s (of link group %s) doesn't exist."),
+			          "file %s (of link group %s) doesn't exist"),
 			        sl->link, fileset_get_slave(fs, sl->name),
 			        a->master_name);
 
 		/* Drop unused slave. */
 		xasprintf(&fn, "%s/%s", altdir, sl->name);
-		alternative_add_commit_op(a, opcode_rm, sl->link, NULL);
+		if (alternative_path_can_remove(sl->link))
+			alternative_add_commit_op(a, opcode_rm, sl->link, NULL);
+		else
+			warning(_("not removing %s since it's not a symlink"),
+			        sl->link);
 		alternative_add_commit_op(a, opcode_rm, fn, NULL);
 		free(fn);
 	}
@@ -1629,39 +1802,25 @@ alternative_prepare_install(struct alternative *a, const char *choice)
 static void
 alternative_remove(struct alternative *a)
 {
-	char *fn;
-	struct stat st;
 	struct slave_link *sl;
 
-	xasprintf(&fn, "%s" DPKG_TMP_EXT, a->master_link);
-	checked_rm(fn);
-	free(fn);
-	if (lstat(a->master_link, &st) == 0 && S_ISLNK(st.st_mode))
+	checked_rm_args("%s" DPKG_TMP_EXT, a->master_link);
+	if (alternative_path_can_remove(a->master_link))
 		checked_rm(a->master_link);
-	xasprintf(&fn, "%s/%s" DPKG_TMP_EXT, altdir, a->master_name);
-	checked_rm(fn);
-	free(fn);
-	xasprintf(&fn, "%s/%s", altdir, a->master_name);
-	checked_rm(fn);
-	free(fn);
+
+	checked_rm_args("%s/%s" DPKG_TMP_EXT, altdir, a->master_name);
+	checked_rm_args("%s/%s", altdir, a->master_name);
 
 	for (sl = a->slaves; sl; sl = sl->next) {
-		xasprintf(&fn, "%s" DPKG_TMP_EXT, sl->link);
-		checked_rm(fn);
-		free(fn);
-		if (lstat(sl->link, &st) == 0 && S_ISLNK(st.st_mode))
+		checked_rm_args("%s" DPKG_TMP_EXT, sl->link);
+		if (alternative_path_can_remove(sl->link))
 			checked_rm(sl->link);
-		xasprintf(&fn, "%s/%s" DPKG_TMP_EXT, altdir, sl->name);
-		checked_rm(fn);
-		free(fn);
-		xasprintf(&fn, "%s/%s", altdir, sl->name);
-		checked_rm(fn);
-		free(fn);
+
+		checked_rm_args("%s/%s" DPKG_TMP_EXT, altdir, sl->name);
+		checked_rm_args("%s/%s", altdir, sl->name);
 	}
 	/* Drop admin file */
-	xasprintf(&fn, "%s/%s", admdir, a->master_name);
-	checked_rm(fn);
-	free(fn);
+	checked_rm_args("%s/%s", admdir, a->master_name);
 }
 
 static bool
@@ -1670,13 +1829,9 @@ alternative_is_broken(struct alternative *a)
 	char *altlnk, *wanted, *current;
 	struct fileset *fs;
 	struct slave_link *sl;
-	struct stat st;
-
-	if (!alternative_has_current_link(a))
-		return true;
 
 	/* Check master link */
-	altlnk = xreadlink(a->master_link, false);
+	altlnk = areadlink(a->master_link);
 	if (!altlnk)
 		return true;
 	xasprintf(&wanted, "%s/%s", altdir, a->master_name);
@@ -1690,6 +1845,9 @@ alternative_is_broken(struct alternative *a)
 
 	/* Stop if we have an unmanaged alternative */
 	current = alternative_get_current(a);
+	if (current == NULL)
+		return true;
+
 	if (!alternative_has_choice(a, current)) {
 		free(current);
 		return false;
@@ -1703,7 +1861,7 @@ alternative_is_broken(struct alternative *a)
 			char *sl_altlnk, *sl_current;
 
 			/* Verify link -> /etc/alternatives/foo */
-			sl_altlnk = xreadlink(sl->link, false);
+			sl_altlnk = areadlink(sl->link);
 			if (!sl_altlnk)
 				return true;
 			xasprintf(&wanted, "%s/%s", altdir, sl->name);
@@ -1714,7 +1872,7 @@ alternative_is_broken(struct alternative *a)
 			}
 			free(sl_altlnk);
 			/* Verify /etc/alternatives/foo -> file */
-			sl_current = xreadlink(wanted, false);
+			sl_current = areadlink(wanted);
 			free(wanted);
 			if (!sl_current)
 				return true;
@@ -1727,10 +1885,10 @@ alternative_is_broken(struct alternative *a)
 			char *sl_altlnk;
 
 			/* Slave link must not exist. */
-			if (lstat(sl->link, &st) == 0)
+			if (alternative_path_classify(sl->link) != ALT_PATH_MISSING)
 				return true;
 			xasprintf(&sl_altlnk, "%s/%s", altdir, sl->name);
-			if (lstat(sl_altlnk, &st) == 0) {
+			if (alternative_path_classify(sl_altlnk) != ALT_PATH_MISSING) {
 				free(sl_altlnk);
 				return true;
 			}
@@ -1772,7 +1930,8 @@ alternative_map_find(struct alternative_map *am, const char *key)
 }
 
 static void
-alternative_map_add(struct alternative_map *am, const char *key, struct alternative *a)
+alternative_map_add(struct alternative_map *am, const char *key,
+                    struct alternative *a)
 {
 	if (am->key == NULL) {
 		am->key = key;
@@ -1780,9 +1939,71 @@ alternative_map_add(struct alternative_map *am, const char *key, struct alternat
 	} else {
 		struct alternative_map *new = alternative_map_new(key, a);
 
-		while(am->next)
+		while (am->next)
 			am = am->next;
 		am->next = new;
+	}
+}
+
+static void
+alternative_map_load_names(struct alternative_map *alt_map_obj)
+{
+	struct dirent **table;
+	int i, count;
+
+	count = altdb_get_namelist(&table);
+	for (i = 0; i < count; i++) {
+		struct alternative *a_new = alternative_new(table[i]->d_name);
+
+		if (!alternative_load(a_new, altdb_lax_parser)) {
+			alternative_free(a_new);
+			continue;
+		}
+		alternative_map_add(alt_map_obj, a_new->master_name, a_new);
+	}
+	altdb_free_namelist(table, count);
+}
+
+static void
+alternative_map_load_tree(struct alternative_map *alt_map_links,
+                          struct alternative_map *alt_map_parent)
+{
+	struct dirent **table;
+	int i, count;
+
+	count = altdb_get_namelist(&table);
+	for (i = 0; i < count; i++) {
+		struct slave_link *sl;
+		struct alternative *a_new = alternative_new(table[i]->d_name);
+
+		if (!alternative_load(a_new, altdb_lax_parser)) {
+			alternative_free(a_new);
+			continue;
+		}
+		alternative_map_add(alt_map_links, a_new->master_link, a_new);
+		alternative_ref(a_new);
+		alternative_map_add(alt_map_parent, a_new->master_name, a_new);
+		for (sl = a_new->slaves; sl; sl = sl->next) {
+			alternative_ref(a_new);
+			alternative_map_add(alt_map_links, sl->link, a_new);
+			alternative_ref(a_new);
+			alternative_map_add(alt_map_parent, sl->name, a_new);
+		}
+	}
+	altdb_free_namelist(table, count);
+}
+
+static void
+alternative_map_free(struct alternative_map *am)
+{
+	struct alternative_map *am_next;
+
+	while (am) {
+		am_next = am->next;
+		if (am->item)
+			alternative_free(am->item);
+		free(am);
+		am = am_next;
 	}
 }
 
@@ -1812,22 +2033,45 @@ get_argv_string(int argc, char **argv)
 }
 
 static void
+alternative_get_selections(void)
+{
+	struct alternative_map *alt_map_obj;
+	struct alternative_map *am;
+
+	alt_map_obj = alternative_map_new(NULL, NULL);
+	alternative_map_load_names(alt_map_obj);
+
+	for (am = alt_map_obj; am && am->item; am = am->next) {
+		char *current;
+
+		current = alternative_get_current(am->item);
+		printf("%-30s %-8s %s\n", am->key,
+		       alternative_status_string(am->item->status),
+		       current ? current : "");
+		free(current);
+	}
+
+	alternative_map_free(alt_map_obj);
+}
+
+static void
 alternative_set_selection(struct alternative_map *all, const char *name,
                           const char *status, const char *choice)
 {
 	struct alternative *a;
 
 	debug("set_selection(%s, %s, %s)", name, status, choice);
-	if ((a = alternative_map_find(all, name))) {
+	a = alternative_map_find(all, name);
+	if (a) {
 		char *cmd;
 
 		if (strcmp(status, "auto") == 0) {
-			xasprintf(&cmd, PROGNAME " --auto %s", name);
+			xasprintf(&cmd, "%s --auto %s", PROGNAME, name);
 			pr(_("Call %s."), cmd);
 			free(cmd);
 			subcall(prog_path, "--auto", name, NULL);
 		} else if (alternative_has_choice(a, choice)) {
-			xasprintf(&cmd, PROGNAME " --set %s %s",
+			xasprintf(&cmd, "%s --set %s %s", PROGNAME,
 			          name, choice);
 			pr(_("Call %s."), cmd);
 			free(cmd);
@@ -1842,9 +2086,12 @@ alternative_set_selection(struct alternative_map *all, const char *name,
 }
 
 static void
-alternative_set_selections(struct alternative_map *all, FILE* input, const char *desc)
+alternative_set_selections(FILE *input, const char *desc)
 {
-	const char *prefix = "[" PROGNAME "--set-selections] ";
+	struct alternative_map *alt_map_obj;
+
+	alt_map_obj = alternative_map_new(NULL, NULL);
+	alternative_map_load_names(alt_map_obj);
 
 	for (;;) {
 		char line[1024], *res, *name, *status, *choice;
@@ -1853,10 +2100,9 @@ alternative_set_selections(struct alternative_map *all, FILE* input, const char 
 		errno = 0;
 		/* Can't use scanf("%s %s %s") because choice can
 		 * contain a space */
-		name = status = choice = NULL;
 		res = fgets(line, sizeof(line), input);
 		if (res == NULL && errno) {
-			error(_("while reading %s: %s"), desc, strerror(errno));
+			syserr(_("read error in %.250s"), desc);
 		} else if (res == NULL) {
 			break;
 		}
@@ -1874,7 +2120,7 @@ alternative_set_selections(struct alternative_map *all, FILE* input, const char 
 		while (i < len && !isblank(line[i]))
 			i++;
 		if (i >= len) {
-			printf("%s", prefix);
+			printf("[%s %s] ", PROGNAME, "--set-selections");
 			pr(_("Skip invalid line: %s"), line);
 			continue;
 		}
@@ -1887,7 +2133,7 @@ alternative_set_selections(struct alternative_map *all, FILE* input, const char 
 		while (i < len && !isblank(line[i]))
 			i++;
 		if (i >= len) {
-			printf("%s", prefix);
+			printf("[%s %s] ", PROGNAME, "--set-selections");
 			pr(_("Skip invalid line: %s"), line);
 			continue;
 		}
@@ -1897,14 +2143,47 @@ alternative_set_selections(struct alternative_map *all, FILE* input, const char 
 
 		/* Delimit choice string in the line */
 		if (i >= len) {
-			printf("%s", prefix);
+			printf("[%s %s] ", PROGNAME, "--set-selections");
 			pr(_("Skip invalid line: %s"), line);
 			continue;
 		}
 		choice = line + i;
 
-		printf("%s", prefix);
-		alternative_set_selection(all, name, status, choice);
+		printf("[%s %s] ", PROGNAME, "--set-selections");
+		alternative_set_selection(alt_map_obj, name, status, choice);
+	}
+
+	alternative_map_free(alt_map_obj);
+}
+
+static void
+alternative_select_mode(struct alternative *a, const char *current_choice)
+{
+	if (current_choice) {
+		/* Detect manually modified alternative, switch to manual. */
+		if (!alternative_has_choice(a, current_choice)) {
+			struct stat st;
+
+			errno = 0;
+			if (stat(current_choice, &st) == -1 && errno != ENOENT)
+				syserr(_("cannot stat file '%s'"), current_choice);
+
+			if (errno == ENOENT) {
+				warning(_("%s/%s is dangling; it will be updated "
+				          "with best choice"), altdir, a->master_name);
+				alternative_set_status(a, ALT_ST_AUTO);
+			} else if (a->status != ALT_ST_MANUAL) {
+				warning(_("%s/%s has been changed (manually or by "
+				          "a script); switching to manual "
+				          "updates only"), altdir, a->master_name);
+				alternative_set_status(a, ALT_ST_MANUAL);
+			}
+		}
+	} else {
+		/* Lack of alternative link => automatic mode. */
+		verbose(_("setting up automatic selection of %s"),
+		        a->master_name);
+		alternative_set_status(a, ALT_ST_AUTO);
 	}
 }
 
@@ -1914,10 +2193,11 @@ alternative_evolve(struct alternative *a, struct alternative *b,
 {
 	struct slave_link *sl;
 	struct stat st;
+	bool is_link;
 
-	bool is_link = (lstat(a->master_link, &st) == 0 && S_ISLNK(st.st_mode));
+	is_link = alternative_path_classify(a->master_link) == ALT_PATH_SYMLINK;
 	if (is_link && strcmp(a->master_link, b->master_link) != 0) {
-		info(_("renaming %s link from %s to %s."), b->master_name,
+		info(_("renaming %s link from %s to %s"), b->master_name,
 		     a->master_link, b->master_link);
 		checked_mv(a->master_link, b->master_link);
 	}
@@ -1942,13 +2222,23 @@ alternative_evolve(struct alternative *a, struct alternative *b,
 			char *lnk;
 
 			xasprintf(&lnk, "%s/%s", altdir, sl->name);
-			new_file = xreadlink(lnk, false);
+			new_file = areadlink(lnk);
 			free(lnk);
 		}
-		if (strcmp(old, new) != 0 && lstat(old, &st) == 0 &&
-		    S_ISLNK(st.st_mode)) {
-			if (stat(new_file, &st) == 0) {
-				info(_("renaming %s slave link from %s to %s."),
+		if (strcmp(old, new) != 0 &&
+		    alternative_path_classify(old) == ALT_PATH_SYMLINK) {
+			bool rename_link = false;
+
+			if (new_file) {
+				errno = 0;
+				if (stat(new_file, &st) == -1 && errno != ENOENT)
+					syserr(_("cannot stat file '%s'"),
+					       new_file);
+				rename_link = (errno == 0);
+			}
+
+			if (rename_link) {
+				info(_("renaming %s slave link from %s to %s"),
 				     sl->name, old, new);
 				checked_mv(old, new);
 			} else {
@@ -1958,6 +2248,176 @@ alternative_evolve(struct alternative *a, struct alternative *b,
 		free(new_file);
 		alternative_add_slave(a, xstrdup(sl->name), xstrdup(sl->link));
 	}
+}
+
+static void
+alternative_update(struct alternative *a,
+                   char *current_choice, const char *new_choice)
+{
+	/* No choice left, remove everything. */
+	if (!alternative_choices_count(a)) {
+		log_msg("link group %s fully removed", a->master_name);
+		alternative_remove(a);
+		return;
+	}
+
+	/* New choice wanted. */
+	if (new_choice &&
+	    (!current_choice || strcmp(new_choice, current_choice) != 0)) {
+		log_msg("link group %s updated to point to %s", a->master_name,
+		        new_choice);
+		info(_("using %s to provide %s (%s) in %s"), new_choice,
+		     a->master_link, a->master_name,
+		     (a->status == ALT_ST_AUTO) ? _("auto mode") :
+		                                  _("manual mode"));
+		debug("prepare_install(%s)", new_choice);
+		alternative_prepare_install(a, new_choice);
+	} else if (alternative_is_broken(a)) {
+		log_msg("auto-repair link group %s", a->master_name);
+		warning(_("forcing reinstallation of alternative %s because "
+		          "link group %s is broken"), current_choice,
+		        a->master_name);
+
+		if (current_choice && !alternative_has_choice(a, current_choice)) {
+			struct fileset *best = alternative_get_best(a);
+
+			warning(_("current alternative %s is unknown, "
+			          "switching to %s for link group %s"),
+			        current_choice, best->master_file,
+			        a->master_name);
+			current_choice = best->master_file;
+			alternative_set_status(a, ALT_ST_AUTO);
+		}
+
+		if (current_choice)
+			alternative_prepare_install(a, current_choice);
+	}
+
+	/* Save administrative file if needed. */
+	if (a->modified) {
+		debug("%s is modified and will be saved", a->master_name);
+		alternative_save(a);
+	}
+
+	/* Replace all symlinks in one pass. */
+	alternative_commit(a);
+}
+
+static void
+alternative_check_name(const char *name)
+{
+	if (strpbrk(name, "/ \t"))
+		error(_("alternative name (%s) must not contain '/' "
+		        "and spaces"), name);
+}
+
+static void
+alternative_check_link(const char *linkname)
+{
+	if (linkname[0] != '/')
+		error(_("alternative link is not absolute as it should be: %s"),
+		      linkname);
+}
+
+static void
+alternative_check_path(const char *file)
+{
+	if (!file || file[0] != '/')
+		error(_("alternative path is not absolute as it should be: %s"),
+		      file);
+}
+
+/**
+ * Check the alternative installation arguments.
+ *
+ * That the caller doesn't mix links between alternatives, doesn't mix
+ * alternatives between slave/master, and that the various parameters
+ * are fine.
+ */
+static void
+alternative_check_install_args(struct alternative *inst_alt,
+                               struct fileset *fileset)
+{
+	struct alternative_map *alt_map_links, *alt_map_parent;
+	struct alternative *found;
+	struct slave_link *sl;
+	struct stat st;
+
+	alternative_check_name(inst_alt->master_name);
+	alternative_check_link(inst_alt->master_link);
+	alternative_check_path(fileset->master_file);
+
+	/* Load information about all alternatives to check for mistakes. */
+	alt_map_links = alternative_map_new(NULL, NULL);
+	alt_map_parent = alternative_map_new(NULL, NULL);
+	alternative_map_load_tree(alt_map_links, alt_map_parent);
+
+	found = alternative_map_find(alt_map_parent, inst_alt->master_name);
+	if (found && strcmp(found->master_name, inst_alt->master_name) != 0) {
+		error(_("alternative %s can't be master: it is a slave of %s"),
+		      inst_alt->master_name, found->master_name);
+	}
+
+	found = alternative_map_find(alt_map_links, inst_alt->master_link);
+	if (found && strcmp(found->master_name, inst_alt->master_name) != 0) {
+		found = alternative_map_find(alt_map_parent,
+		                             found->master_name);
+		error(_("alternative link %s is already managed by %s"),
+		      inst_alt->master_link, found->master_name);
+	}
+
+	if (stat(fileset->master_file, &st) == -1) {
+		if (errno == ENOENT)
+			error(_("alternative path %s doesn't exist"),
+			      fileset->master_file);
+		else
+			syserr(_("cannot stat file '%s'"), fileset->master_file);
+	}
+
+	for (sl = inst_alt->slaves; sl; sl = sl->next) {
+		const char *file = fileset_get_slave(fileset, sl->name);
+
+		alternative_check_name(sl->name);
+		alternative_check_link(sl->link);
+		alternative_check_path(file);
+
+		found = alternative_map_find(alt_map_parent, sl->name);
+		if (found &&
+		    strcmp(found->master_name, inst_alt->master_name) != 0) {
+			if (strcmp(found->master_name, sl->name) == 0)
+				error(_("alternative %s can't be slave of %s: "
+				        "it is a master alternative"),
+				      sl->name, inst_alt->master_name);
+			else
+				error(_("alternative %s can't be slave of %s: "
+				        "it is a slave of %s"),
+				      sl->name, inst_alt->master_name,
+				      found->master_name);
+		}
+
+		found = alternative_map_find(alt_map_links, sl->link);
+		if (found &&
+		    strcmp(found->master_name, inst_alt->master_name) != 0) {
+			error(_("alternative link %s is already "
+			        "managed by %s"), sl->link,
+			      found->master_name);
+		}
+		if (found) {
+			struct slave_link *sl2;
+
+			for (sl2 = found->slaves; sl2; sl2 = sl2->next)
+				if (strcmp(sl2->link, sl->link) == 0)
+					break;
+			if (sl2 && strcmp(sl2->name, sl->name) != 0)
+				error(_("alternative link %s is already "
+				        "managed by %s (slave of %s)"),
+				      sl->link, sl2->name,
+				      found->master_name);
+		}
+	}
+
+	alternative_map_free(alt_map_links);
+	alternative_map_free(alt_map_parent);
 }
 
 /*
@@ -1977,18 +2437,17 @@ main(int argc, char **argv)
 	struct fileset *fileset = NULL;
 	/* Path of alternative we are offering. */
 	char *path = NULL, *current_choice = NULL;
-	/* Alternatives maps for checks */
-	struct alternative_map *alt_map_obj, *alt_map_links, *alt_map_parent;
-	struct dirent **table;
 	const char *new_choice = NULL;
-	int i = 0, count;
+	int i = 0;
 
 	setlocale(LC_ALL, "");
-	bindtextdomain("dpkg", LOCALEDIR);
-	textdomain("dpkg");
+	bindtextdomain(PACKAGE, LOCALEDIR);
+	textdomain(PACKAGE);
+
+	admdir = admindir_init();
 
 	if (setvbuf(stdout, NULL, _IONBF, 0))
-		error("setvbuf failed: %s", strerror(errno));
+		syserr("setvbuf failed");
 
 	prog_path = argv[0];
 
@@ -2008,24 +2467,35 @@ main(int argc, char **argv)
 			opt_verbose--;
 			PUSH_OPT(argv[i]);
 		} else if (strcmp("--install", argv[i]) == 0) {
-			long priority;
-			char *endptr;
+			char *prio_str, *prio_end;
+			long prio;
 
 			set_action("install");
 			if (MISSING_ARGS(4))
 				badusage(_("--install needs <link> <name> "
 				           "<path> <priority>"));
+
+			prio_str = argv[i + 4];
+
 			if (strcmp(argv[i+1], argv[i+3]) == 0)
 				badusage(_("<link> and <path> can't be the same"));
-			priority = strtol(argv[i+4], &endptr, 10);
-			if (*endptr != '\0')
+			errno = 0;
+			prio = strtol(prio_str, &prio_end, 10);
+			if (prio_str == prio_end || *prio_end != '\0')
 				badusage(_("priority must be an integer"));
+			if (prio < INT_MIN || prio > INT_MAX || errno == ERANGE) {
+				/* XXX: Switch back to error on 1.17.x. */
+				prio = clamp(prio, INT_MIN, INT_MAX);
+				warning(_("priority is out of range: "
+				          "%s clamped to %ld"),
+				        prio_str, prio);
+			}
 
 			a = alternative_new(argv[i + 2]);
 			inst_alt = alternative_new(argv[i + 2]);
 			alternative_set_status(inst_alt, ALT_ST_AUTO);
 			alternative_set_link(inst_alt, xstrdup(argv[i + 1]));
-			fileset = fileset_new(argv[i + 3], priority);
+			fileset = fileset_new(argv[i + 3], prio);
 
 			i += 4;
 		} else if (strcmp("--remove", argv[i]) == 0 ||
@@ -2036,6 +2506,9 @@ main(int argc, char **argv)
 
 			a = alternative_new(argv[i + 1]);
 			path = xstrdup(argv[i + 2]);
+
+			alternative_check_name(a->master_name);
+			alternative_check_path(path);
 
 			i += 2;
 		} else if (strcmp("--display", argv[i]) == 0 ||
@@ -2048,6 +2521,9 @@ main(int argc, char **argv)
 			if (MISSING_ARGS(1))
 				badusage(_("--%s needs <name>"), argv[i] + 2);
 			a = alternative_new(argv[i + 1]);
+
+			alternative_check_name(a->master_name);
+
 			i++;
 		} else if (strcmp("--all", argv[i]) == 0 ||
 			   strcmp("--get-selections", argv[i]) == 0 ||
@@ -2057,7 +2533,8 @@ main(int argc, char **argv)
 			char *slink, *sname, *spath;
 			struct slave_link *sl;
 
-			if (action && strcmp(action, "install") != 0)
+			if (action == NULL ||
+			    (action && strcmp(action, "install") != 0))
 				badusage(_("--slave only allowed with --install"));
 			if (MISSING_ARGS(3))
 				badusage(_("--slave needs <link> <name> <path>"));
@@ -2075,14 +2552,14 @@ main(int argc, char **argv)
 				badusage(_("link %s is both primary and slave"),
 				         slink);
 			if (alternative_has_slave(inst_alt, sname))
-				badusage(_("slave name %s duplicated"), sname);
+				badusage(_("duplicate slave name %s"), sname);
 
 			for (sl = inst_alt->slaves; sl; sl = sl->next) {
 				const char *linkname = sl->link;
 				if (linkname == NULL)
 					linkname = "";
 				if (strcmp(linkname, slink) == 0)
-					badusage(_("slave link %s duplicated"),
+					badusage(_("duplicate slave link %s"),
 					          slink);
 			}
 
@@ -2127,153 +2604,44 @@ main(int argc, char **argv)
 		           "--config, --set, --set-selections, --install, "
 		           "--remove, --all, --remove-all or --auto"));
 
-	/* Load infos about all alternatives to be able to check for mistakes. */
-	alt_map_obj = alternative_map_new(NULL, NULL);
-	alt_map_links = alternative_map_new(NULL, NULL);
-	alt_map_parent = alternative_map_new(NULL, NULL);
-	count = get_all_alternatives(&table);
-	for (i = 0; i < count; i++) {
-		struct slave_link *sl;
-		struct alternative *a_new = alternative_new(table[i]->d_name);
+	if (strcmp(action, "install") == 0)
+		alternative_check_install_args(inst_alt, fileset);
 
-		if (!alternative_load(a_new, true)) {
-			alternative_free(a_new);
-			free(table[i]);
-			continue;
+	if (strcmp(action, "display") == 0 ||
+	    strcmp(action, "query") == 0 ||
+	    strcmp(action, "list") == 0 ||
+	    strcmp(action, "set") == 0 ||
+	    strcmp(action, "auto") == 0 ||
+	    strcmp(action, "config") == 0 ||
+	    strcmp(action, "remove-all") == 0) {
+		/* Load the alternative info, stop on failure. */
+		if (!alternative_load(a, altdb_warn_parser))
+			error(_("no alternatives for %s"), a->master_name);
+	} else if (strcmp(action, "remove") == 0) {
+		/* FIXME: Be consistent for now with the case when we
+		 * try to remove a non-existing path from an existing
+		 * link group file. */
+		if (!alternative_load(a, altdb_warn_parser)) {
+			verbose(_("no alternatives for %s"), a->master_name);
+			exit(0);
 		}
-		alternative_map_add(alt_map_obj, a_new->master_name, a_new);
-		alternative_map_add(alt_map_links, a_new->master_link, a_new);
-		alternative_map_add(alt_map_parent, a_new->master_name, a_new);
-		for (sl = a_new->slaves; sl; sl = sl->next) {
-			alternative_map_add(alt_map_links, sl->link, a_new);
-			alternative_map_add(alt_map_parent, sl->name, a_new);
-		}
-
-		free(table[i]);
-	}
-
-	/* Check that caller don't mix links between alternatives and don't mix
-	 * alternatives between slave/master, and that the various parameters
-	 * are fine. */
-	if (strcmp(action, "install") == 0) {
-		struct alternative *found;
-		struct stat st;
-		struct slave_link *sl;
-
-		found = alternative_map_find(alt_map_parent,
-		                             inst_alt->master_name);
-		if (found && strcmp(found->master_name,
-		                    inst_alt->master_name) != 0) {
-			char *msg;
-
-			xasprintf(&msg, _("it is a slave of %s"),
-			          found->master_name);
-			error(_("alternative %s can't be master: %s"),
-			      inst_alt->master_name, msg);
-		}
-
-		found = alternative_map_find(alt_map_links,
-		                             inst_alt->master_link);
-		if (found && strcmp(found->master_name,
-		                    inst_alt->master_name) != 0) {
-			found = alternative_map_find(alt_map_parent,
-			                             found->master_name);
-			error(_("alternative link %s is already managed by %s."),
-			      inst_alt->master_link, found->master_name);
-		}
-
-		if (inst_alt->master_link[0] != '/')
-			error(_("alternative link is not absolute as it "
-			        "should be: %s"), inst_alt->master_link);
-
-		if (fileset->master_file[0] != '/')
-			error(_("alternative path is not absolute as it "
-			        "should be: %s"), fileset->master_file);
-
-		if (stat(fileset->master_file, &st) == -1 && errno == ENOENT)
-			error(_("alternative path %s doesn't exist."),
-			      fileset->master_file);
-
-		if (strpbrk(inst_alt->master_name, "/ \t"))
-			error(_("alternative name (%s) must not contain '/' "
-			        "and spaces."), inst_alt->master_name);
-
-		for (sl = inst_alt->slaves; sl; sl = sl->next) {
-			const char *file = fileset_get_slave(fileset, sl->name);
-
-			found = alternative_map_find(alt_map_parent, sl->name);
-			if (found && strcmp(found->master_name,
-			                    inst_alt->master_name) != 0) {
-				char *msg;
-
-				if (strcmp(found->master_name, sl->name) == 0)
-					xasprintf(&msg, "%s",
-					          _("it is a master alternative."));
-				else
-					xasprintf(&msg, _("it is a slave of %s"),
-					          found->master_name);
-				error(_("alternative %s can't be slave of "
-				        "%s: %s"), sl->name,
-				      inst_alt->master_name, msg);
-			}
-
-			found = alternative_map_find(alt_map_links, sl->link);
-			if (found && strcmp(found->master_name,
-			                    inst_alt->master_name) != 0) {
-				error(_("alternative link %s is already "
-				        "managed by %s."), sl->link,
-				      found->master_name);
-			}
-
-			if (sl->link[0] != '/')
-				error(_("alternative link is not absolute as "
-				        "it should be: %s"), sl->link);
-
-			if (!file || file[0] != '/')
-				error(_("alternative path is not absolute as "
-				        "it should be: %s"), file);
-
-			if (strpbrk(sl->name, "/ \t"))
-				error(_("alternative name (%s) must not contain '/' "
-				        "and spaces."), sl->name);
-		}
+	} else if (strcmp(action, "install") == 0) {
+		/* Load the alternative info, ignore failures. */
+		alternative_load(a, altdb_warn_parser);
 	}
 
 	/* Handle actions. */
 	if (strcmp(action, "all") == 0) {
-		config_all();
+		alternative_config_all();
 		exit(0);
 	} else if (strcmp(action, "get-selections") == 0) {
-		struct alternative_map *am;
-		char *current;
-
-		for (am = alt_map_obj; am && am->item; am = am->next) {
-			current = alternative_get_current(am->item);
-			printf("%-30s %-8s %s\n", am->key,
-			       alternative_status_string(am->item->status),
-			       current ? current : "");
-			free(current);
-		}
-
+		alternative_get_selections();
 		exit(0);
 	} else if (strcmp(action, "set-selections") == 0) {
 		log_msg("run with %s", get_argv_string(argc, argv));
-		alternative_set_selections(alt_map_obj, stdin, _("<standard input>"));
+		alternative_set_selections(stdin, _("<standard input>"));
 		exit(0);
-	}
-
-	/* Load the alternative info, stop on failure except for --install. */
-	if (!alternative_load(a, false) && strcmp(action, "install") != 0) {
-		/* FIXME: Be consistent for now with the case when we try to remove a
-		 * non-existing path from an existing link group file. */
-		if (strcmp(action, "remove") == 0) {
-			verbose(_("no alternatives for %s."), a->master_name);
-			exit(0);
-		}
-		error(_("no alternatives for %s."), a->master_name);
-	}
-
-	if (strcmp(action, "display") == 0) {
+	} else if (strcmp(action, "display") == 0) {
 		alternative_display_user(a);
 		exit(0);
 	} else if (strcmp(action, "query") == 0) {
@@ -2286,40 +2654,15 @@ main(int argc, char **argv)
 
 	/* Actions below might modify the system. */
 	log_msg("run with %s", get_argv_string(argc, argv));
-	if (alternative_has_current_link(a)) {
-		current_choice = alternative_get_current(a);
-		/* Detect manually modified alternative, switch to manual. */
-		if (!alternative_has_choice(a, current_choice)) {
-			struct stat st;
-			char *altlink;
-
-			xasprintf(&altlink, "%s/%s", altdir, a->master_name);
-			if (stat(current_choice, &st) == -1 &&
-			    errno == ENOENT) {
-				warning(_("%s is dangling, it will be updated "
-				          "with best choice."), altlink);
-				alternative_set_status(a, ALT_ST_AUTO);
-			} else if (a->status != ALT_ST_MANUAL) {
-				warning(_("%s has been changed (manually or by "
-				          "a script). Switching to manual "
-				          "updates only."), altlink);
-				alternative_set_status(a, ALT_ST_MANUAL);
-			}
-			free(altlink);
-		}
-	} else {
-		/* Lack of alternative link => automatic mode. */
-		verbose(_("setting up automatic selection of %s."),
-		        a->master_name);
-		alternative_set_status(a, ALT_ST_AUTO);
-	}
+	current_choice = alternative_get_current(a);
+	alternative_select_mode(a, current_choice);
 
 	if (strcmp(action, "set") == 0) {
 		if (alternative_has_choice(a, path))
 			new_choice = path;
 		else
-			error(_("alternative %s for %s not registered, "
-			        "not setting."), path, a->master_name);
+			error(_("alternative %s for %s not registered; "
+			        "not setting"), path, a->master_name);
 		alternative_set_status(a, ALT_ST_MANUAL);
 	} else if (strcmp(action, "auto") == 0) {
 		alternative_set_status(a, ALT_ST_AUTO);
@@ -2337,13 +2680,10 @@ main(int argc, char **argv)
 			alternative_display_user(a);
 		} else if (alternative_choices_count(a) == 1 &&
 		           a->status == ALT_ST_AUTO &&
-		           alternative_has_current_link(a)) {
-			char *cur = alternative_get_current(a);
-
-			pr(_("There is only one alternative in link group %s: %s"),
-			   a->master_name, cur);
+		           current_choice != NULL) {
+			pr(_("There is only one alternative in link group %s (providing %s): %s"),
+			   a->master_name, a->master_link, current_choice);
 			pr(_("Nothing to configure."));
-			free(cur);
 		} else {
 			new_choice = alternative_select_choice(a);
 		}
@@ -2351,8 +2691,8 @@ main(int argc, char **argv)
 		if (alternative_has_choice(a, path))
 			alternative_remove_choice(a, path);
 		else
-			verbose(_("alternative %s for %s not registered, not "
-			          "removing."), path, a->master_name);
+			verbose(_("alternative %s for %s not registered; not "
+			          "removing"), path, a->master_name);
 		if (current_choice && strcmp(current_choice, path) == 0) {
 			struct fileset *best;
 
@@ -2384,74 +2724,14 @@ main(int argc, char **argv)
 		if (a->status == ALT_ST_AUTO) {
 			new_choice = alternative_get_best(a)->master_file;
 		} else {
-			char *fn;
-
-			xasprintf(&fn, "%s/%s", altdir, a->master_name);
-			verbose(_("automatic updates of %s are disabled, "
-			          "leaving it alone."), fn);
+			verbose(_("automatic updates of %s/%s are disabled; "
+			          "leaving it alone"), altdir, a->master_name);
 			verbose(_("to return to automatic updates use "
-			          "`update-alternatives --auto %s'."),
-			        a->master_name);
-			free(fn);
+			          "'%s --auto %s'"), PROGNAME, a->master_name);
 		}
 	}
 
-	/* No choice left, remove everything. */
-	if (!alternative_choices_count(a)) {
-		log_msg("link group %s fully removed", a->master_name);
-		alternative_remove(a);
-		exit(0);
-	}
-
-	/* New choice wanted. */
-	if (new_choice && (!current_choice ||
-	                   strcmp(new_choice, current_choice) != 0)) {
-		log_msg("link group %s updated to point to %s", a->master_name,
-		        new_choice);
-		info(_("using %s to provide %s (%s) in %s."), new_choice,
-		     a->master_link, a->master_name,
-		     (a->status == ALT_ST_AUTO) ? _("auto mode") :
-		                                  _("manual mode"));
-		debug("prepare_install(%s)", new_choice);
-		alternative_prepare_install(a, new_choice);
-	} else if (alternative_is_broken(a)) {
-		log_msg("auto-repair link group %s", a->master_name);
-		warning(_("forcing reinstallation of alternative %s because "
-		          "link group %s is broken."), current_choice,
-		        a->master_name);
-
-		if (current_choice && !alternative_has_choice(a, current_choice)) {
-			struct fileset *best = alternative_get_best(a);
-			new_choice = best->master_file;
-			warning(_("current alternative %s is unknown, "
-			          "switching to %s for link group %s."),
-			        current_choice, best->master_file,
-			        a->master_name);
-			current_choice = best->master_file;
-			alternative_set_status(a, ALT_ST_AUTO);
-		}
-
-		if (current_choice)
-			alternative_prepare_install(a, current_choice);
-	}
-
-	/* Save administrative file if needed. */
-	if (a->modified) {
-		char *fntmp, *fn;
-
-		xasprintf(&fntmp, "%s/%s" DPKG_TMP_EXT, admdir, a->master_name);
-		xasprintf(&fn, "%s/%s", admdir, a->master_name);
-
-		debug("%s is modified and will be saved", a->master_name);
-		alternative_save(a, fntmp);
-		checked_mv(fntmp, fn);
-
-		free(fntmp);
-		free(fn);
-	}
-
-	/* Replace all symlinks in one pass. */
-	alternative_commit(a);
+	alternative_update(a, current_choice, new_choice);
 
 	return 0;
 }

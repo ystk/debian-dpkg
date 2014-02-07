@@ -1,6 +1,11 @@
 #line 2 "trigdeferred.c"
+#line 37 "trigdeferred.l"
+#include <config.h>
+#include <compat.h>
 
-#line 4 "trigdeferred.c"
+
+
+#line 9 "trigdeferred.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -414,7 +419,7 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    4,    4,    5,    4,    4,    4,    4,    4,
         4,    4,    6,    4,    7,    6,    4,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    4,    4,    4,
+        7,    7,    7,    7,    7,    7,    7,    6,    4,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
@@ -492,7 +497,7 @@ int trigdef_yy_flex_debug = 0;
 char *trigdef_yytext;
 #line 1 "trigdeferred.l"
 /*
- * dpkg - main program for package management
+ * libdpkg - Debian packaging suite library routines
  * trigdeferred.l - parsing of triggers/Deferred
  *
  * Copyright © 2007 Canonical Ltd
@@ -513,12 +518,10 @@ char *trigdef_yytext;
  */
 /* Reset the name to the default value (instead of using "trigdeferred.c")
  * so that automake (ylwrap) can find it. */
+#define YY_NO_INPUT 1
 
-#line 36 "trigdeferred.l"
 
-#include <config.h>
-#include <compat.h>
-
+#line 42 "trigdeferred.l"
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 
@@ -530,14 +533,13 @@ char *trigdef_yytext;
 #include <dpkg/trigdeferred.h>
 #include <dpkg/triglib.h>
 
-#define YY_NO_INPUT
 #define YY_DECL int trigdef_parse(void)
 
 static struct varbuf fn, newfn;
 
 static const struct trigdefmeths *trigdef;
 
-#line 541 "trigdeferred.c"
+#line 543 "trigdeferred.c"
 
 #define INITIAL 0
 #define midline 1
@@ -723,10 +725,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 60 "trigdeferred.l"
+#line 61 "trigdeferred.l"
 
 
-#line 730 "trigdeferred.c"
+#line 732 "trigdeferred.c"
 
 	if ( !(yy_init) )
 		{
@@ -808,18 +810,18 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 62 "trigdeferred.l"
+#line 63 "trigdeferred.l"
 /* whitespace */
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 63 "trigdeferred.l"
+#line 64 "trigdeferred.l"
 /* comments */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 64 "trigdeferred.l"
+#line 65 "trigdeferred.l"
 {
 	trigdef->trig_begin(trigdef_yytext);
 	BEGIN(midline);
@@ -827,12 +829,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 69 "trigdeferred.l"
+#line 70 "trigdeferred.l"
 /* whitespace */
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "trigdeferred.l"
+#line 71 "trigdeferred.l"
 {
 	if (trigdef_yytext[0] == '-' && trigdef_yytext[1])
 		ohshit(_("invalid package name `%.250s' in triggers deferred "
@@ -843,21 +845,21 @@ YY_RULE_SETUP
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 76 "trigdeferred.l"
+#line 77 "trigdeferred.l"
 {
 	trigdef->trig_end();
 	BEGIN(0);
 	}
 	YY_BREAK
 case YY_STATE_EOF(midline):
-#line 80 "trigdeferred.l"
+#line 81 "trigdeferred.l"
 {
 	ohshit(_("truncated triggers deferred file `%.250s'"), fn.buf);
 	}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 84 "trigdeferred.l"
+#line 85 "trigdeferred.l"
 {
 	ohshit(_("syntax error in triggers deferred file `%.250s' at "
 	         "character `%s'%s"),
@@ -866,10 +868,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 90 "trigdeferred.l"
+#line 91 "trigdeferred.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 873 "trigdeferred.c"
+#line 875 "trigdeferred.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1831,13 +1833,13 @@ void trigdef_yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 90 "trigdeferred.l"
+#line 91 "trigdeferred.l"
 
 
 
 /*---------- Deferred file handling ----------*/
 
-static const char *triggersdir;
+static char *triggersdir;
 static int lock_fd = -1;
 static FILE *old_deferred;
 static FILE *trig_new_deferred;
@@ -1845,19 +1847,31 @@ static FILE *trig_new_deferred;
 static void
 constructfn(struct varbuf *vb, const char *dir, const char *tail)
 {
-	varbufreset(vb);
-	varbufaddstr(vb, dir);
-	varbufaddstr(vb, tail);
-	varbufaddc(vb, 0);
+	varbuf_reset(vb);
+	varbuf_add_str(vb, dir);
+	varbuf_add_char(vb, '/');
+	varbuf_add_str(vb, tail);
+	varbuf_end_str(vb);
 }
 
-int
-trigdef_update_start(enum trigdef_updateflags uf, const char *admindir)
+/**
+ * Start processing of the triggers deferred file.
+ *
+ * @retval -1 Lock ENOENT with O_CREAT (directory does not exist).
+ * @retval -2 Unincorp empty, tduf_writeifempty unset.
+ * @retval -3 Unincorp ENOENT, tduf_writeifenoent unset.
+ * @retval  1 Unincorp ENOENT, tduf_writeifenoent set.
+ * @retval  2 Ok.
+ *
+ * For positive return values the caller must call trigdef_update_done!
+ */
+enum trigdef_update_status
+trigdef_update_start(enum trigdef_updateflags uf)
 {
 	struct stat stab;
 	int r;
 
-	triggersdir = trig_get_triggersdir(admindir);
+	triggersdir = dpkg_db_get_path(TRIGGERSDIR);
 
 	if (uf & tduf_write) {
 		constructfn(&fn, triggersdir, TRIGGERSLOCKFILE);
@@ -1868,12 +1882,11 @@ trigdef_update_start(enum trigdef_updateflags uf, const char *admindir)
 					ohshite(_("unable to open/create "
 					          "triggers lockfile `%.250s'"),
 					        fn.buf);
-				return -1;
+				return tdus_error_no_dir;
 			}
 		}
 
-		file_lock(&lock_fd, fn.buf, _("unable to lock triggers area"),
-		          NULL);
+		file_lock(&lock_fd, FILE_LOCK_WAIT, fn.buf, _("triggers area"));
 	} else {
 		/* Dummy for pop_cleanups. */
 		push_cleanup(NULL, 0, NULL, 0, 0);
@@ -1888,7 +1901,7 @@ trigdef_update_start(enum trigdef_updateflags uf, const char *admindir)
 	} else if (!stab.st_size) {
 		if (!(uf & tduf_writeifempty)) {
 			pop_cleanup(ehflag_normaltidy);
-			return -2;
+			return tdus_error_empty_deferred;
 		}
 	}
 
@@ -1901,7 +1914,7 @@ trigdef_update_start(enum trigdef_updateflags uf, const char *admindir)
 			        fn.buf);
 		if (!(uf & tduf_writeifenoent)) {
 			pop_cleanup(ehflag_normaltidy);
-			return -3;
+			return tdus_error_no_deferred;
 		}
 	}
 
@@ -1916,12 +1929,12 @@ trigdef_update_start(enum trigdef_updateflags uf, const char *admindir)
 	}
 
 	if (!old_deferred)
-		return 1;
+		return tdus_no_deferred;
 
 	trigdef_yyrestart(old_deferred);
 	BEGIN(0);
 
-	return 2;
+	return tdus_ok;
 }
 
 void
@@ -1970,8 +1983,10 @@ trigdef_process_done(void)
 		dir_sync_path(triggersdir);
 	}
 
+	free(triggersdir);
+	triggersdir = NULL;
+
 	/* Unlock. */
 	pop_cleanup(ehflag_normaltidy);
 }
-
 

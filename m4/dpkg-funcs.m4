@@ -76,41 +76,37 @@ AC_DEFUN([DPKG_MMAP],
   AC_ARG_ENABLE([mmap],
     AS_HELP_STRING([--enable-mmap],
                    [enable usage of unrealiable mmap if available]),
-    [
-      AC_CHECK_FUNCS([mmap])
-      AC_DEFINE(USE_MMAP, 1, [Use unreliable mmap support])
-    ],
-    []
-  )
+    [],
+    [enable_mmap=no])
+
+  AS_IF([test "x$enable_mmap" = "xyes"], [
+    AC_CHECK_FUNCS([mmap])
+    AC_DEFINE(USE_MMAP, 1, [Use unreliable mmap support])
+  ])
 ])
 
-# DPKG_FUNC_SYNC_SYNC
-# --------------------
-# Define USE_SYNC_SYNC if sync() is synchronous and it has been enabled
-# on configure
-AC_DEFUN([DPKG_FUNC_SYNC_SYNC],
+# DPKG_CHECK_PROGNAME
+# -------------------
+# Check for system implementations of program name tracking.
+AC_DEFUN([DPKG_CHECK_PROGNAME],
 [
-  AC_CANONICAL_HOST
+  AC_MSG_CHECKING([for program_invocation_short_name])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <errno.h>]],
+                 [[const char *p = program_invocation_short_name;]])],
+                 [AC_DEFINE([HAVE_PROGRAM_INVOCATION_SHORT_NAME], [1],
+                            [Define to 1 if you have program_invocation_short_name])
+                  AC_MSG_RESULT([yes])],
+                 [AC_MSG_RESULT([no])])
 
-  AC_MSG_CHECKING([whether sync is synchronous])
-  AS_CASE([$host_os],
-          [linux-*], [dpkg_cv_sync_sync=yes],
-          [dpkg_cv_sync_sync=no])
-  AC_MSG_RESULT([$dpkg_cv_sync_sync])
-
-  AC_ARG_ENABLE([sync-sync],
-    AS_HELP_STRING([--enable-sync-sync],
-                   [enable usage of synchronous sync(2) if available]),
-    [],
-    [enable_sync_sync=no])
-  AC_MSG_CHECKING([whether to use synchronous sync])
-  AS_IF([test "x$dpkg_cv_sync_sync" = "xyes" &&
-         test "x$enable_sync_sync" = "xyes"],
-        [AC_DEFINE([USE_SYNC_SYNC], 1,
-                   [Define to 1 if sync(2) is synchronous])],
-        [enable_sync_sync=no])
-  AC_MSG_RESULT([$enable_sync_sync])
-])# DPKG_FUNC_SYNC_SYNC
+  AC_MSG_CHECKING([for __progname])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],
+                 [[extern char *__progname;
+                   const char *p = __progname;]])],
+                 [AC_DEFINE([HAVE___PROGNAME], [1],
+                            [Define to 1 if you have __progname])
+                  AC_MSG_RESULT([yes])],
+                 [AC_MSG_RESULT([no])])
+]) # DPKG_CHECK_PROGNAME
 
 # DPKG_CHECK_COMPAT_FUNCS(LIST)
 # -----------------------

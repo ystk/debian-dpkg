@@ -1,15 +1,36 @@
+.\" dpkg manual page - dpkg-buildpackage(1)
+.\"
+.\" Copyright Â© 1995-1996 Ian Jackson
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
+.\" Copyright Â© 2008-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-buildpackage 1 29\-07\-2010 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-buildpackage 1 04\-05\-2012 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-buildpackage \- Construire depuis les sources des paquets binaires ou
 sources
 .
 .SH SYNOPSIS
-\fBdpkg\-buildpackage\fP [\fIoptions\fP]
+\fBdpkg\-buildpackage\fP [\fIoption\fP...]
 .
 .SH DESCRIPTION
 \fBdpkg\-buildpackage\fP est un programme qui permet d'automatiser la
@@ -31,10 +52,12 @@ si \fB\-nc\fP a été utilisé).
 Appel de \fBdpkg\-source \-b\fP pour créer le paquet source (sauf si une
 contruction binaire seule a été demandée avec \fB\-b\fP, \fB\-B\fP ou \fB\-A\fP).
 .IP \fB5.\fP 3
-Appel de \fBdebian/rules\fP \fBbuild\fP suivi de \fBfakeoot debian/rules\fP
+Appel de \fBdebian/rules\fP \fIbuild\-target\fP suivi de \fBfakeroot debian/rules\fP
 \fIbinary\-target\fP (sauf si une construction source seule a été demandée avec
-\fB\-S\fP). Noter que \fIbinary\-target\fP est soit \fBbinary\fP (cas par défaut, ou
-avec utilisation de \fB\-b\fP) soit \fBbinary\-arch\fP (si \fB\-B\fP est utilisé).
+\fB\-S\fP). Noter que \fIbuild\-target\fP et \fIbinary\-target\fP sont soit \fBbuild\fP et
+\fBbinary\fP (cas par défaut, ou avec utilisation de \fB\-b\fP) soit \fBbuild\-arch\fP
+et \fBbinary\-arch\fP (si \fB\-B\fP est utilisé) soit \fBbuild\-indep\fP et
+\fBbinary\-indep\fP (si \fB\-A\fP est utilisé).
 .IP \fB6.\fP 3
 Appel de \fBgpg\fP pour signature du fichier \fB.dsc\fP (sauf si \fB\-us\fP est
 utilisé).
@@ -55,14 +78,12 @@ Indique que seul un paquet binaire est à construire\ ; aucun fichier source
 n'est à construire et/ou à distribuer. Passé à \fBdpkg\-genchanges\fP.
 .TP 
 \fB\-B\fP
-Indique que seul un paquet binaire est à construire\ ; aucun fichier,
-appartenant à un paquet binaire ne dépendant pas d'une architecture, n'est à
-distribuer. Passé à \fBdpkg\-genchanges\fP.
+Indique une construction uniquement binaire, limitée aux paquets dépendant
+d'une architecture. Passé à \fBdpkg\-genchanges\fP.
 .TP 
 \fB\-A\fP
-Indique que seul un paquet binaire est à construire\ ; aucun fichier,
-appartenant à un paquet binaire ne dépendant pas d'une architecture, n'est à
-distribuer. Passé à \fBdpkg\-genchanges\fP.
+Indique une construction uniquement binaire, limitée aux paquets ne
+dépendant pas d'une architecture. Passé à \fBdpkg\-genchanges\fP.
 .TP 
 \fB\-S\fP
 Ne construit qu'un paquet source, aucun paquet binaire ne sera
@@ -140,13 +161,13 @@ options \fB\-B\fP, \fB\-A\fP ou \fB\-S\fP n'est utilisée).
 .TP 
 \fB\-tc\fP
 Nettoyage de l'arborescence (en utilisant
-\fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP \fBdebian/rules clean\fP)  après la
+\fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP \fBdebian/rules clean\fP) après la
 construction du paquet.
 .TP 
 \fB\-r\fP\fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP
 Quand \fBdpkg\-buildpackage\fP doit exécuter une partie du processus de
 construction en tant que root, il préfixe la commande exécutée par
-\fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP, si une a été spécifié. Si ce
+\fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP, si une a été spécifiée. Si ce
 n'est pas le cas alors \fBfakeroot\fP est utilisé par
 défaut. \fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP doit débuter par le nom
 d'un programme accessible depuis \fBPATH\fP et avoir comme arguments le nom de
@@ -170,13 +191,11 @@ rules standard avec un autre programme de construction (par exemple en
 utilisant \fB/usr/local/bin/make \-f debian/rules\fP comme \fIfichier\-rules\fP).
 .TP 
 \fB\-p\fP\fIcommande\-de\-signature\fP
-Quand \fBdpkg\-buildpackage\fP doit exécuter GPG ou PGP pour signer un fichier
-source de contrôle (\fB.dsc\fP) ou un fichier \fB.changes\fP, il exécute
+Quand \fBdpkg\-buildpackage\fP doit exécuter GPG pour signer un fichier source
+de contrôle (\fB.dsc\fP) ou un fichier \fB.changes\fP, il exécute
 \fIcommande\-de\-signature\fP (recherché via \fBPATH\fP si nécessaire) au lieu de
-\fBpgp\fP. \fIcommande\-de\-signature\fP reçoit tous les paramètres qu'aurait
-reçu\fBpgp\fP. Si \fIcommande\-de\-signature\fP veut recevoir ses paramètres à la
-manière de GPG plutôt qu'à la manière de PGP, il faut utiliser l'option
-\fB\-sgpg\fP. \fIcommande\-de\-signature\fP ne contiendra pas d'espace ni aucun
+\fBpgp\fP. \fIcommande\-de\-signature\fP reçoit tous les paramètres qu'aurait reçu
+\fBpgp\fP. \fIcommande\-de\-signature\fP ne devra pas contenir d'espace ni aucun
 «\ métacaractère\ » de l'interpréteur de commandes.
 .TP 
 \fB\-k\fP\fIkey\-id\fP
@@ -215,7 +234,7 @@ Change l'endroit où se trouve la base de données de \fBdpkg\fP. Par défaut,
 c'est \fI/var/lib/dpkg\fP.
 .RE
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
@@ -229,32 +248,26 @@ l'interface correspondante pour retrouver les valeurs nécessaires.
 \fBdpkg\-architecture\fP est lancé avec les paramètres de \fB\-a\fP and \fB\-t\fP. Toute
 variable retournée par l'option \fB\-s\fP est intégrée dans l'environnement de
 construction.
-.SS "Drapeaux de compilation"
-Les variables d'environnement \fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBFFLAGS\fP, \fBCPPFLAGS\fP
-et \fBLDFLAGS\fP prennent les valeurs renvoyées par
-\fBdpkg\-buildflags\fP. Veuillez consulter la page de manuel de ce programme
-pour plus d'informations.
+.SS "Les drapeaux de compilation ne sont plus exportés."
+Entre les versions 1.14.17 and 1.16.1, \fBdpkg\-buildpackage\fP exportait les
+drapeaux de compilation (\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBFFLAGS\fP, \fBCPPFLAGS\fP et
+\fBLDFLAGS\fP) avec les valeurs que renvoyait \fBdpkg\-buildflags\fP. Cela n'est
+plus le cas.
 .
+.SH "COMPATIBILITÉ ARRIÈRE"
+\fBdpkg\-buildpackage\fP utilise les cibles \fBbuild\-arch\fP et \fBbuild\-indep\fP
+depuis la version 1.16.2. Ces cibles sont donc obligatoires. Cependant, pour
+éviter de casser les paquets existants et faciliter la transition, la cible
+\fBbuild\fP sera utilisée par défaut si \fBmake \-f debian/rules \-qn\fP
+\fIbuild\-target\fP renvoie 2 comme code de retour.
 .SH BOGUES
 On devrait pouvoir mettre des espaces et des métacaractères du shell dans
 les arguments initiaux de \fIcommande\-pour\-obtenir\-privilèges\-de\-root\fP et
 \fIcommande\-de\-signature\fP.
 .
 .SH "VOIR AUSSI"
-\fBdpkg\-source\fP(1), \fBdpkg\-architecture\fP(1), \fBdpkg\-genchanges\fP(1),
-\fBfakeroot\fP(1), \fBgpg\fP(1).
-.
-.SH AUTEURS
-Copyright \(co 1995\-1996 Ian Jackson
-.br
-Copyright \(co 2000 Wichert Akkerman
-.br
-Copyright \(co 2007 Frank Lichtenheld
-.br
-Copyright \(co 2008\-2010 Rapha\[:e]l Hertzog
-.sp
-Ce programme est un logiciel libre\ ; voyez la «\ GNU General Public Licence\ »
-version 2 ou supérieure pour le copyright. Il n'y a PAS de garantie.
+\fBdpkg\-source\fP(1), \fBdpkg\-architecture\fP(1), \fBdpkg\-buildflags\fP(1),
+\fBdpkg\-genchanges\fP(1), \fBfakeroot\fP(1), \fBgpg\fP(1).
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

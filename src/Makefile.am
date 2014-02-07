@@ -9,6 +9,10 @@ AM_CPPFLAGS = \
 	-idirafter $(top_srcdir)/lib/compat \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
+LDADD = \
+	../lib/dpkg/libdpkg.a \
+	../lib/compat/libcompat.a \
+	$(LIBINTL)
 
 
 EXTRA_DIST = \
@@ -21,6 +25,10 @@ bin_PROGRAMS = \
 	dpkg-statoverride \
 	dpkg-trigger
 
+noinst_HEADERS = \
+	filesdb.h \
+	infodb.h
+
 dpkg_SOURCES = \
 	archives.c archives.h \
 	cleanup.c \
@@ -28,8 +36,13 @@ dpkg_SOURCES = \
 	depcon.c \
 	enquiry.c \
 	errors.c \
-	filesdb.c filesdb.h \
+	filesdb.c \
+	filesdb-hash.c \
+	file-match.c file-match.h \
 	filters.c filters.h \
+	infodb-access.c \
+	infodb-format.c \
+	infodb-upgrade.c \
 	divertdb.c \
 	statdb.c \
 	help.c \
@@ -37,60 +50,41 @@ dpkg_SOURCES = \
 	packages.c \
 	processarc.c \
 	remove.c \
+	script.c \
 	select.c \
 	trigproc.c \
 	update.c
 
 dpkg_LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
-	$(LIBINTL) \
+	$(LDADD) \
 	$(SELINUX_LIBS)
 
 dpkg_divert_SOURCES = \
-	glob.c glob.h \
-	filesdb.c filesdb.h \
+	filesdb.c \
+	infodb-format.c \
 	divertdb.c \
 	divertcmd.c
 
-dpkg_divert_LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
-	$(LIBINTL)
-
 dpkg_query_SOURCES = \
-	filesdb.c filesdb.h \
+	filesdb.c \
+	infodb-access.c \
+	infodb-format.c \
 	divertdb.c \
 	querycmd.c
 
-dpkg_query_LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
-	$(LIBINTL)
-
 dpkg_statoverride_SOURCES = \
-	glob.c glob.h \
-	filesdb.c filesdb.h \
+	filesdb.c \
+	infodb-format.c \
 	statdb.c \
 	statcmd.c
-
-dpkg_statoverride_LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
-	$(LIBINTL)
 
 dpkg_trigger_SOURCES = \
 	trigcmd.c
 
-dpkg_trigger_LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
-	$(LIBINTL)
-
 install-data-local:
-	$(mkdir_p) $(DESTDIR)$(pkgconfdir)/dpkg.cfg.d
-	$(mkdir_p) $(DESTDIR)$(admindir)/info
-	$(mkdir_p) $(DESTDIR)$(admindir)/updates
+	$(MKDIR_P) $(DESTDIR)$(pkgconfdir)/dpkg.cfg.d
+	$(MKDIR_P) $(DESTDIR)$(admindir)/info
+	$(MKDIR_P) $(DESTDIR)$(admindir)/updates
 
 TEST_VERBOSE = 0
 

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-if WITH_DSELECT
+if BUILD_DSELECT
   MAYBE_DSELECT = dselect
 endif
 
@@ -18,16 +18,22 @@ SUBDIRS = \
 ACLOCAL_AMFLAGS = -I m4
 
 
-dist_pkgdata_DATA = cputable ostable triplettable
+dist_pkgdata_DATA = \
+	cputable \
+	ostable \
+	abitable \
+	triplettable
 
 EXTRA_DIST = \
 	.mailmap \
 	ChangeLog.old \
 	README.translators \
 	get-version \
+	run-script \
 	doc/README.api \
 	doc/README.feature-removal-schedule \
 	doc/coding-style.txt \
+	doc/frontend.txt \
 	doc/lcov-epilog \
 	doc/lcov-prolog \
 	doc/triggers.txt \
@@ -38,21 +44,25 @@ EXTRA_DIST = \
 	debian/copyright \
 	debian/dpkg-dev.docs \
 	debian/dpkg-dev.install \
+	debian/dpkg-dev.manpages \
 	debian/dpkg-dev.preinst \
 	debian/dpkg-dev.lintian-overrides \
 	debian/dpkg.cfg \
 	debian/dpkg.cron.daily \
 	debian/dpkg.docs \
 	debian/dpkg.install \
+	debian/dpkg.manpages \
 	debian/dpkg.postinst \
 	debian/dpkg.postrm \
 	debian/dpkg.preinst \
+	debian/dpkg.prerm \
 	debian/dpkg.logrotate \
 	debian/dpkg.links \
 	debian/dpkg.lintian-overrides \
 	debian/dselect.cfg \
 	debian/dselect.docs \
 	debian/dselect.install \
+	debian/dselect.manpages \
 	debian/dselect.preinst \
 	debian/dselect.lintian-overrides \
 	debian/libdpkg-dev.docs \

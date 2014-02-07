@@ -51,7 +51,7 @@ struct dselect_option {
 
 class methodlist : public baselist {
 protected:
-  int status_width, gap_width, name_width, description_width;
+  int status_width, name_width, description_width;
   int name_column, description_column;
 
   // Table of methods
@@ -59,10 +59,10 @@ protected:
 
   // Misc.
   char searchstring[50];
-  
+
   // Information displays
   void itd_description();
-  
+
   // Define these virtuals
   void redraw1itemsel(int index, int selected);
   void redrawcolheads();
@@ -78,7 +78,7 @@ protected:
   // Keybinding functions */
   void kd_quit();
   void kd_abort();
-  
+
   methodlist();
   quitaction display();
   ~methodlist();

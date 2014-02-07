@@ -38,7 +38,7 @@ Dpkg::Control::Info - parse files like debian/control
 =head1 DESCRIPTION
 
 It provides an object to access data of files that follow the same
-syntax than debian/control.
+syntax as debian/control.
 
 =head1 FUNCTIONS
 
@@ -107,8 +107,12 @@ sub parse {
         last if not $cdata->parse($fh, $desc);
 	push @{$self->{packages}}, $cdata;
 	unless (exists $cdata->{Package}) {
-	    syntaxerr($desc, _g("block lacks a package field"));
+	    syntaxerr($desc, _g("block lacks the '%s' field"), "Package");
 	}
+	unless (exists $cdata->{Architecture}) {
+	    syntaxerr($desc, _g("block lacks the '%s' field"), "Architecture");
+	}
+
     }
 }
 

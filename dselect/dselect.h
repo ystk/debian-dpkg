@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * dselect - selection of Debian packages
+ * dselect - Debian package maintenance user interface
  * dselect.h - external definitions for this program
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
@@ -29,6 +29,8 @@
 using std::min;
 using std::max;
 
+#include <dpkg/debug.h>
+
 #include "dselect-curses.h"
 
 #define DSELECT		"dselect"
@@ -43,6 +45,23 @@ struct helpmenuentry {
 
 struct keybindings;
 
+enum screenparts {
+	background,
+	list,
+	listsel,
+	title,
+	thisstate,
+	selstate,
+	selstatesel,
+	colheads,
+	query,
+	info,
+	info_head,
+	whatinfo,
+	helpscreen,
+	numscreenparts,
+};
+
 class baselist {
 protected:
   // Screen dimensions &c.
@@ -50,14 +69,12 @@ protected:
   int title_height, colheads_height, list_height;
   int thisstate_height, info_height, whatinfo_height;
   int colheads_row, thisstate_row, info_row, whatinfo_row, list_row;
-  int list_attr, listsel_attr, title_attr, colheads_attr, info_attr;
-  int info_headattr, whatinfo_attr;
-  int thisstate_attr, query_attr;
-  int selstate_attr, selstatesel_attr;
-  int helpscreen_attr;
 
+  int part_attr[numscreenparts];
+
+  int gap_width;
   int total_width;
-  
+
   // (n)curses stuff
   WINDOW *listpad, *infopad, *colheadspad, *thisstatepad;
   WINDOW *titlewin, *whatinfowin, *querywin;
@@ -82,7 +99,7 @@ protected:
   void unsizes();
   void dosearch();
   void displayhelp(const struct helpmenuentry *menu, int key);
-  void displayerror(const char* str);
+  void displayerror(const char *str);
 
   void redrawall();
   void redrawitemsrange(int start /*inclusive*/, int end /*exclusive*/);
@@ -106,7 +123,7 @@ protected:
   virtual bool checksearch(char *str);
   virtual bool matchsearch(int index);
   void wordwrapinfo(int offset, const char *string);
-  
+
 public:
 
   keybindings *bindings;
@@ -135,7 +152,7 @@ public:
   void startdisplay();
   void enddisplay();
 
-  baselist(keybindings*);
+  baselist(keybindings *);
   virtual ~baselist();
 };
 
@@ -146,26 +163,7 @@ void mywerase(WINDOW *win);
 void curseson();
 void cursesoff();
 
-extern const char *admindir;
-extern FILE *debug;
 extern int expertmode;
-
-enum screenparts {
-       background,
-       list,
-       listsel,
-       title,
-       thisstate,
-       selstate,
-       selstatesel,
-       colheads,
-       query,
-       info,
-       info_head,
-       whatinfo,
-       helpscreen,
-       numscreenparts,
-};
 
 struct colordata {
        int fore;

@@ -1,14 +1,33 @@
+.\" dpkg manual page - dpkg-scansources(1)
+.\"
+.\" Copyright Â© 2005 Roderick Schertler <roderick@argon.org>
+.\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
+.\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-scansources 1 2009\-10\-01 Debianprojektet dpkg\-verktygen
+.TH dpkg\-scansources 1 2011\-08\-14 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-scansources \- skapar indexfilerna Sources
 .
 .SH SYNOPS
-\fBdpkg\-scansources\fP [\fIflaggor\fP] \fIbinärkatalog\fP [\fIöverstyrningsfil\fP
+\fBdpkg\-scansources\fP [\fIflagga\fP...] \fIbinärkatalog\fP [\fIöverstyrningsfil\fP
 [\fIsökvägsprefix\fP]] \fB>\fP \fISources\fP
 .
 .SH BESKRIVNING
@@ -66,8 +85,5 @@ Visar version och avslutar.
 .
 .SH "SE ÄVEN"
 \fBdeb\-override\fP(5), \fBdeb\-extra\-override\fP(5), \fBdpkg\-scanpackages\fP(1).
-.
-.SH FÖRFATTARE
-Roderick Schertler <roderick@argon.org>
 .SH "ÖVERSÄTTNING"
 Peter Krefting och Daniel Nylander.

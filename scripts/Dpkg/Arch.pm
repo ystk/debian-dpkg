@@ -1,3 +1,5 @@
+# Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -21,20 +23,24 @@ our $VERSION = "0.01";
 use base qw(Exporter);
 our @EXPORT_OK = qw(get_raw_build_arch get_raw_host_arch
                     get_build_arch get_host_arch get_gcc_host_gnu_type
-                    get_valid_arches debarch_eq debarch_is
+                    get_valid_arches debarch_eq debarch_is debarch_is_wildcard
                     debarch_to_cpuattrs
                     debarch_to_gnutriplet gnutriplet_to_debarch
                     debtriplet_to_gnutriplet gnutriplet_to_debtriplet
-                    debtriplet_to_debarch debarch_to_debtriplet);
+                    debtriplet_to_debarch debarch_to_debtriplet
+                    gnutriplet_to_multiarch debarch_to_multiarch);
 
+use POSIX qw(:errno_h);
 use Dpkg;
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
+use Dpkg::BuildEnv;
 
 my (@cpu, @os);
 my (%cputable, %ostable);
 my (%cputable_re, %ostable_re);
 my (%cpubits, %cpuendian);
+my %abibits;
 
 my %debtriplet_to_debarch;
 my %debarch_to_debtriplet;
@@ -48,8 +54,12 @@ my %debarch_to_debtriplet;
     {
 	return $build_arch if defined $build_arch;
 
-	my $build_arch = `dpkg --print-architecture`;
-	# FIXME: Handle bootstrapping
+	# Note: We *always* require an installed dpkg when inferring the
+	# build architecture. The bootstrapping case is handled by
+	# dpkg-architecture itself, by avoiding computing the DEB_BUILD_
+	# variables when they are not requested.
+
+	$build_arch = `dpkg --print-architecture`;
 	syserr("dpkg --print-architecture failed") if $? >> 8;
 
 	chomp $build_arch;
@@ -58,14 +68,14 @@ my %debarch_to_debtriplet;
 
     sub get_build_arch()
     {
-	return $ENV{DEB_BUILD_ARCH} || get_raw_build_arch();
+	return Dpkg::BuildEnv::get('DEB_BUILD_ARCH') || get_raw_build_arch();
     }
 
     sub get_gcc_host_gnu_type()
     {
 	return $gcc_host_gnu_type if defined $gcc_host_gnu_type;
 
-	my $gcc_host_gnu_type = `\${CC:-gcc} -dumpmachine`;
+	$gcc_host_gnu_type = `\${CC:-gcc} -dumpmachine`;
 	if ($? >> 8) {
 	    $gcc_host_gnu_type = '';
 	} else {
@@ -107,14 +117,14 @@ my %debarch_to_debtriplet;
 
     sub get_host_arch()
     {
-	return $ENV{DEB_HOST_ARCH} || get_raw_host_arch();
+	return Dpkg::BuildEnv::get('DEB_HOST_ARCH') || get_raw_host_arch();
     }
 }
 
 sub get_valid_arches()
 {
-    read_cputable() if (!@cpu);
-    read_ostable() if (!@os);
+    read_cputable();
+    read_ostable();
 
     my @arches;
 
@@ -128,8 +138,11 @@ sub get_valid_arches()
     return @arches;
 }
 
+my $cputable_loaded = 0;
 sub read_cputable
 {
+    return if ($cputable_loaded);
+
     local $_;
     local $/ = "\n";
 
@@ -145,10 +158,15 @@ sub read_cputable
 	}
     }
     close CPUTABLE;
+
+    $cputable_loaded = 1;
 }
 
+my $ostable_loaded = 0;
 sub read_ostable
 {
+    return if ($ostable_loaded);
+
     local $_;
     local $/ = "\n";
 
@@ -162,11 +180,42 @@ sub read_ostable
 	}
     }
     close OSTABLE;
+
+    $ostable_loaded = 1;
 }
 
+my $abitable_loaded = 0;
+sub abitable_load()
+{
+    return if ($abitable_loaded);
+
+    local $_;
+    local $/ = "\n";
+
+    # Because the abitable is only for override information, do not fail if
+    # it does not exist, as that will only mean the other tables do not have
+    # an entry needing to be overridden. This way we do not require a newer
+    # dpkg by libdpkg-perl.
+    if (open ABITABLE, "$pkgdatadir/abitable") {
+        while (<ABITABLE>) {
+            if (m/^(?!\#)(\S+)\s+(\S+)/) {
+                $abibits{$1} = $2;
+            }
+        }
+        close ABITABLE;
+    } elsif ($! != ENOENT) {
+        syserr(_g("cannot open %s"), "abitable");
+    }
+
+    $abitable_loaded = 1;
+}
+
+my $triplettable_loaded = 0;
 sub read_triplettable()
 {
-    read_cputable() if (!@cpu);
+    return if ($triplettable_loaded);
+
+    read_cputable();
 
     local $_;
     local $/ = "\n";
@@ -193,12 +242,14 @@ sub read_triplettable()
 	}
     }
     close TRIPLETTABLE;
+
+    $triplettable_loaded = 1;
 }
 
 sub debtriplet_to_gnutriplet(@)
 {
-    read_cputable() if (!@cpu);
-    read_ostable() if (!@os);
+    read_cputable();
+    read_ostable();
 
     my ($abi, $os, $cpu) = @_;
 
@@ -214,8 +265,8 @@ sub gnutriplet_to_debtriplet($)
     my ($gnu_cpu, $gnu_os) = split(/-/, $gnu, 2);
     return undef unless defined($gnu_cpu) && defined($gnu_os);
 
-    read_cputable() if (!@cpu);
-    read_ostable() if (!@os);
+    read_cputable();
+    read_ostable();
 
     my ($os, $cpu);
 
@@ -237,9 +288,28 @@ sub gnutriplet_to_debtriplet($)
     return (split(/-/, $os, 2), $cpu);
 }
 
+sub gnutriplet_to_multiarch($)
+{
+    my ($gnu) = @_;
+    my ($cpu, $cdr) = split('-', $gnu, 2);
+
+    if ($cpu =~ /^i[456]86$/) {
+	return "i386-$cdr";
+    } else {
+	return $gnu;
+    }
+}
+
+sub debarch_to_multiarch($)
+{
+    my ($arch) = @_;
+
+    return gnutriplet_to_multiarch(debarch_to_gnutriplet($arch));
+}
+
 sub debtriplet_to_debarch(@)
 {
-    read_triplettable() if (!%debtriplet_to_debarch);
+    read_triplettable();
 
     my ($abi, $os, $cpu) = @_;
 
@@ -254,7 +324,7 @@ sub debtriplet_to_debarch(@)
 
 sub debarch_to_debtriplet($)
 {
-    read_triplettable() if (!%debarch_to_debtriplet);
+    read_triplettable();
 
     local ($_) = @_;
     my $arch;
@@ -312,7 +382,9 @@ sub debarch_to_cpuattrs($)
     my ($abi, $os, $cpu) = debarch_to_debtriplet($arch);
 
     if (defined($cpu)) {
-        return ($cpubits{$cpu}, $cpuendian{$cpu});
+        abitable_load();
+
+        return ($abibits{$abi} || $cpubits{$cpu}, $cpuendian{$cpu});
     } else {
         return undef;
     }
@@ -349,6 +421,19 @@ sub debarch_is($$)
 	return 1;
     }
 
+    return 0;
+}
+
+sub debarch_is_wildcard($)
+{
+    my ($arch) = @_;
+
+    return 0 if $arch eq 'all';
+
+    my @triplet = debwildcard_to_debtriplet($arch);
+
+    return 0 unless defined $triplet[0];
+    return 1 if (grep { $_ eq 'any' } @triplet);
     return 0;
 }
 

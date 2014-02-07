@@ -1,9 +1,29 @@
+.\" dpkg manual page - deb(5)
+.\"
+.\" Copyright Â© 1995 Raul Miller
+.\" Copyright Â© 1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2006-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb 5 2009\-02\-27 Debian\-Projekt Debian
+.TH deb 5 2012\-06\-16 Debian\-Projekt Debian
 .SH NAME
 deb \- Debian\-Binärpaketformat
 .SH ÜBERSICHT
@@ -17,8 +37,13 @@ erzeugt.
 Das hier beschriebene Format wird seit Debian 0.93 verwendet; Details über
 das alte Format sind in \fBdeb\-old\fP(5) beschrieben.
 .SH FORMAT
-Die Datei ist ein \fBar\fP\-Archiv mit einer magischen Zahl von
-\fB!<arch>\fP. Der Dateiname kann mit einem Schrägstrich abschließen.
+Die Datei ist ein \fBar\fP\-Archiv mit dem magischen Wert
+\fB!<arch>\fP. Nur das allgemeine \fBar\fP\-Archivformat wird unterstützt,
+ohne Unterstützung von Dateinamenerweiterungen, aber mit Dateinamen, die
+einen optionalen abschließenden Schrägstrich enthalten dürfen, deren Länge
+damit auf 15 Zeichen (von den erlaubten 16) begrenzt ist. Dateigrößen sind
+auf 10 dezimale ASCII\-Ziffern begrenzt, wodurch bis zu ungefähr 9536,74
+MiB\-Mitgliedsdateien erlaubt sind.
 .PP
 Derzeit werden die folgenden \fBtar\fP\-Archive erlaubt: alter Stil (V7\-)Format,
 pre\-POSIX\-ustar\-Format, eine Teilmenge des GNU\-Formats (nur der neue Stil
@@ -67,7 +92,7 @@ werden vor \fBdata.tar\fP mit Namen, die nicht mit einem Unterstrich anfangen,
 eingefügt oder werden (wahrscheinlicher) dazu führen, dass die
 Hauptversionsnummer erhöht wird.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2010 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

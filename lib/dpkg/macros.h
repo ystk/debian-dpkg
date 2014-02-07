@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * macros.h - C language support macros
  *
- * Copyright © 2008, 2009 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,30 +21,63 @@
 #ifndef LIBDPKG_MACROS_H
 #define LIBDPKG_MACROS_H
 
+/**
+ * @defgroup macros C language support macros
+ * @ingroup dpkg-public
+ * @{
+ */
+
 #ifndef LIBDPKG_VOLATILE_API
 #error "The libdpkg API is to be considered volatile, please read 'README.api'."
 #endif
 
 /* Language definitions. */
 
-#if defined(__GNUC__) && (__GNUC__ >= 3)
+#ifdef __GNUC__
+#define DPKG_GCC_VERSION (__GNUC__ << 8 | __GNUC_MINOR__)
+#else
+#define DPKG_GCC_VERSION 0
+#endif
+
+#if DPKG_GCC_VERSION >= 0x0300
 #define DPKG_ATTR_UNUSED	__attribute__((unused))
 #define DPKG_ATTR_CONST		__attribute__((const))
+#define DPKG_ATTR_PURE		__attribute__((pure))
+#define DPKG_ATTR_MALLOC	__attribute__((malloc))
 #define DPKG_ATTR_NORET		__attribute__((noreturn))
 #define DPKG_ATTR_PRINTF(n)	__attribute__((format(printf, n, n + 1)))
 #define DPKG_ATTR_VPRINTF(n)	__attribute__((format(printf, n, 0)))
 #else
 #define DPKG_ATTR_UNUSED
 #define DPKG_ATTR_CONST
+#define DPKG_ATTR_PURE
+#define DPKG_ATTR_MALLOC
 #define DPKG_ATTR_NORET
 #define DPKG_ATTR_PRINTF(n)
 #define DPKG_ATTR_VPRINTF(n)
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if DPKG_GCC_VERSION > 0x0302
+#define DPKG_ATTR_NONNULL(...)	__attribute__((nonnull(__VA_ARGS__)))
+#define DPKG_ATTR_REQRET	__attribute__((warn_unused_result))
+#else
+#define DPKG_ATTR_NONNULL(...)
+#define DPKG_ATTR_REQRET
+#endif
+
+#if DPKG_GCC_VERSION >= 0x0400
 #define DPKG_ATTR_SENTINEL	__attribute__((sentinel))
 #else
 #define DPKG_ATTR_SENTINEL
+#endif
+
+/* For C++, define a __func__ fallback in case it's not natively supported. */
+#if defined(__cplusplus) && __cplusplus < 201103L
+# if DPKG_GCC_VERSION >= 0x0200
+#  define __func__ __PRETTY_FUNCTION__
+# else
+#  define __func__ __FUNCTION__
+# endif
 #endif
 
 #ifdef __cplusplus
@@ -55,6 +88,18 @@
 #define DPKG_END_DECLS
 #endif
 
+/**
+ * @def DPKG_BIT
+ *
+ * Return the integer value of bit n.
+ */
+#define DPKG_BIT(n)	(1UL << (n))
+
+/**
+ * @def array_count
+ *
+ * Returns the amount of items in an array.
+ */
 #ifndef array_count
 #define array_count(a) (sizeof(a) / sizeof((a)[0]))
 #endif
@@ -70,5 +115,19 @@
 #endif
 #endif
 
-#endif /* LIBDPKG_MACROS_H */
+/**
+ * @def clamp
+ *
+ * Returns a normalized value within the low and high limits.
+ *
+ * @param v The value to clamp.
+ * @param l The low limit.
+ * @param h The high limit.
+ */
+#ifndef clamp
+#define clamp(v, l, h) ((v) > (h) ? (h) : ((v) < (l) ? (l) : (v)))
+#endif
 
+/** @} */
+
+#endif /* LIBDPKG_MACROS_H */

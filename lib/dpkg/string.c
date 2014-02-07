@@ -25,16 +25,34 @@
 #include <string.h>
 
 #include <dpkg/string.h>
+#include <dpkg/dpkg.h>
 
+/**
+ * Escape format characters from a string.
+ *
+ * @param dst The destination string.
+ * @param src The source string.
+ * @param n The size of the destination buffer.
+ *
+ * @return The end of the destination string.
+ */
 char *
-str_escape_fmt(char *dst, const char *src)
+str_escape_fmt(char *dst, const char *src, size_t n)
 {
 	char *d = dst;
 	const char *s = src;
 
+	if (n == 0)
+		return d;
+
 	while (*s) {
-		if (*s == '%')
+		if (*s == '%') {
+			if (n-- <= 2)
+				break;
 			*d++ = '%';
+		}
+		if (n-- <= 1)
+			break;
 		*d++ = *s++;
 	}
 
@@ -43,7 +61,42 @@ str_escape_fmt(char *dst, const char *src)
 	return d;
 }
 
-/* Check and strip possible surrounding quotes in string. */
+/**
+ * Quote shell metacharacters in a string.
+ *
+ * This function allows passing strings to commands without splitting the
+ * arguments, like in system(3)
+ *
+ * @param src The source string to escape.
+ *
+ * @return The new allocated string.
+ */
+char *
+str_quote_meta(const char *src)
+{
+	char *new_dst, *dst;
+
+	new_dst = dst = m_malloc(strlen(src) * 2);
+
+	while (*src) {
+		if (!cisdigit(*src) && !cisalpha(*src))
+			*dst++ = '\\';
+
+		*dst++ = *src++;
+	}
+
+	*dst = '\0';
+
+	return new_dst;
+}
+
+/**
+ * Check and strip possible surrounding quotes in string.
+ *
+ * @param str The string to act on.
+ *
+ * @return A pointer to str or NULL if the quotes were unbalanced.
+ */
 char *
 str_strip_quotes(char *str)
 {
@@ -60,4 +113,3 @@ str_strip_quotes(char *str)
 
 	return str;
 }
-

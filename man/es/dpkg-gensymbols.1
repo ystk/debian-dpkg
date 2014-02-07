@@ -1,16 +1,33 @@
-.\" Author: RaphaÃ«l Hertzog
+.\" dpkg manual page - dpkg-gensymbols(1)
+.\"
+.\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gensymbols 1 "7 de Agosto de 2009" "Proyecto Debian" "Herramientas de dpkg"
+.TH dpkg\-gensymbols 1 "22 de abril del 2012" "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 dpkg\-gensymbols \- Generación de ficheros «symbols» (información de
 dependencia de bibliotecas compartidas)
 .
 .SH SINOPSIS
-\fBdpkg\-gensymbols\fP [\fIopciones\fP]
+\fBdpkg\-gensymbols\fP [\fIopción\fP...]
 .
 .SH DESCRIPCIÓN
 \fBdpkg\-gensymbols\fP analiza un árbol temporal de construcción («debian/tmp»
@@ -20,8 +37,8 @@ los describa. Este fichero, si no está vacío, se instala en el subdirectorio
 información de control del paquete.
 .P
 Al generar estos ficheros, usa algunos ficheros «symbols» como entrada
-proporcionados por el desarrollador. Busca los siguientes ficheros, usando
-el primero que encuentra.
+proporcionados por el desarrollador. Busca los siguientes ficheros,
+utilizando el primero que encuentra.
 .IP \(bu 4
 debian/\fIpackage\fP.symbols.\fIarch\fP
 .IP \(bu 4
@@ -49,25 +66,31 @@ Los ficheros «symbols» son realmente útiles sólo cuando reflejan la
 evolución del paquete a lo largo de varias publicaciones. Por ello, el
 desarrollador tiene que actualizarlos cada vez que se añada un símbolo
 nuevo, para que así la mínima versión asociada concuerde con la
-realidad. Para hacer esto apropiadamente puede usar los «diff» contenidos en
-los registros de construcción. En la mayoría de los caso, el «diff» se
-aplica directamente sobre el fichero «debian/\fIpackage\fP.symbols». Dicho
-esto, es necesario afinar este proceso: se recomienda, por ejemplo, eliminar
-el número de revisión de Debian de la versión mínima para que así aquellas
-adaptaciones hacia atrás («backports») con un número de versión menor, pero
-con la misma versión que la fuente original, puedan satisfacer las
-dependencias generadas. Si no se puede eliminar la revisión de Debian porque
-el símbolo se añadió debido a un cambio específico de Debian puede afijar
-«~» a la versión.
+realidad. Para hacer esto apropiadamente puede utilizar los «diff»
+contenidos en los registros de construcción. En la mayoría de los caso, el
+«diff» se aplica directamente sobre el fichero
+«debian/\fIpackage\fP.symbols». Dicho esto, es necesario afinar este proceso:
+se recomienda, por ejemplo, eliminar el número de revisión de Debian de la
+versión mínima para que así aquellas adaptaciones hacia atrás («backports»)
+con un número de versión menor, pero con la misma versión que la fuente
+original, puedan satisfacer las dependencias generadas. Si no se puede
+eliminar la revisión de Debian porque el símbolo se añadió debido a un
+cambio específico de Debian puede afijar «~» a la versión.
 .P
 Antes de aplicar un parche al fichero «symbols» el desarrollador debería
 revisar nuevamente que es adecuado. Se espera que los símbolos públicos no
 desaparezcan así que, idealmente, el parche sólo debería añadir líneas
 nuevas.
+.P
+Tenga en cuenta que puede añadir comentarios en los ficheros de símbolos:
+cualquier línea que comienza con el carácter «#» es un comentario, a menos
+que empiece con «#include» (consulte la sección \fBUsar «include»\fP. Las
+líneas que comienzan con «#MISSING:» son comentarios especiales que
+documentan los símbolos que han desaparecido.
 .SS "Usar la sustitución de #PACKAGE#"
 .P
 En algunos casos aislados el nombre de la biblioteca varía según la
-arquitectura. Puede usar el marcador \fI#PACKAGE#\fP para evitar incrustar
+arquitectura. Puede utilizar el marcador \fI#PACKAGE#\fP para evitar incrustar
 («hardcode») el nombre del paquete en el fichero «symbols». Se reemplazará
 por el nombre real del paquete durante la instalación de los ficheros
 «symbols». A diferencia del marcador \fI#MINVER#\fP, \fI#PACKAGE#\fP nunca
@@ -111,7 +134,7 @@ Debido a que las etiquetas de símbolos son una extensión del formato
 \fIdeb\-symbols(5)\fP sólo pueden formar parte de los ficheros «symbols» de
 paquetes fuente (estos ficheros deberían aparecer como plantillas usadas
 para generar los ficheros «symbols» integrados en paquetes binarios). Cuando
-invoca \fBdpkg\-gensymbols\fP con la opción \fI\-t\fP, enviará por la salida
+ejecuta \fBdpkg\-gensymbols\fP con la opción \fI\-t\fP, enviará por la salida
 ficheros «symbols» compatibles con el formato \fIdeb\-symbols(5)\fP: procesa
 completamente los símbolos de acuerdo a los requerimientos de sus etiquetas
 estándar, y elimina todas las etiquetas de la salida. Por otra parte, en el
@@ -136,8 +159,8 @@ rompe la ABI. Por ejemplo, la mayoría de plantillas de producción de un
 objeto definido más específicamente por medio del reemplazo de ciertas
 variables por valores («instantiation») de C++ se encuentran dentro de esta
 categoría. Al igual que con cualquier otra etiqueta, éste puede tener un
-valor arbitrario: se puede usar para indicar porqué el símbolo se considera
-opcional.
+valor arbitrario: se puede utilizar para indicar porqué el símbolo se
+considera opcional.
 .TP 
 \fBarch=\fP\fIlista\-de\-arquitecturas\fP
 Esta etiqueta permite limitar el conjunto de arquitecturas dónde se supone
@@ -163,11 +186,13 @@ arquitecturas alternativas) siempre se escribirán al fichero «symbols».
 El formato de \fIlista\-de\-arquitecturas\fP es el mismo que el usado en el campo
 \fIBuild\-Depends\fP de \fIdebian/control\fP (a excepción de los paréntesis
 cuadrados de cierre «[]»). Por ejemplo, el primer símbolo de la lista a
-continuación se considerará sólo en las arquitecturas alpha, amd64,
-kfreebsd\-amd64 y ia64, mientras que el segundo en todos menos armel.
+continuación se considerará sólo en las arquitecturas alpha, any\-amd64 and
+ia64, el segundo solo en arquitecturas Linux, mientras que el tercero en
+todas menos armel.
 
- (arch=alpha amd64 kfreebsd\-amd64 ia64)un_símbolo _específico_64bit@Base 1.0
- (arch=!armel)símbolo_que_armel_no_tiene@Base 1.0
+ (arch=alpha any\-amd64 ia64)a_64bit_símbolo_específico@Base 1.0
+ (arch=linux\-any)símbolo_específico_linux@Base 1.0
+ (arch=!armel)símbolo_ausente_en_armel@Base 1.0
 .TP 
 \fBignore\-blacklist\fP
 dpkg\-gensymbols tiene una lista negra interna de símbolos que no deberían
@@ -189,7 +214,7 @@ sub\-sección a continuación \fBUsar patrones de símbolos\fP.
 \fBregex\fP
 Denota el patrón de símbolos \fIregex\fP (expresión regular). Consulte la
 sub\-sección a continuación \fBUsar patrones de símbolos\fP.
-.SS "Usar patrones de símbolos."
+.SS "Usar patrones de símbolos"
 .P
 A diferencia de cualquier definición de símbolo estándar un patrón puede
 cubrir varios símbolos reales de la biblioteca. \fBdpkg\-gensymbols\fP intentará
@@ -256,9 +281,9 @@ deberían degradar la calidad del fichero de símbolos.
 \fBsymver\fP
 La etiqueta \fIsymver\fP indica este patrón. Las bibliotecas bien mantenidas
 tienen símbolos con versión, donde cada versión corresponde con la versión
-del autor original en la que se añadió el símbolo. De ser así, puede usar un
-patrón \fIsymver\fP para emparejar el símbolo asociado con una versión en
-particular. Por ejemplo:
+del autor original en la que se añadió el símbolo. De ser así, puede
+utilizar un patrón \fIsymver\fP para emparejar el símbolo asociado con una
+versión en particular. Por ejemplo:
 .RS
 .PP
 libc.so.6 libc6 #MINVER#
@@ -333,9 +358,10 @@ entradas en plantillas de fichero ya que \fBdpkg\-gensymbols\fP genera «diffs»
 basados en el orden alfanumérico de sus nombres.
 .SS "Usar «include»"
 .P
-Hay casos en los que usar un sólo fichero de símbolos es contraproducente
-cuando el conjunto de símbolos exportados difiere según la arquitectura. En
-estos casos, una directiva «include» puede ser útil de un par de maneras:
+Hay casos en los que utilizar un sólo fichero de símbolos es
+contraproducente cuando el conjunto de símbolos exportados difiere según la
+arquitectura. En estos casos, una directiva «include» puede ser útil de un
+par de maneras:
 .IP \(bu 4
 Puede factorizar la parte común en algún fichero externo, e incluir ese
 fichero en su fichero \fIpaquete\fP.symbols.\fIarq\fP usando una directiva
@@ -345,11 +371,11 @@ fichero en su fichero \fIpaquete\fP.symbols.\fIarq\fP usando una directiva
 .IP \(bu
 Al igual que con cualquier símbolo, puede etiquetar la directiva «include»:
 
-(etiqueta|..|etiquetaN)#include "fichero\-para\-include"
+(etiqueta|...|etiquetaN)#include "fichero\-para\-include"
 
 Como resultado, se considerará que todos los símbolos incluidos en
-\fIfichero\-para\-include\fP están etiquetados con \fIetiqueta\fP .. \fIetiquetaN\fP
-por omisión. Puede usar esta característica para crear un fichero común
+\fIfichero\-para\-include\fP están etiquetados con \fIetiqueta\fP ... \fIetiquetaN\fP
+por omisión. Puede utilizar esta característica para crear un fichero común
 \fIpackage\fP.symbols, que incluye ficheros de símbolos específicos a la
 arquitectura.
 
@@ -410,14 +436,16 @@ binario en «debian/control» (o si no existe ningún fichero
 .TP 
 \fB\-v\fP\fIversión\fP
 Define la versión del paquete. El valor por omisión es la versión extraída
-de «debian/changelog». Necesario en caso de una invocación externa al árbol
+de «debian/changelog». Necesario en caso de una ejecución externa al árbol
 del paquete fuente.
 .TP 
 \fB\-e\fP\fIfichero\-biblioteca\fP
 Sólo analiza las bibliotecas listadas explícitamente, en lugar de buscar
-todas las bibliotecas públicas. Puede usar una expresión regular en
-\fIfichero\-biblioteca\fP para emparejar varias bibliotecas con un único
-argumento (de otra forma, necesita varias \fB\-e\fP).
+todas las bibliotecas públicas. Puede utilizar patrones de intérprete de
+órdenes regular utilizadas para la expansión de nombre de ruta (para más
+detalles consulte la página de manual «File::Glob») en \fIfichero\-biblioteca\fP
+para emparejar varias bibliotecas con un único argumento (de otra forma,
+necesita varias \fB\-e\fP).
 .TP 
 \fB\-I\fP\fInombre\-fichero\fP
 Usa \fInombre\-fichero\fP como un fichero de referencia para generar el fichero
@@ -430,7 +458,7 @@ almacenarlo en el árbol de construcción del paquete.
 \fB\-O\fP\fIfichero\fP
 Guarda el fichero de símbolos generado como \fIfichero\fP. Si el \fIfichero\fP ya
 existe su contenido se usará como base para el fichero «symbols»
-generado. Puede usar esta característica para actualizar un fichero
+generado. Puede utilizar esta característica para actualizar un fichero
 «symbols» para que coincida con una versión más reciente de la biblioteca
 del autor original.
 .TP 
@@ -479,7 +507,7 @@ obsoletos en la forma de comentarios. Además, en modo plantilla los patrones
 de símbolo anteceden a los comentarios que listan los símbolos reales que
 coinciden con el patrón.
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Muestra el modo de uso y termina.
 .TP 
 \fB\-\-version\fP
@@ -493,12 +521,6 @@ Muestra la versión y termina.
 \fBhttp://people.redhat.com/drepper/dsohowto.pdf\fP
 .br
 \fBdeb\-symbols\fP(5), \fBdpkg\-shlibdeps\fP(1).
-.
-.SH AUTORES
-Copyright \(co 2007\-2009 Rapha\[:e]l Hertzog
-.sp
-Esto es software libre; vea la versión 2 o posterior de la Licencia Pública
-General GNU para condiciones de copia. NO hay ninguna garantía.
 .SH "TRADUCTOR"
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,

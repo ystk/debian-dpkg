@@ -1,4 +1,4 @@
-# Copyright © 2008 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2008-2011 Raphaël Hertzog <hertzog@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,10 +15,27 @@
 
 package Dpkg::Source::Package;
 
+=encoding utf8
+
+=head1 NAME
+
+Dpkg::Source::Package - manipulate Debian source packages
+
+=head1 DESCRIPTION
+
+This module provides an object that can manipulate Debian source
+packages. While it supports both the extraction and the creation
+of source packages, the only API that is officially supported
+is the one that supports the extraction of the source package.
+
+=head1 FUNCTIONS
+
+=cut
+
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "1.0";
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
@@ -27,7 +44,7 @@ use Dpkg::Checksums;
 use Dpkg::Version;
 use Dpkg::Compression;
 use Dpkg::Exit;
-use Dpkg::Path qw(check_files_are_the_same);
+use Dpkg::Path qw(check_files_are_the_same find_command);
 use Dpkg::IPC;
 use Dpkg::Vendor qw(run_vendor_hook);
 
@@ -44,12 +61,11 @@ our $diff_ignore_default_regexp = '
 (?:^|/)\..*\.sw.$|
 # Ignore baz-style junk files or directories
 (?:^|/),,.*(?:$|/.*$)|
-# local-options must not be exported in the resulting source package
-(?:^|/)debian/source/local-options$|
 # File-names that should be ignored (never directories)
 (?:^|/)(?:DEADJOE|\.arch-inventory|\.(?:bzr|cvs|hg|git)ignore)$|
 # File or directory names that should be ignored
-(?:^|/)(?:CVS|RCS|\.deps|\{arch\}|\.arch-ids|\.svn|\.hg(?:tags)?|_darcs|\.git(?:attributes)?|
+(?:^|/)(?:CVS|RCS|\.deps|\{arch\}|\.arch-ids|\.svn|
+\.hg(?:tags|sigs)?|_darcs|\.git(?:attributes|modules)?|
 \.shelf|_MTN|\.be|\.bzr(?:\.backup|tags)?)(?:$|/.*$)
 ';
 # Take out comments and newlines
@@ -77,8 +93,10 @@ our @tar_ignore_default_pattern = qw(
 .git
 .gitattributes
 .gitignore
+.gitmodules
 .hg
 .hgignore
+.hgsigs
 .hgtags
 .shelf
 .svn
@@ -89,6 +107,41 @@ _MTN
 _darcs
 {arch}
 );
+
+=over 4
+
+=item $p = Dpkg::Source::Package->new(filename => $dscfile, options => {})
+
+Creates a new object corresponding to the source package described
+by the file $dscfile.
+
+The options hash supports the following options:
+
+=over 8
+
+=item skip_debianization
+
+If set to 1, do not apply Debian changes on the extracted source package.
+
+=item skip_patches
+
+If set to 1, do not apply Debian-specific patches. This options is
+specific for source packages using format "2.0" and "3.0 (quilt)".
+
+=item require_valid_signature
+
+If set to 1, the check_signature() method will be stricter and will error
+out if the signature can't be verified.
+
+=item copy_orig_tarballs
+
+If set to 1, the extraction will copy the upstream tarballs next the
+target directory. This is useful if you want to be able to rebuild the
+source package after its extraction.
+
+=back
+
+=cut
 
 # Object methods
 sub new {
@@ -115,13 +168,15 @@ sub init_options {
     # Use full ignore list by default
     # note: this function is not called by V1 packages
     $self->{'options'}{'diff_ignore_regexp'} ||= $diff_ignore_default_regexp;
+    $self->{'options'}{'diff_ignore_regexp'} .= '|(?:^|/)debian/source/local-.*$';
     if (defined $self->{'options'}{'tar_ignore'}) {
         $self->{'options'}{'tar_ignore'} = [ @tar_ignore_default_pattern ]
             unless @{$self->{'options'}{'tar_ignore'}};
     } else {
         $self->{'options'}{'tar_ignore'} = [ @tar_ignore_default_pattern ];
     }
-    push @{$self->{'options'}{'tar_ignore'}}, "debian/source/local-options";
+    push @{$self->{'options'}{'tar_ignore'}}, "debian/source/local-options",
+         "debian/source/local-patch-header";
     # Skip debianization while specific to some formats has an impact
     # on code common to all formats
     $self->{'options'}{'skip_debianization'} ||= 0;
@@ -139,7 +194,7 @@ sub initialize {
     $self->{'is_signed'} = 0;
     while (<DSC>) {
         next if /^\s*$/o;
-        $self->{'is_signed'} = 1 if /^-----BEGIN PGP SIGNED MESSAGE-----$/o;
+        $self->{'is_signed'} = 1 if /^-----BEGIN PGP SIGNED MESSAGE-----\s*$/o;
         last;
     }
     close(DSC);
@@ -178,7 +233,8 @@ sub upgrade_object_type {
             $self->{'fields'}{'Format'} .= " ($variant)" if defined $variant;
         }
         if ($@) {
-	    error(_g("source package format `%s' is not supported (Perl module %s is required)"), $format, $module);
+            error(_g("source package format '%s' is not supported: %s"),
+                  $format, $@);
         }
         bless $self, $module;
     } else {
@@ -186,15 +242,36 @@ sub upgrade_object_type {
     }
 }
 
+=item $p->get_filename()
+
+Returns the filename of the DSC file.
+
+=cut
+
 sub get_filename {
     my ($self) = @_;
     return $self->{'basedir'} . $self->{'filename'};
 }
 
+=item $p->get_files()
+
+Returns the list of files referenced by the source package. The filenames
+usually do not have any path information.
+
+=cut
+
 sub get_files {
     my ($self) = @_;
     return $self->{'checksums'}->get_files();
 }
+
+=item $p->check_checksums()
+
+Verify the checksums embedded in the DSC file. It requires the presence of
+the other files constituting the source package. If any inconsistency is
+discovered, it immediately errors out.
+
+=cut
 
 sub check_checksums {
     my ($self) = @_;
@@ -240,22 +317,39 @@ sub find_original_tarballs {
     return @tar;
 }
 
+=item $bool = $p->is_signed()
+
+Returns 1 if the DSC files contains an embedded OpenPGP signature.
+Otherwise returns 0.
+
+=cut
+
 sub is_signed {
     my $self = shift;
     return $self->{'is_signed'};
 }
 
+=item $p->check_signature()
+
+Implement the same OpenPGP signature check that dpkg-source does.
+In case of problems, it prints a warning or errors out.
+
+If the object has been created with the "require_valid_signature" option,
+then any problem will result in a fatal error.
+
+=cut
+
 sub check_signature {
     my ($self) = @_;
     my $dsc = $self->get_filename();
     my @exec;
-    if (-x '/usr/bin/gpgv') {
+    if (find_command('gpgv')) {
         push @exec, "gpgv";
-    } elsif (-x '/usr/bin/gpg') {
+    } elsif (find_command('gpg')) {
         push @exec, "gpg", "--no-default-keyring", "-q", "--verify";
     }
     if (scalar(@exec)) {
-        if (-r "$ENV{'HOME'}/.gnupg/trustedkeys.gpg") {
+        if (defined $ENV{'HOME'} and -r "$ENV{'HOME'}/.gnupg/trustedkeys.gpg") {
             push @exec, "--keyring", "$ENV{'HOME'}/.gnupg/trustedkeys.gpg";
         }
         foreach my $vendor_keyring (run_vendor_hook('keyrings')) {
@@ -303,6 +397,13 @@ sub parse_cmdline_options {
 sub parse_cmdline_option {
     return 0;
 }
+
+=item $p->extract($targetdir)
+
+Extracts the source package in the target directory $targetdir. Beware
+that if $targetdir already exists, it will be erased.
+
+=cut
 
 sub extract {
     my $self = shift;
@@ -412,6 +513,21 @@ sub add_file {
 					    use_files_for_md5 => 1);
 }
 
+sub commit {
+    my $self = shift;
+    eval { $self->do_commit(@_) };
+    if ($@) {
+        &$_() foreach reverse @Dpkg::Exit::handlers;
+        die $@;
+    }
+}
+
+sub do_commit {
+    my ($self, $dir) = @_;
+    info(_g("'%s' is not supported by the source format '%s'"),
+         "dpkg-source --commit", $self->{'fields'}{'Format'});
+}
+
 sub write_dsc {
     my ($self, %opts) = @_;
     my $fields = $self->{'fields'};
@@ -446,6 +562,14 @@ sub write_dsc {
     $fields->output(\*DSC);
     close(DSC);
 }
+
+=back
+
+=head1 AUTHOR
+
+Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
+
+=cut
 
 # vim: set et sw=4 ts=8
 1;

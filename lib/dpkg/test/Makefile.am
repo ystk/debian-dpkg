@@ -1,9 +1,14 @@
 ## Process this file with automake to produce Makefile.in
 
 AM_CPPFLAGS = \
+	-DADMINDIR=\"$(admindir)\" \
 	-idirafter $(top_srcdir)/lib/compat \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
+LDADD = \
+	$(top_builddir)/lib/dpkg/libdpkg.a \
+	$(top_builddir)/lib/compat/libcompat.a \
+	$(LIBINTL)
 
 
 # The tests are sorted in order of increasing complexity.
@@ -13,28 +18,18 @@ check_PROGRAMS = \
 	t-string \
 	t-buffer \
 	t-path \
+	t-progname \
+	t-subproc \
 	t-command \
 	t-varbuf \
 	t-ar \
+	t-deb-version \
+	t-arch \
 	t-version \
 	t-pkginfo \
 	t-pkg-list \
-	t-pkg-queue
-
-CHECK_LDADD = ../libdpkg.a
-
-t_ar_LDADD = $(CHECK_LDADD)
-t_command_LDADD = $(CHECK_LDADD)
-t_macros_LDADD = $(CHECK_LDADD)
-t_path_LDADD = $(CHECK_LDADD)
-t_pkginfo_LDADD = $(CHECK_LDADD)
-t_pkg_list_LDADD = $(CHECK_LDADD)
-t_pkg_queue_LDADD = $(CHECK_LDADD)
-t_string_LDADD = $(CHECK_LDADD)
-t_buffer_LDADD = $(CHECK_LDADD)
-t_test_LDADD = $(CHECK_LDADD)
-t_varbuf_LDADD = $(CHECK_LDADD)
-t_version_LDADD = $(CHECK_LDADD)
+	t-pkg-queue \
+	t-trigger \
+	t-mod-db
 
 TESTS = $(check_PROGRAMS)
-

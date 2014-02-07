@@ -3,7 +3,7 @@
 localedir = $(datadir)/locale
 AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\" \
-	-DADMINDIR=\"$(admindir)\" -DMKSPLITSCRIPT=\"$(pkglibdir)/mksplit\" \
+	-DADMINDIR=\"$(admindir)\" \
 	-idirafter $(top_srcdir)/lib/compat \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
@@ -25,4 +25,4 @@ dpkg_split_LDADD = \
 	$(LIBINTL)
 
 install-data-local:
-	$(mkdir_p) $(DESTDIR)$(admindir)/parts
+	$(MKDIR_P) $(DESTDIR)$(admindir)/parts

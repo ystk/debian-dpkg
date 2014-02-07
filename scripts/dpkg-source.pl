@@ -10,8 +10,8 @@
 # Copyright © 2000-2003 Adam Heath <doogie@debian.org>
 # Copyright © 2005 Brendan O'Dea <bod@debian.org>
 # Copyright © 2006-2008 Frank Lichtenheld <djpig@debian.org>
-# Copyright © 2006-2009 Guillem Jover <guillem@debian.org>
-# Copyright © 2008-2010 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2006-2009,2012 Guillem Jover <guillem@debian.org>
+# Copyright © 2008-2011 Raphaël Hertzog <hertzog@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ use warnings;
 use Dpkg;
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
-use Dpkg::Arch qw(debarch_eq);
+use Dpkg::Arch qw(debarch_eq debarch_is debarch_is_wildcard);
 use Dpkg::Deps;
 use Dpkg::Compression;
 use Dpkg::Conf;
@@ -45,6 +45,8 @@ use Dpkg::Changelog::Parse;
 use Dpkg::Source::Package;
 use Dpkg::Vendor qw(run_vendor_hook);
 
+use Cwd;
+use File::Basename;
 use File::Spec;
 
 textdomain("dpkg-dev");
@@ -85,6 +87,8 @@ while (@ARGV && $ARGV[0] =~ m/^-/) {
         setopmode('-x');
     } elsif (m/^--(before|after)-build$/) {
         setopmode($_);
+    } elsif (m/^--commit$/) {
+        setopmode($_);
     } elsif (m/^--print-format$/) {
 	setopmode('--print-format');
 	report_options(info_fh => \*STDERR); # Avoid clutter on STDOUT
@@ -95,14 +99,22 @@ while (@ARGV && $ARGV[0] =~ m/^-/) {
 
 my $dir;
 if (defined($options{'opmode'}) &&
-    $options{'opmode'} =~ /^(-b|--print-format|--before-build|--after-build)$/) {
+    $options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/) {
     if (not scalar(@ARGV)) {
-	usageerr(_g("%s needs a directory"), $options{'opmode'});
+	usageerr(_g("%s needs a directory"), $options{'opmode'})
+	    unless $1 eq "--commit";
+	$dir = ".";
+    } else {
+	$dir = File::Spec->catdir(shift(@ARGV));
     }
-    $dir = File::Spec->catdir(shift(@ARGV));
     stat($dir) || syserr(_g("cannot stat directory %s"), $dir);
     if (not -d $dir) {
 	error(_g("directory argument %s is not a directory"), $dir);
+    }
+    if ($dir eq ".") {
+	# . is never correct, adjust automatically
+	$dir = basename(cwd());
+	chdir("..") || syserr(_g("unable to chdir to `%s'"), "..");
     }
     # --format options are not allowed, they would take precedence
     # over real command line options, debian/source/format should be used
@@ -158,6 +170,9 @@ while (@options) {
         $options{'diff_ignore_regexp'} = $1 ? $1 : $Dpkg::Source::Package::diff_ignore_default_regexp;
     } elsif (m/^--extend-diff-ignore=(.+)$/) {
 	$Dpkg::Source::Package::diff_ignore_default_regexp .= "|$1";
+	if ($options{'diff_ignore_regexp'}) {
+	    $options{'diff_ignore_regexp'} .= "|$1";
+	}
     } elsif (m/^-(?:I|-tar-ignore=)(.+)$/) {
         push @{$options{'tar_ignore'}}, $1;
     } elsif (m/^-(?:I|-tar-ignore)$/) {
@@ -176,7 +191,7 @@ while (@options) {
         $substvars->set($1, $2);
     } elsif (m/^-T(.*)$/) {
 	$substvars->load($1) if -e $1;
-    } elsif (m/^-(h|-help)$/) {
+    } elsif (m/^-(\?|-help)$/) {
         usage();
         exit(0);
     } elsif (m/^--version$/) {
@@ -196,10 +211,10 @@ while (@options) {
 }
 
 unless (defined($options{'opmode'})) {
-    usageerr(_g("need a command (-x, -b, --before-build, --after-build, --print-format)"));
+    usageerr(_g("need a command (-x, -b, --before-build, --after-build, --print-format, --commit)"));
 }
 
-if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
+if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/) {
 
     $options{'ARGV'} = \@ARGV;
 
@@ -220,17 +235,21 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
 
     # Scan control info of source package
     my $src_fields = $control->get_source();
+    error(_g("%s doesn't contain any information about the source package"),
+          $controlfile) unless defined $src_fields;
+    my $src_sect = $src_fields->{'Section'} || "unknown";
+    my $src_prio = $src_fields->{'Priority'} || "unknown";
     foreach $_ (keys %{$src_fields}) {
 	my $v = $src_fields->{$_};
 	if (m/^Source$/i) {
 	    set_source_package($v);
 	    $fields->{$_} = $v;
 	} elsif (m/^Uploaders$/i) {
-	    ($fields->{$_} = $v) =~ s/[\r\n]/ /g; # Merge in a single-line
-	} elsif (m/^Build-(Depends|Conflicts)(-Indep)?$/i) {
+	    ($fields->{$_} = $v) =~ s/\s*[\r\n]\s*/ /g; # Merge in a single-line
+	} elsif (m/^Build-(Depends|Conflicts)(-Arch|-Indep)?$/i) {
 	    my $dep;
 	    my $type = field_get_dep_type($_);
-	    $dep = deps_parse($v, union => $type eq 'union');
+	    $dep = deps_parse($v, build_dep => 1, union => $type eq 'union');
 	    error(_g("error occurred while parsing %s"), $_) unless defined $dep;
 	    my $facts = Dpkg::Deps::KnownFacts->new();
 	    $dep->simplify_deps($facts);
@@ -242,8 +261,14 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
     }
 
     # Scan control info of binary packages
+    my @pkglist;
     foreach my $pkg ($control->get_packages()) {
 	my $p = $pkg->{'Package'};
+	my $sect = $pkg->{'Section'} || $src_sect;
+	my $prio = $pkg->{'Priority'} || $src_prio;
+	my $type = $pkg->{'Package-Type'} ||
+	        $pkg->get_custom_field('Package-Type') || 'deb';
+	push @pkglist, sprintf("%s %s %s %s", $p, $type, $sect, $prio);
 	push(@binarypackages,$p);
 	foreach $_ (keys %{$pkg}) {
 	    my $v = $pkg->{$_};
@@ -272,11 +297,30 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
             }
 	}
     }
+    unless (scalar(@pkglist)) {
+	error(_g("%s doesn't list any binary package"), $controlfile);
+    }
     if (grep($_ eq 'any', @sourcearch)) {
-        # If we encounter one 'any' then the other arches become insignificant.
-        @sourcearch = ('any');
+        # If we encounter one 'any' then the other arches become insignificant
+        # except for 'all' that must also be kept
+        if (grep($_ eq 'all', @sourcearch)) {
+            @sourcearch = ('any', 'all');
+        } else {
+            @sourcearch = ('any');
+        }
+    } else {
+        # Minimize arch list, by remoing arches already covered by wildcards
+        my @arch_wildcards = grep(debarch_is_wildcard($_), @sourcearch);
+        my @mini_sourcearch = @arch_wildcards;
+        foreach my $arch (@sourcearch) {
+            if (!grep(debarch_is($arch, $_), @arch_wildcards)) {
+                push @mini_sourcearch, $arch;
+            }
+        }
+        @sourcearch = @mini_sourcearch;
     }
     $fields->{'Architecture'} = join(' ', @sourcearch);
+    $fields->{'Package-List'} = "\n" . join("\n", sort @pkglist);
 
     # Scan fields of dpkg-parsechangelog
     foreach $_ (keys %{$changelog}) {
@@ -289,6 +333,9 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
 	    my ($ok, $error) = version_check($v);
             error($error) unless $ok;
 	    $fields->{$_} = $v;
+	} elsif (m/^Binary-Only$/) {
+	    error(_g("building source for a binary-only release"))
+	        if $v eq "yes" and $options{'opmode'} eq "-b";
 	} elsif (m/^Maintainer$/i) {
             # Do not replace the field coming from the source entry
 	} else {
@@ -308,7 +355,9 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
 	    open(FORMAT, "<", "$dir/debian/source/format") ||
 		syserr(_g("cannot read %s"), "$dir/debian/source/format");
 	    $build_format = <FORMAT>;
-	    chomp($build_format);
+	    chomp($build_format) if defined $build_format;
+	    error(_g("%s is empty"), "$dir/debian/source/format")
+		unless defined $build_format and length $build_format;
 	    close(FORMAT);
 	} else {
 	    warning(_g("no source format specified in %s, " .
@@ -331,6 +380,9 @@ if ($options{'opmode'} =~ /^(-b|--print-format|--(before|after)-build)$/) {
 	exit(0);
     } elsif ($options{'opmode'} eq "--after-build") {
 	$srcpkg->after_build($dir);
+	exit(0);
+    } elsif ($options{'opmode'} eq "--commit") {
+	$srcpkg->commit($dir);
 	exit(0);
     }
 
@@ -416,11 +468,6 @@ sub version {
     printf _g("Debian %s version %s.\n"), $progname, $version;
 
     print _g("
-Copyright (C) 1996 Ian Jackson
-Copyright (C) 1997 Klee Dienes
-Copyright (C) 2008 Raphael Hertzog");
-
-    print _g("
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
 ");
@@ -428,21 +475,23 @@ later for copying conditions. There is NO warranty.
 
 sub usage {
     printf _g(
-"Usage: %s [<option> ...] <command>
-
-Commands:
+"Usage: %s [<option>...] <command>")
+    . "\n\n" . _g(
+"Commands:
   -x <filename>.dsc [<output-dir>]
                            extract source package.
   -b <dir>                 build source package.
   --print-format <dir>     print the source format that would be
-                           used to build the source package.")
+                           used to build the source package.
+  --commit [<dir> [<patch-name>]]
+                           store upstream changes in a new patch.")
     . "\n\n" . _g(
 "Build options:
-  -c<controlfile>          get control info from this file.
-  -l<changelogfile>        get per-version info from this file.
-  -F<changelogformat>      force change log format.
+  -c<control-file>         get control info from this file.
+  -l<changelog-file>       get per-version info from this file.
+  -F<changelog-format>     force changelog format.
   -V<name>=<value>         set a substitution variable.
-  -T<varlistfile>          read variables here.
+  -T<substvars-file>       read variables here.
   -D<field>=<value>        override or add a .dsc field and value.
   -U<field>                remove a field.
   -q                       quiet mode.
@@ -461,7 +510,7 @@ Commands:
   --require-valid-signature abort if the package doesn't have a valid signature")
     . "\n\n" . _g(
 "General options:
-  -h, --help               show this help message.
+  -?, --help               show this help message.
       --version            show the version.")
     . "\n\n" . _g(
 "More options are available but they depend on the source package format.
@@ -473,4 +522,3 @@ See dpkg-source(1) for more info.") . "\n",
     join(" ", compression_get_list()),
     compression_get_default_level();
 }
-

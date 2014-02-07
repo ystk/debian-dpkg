@@ -1,14 +1,34 @@
+.\" dpkg manual page - dpkg-divert(8)
+.\"
+.\" Copyright Â© 1995 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 1999 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
+.\" Copyright Â© 2007-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-divert 8 2008\-08\-18 "Projekt Debiana" "programy pomocnicze dpkg"
+.TH dpkg\-divert 8 2011\-08\-14 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 dpkg\-divert \- nadpisywanie plików z pakietów
 .
 .SH SK£ADNIA
-\fBdpkg\-divert\fP [\fIopcje\fP] \fIpolecenie\fP
+\fBdpkg\-divert\fP [\fIopcja\fP...] \fIpolecenie\fP
 .
 .SH OPIS
 \fBdpkg\-diver\fP jest narzêdziem u¿ywanym do tworzenia i aktualizowania listy
@@ -73,7 +93,7 @@ je¿eli plik docelowy ju¿ istnieje.
 Tryb testowy, tzn. nie wykonuje ¿adnych akcji, tylko pokazuje, co zosta³oby
 zrobione.
 .TP 
-\fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Wy¶wietla informacjê o u¿ytkowaniu i koñczy dzia³anie.
 .TP 
 \fB\-\-version\fP
@@ -81,8 +101,8 @@ Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
 .
 .SH UWAGI
 Podczas dodawania domy¶lnymi opcjami s± \fB\-\-local\fP i \fB\-\-divert\fP
-\fI<oryginalny>.distrib\fP. Podczas usuwania \fB\-\-package\fP lub
-\fB\-\-local\fP i \fB\-\-divert\fP, je¶li zosta³y podane, to musz± pasowaæ.
+\fIoryginalny\fP\fB.distrib\fP. Podczas usuwania \fB\-\-package\fP lub \fB\-\-local\fP i
+\fB\-\-divert\fP, je¶li zosta³y podane, to musz± pasowaæ.
 
 Za pomoc± \fBdpkg\-divert\fP nie mo¿na nadpisaæ katalogów.
 
@@ -116,6 +136,16 @@ Aby usun±æ to nadpisanie:
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/przyk³ad
 .
+.SH ¦RODOWISKO
+.TP 
+\fBDPKG_ADMINDIR\fP
+Je¶li jest ustawiona i nie u¿yto opcji \fB\-\-admindir\fP, bêdzie u¿ywana jako
+katalog danych dpkg.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Je¶li jest ustawiona i nie u¿yto opcji \fB\-\-local\fP i \fB\-\-package\fP, to
+\fBdpkg\-divert\fP u¿yje jej jako nazwy pakietu.
+.
 .SH PLIKI
 .TP 
 \fI/var/lib/dpkg/diversions\fP
@@ -128,13 +158,6 @@ kopiê w pliku z rozszerzeniem "\-old".
 .
 .SH "ZOBACZ TAK¯E"
 \fBdpkg\fP(1).
-.
-.SH AUTOR
-Copyright \(co 1995 Ian Jackson
-.sp
-Niniejszy program jest oprogramowaniem wolnym, sprawd¼ Powszechn± Licencjê
-Publiczn± GNU w wersji drugiej lub pó¼niejszej, by dowiedzieæ siê o
-warunkach dystrybucji. Brak JAKIEJKOLWIEK gwarancji.
 .SH "T£UMACZE"
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
@@ -143,3 +166,5 @@ Bartosz Feñski <fenio@debian.org>, 2004-2005
 Robert Luberda <robert@debian.org>, 2006-2008
 .br
 Wiktor Wandachowicz <siryes@gmail.com>, 2008
+.br
+Micha³ Ku³ach <michal.kulach@gmail.com>, 2012

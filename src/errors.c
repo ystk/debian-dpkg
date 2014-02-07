@@ -37,7 +37,7 @@
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
-#include <dpkg/myopt.h>
+#include <dpkg/options.h>
 
 #include "main.h"
 
@@ -56,15 +56,15 @@ static struct error_report emergency;
 
 void print_error_perpackage(const char *emsg, const char *arg) {
   struct error_report *nr;
-  
-  fprintf(stderr, _("%s: error processing %s (--%s):\n %s\n"),
-          DPKG, arg, cipaction->olong, emsg);
+
+  notice(_("error processing %s (--%s):\n %s"), arg, cipaction->olong, emsg);
 
   statusfd_send("status: %s : %s : %s", arg, "error", emsg);
 
   nr= malloc(sizeof(struct error_report));
   if (!nr) {
-    perror(_("dpkg: failed to allocate memory for new entry in list of failed packages."));
+    notice(_("failed to allocate memory for new entry in list of failed packages: %s"),
+           strerror(errno));
     abort_processing = true;
     nr= &emergency;
   }
@@ -72,13 +72,15 @@ void print_error_perpackage(const char *emsg, const char *arg) {
   nr->next = NULL;
   *lastreport= nr;
   lastreport= &nr->next;
-    
+
   if (nerrs++ < errabort) return;
-  fprintf(stderr, _("dpkg: too many errors, stopping\n"));
+  notice(_("too many errors, stopping"));
   abort_processing = true;
 }
 
-int reportbroken_retexitstatus(void) {
+int
+reportbroken_retexitstatus(int ret)
+{
   if (reports) {
     fputs(_("Errors were encountered while processing:\n"),stderr);
     while (reports) {
@@ -89,7 +91,7 @@ int reportbroken_retexitstatus(void) {
   if (abort_processing) {
     fputs(_("Processing was halted because there were too many errors.\n"),stderr);
   }
-  return nerrs ? 1 : 0;
+  return nerrs ? 1 : ret;
 }
 
 bool
@@ -98,12 +100,12 @@ skip_due_to_hold(struct pkginfo *pkg)
   if (pkg->want != want_hold)
     return false;
   if (fc_hold) {
-    fprintf(stderr, _("Package %s was on hold, processing it anyway as you requested\n"),
-            pkg->name);
+    notice(_("package %s was on hold, processing it anyway as you requested"),
+           pkg_name(pkg, pnaw_nonambig));
     return false;
   }
   printf(_("Package %s is on hold, not touching it.  Use --force-hold to override.\n"),
-         pkg->name);
+         pkg_name(pkg, pnaw_nonambig));
   return true;
 }
 

@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 use Dpkg::IPC;
+use Dpkg::Path qw(find_command);
 use File::Spec;
 use Test::More;
 
@@ -28,6 +29,15 @@ my $bindir = File::Spec->rel2abs("$tmpdir/bin");
 my @ua = ("$ENV{builddir}/update-alternatives", "--log", "/dev/null",
           "--quiet", "--admindir", "$admindir", "--altdir", "$altdir");
 
+my %paths = (
+    true => find_command("true"),
+    false => find_command("false"),
+    yes => find_command("yes"),
+    cat => find_command("cat"),
+    date => find_command("date"),
+    sleep => find_command("sleep"),
+);
+
 if (! -x "$ENV{builddir}/update-alternatives") {
     plan skip_all => "update-alternatives not available";
     exit(0);
@@ -37,51 +47,51 @@ my $main_link = "$bindir/generic-test";
 my $main_name = "generic-test";
 my @choices = (
     {
-	path => "/bin/true",
+	path => $paths{true},
 	priority => 20,
 	slaves => [
 	    {
 		"link" => "$bindir/slave2",
 		name => "slave2",
-		path => "/bin/cat",
+		path => $paths{cat},
 	    },
 	    {
 		"link" => "$bindir/slave3",
 		name => "slave3",
-		path => "/bin/cat",
+		path => $paths{cat},
 	    },
 	    {
 		"link" => "$bindir/slave1",
 		name => "slave1",
-		path => "/usr/bin/yes",
+		path => $paths{yes},
 	    },
 	    {
 		"link" => "$bindir/slave4",
 		name => "slave4",
-		path => "/bin/cat",
+		path => $paths{cat},
 	    },
 	],
     },
     {
-        path => "/bin/false",
+        path => $paths{false},
         priority => 10,
         slaves => [
 	    {
 		"link" => "$bindir/slave1",
 		name => "slave1",
-		path => "/bin/date",
+		path => $paths{date},
 	    },
         ],
     },
     {
-        path => "/bin/sleep",
+        path => $paths{sleep},
         priority => 5,
         slaves => [],
     },
 );
 my $nb_slaves = 4;
-plan tests => (4 * ($nb_slaves + 1) + 2) * 25 # number of check_choices
-		+ 69;			      # rest
+plan tests => (4 * ($nb_slaves + 1) + 2) * 26 # number of check_choices
+               + 106;                         # rest
 
 sub cleanup {
     system("rm -rf $tmpdir && mkdir -p $admindir && mkdir -p $altdir");
@@ -119,20 +129,26 @@ sub install_choice {
 sub remove_choice {
     my ($id, %opts) = @_;
     my $alt = $choices[$id];
-    my @params = ("--remove", $main_name, $alt->{path});
+    my @params;
+    push @params, @{$opts{params}} if exists $opts{params};
+    push @params, "--remove", $main_name, $alt->{path};
     call_ua(\@params, %opts);
 }
 
 sub remove_all_choices {
     my (%opts) = @_;
-    my @params = ("--remove-all", $main_name);
+    my @params;
+    push @params, @{$opts{params}} if exists $opts{params};
+    push @params, "--remove-all", $main_name;
     call_ua(\@params, %opts);
 }
 
 sub set_choice {
     my ($id, %opts) = @_;
     my $alt = $choices[$id];
-    my @params = ("--set", $main_name, $alt->{path});
+    my @params;
+    push @params, @{$opts{params}} if exists $opts{params};
+    push @params, "--set", $main_name, $alt->{path};
     call_ua(\@params, %opts);
 }
 
@@ -148,7 +164,9 @@ sub config_choice {
     $input .= "\n";
     $opts{from_string} = \$input;
     $opts{to_string} = \$output;
-    my @params = ("--config", $main_name);
+    my @params;
+    push @params, @{$opts{params}} if exists $opts{params};
+    push @params, "--config", $main_name;
     call_ua(\@params, %opts);
 }
 
@@ -242,7 +260,8 @@ check_choice(0, "auto", "initial install 3");
     open(FILE, "<", "$admindir/generic-test") or die $!;
     my $content = <FILE>;
     close(FILE);
-    is($content,
+
+    my $expected =
 "auto
 $bindir/generic-test
 slave1
@@ -254,35 +273,37 @@ $bindir/slave3
 slave4
 $bindir/slave4
 
-/bin/false
-10
-/bin/date
+";
 
+    my %slaves;
 
+    # Store slaves in a hash to easily retrieve present and missing ones.
+    foreach my $alt (@choices) {
+        foreach my $slave (@{$alt->{slaves}}) {
+            $slaves{$slave->{name}}{$alt->{path}} = $slave;
+        }
+    }
 
-/bin/sleep
-5
+    foreach my $alt (sort { $a->{path} cmp $b->{path} } @choices) {
+        $expected .= $alt->{path} . "\n";
+        $expected .= $alt->{priority} . "\n";
+        foreach my $slave_name (sort keys %slaves) {
+            $expected .= $slaves{$slave_name}{$alt->{path}}{path} || "";
+            $expected .= "\n";
+        }
+    }
+    $expected .= "\n";
 
-
-
-
-/bin/true
-20
-/usr/bin/yes
-/bin/cat
-/bin/cat
-/bin/cat
-
-", "administrative file is as expected");
+    is($content, $expected, "administrative file is as expected");
 }
 
 # manual change with --set-selections
-my $input = "doesntexist auto /bin/date\ngeneric-test manual /bin/false\n";
+my $input = "doesntexist auto $paths{date}\ngeneric-test manual $paths{false}\n";
 my $output = "";
 call_ua(["--set-selections"], from_string => \$input,
         to_string => \$output, test_id => "manual update with --set-selections");
 check_choice(1, "manual", "manual update with --set-selections");
-$input = "generic-test auto /bin/true\n";
+$input = "generic-test auto $paths{true}\n";
 call_ua(["--set-selections"], from_string => \$input,
         to_string => \$output, test_id => "auto update with --set-selections");
 check_choice(0, "auto", "auto update with --set-selections");
@@ -354,7 +375,15 @@ $choices[0]{"slaves"}[0]{"link"} = "$bindir/generic-slave-bis";
 install_choice(0);
 check_choice(0, "auto", "rename lost file");
 check_no_link($old_slave, "rename lost file");
+# update of alternative with many slaves not currently installed
+# and the link of the renamed slave exists while it should not
+set_choice(1);
+symlink("$paths{cat}", "$bindir/generic-slave-bis");
 $choices[0]{"slaves"}[0]{"link"} = "$bindir/slave2";
+install_choice(0, test_id => "update with non-installed slaves");
+check_no_link("$bindir/generic-slave-bis",
+              "drop renamed symlink that should not be installed");
+
 # test install with empty admin file (#457863)
 cleanup();
 system("touch $admindir/generic-test");
@@ -368,25 +397,30 @@ install_choice(0, error_to_file => "/dev/null", expect_failure => 1);
 cleanup();
 install_choice(0);
 # try to install a slave alternative as new master
-call_ua(["--install", "$bindir/testmaster", "slave1", "/bin/date", "10"],
+call_ua(["--install", "$bindir/testmaster", "slave1", "$paths{date}", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # try to install a master alternative as slave
-call_ua(["--install", "$bindir/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/testslave", "generic-test", "/bin/true" ],
+call_ua(["--install", "$bindir/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/testslave", "generic-test", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # try to reuse master link in slave
-call_ua(["--install", "$bindir/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/testmaster", "testslave", "/bin/true" ],
+call_ua(["--install", "$bindir/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/testmaster", "testslave", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # try to reuse links in master alternative
-call_ua(["--install", "$bindir/slave1", "testmaster", "/bin/date", "10"],
+call_ua(["--install", "$bindir/slave1", "testmaster", "$paths{date}", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # try to reuse links in slave alternative
-call_ua(["--install", "$bindir/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/generic-test", "testslave", "/bin/true" ],
+call_ua(["--install", "$bindir/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/generic-test", "testslave", "$paths{true}" ],
+	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
+# try to reuse slave link in another slave alternative of another choice of
+# the same main alternative
+call_ua(["--install", $main_link, $main_name, "$paths{date}", "10",
+	 "--slave", "$bindir/slave1", "testslave", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # lack of absolute filenames in links or file path, non-existing path,
-call_ua(["--install", "../testmaster", "testmaster", "/bin/date", "10"],
+call_ua(["--install", "../testmaster", "testmaster", "$paths{date}", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 call_ua(["--install", "$bindir/testmaster", "testmaster", "./update-alternatives.pl", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
@@ -394,18 +428,18 @@ call_ua(["--install", "$bindir/testmaster", "testmaster", "./update-alternatives
 call_ua(["--install", "$bindir/testmaster", "testmaster", "$bindir/doesntexist", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # invalid alternative name in master
-call_ua(["--install", "$bindir/testmaster", "test/master", "/bin/date", "10"],
+call_ua(["--install", "$bindir/testmaster", "test/master", "$paths{date}", "10"],
         expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # invalid alternative name in slave
-call_ua(["--install", "$bindir/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/testslave", "test slave", "/bin/true" ],
+call_ua(["--install", "$bindir/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/testslave", "test slave", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 # install in non-existing dir should fail
-call_ua(["--install", "$bindir/doesntexist/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/testslave", "testslave", "/bin/true" ],
+call_ua(["--install", "$bindir/doesntexist/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/testslave", "testslave", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
-call_ua(["--install", "$bindir/testmaster", "testmaster", "/bin/date", "10",
-	 "--slave", "$bindir/doesntexist/testslave", "testslave", "/bin/true" ],
+call_ua(["--install", "$bindir/testmaster", "testmaster", "$paths{date}", "10",
+	 "--slave", "$bindir/doesntexist/testslave", "testslave", "$paths{true}" ],
 	expect_failure => 1, to_file => "/dev/null", error_to_file => "/dev/null");
 
 # non-existing alternative path in slave is not a failure
@@ -413,7 +447,7 @@ my $old_path = $choices[0]{"slaves"}[0]{"path"};
 $old_slave = $choices[0]{"slaves"}[0]{"link"};
 $choices[0]{"slaves"}[0]{"path"} = "$bindir/doesntexist";
 $choices[0]{"slaves"}[0]{"link"} = "$bindir/baddir/slave2";
-# test rename of slave link that existed but that doesnt anymore
+# test rename of slave link that existed but that doesn't anymore
 # and link is moved into non-existing dir at the same time
 install_choice(0);
 check_choice(0, "auto", "optional renamed slave2 in non-existing dir");
@@ -440,3 +474,43 @@ ok(-f "$bindir/slave1", "removal keeps real files installed as slave links");
 install_choice(0, params => ["--force"]);
 check_choice(0, "auto", "install --force replaces files with links");
 
+# test management of pre-existing files #2
+cleanup();
+system("touch $main_link $bindir/slave2");
+install_choice(0);
+install_choice(1);
+ok(!-l $main_link, "inactive install preserves files that should be links");
+ok(!-l "$bindir/slave2", "inactive install preserves files that should be slave links");
+ok(-f $main_link, "inactive install keeps real file installed as master link");
+ok(-f "$bindir/slave2", "inactive install keeps real files installed as slave links");
+set_choice(1);
+ok(!-l $main_link, "manual switching preserves files that should be links");
+ok(!-l "$bindir/slave2", "manual switching preserves files that should be slave links");
+ok(-f $main_link, "manual switching keeps real file installed as master link");
+ok(-f "$bindir/slave2", "manual switching keeps real files installed as slave links");
+remove_choice(1);
+ok(!-l $main_link, "auto switching preserves files that should be links");
+ok(!-l "$bindir/slave2", "auto switching preserves files that should be slave links");
+ok(-f $main_link, "auto switching keeps real file installed as master link");
+ok(-f "$bindir/slave2", "auto switching keeps real files installed as slave links");
+remove_all_choices(params => ["--force"]);
+ok(!-e "$bindir/slave2", "forced removeall drops real files installed as slave links");
+
+# test management of pre-existing files #3
+cleanup();
+system("touch $main_link $bindir/slave2");
+install_choice(0);
+install_choice(1);
+remove_choice(0);
+ok(!-l $main_link, "removal + switching preserves files that should be links");
+ok(!-l "$bindir/slave2", "removal + switching preserves files that should be slave links");
+ok(-f $main_link, "removal + switching keeps real file installed as master link");
+ok(-f "$bindir/slave2", "removal + switching keeps real files installed as slave links");
+install_choice(0);
+ok(!-l $main_link, "install + switching preserves files that should be links");
+ok(!-l "$bindir/slave2", "install + switching preserves files that should be slave links");
+ok(-f $main_link, "install + switching keeps real file installed as master link");
+ok(-f "$bindir/slave2", "install + switching keeps real files installed as slave links");
+set_choice(1, params => ["--force"]);
+ok(!-e "$bindir/slave2", "forced switching w/o slave drops real files installed as slave links");
+check_choice(1, "manual", "set --force replaces files with links");

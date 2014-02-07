@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * t-path.c - test path handling code
  *
- * Copyright © 2009 Guillem Jover <guillem@debian.org>
+ * Copyright © 2009-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +33,15 @@
 #define test_trim_eq_ref(p, ref) \
 do { \
 	char *t = strdup((p)); \
-	path_rtrim_slash_slashdot(t); \
+	path_trim_slash_slashdot(t); \
 	test_str(t, ==, (ref)); \
 	free(t); \
 } while (0)
 
 static void
-test_path_rtrim(void)
+test_path_trim(void)
 {
+	test_trim_eq_ref("/a", "/a");
 	test_trim_eq_ref("./././.", ".");
 	test_trim_eq_ref("./././", ".");
 	test_trim_eq_ref("./.", ".");
@@ -71,6 +72,18 @@ test_path_skip(void)
 	test_str(path_skip_slash_dotslash("/foo/bar/./"), ==, "foo/bar/./");
 	test_str(path_skip_slash_dotslash("./foo/bar/./"), ==, "foo/bar/./");
 	test_str(path_skip_slash_dotslash("/./foo/bar/./"), ==, "foo/bar/./");
+}
+
+static void
+test_path_basename(void)
+{
+	test_str(path_basename("./."), ==, ".");
+	test_str(path_basename("./"), ==, "");
+	test_str(path_basename("/."), ==, ".");
+	test_str(path_basename("/"), ==, "");
+	test_str(path_basename("/foo"), ==, "foo");
+	test_str(path_basename("/foo/bar"), ==, "bar");
+	test_str(path_basename("/foo/bar/"), ==, "");
 }
 
 static void
@@ -109,6 +122,10 @@ test_path_quote(void)
 	const char src_bs_end[] = "text \\";
 	char *dst;
 	size_t len;
+
+	/* Test 0 length. */
+	dst = NULL;
+	path_quote_filename(dst, src_7_bit, 0);
 
 	/* Test no quoting. */
 	len = strlen(src_7_bit) + 1;
@@ -160,9 +177,9 @@ test_path_quote(void)
 static void
 test(void)
 {
-	test_path_rtrim();
+	test_path_trim();
 	test_path_skip();
+	test_path_basename();
 	test_path_temp();
 	test_path_quote();
 }
-

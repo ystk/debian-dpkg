@@ -1,9 +1,29 @@
+.\" dpkg manual page - deb(5)
+.\"
+.\" Copyright Â© 1995 Raul Miller
+.\" Copyright Â© 1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2006-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb 5 2009\-02\-27 Debianprojektet Debian
+.TH deb 5 2012\-06\-16 Debianprojektet Debian
 .SH NAMN
 deb \- Debians binära paketformat
 .SH SYNOPS
@@ -16,8 +36,12 @@ och alla i386/ELF\-versioner sedan 1.1.1elf.
 Formatet som beskrivs här används sedan Debian 0.93; detaljer om det gamla
 formatet finns i \fBdeb\-old\fP(5).
 .SH FORMAT
-Filen är ett \fBar\fP\-arkiv med det magiska numret
-\fB!<arch>\fP. Filnamnen kan innehålla ett avslutande snedstreck.
+Filen är ett \fBar\fP\-arkiv med det magiska numret \fB!<arch>\fP. Endast
+det gemensamma \fBar\fP\-arkivformatet stöds, utan utökningar för långa filnamn,
+men med filnamn som kan innehålla ett avslutande snedstreck, vilket
+begränsar deras längd till 15 tecken (från de 16 tillåtna). Filstorlekar
+begränsas till 10 decimala ASCII\-tecken, vilket tillåter ungefär 9536,74 MiB
+filer.
 .PP
 De \fBtar\fP\-arkiv som tillåts för närvarande är; den gamla stilens format
 (v7), för\-POSIX\-ustar\-formatet, en delmängd av GNU\-formatet (endast de långa

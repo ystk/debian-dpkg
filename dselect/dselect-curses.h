@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * dselect - selection of Debian packages
+ * dselect - Debian package maintenance user interface
  * dselect-curses.h - curses header wrapper
  *
  * Copyright © 2009 Guillem Jover <guillem@debian.org>
@@ -36,4 +36,3 @@
 #endif
 
 #endif /* DSELECT_CURSES_H */
-

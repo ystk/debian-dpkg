@@ -44,13 +44,13 @@ keybindings::bind(int key, const char *action)
 {
   if (key == -1)
     return false;
-  
+
   const interpretation *interp = interps;
   while (interp->action && strcmp(interp->action, action))
     interp++;
   if (!interp->action)
     return false;
-  
+
   const description *desc = descriptions;
   while (desc->action && strcmp(desc->action, action))
    desc++;
@@ -58,7 +58,7 @@ keybindings::bind(int key, const char *action)
   binding *b = bindings;
   while (b && b->key != key)
     b = b->next;
-  
+
   if (!b) {
     b = new binding;
     b->key = key;
@@ -97,7 +97,7 @@ const char **keybindings::describenext() {
   for (;;) {
     if (!iterate->action) return 0;
     for (count=0, search=bindings; search; search=search->next)
-      if (!strcmp(search->interp->action,iterate->action))
+      if (strcmp(search->interp->action, iterate->action) == 0)
         count++;
     if (count) break;
     iterate++;
@@ -105,7 +105,7 @@ const char **keybindings::describenext() {
   const char **retarray= new const char *[count+2];
   retarray[0]= iterate->desc;
   for (count=1, search=bindings; search; search=search->next)
-    if (!strcmp(search->interp->action,iterate->action))
+    if (strcmp(search->interp->action, iterate->action) == 0)
       retarray[count++]= key2name(search->key);
   retarray[count]= 0;
   iterate++;
@@ -159,7 +159,7 @@ const keybindings::description keybindings::descriptions[]= {
   { "morespecific",    N_("Make highlight more specific")                        },
   { "lessspecific",    N_("Make highlight less specific")                        },
   { "search",          N_("Search for a package whose name contains a string")   },
-  { "searchagain",     N_("Repeat last search.")                                 },
+  { "searchagain",     N_("Repeat last search")                                 },
   { "swaporder",       N_("Swap sort order priority/section")                    },
   { "quitcheck",       N_("Quit, confirming, and checking dependencies")         },
   { "quitnocheck",     N_("Quit, confirming without check")                      },
@@ -169,7 +169,7 @@ const keybindings::description keybindings::descriptions[]= {
   { "revertsuggest",   N_("Revert to suggested state for all packages")          },
   { "revertdirect",    N_("Revert to directly requested state for all packages") },
   { "revertinstalled", N_("Revert to currently installed state for all packages") },
-  
+
   // Actions which apply only to lists of methods.
   { "select-and-quit", N_("Select currently-highlighted access method")          },
   { "abort",           N_("Quit without changing selected access method")        },

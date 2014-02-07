@@ -1,14 +1,32 @@
+.\" dpkg manual page - dpkg-statoverride(8)
+.\"
+.\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2009-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-statoverride 8 26\-06\-2009 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-statoverride 8 07\-04\-2011 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-statoverride \- annuler la propriété et le mode des fichiers
 .
 .SH SYNOPSIS
-\fBdpkg\-statoverride\fP [\fIoptions\fP] \fIcommande\fP
+\fBdpkg\-statoverride\fP [\fIoption\fP...] \fIcommande\fP
 .
 .SH DESCRIPTION
 Les «\ \fBdérogations au statut\fP\ » sont une façon de demander à \fBdpkg\fP(1) de
@@ -69,6 +87,12 @@ fichier existe.
 \fB\-\-quiet\fP
 Moins de bavardage sur ce qui est fait.
 .
+.SH ENVIRONNEMENT
+.TP 
+\fBDPKG_ADMINDIR\fP
+Si cette variable est positionnée et que l'option \fB\-\-admindir\fP n'est pas
+précisée, ce répertoire sera utilisé comme répertoire de données pour dpkg.
+.
 .SH FICHIERS
 .TP 
 \fI/var/lib/dpkg/statoverride\fP
@@ -81,12 +105,6 @@ extension "\-old", avant de le remplacer par un nouveau.
 .
 .SH "VOIR AUSSI"
 \fBdpkg\fP(1).
-.
-.SH AUTEUR
-Copyright \(co 2000 Wichert Akkerman
-.sp
-Ce programme est un logiciel libre\ ; voyez la «\ GNU General Public Licence\ »
-version 2 ou supérieure pour le copyright. Il n'y a PAS de garantie.
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

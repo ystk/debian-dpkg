@@ -23,10 +23,14 @@
 
 #include <stdbool.h>
 
+#include <dpkg/tarfn.h>
+
 struct tarcontext {
   int backendpipe;
   struct pkginfo *pkg;
   struct fileinlist **newfilesp;
+  /** Are all “Multi-arch: same” instances about to be in sync? */
+  bool pkgset_getting_in_sync;
 };
 
 struct pkg_deconf_list {
@@ -41,8 +45,9 @@ extern struct varbuf fnametmpvb;
 extern struct varbuf fnamenewvb;
 extern struct pkg_deconf_list *deconfigure;
 
-extern struct pkginfo *conflictor[];
-extern int cflict_index;
+void clear_deconfigure_queue(void);
+void enqueue_deconfigure(struct pkginfo *pkg, struct pkginfo *pkg_removal);
+void enqueue_conflictor(struct pkginfo *pkg, struct pkginfo *pkg_fixbyrm);
 
 void cu_pathname(int argc, void **argv);
 void cu_cidir(int argc, void **argv);
@@ -62,7 +67,8 @@ void cu_prermdeconfigure(int argc, void **argv);
 void ok_prermdeconfigure(int argc, void **argv);
 
 void setupfnamevbs(const char *filename);
-int unlinkorrmdir(const char *filename);
+
+int secure_remove(const char *filename);
 
 int tarobject(void *ctx, struct tar_entry *ti);
 int tarfileread(void *ud, char *buf, int len);

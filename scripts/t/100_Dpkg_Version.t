@@ -28,7 +28,7 @@ my @ops = ("<", "<<", "lt",
 	   ">=", "ge",
 	   ">", ">>", "gt");
 
-plan tests => scalar(@tests) * (3 * scalar(@ops) + 4) + 11;
+plan tests => scalar(@tests) * (3 * scalar(@ops) + 4) + 13;
 
 sub dpkg_vercmp {
      my ($a, $cmp, $b) = @_;
@@ -87,6 +87,10 @@ ok($ver eq '10a:5.2', "invalid still same string 1/2");
 $ver = Dpkg::Version->new('5.2@3-2');
 ok($ver eq '5.2@3-2', "invalid still same string 2/2");
 ok(!$ver->is_valid(), "illegal character is invalid");
+$ver = Dpkg::Version->new('foo5.2');
+ok(!$ver->is_valid(), "version does not start with digit 1/2");
+$ver = Dpkg::Version->new('0:foo5.2');
+ok(!$ver->is_valid(), "version does not start with digit 2/2");
 
 # Other tests
 $ver = Dpkg::Version->new('1.2.3-4');
@@ -127,28 +131,28 @@ __DATA__
 1 0:1 0
 0 0:0-0 0
 2:2.5 1:7.5 1
-1:foo foo 1
-0:foo foo 0
-foo foo 0
-foo- foo 0
-foo- foo-0 0
-foo fo 1
-foo- foo+ -1
-foo~1 foo -1
-foo~foo+Bar foo~foo+bar -1
-foo~~ foo~ -1
+1:0foo 0foo 1
+0:0foo 0foo 0
+0foo 0foo 0
+0foo- 0foo 0
+0foo- 0foo-0 0
+0foo 0fo 1
+0foo- 0foo+ -1
+0foo~1 0foo -1
+0foo~foo+Bar 0foo~foo+bar -1
+0foo~~ 0foo~ -1
 1~ 1 -1
 12345+that-really-is-some-ver-0 12345+that-really-is-some-ver-10 -1
-foo-0 foo-01 -1
-foo.bar foobar 1
-foo.bar foo1bar 1
-foo.bar foo0bar 1
-1foo-1 foo-1 -1
-foo2.0 foo2 1
-foo2.0.0 foo2.10.0 -1
-foo2.0 foo2.0.0 -1
-foo2.0 foo2.10 -1
-foo2.1 foo2.10 -1
+0foo-0 0foo-01 -1
+0foo.bar 0foobar 1
+0foo.bar 0foo1bar 1
+0foo.bar 0foo0bar 1
+0foo1bar-1 0foobar-1 -1
+0foo2.0 0foo2 1
+0foo2.0.0 0foo2.10.0 -1
+0foo2.0 0foo2.0.0 -1
+0foo2.0 0foo2.10 -1
+0foo2.1 0foo2.10 -1
 1.09 1.9 0
 1.0.8+nmu1 1.0.8 1
 3.11 3.10+nmu1 1

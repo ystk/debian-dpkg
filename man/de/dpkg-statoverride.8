@@ -1,14 +1,32 @@
+.\" dpkg manual page - dpkg-statoverride(8)
+.\"
+.\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2009-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-statoverride 8 2009\-06\-26 Debian\-Projekt dpkg\-Hilfsprogramme
+.TH dpkg\-statoverride 8 2011\-07\-04 Debian\-Projekt dpkg\-Hilfsprogramme
 .SH NAME
 dpkg\-statoverride \- über Eigentümerschaft und Modus von Dateien hinwegsetzen
 .
 .SH ÜBERSICHT
-\fBdpkg\-statoverride\fP [\fIOptionen\fP] \fIBefehl\fP
+\fBdpkg\-statoverride\fP [\fIOption\fP ?] \fIBefehl\fP
 .
 .SH BESCHREIBUNG
 »\fBStat\-Hinwegsetzungen\fP« sind eine Möglichkeit \fBdpkg\fP(1) zu berichten,
@@ -71,6 +89,12 @@ Versuche die Datei sofort auf den neuen Eigentümer und neuen Modus zu
 \fB\-\-quiet\fP
 Sei nicht so ausführlich darüber, was wir machen.
 .
+.SH UMGEBUNG
+.TP 
+\fBDPKG_ADMINDIR\fP
+Falls gesetzt und die Option \fB\-\-admindir\fP nicht verwandt wurde, wird dies
+als Datenverzeichnis von Dpkg verwandt.
+.
 .SH DATEIEN
 .TP 
 \fI/var/lib/dpkg/statoverride\fP
@@ -82,7 +106,7 @@ Hinweis: \fBdpkg\-statoverride\fP erhält die alte Kopie dieser Datei mit der
 Endung »\-old« bevor es sie mit einer neuen ersetzt.
 .
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2010 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
@@ -90,9 +114,3 @@ GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.
 .SH "SIEHE AUCH"
 \fBdpkg\fP(1).
-.
-.SH AUTOR
-Copyright \(co 2000 Wichert Akkerman
-.sp
-Dies ist Freie Software; lesen Sie die GNU General Public License Version 2
-oder neuer für die Kopierbedingungen. Es gibt KEINE Haftung.

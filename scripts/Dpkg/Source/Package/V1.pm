@@ -44,11 +44,12 @@ sub init_options {
     # Don't call $self->SUPER::init_options() on purpose, V1.0 has no
     # ignore by default
     if ($self->{'options'}{'diff_ignore_regexp'}) {
-	$self->{'options'}{'diff_ignore_regexp'} .= '|(?:^|/)debian/source/local-options$';
+	$self->{'options'}{'diff_ignore_regexp'} .= '|(?:^|/)debian/source/local-.*$';
     } else {
-	$self->{'options'}{'diff_ignore_regexp'} = '(?:^|/)debian/source/local-options$';
+	$self->{'options'}{'diff_ignore_regexp'} = '(?:^|/)debian/source/local-.*$';
     }
-    push @{$self->{'options'}{'tar_ignore'}}, "debian/source/local-options";
+    push @{$self->{'options'}{'tar_ignore'}}, "debian/source/local-options",
+         "debian/source/local-patch-header";
     $self->{'options'}{'sourcestyle'} ||= 'X';
     $self->{'options'}{'skip_debianization'} ||= 0;
     $self->{'options'}{'abort_on_upstream_changes'} ||= 0;
@@ -151,9 +152,8 @@ sub do_extract {
         my $patch = "$dscdir$difffile";
 	info(_g("applying %s"), $difffile);
 	my $patch_obj = Dpkg::Source::Patch->new(filename => $patch);
-	my $analysis = $patch_obj->apply($newdirectory, force_timestamp => 1,
-                                         timestamp => time());
-	my @files = grep { ! m{^[^/]+/debian/} }
+	my $analysis = $patch_obj->apply($newdirectory, force_timestamp => 1);
+	my @files = grep { ! m{^\Q$newdirectory\E/debian/} }
 		    sort keys %{$analysis->{'filepatched'}};
 	info(_g("upstream files that have been modified: %s"),
 	     "\n " . join("\n ", @files)) if scalar @files;

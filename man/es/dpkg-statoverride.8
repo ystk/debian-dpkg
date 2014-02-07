@@ -1,22 +1,40 @@
+.\" dpkg manual page - dpkg-statoverride(8)
+.\"
+.\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2009-2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-statoverride 8 "26 de Junio de 2009" "Proyecto Debian" "Herramientas de dpkg"
+.TH dpkg\-statoverride 8 "7 de julio del 2011" "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 dpkg\-statoverride \- Sustitución del propietario y modo de ficheros
 .
 .SH SINOPSIS
-\fBdpkg\-statoverride\fP [\fIopciones\fP] \fIorden\fP
+\fBdpkg\-statoverride\fP [\fIopción\fP...] \fIorden\fP
 .
 .SH DESCRIPCIÓN
 \fBLa sustitución de propiedades\fP es un modo de indicar a \fBdpkg\fP(1) que use
 un propietario o modo diferente para un fichero cuando un paquete está
 instalado (Nota: aquí usamos la palabra «fichero», pero puede tratarse de
 cualquier objeto del sistema de ficheros que dpkg pueda manejar, incluyendo
-directorios, dispositivos, etc). Se puede usar para forzar que programas que
-normalmente se instalan con bit setuid se instalen sin esta marca, o que
+directorios, dispositivos, etc). Se puede utilizar para forzar que programas
+que normalmente se instalan con bit setuid se instalen sin esta marca, o que
 sólo sean ejecutables por un grupo en concreto.
 .P
 \fBdpkg\-statoverride\fP es una herramienta para administrar la lista de
@@ -70,6 +88,12 @@ existir.
 \fB\-\-quiet\fP
 Reduce el nivel de información de las acciones tomadas.
 .
+.SH ENTORNO
+.TP 
+\fBDPKG_ADMINDIR\fP
+Si se define, y no se define la opción \fB\-\-admindir\fP, se utiliza como el
+directorio de datos de dpkg.
+.
 .SH FICHEROS
 .TP 
 \fI/var/lib/dpkg/statoverride\fP
@@ -82,12 +106,6 @@ extensión «\-old» antes de reemplazarla con una nueva.
 .
 .SH "VÉASE TAMBIÉN"
 \fBdpkg\fP(1).
-.
-.SH AUTOR
-Copyright \(co 2000 Wichert Akkerman
-.sp
-Esto es software libre; vea la versión 2 o posterior de la Licencia Pública
-General GNU para condiciones de copia. NO hay ninguna garantía.
 .SH "TRADUCTOR"
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,

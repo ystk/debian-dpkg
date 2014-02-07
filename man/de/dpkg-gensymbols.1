@@ -1,16 +1,33 @@
-.\" Author: RaphaÃ«l Hertzog
+.\" dpkg manual page - dpkg-gensymbols(1)
+.\"
+.\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gensymbols 1 2009\-08\-07 Debian\-Projekt dpkg\-Hilfsprogramme
+.TH dpkg\-gensymbols 1 2012\-04\-22 Debian\-Projekt dpkg\-Hilfsprogramme
 .SH NAME
 dpkg\-gensymbols \- erstelle Symboldateien (Abhängigkeitsinformationen für
 Laufzeitbibliotheken)
 .
 .SH ÜBERSICHT
-\fBdpkg\-gensymbols\fP [\fIOptionen\fP]
+\fBdpkg\-gensymbols\fP [\fIOption\fP ?]
 .
 .SH BESCHREIBUNG
 \fBdpkg\-gensymbols\fP durchsucht einen temporären Baubaum (standardmäßig
@@ -65,6 +82,12 @@ Bevor irgendein Patch auf die Symboldatei angewendet wird, sollte der
 Betreuer zweimal prüfen, dass der Patch vernünftig ist. Öffentliche Symbole
 sollten nicht verschwinden, daher sollte der Patch idealerweise nur neue
 Zeilen hinzufügen.
+.P
+Beachten Sie, dass Sie in Symboldateien Kommentare einfügen können: jede
+Zeile, die mit »#« als ersten Zeichen beginnt, ist ein Kommentare, falls sie
+nicht mit »#include« beginnt (siehe Abschnitt \fBIncludes
+verwenden\fP). Zeilen, die mit »#MISSING:« anfangen, sind besondere
+Kommentare, die verschwundene Symbole dokumentieren.
 .SS "Verwendung der #PACKAGE#\-Ersetzung"
 .P
 In einigen seltenen Fällen unterscheidet sich der Name der Bibliothek auf
@@ -163,11 +186,13 @@ die von fremden Architekturen) immer in die Symboldatei geschrieben.
 Das Format der \fIArchitekturliste\fP ist das gleiche wie das des Feldes
 \fIBuild\-Depends\fP in \fIdebian/control\fP (außer den einschließenden eckigen
 Klammern []). Beispielsweise wird das erste Symbol aus der folgenden Liste
-nur auf den Architekturen Alpha, Amd64, kFreebsd\-amd64 und Ia64 betrachtet,
-während das zweite überall außer auf Armel betrachtet wird.
+nur auf den Architekturen Alpha, Any\-amd64 und Ia64 betrachtet, das zweite
+nur Linux\-Architekturen, während das dritte überall außer auf Armel
+betrachtet wird.
 
- (arch=alpha amd64 kfreebsd\-amd64 ia64)ein_64bit_spezifisches_Symbol@Base 1.0
- (arch=!armel)Symbol_hat_Armel_nicht@Base 1.0
+ (arch=alpha any\-amd64 ia64)a_64bit_specific_symbol@Base 1.0
+ (arch=linux\-any)linux_specific_symbol@Base 1.0
+ (arch=!armel)symbol_armel_does_not_have@Base 1.0
 .TP 
 \fBignore\-blacklist\fP
 dpkg\-gensymbols verfügt über eine interne Ausschußliste (»blacklist«) von
@@ -235,9 +260,9 @@ ist, kann es mit einem einzigen \fIc++\fP\-Muster gepasst werden:
 .RS
 .PP
 libdummy.so.1 libdummy1 #MINVER#
- [...]
+ [?]
  (c++)"non\-virtual thunk to NSB::ClassD::~ClassD()@Base" 1.0
- [...]
+ [?]
 .P
 Der entworrene Name oben kann durch Ausführung folgenden Befehls erhalten
 werden:
@@ -266,7 +291,7 @@ passen. Beispiel:
 .PP
 libc.so.6 libc6 #MINVER#
  (symver)GLIBC_2.0 2.0
- [...]
+ [?]
  (symver)GLIBC_2.7 2.7
  access@GLIBC_2.0 2.2
 .PP
@@ -351,10 +376,10 @@ include\-Direktive wie folgt einbinden:
 .IP \(bu
 Die Include\-Direktive kann auch wie jedes Symbol gekennzeichnet werden:
 
-(Kennzeichen|...|KennzeichenN)#include "einzubindende_Datei"
+(Kennzeichen|?|KennzeichenN)#include "einzubindende\-Datei"
 
-Als Ergebnis werden alle Symbole aus \fIeinzubindende_Datei\fP standardmäßig
-als mit \fIKennzeichen\fP ... \fIKennzeichenN\fP gekennzeichnet betrachtet. Sie
+Als Ergebnis werden alle Symbole aus \fIeinzubindende\-Datei\fP standardmäßig
+als mit \fIKennzeichen\fP ? \fIKennzeichenN\fP gekennzeichnet betrachtet. Sie
 können diese Funktionalität benutzen, um eine gemeinsame Datei
 \fIPaket\fP.symbols zu erstellen, die architekturspezifische Symboldateien
 einbindet:
@@ -420,9 +445,11 @@ Quellpaketbaums erfolgt.
 .TP 
 \fB\-e\fP\fIBibliotheksdatei\fP
 Nur die explizit aufgeführten Bibliotheken untersuchen statt alle
-öffentlichen Bibliotheken zu finden. Sie können einen regulären Ausdruck in
-\fIBibliotheksdatei\fP verwenden, um mehrere Bibliotheken mit einem einzelnen
-Argument zu passen (andernfalls benötigen Sie mehrere \fB\-e\fP).
+öffentlichen Bibliotheken zu finden. Sie können Shell\-Muster, die zur
+Expansion von Pfadnamen verwandt werden (siehe die Handbuchseite File::Glob
+für weitere Details) in \fIBibliotheksdatei\fP verwenden, um mehrere
+Bibliotheken mit einem einzelnen Argument zu passen (andernfalls benötigen
+Sie mehrere \fB\-e\fP).
 .TP 
 \fB\-I\fP\fIDateiname\fP
 Verwende \fIDateiname\fP als Referenzdatei, um die Symboldatei zu erstellen,
@@ -485,14 +512,14 @@ Symbole als Kommentare. Im Vorlagenmodus werden Mustersymbole desweiteren
 von Kommentaren gefolgt, die die echten Symbole aufführen, die auf dieses
 Muster passen.
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Zeige den Bedienungshinweis und beende.
 .TP 
 \fB\-\-version\fP
 Gebe die Version aus und beende sich.
 .
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2010 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
@@ -506,9 +533,3 @@ Es gibt KEINE HAFTUNG.
 \fBhttp://people.redhat.com/drepper/dsohowto.pdf\fP
 .br
 \fBdeb\-symbols\fP(5), \fBdpkg\-shlibdeps\fP(1).
-.
-.SH AUTOREN
-Copyright \(co 2007\-2009 Rapha\[:e]l Hertzog
-.sp
-Dies ist Freie Software; lesen Sie die GNU General Public License Version 2
-oder neuer für die Kopierbedingungen. Es gibt KEINE Haftung.

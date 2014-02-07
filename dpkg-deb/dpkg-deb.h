@@ -21,31 +21,30 @@
 #ifndef DPKG_DEB_H
 #define DPKG_DEB_H
 
-typedef void dofunction(const char *const *argv);
-dofunction do_build DPKG_ATTR_NORET;
-dofunction do_contents, do_control, do_showinfo;
-dofunction do_info, do_field, do_extract, do_vextract, do_fsystarfile;
+action_func do_build;
+action_func do_contents;
+action_func do_control;
+action_func do_showinfo;
+action_func do_info;
+action_func do_field;
+action_func do_extract;
+action_func do_vextract;
+action_func do_raw_extract;
+action_func do_fsystarfile;
 
+extern int opt_verbose;
 extern int debugflag, nocheckflag, oldformatflag;
-extern const struct cmdinfo *cipaction;
-extern dofunction *action;
 
-void extracthalf(const char *debar, const char *directory,
+void extracthalf(const char *debar, const char *dir,
                  const char *taroption, int admininfo);
 
-extern const char* showformat;
-extern struct compressor *compressor;
-extern int compress_level;
+extern const char *showformat;
+extern struct compress_params compress_params;
 
 #define ARCHIVEVERSION		"2.0"
 
 #define BUILDCONTROLDIR		"DEBIAN"
 #define EXTRACTCONTROLDIR	BUILDCONTROLDIR
-
-/* Set BUILDOLDPKGFORMAT to 1 to build old-format archives by default. */
-#ifndef BUILDOLDPKGFORMAT
-#define BUILDOLDPKGFORMAT 0
-#endif
 
 #define OLDARCHIVEVERSION	"0.939000"
 

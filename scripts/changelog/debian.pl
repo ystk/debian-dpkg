@@ -2,6 +2,10 @@
 #
 # parsechangelog/debian
 #
+# Copyright © 1996 Ian Jackson
+# Copyright © 2005,2007 Frank Lichtenheld
+# Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -18,8 +22,7 @@
 use strict;
 use warnings;
 
-use Getopt::Long qw(:config gnu_getopt auto_help);
-use POSIX;
+use Getopt::Long qw(:config posix_default bundling no_ignorecase);
 
 use Dpkg;
 use Dpkg::Gettext;
@@ -34,9 +37,6 @@ sub version {
     printf _g("Debian %s version %s.\n"), $progname, $version;
 
     printf _g("
-Copyright (C) 1996 Ian Jackson.
-Copyright (C) 2005,2007 Frank Lichtenheld.");
-    printf _g("
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
 ");
@@ -47,7 +47,7 @@ sub usage {
 "Usage: %s [<option>...] [<changelogfile>]
 
 Options:
-    --help, -h                  print usage information
+    -?, --help                  print usage information
     --version, -V               print version information
     --label, -l <file>          name of the changelog file to
                                 use in error messages
@@ -97,7 +97,7 @@ GetOptions( "file=s" => \$file,
 	    "to|t=s" => \$to,
 	    "count|c|n=i" => \$count,
 	    "offset|o=i" => \$offset,
-	    "help|h" => sub{usage();exit(0)},
+	    "help|?" => sub{ usage(); exit(0) },
 	    "version|V" => sub{version();exit(0)},
 	    "format=s" => \&set_format,
 	    "all|a" => \$all,
@@ -133,10 +133,10 @@ my $changes = Dpkg::Changelog::Debian->new(reportfile => $label, range => $range
 
 if ($file eq '-') {
     $changes->parse(\*STDIN, _g("<standard input>"))
-	or error(_g('fatal error occured while parsing input'));
+	or error(_g('fatal error occurred while parsing input'));
 } else {
     $changes->load($file)
-	or error(_g('fatal error occured while parsing %s'), $file);
+	or error(_g('fatal error occurred while parsing %s'), $file);
 }
 
 eval qq{

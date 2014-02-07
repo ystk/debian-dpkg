@@ -1,21 +1,38 @@
-.\" Author: Raphaël Hertzog
-.TH dpkg\-gensymbols 1 "2009-08-07" "Debian Project" "dpkg utilities"
+.\" dpkg manual page - dpkg-gensymbols(1)
+.\"
+.\" Copyright © 2007-2011 Raphaël Hertzog <hertzog@debian.org>
+.\" Copyright © 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
+.TH dpkg\-gensymbols 1 "2012-04-22" "Debian Project" "dpkg utilities"
 .SH NAME
 dpkg\-gensymbols \- generate symbols files (shared library dependency information)
 .
 .SH SYNOPSIS
 .B dpkg\-gensymbols
-.RI [ options ]
+.RI [ option ...]
 .
 .SH DESCRIPTION
 .B dpkg\-gensymbols
 scans a temporary build tree (debian/tmp by default) looking for libraries
-and generate a \fIsymbols\fR file describing them. This file, if
+and generates a \fIsymbols\fR file describing them. This file, if
 non-empty, is then installed in the DEBIAN subdirectory of the build tree
 so that it ends up included in the control information of the package.
 .P
 When generating those files, it uses as input some symbols files
-provided by the maintainer. It looks for the following files (and use the
+provided by the maintainer. It looks for the following files (and uses the
 first that is found):
 .IP \(bu 4
 debian/\fIpackage\fR.symbols.\fIarch\fR
@@ -56,6 +73,11 @@ with "~".
 Before applying any patch to the symbols file, the maintainer should
 double-check that it's sane. Public symbols are not supposed to disappear,
 so the patch should ideally only add new lines.
+.P
+Note that you can put comments in symbols files: any line with '#' as the
+first character is a comment except if it starts with '#include' (see
+section \fBUsing includes\fP). Lines starting with '#MISSING:' are special
+comments documenting symbols that have disappeared.
 .SS Using #PACKAGE# substitution
 .P
 In some rare cases, the name of the library varies between architectures.
@@ -123,7 +145,7 @@ into this category. Like any other tag, this one may also have an arbitrary
 value: it could be used to indicate why the symbol is considered optional.
 .TP
 .B arch=\fIarchitecture list\fR
-This tag allows to restrict the set of architectures where the symbol
+This tag allows one to restrict the set of architectures where the symbol
 is supposed to exist. When the symbols list is updated with the symbols
 discovered in the library, all arch-specific symbols which do not concern
 the current host architecture are treated as if they did not exist. If an
@@ -142,12 +164,14 @@ from foreign arches) are always written to the symbol file when operating
 in template mode.
 
 The format of \fIarchitecture list\fR is the same as the one used in the
-\fIBuild-Depends\fR field of \fIdebian/control\fR (except the enclosing
+\fIBuild\-Depends\fR field of \fIdebian/control\fR (except the enclosing
 square brackets []). For example, the first symbol from the list below
-will be considered only on alpha, amd64, kfreebsd-amd64 and ia64 architectures
-while the second one anywhere except on armel.
+will be considered only on alpha, any\-amd64 and ia64 architectures,
+the second only on linux architectures, while the third one anywhere
+except on armel.
 
- (arch=alpha amd64 kfreebsd-amd64 ia64)a_64bit_specific_symbol@Base 1.0
+ (arch=alpha any\-amd64 ia64)a_64bit_specific_symbol@Base 1.0
+ (arch=linux\-any)linux_specific_symbol@Base 1.0
  (arch=!armel)symbol_armel_does_not_have@Base 1.0
 .TP
 .B ignore\-blacklist
@@ -172,14 +196,14 @@ below.
 .SS Using symbol patterns
 .P
 Unlike a standard symbol specification, a pattern may cover multiple real
-symbols from the library. \fBdpkg-gensymbols\fR will attempt to match each
+symbols from the library. \fBdpkg\-gensymbols\fR will attempt to match each
 pattern against each real symbol that does \fInot\fR have a specific symbol
 counterpart defined in the symbol file. Whenever the first matching pattern is
 found, all its tags and properties will be used as a basis specification of the
 symbol. If none of the patterns matches, the symbol will be considered as new.
 
 A pattern is considered lost if it does not match any symbol in the library. By
-default this will trigger a \fBdpkg-gensymbols\fR failure under \fI-c1\fR or
+default this will trigger a \fBdpkg\-gensymbols\fR failure under \fI\-c1\fR or
 higher level. However, if the failure is undesired, the pattern may be marked
 with the \fIoptional\fR tag. Then if the pattern does not match anything, it
 will only appear in the diff as MISSING. Moreover, like any symbol, the pattern
@@ -200,7 +224,7 @@ This pattern is denoted by the \fIc++\fR tag. It matches only C++ symbols by
 their demangled symbol name (as emitted by \fBc++filt\fR(1) utility). This
 pattern is very handy for matching symbols which mangled names might vary
 across different architectures while their demangled names remain the same. One
-group of such symbols is \fInon-virtual thunks\fR which have architecture
+group of such symbols is \fInon\-virtual thunks\fR which have architecture
 specific offsets embedded in their mangled names. A common instance of this
 case is a virtual destructor which under diamond inheritance needs a
 non-virtual thunk symbol. For example, even if _ZThn8_N3NSB6ClassDD1Ev@Base on
@@ -210,7 +234,7 @@ ones, it can be matched with a single \fIc++\fR pattern:
 .PP
 libdummy.so.1 libdummy1 #MINVER#
  [...]
- (c++)"non-virtual thunk to NSB::ClassD::~ClassD()@Base" 1.0
+ (c++)"non\-virtual thunk to NSB::ClassD::~ClassD()@Base" 1.0
  [...]
 .P
 The demangled name above can be obtained by executing the following command:
@@ -296,7 +320,7 @@ When multiple patterns match the same real symbol, aliases (first \fIc++\fR,
 then \fIsymver\fR) are preferred over generic patterns. Generic patterns are
 matched in the order they are found in the symbol file template until the first
 success.  Please note, however, that manual reordering of template file entries
-is not recommended because \fBdpkg-gensymbols\fR generates diffs based on the
+is not recommended because \fBdpkg\-gensymbols\fR generates diffs based on the
 alphanumerical order of their names.
 .SS Using includes
 .P
@@ -312,10 +336,10 @@ using an include directive like this:
 .IP \(bu
 The include directive may also be tagged like any symbol:
 
-(tag|..|tagN)#include "file_to_include"
+(tag|...|tagN)#include "file-to-include"
 
-As a result, all symbols included from \fIfile_to_include\fR will be considered
-to be tagged with \fItag\fR .. \fItagN\fR by default. You can use this feature
+As a result, all symbols included from \fIfile-to-include\fR will be considered
+to be tagged with \fItag\fR ... \fItagN\fR by default. You can use this feature
 to create a common \fIpackage\fR.symbols file which includes architecture
 specific symbol files:
 
@@ -376,7 +400,8 @@ debian/changelog. Required if called outside of a source package tree.
 .TP
 .BI \-e library-file
 Only analyze libraries explicitly listed instead of finding all public
-libraries. You can use a regular expression in \fIlibrary-file\fR to match
+libraries. You can use shell patterns used for pathname expansions (see
+the File::Glob manual page for details) in \fIlibrary-file\fR to match
 multiple libraries with a single argument (otherwise you need multiple
 \fB\-e\fR).
 .TP
@@ -436,14 +461,14 @@ symbols as comments. Furthermore in template mode, pattern symbols
 are followed by comments listing real symbols that have matched the
 pattern.
 .TP
-.BR \-h ", " \-\-help
+.BR \-? ", " \-\-help
 Show the usage message and exit.
 .TP
 .BR \-\-version
 Show the version and exit.
 .
 .SH "SEE ALSO"
-.BR http://people.redhat.com/drepper/symbol-versioning
+.BR http://people.redhat.com/drepper/symbol\-versioning
 .br
 .BR http://people.redhat.com/drepper/goodpractice.pdf
 .br
@@ -451,9 +476,3 @@ Show the version and exit.
 .br
 .BR deb\-symbols (5),
 .BR dpkg\-shlibdeps (1).
-.
-.SH AUTHORS
-Copyright \(co 2007-2009 Rapha\[:e]l Hertzog
-.sp
-This is free software; see the GNU General Public Licence version 2 or later
-for copying conditions. There is NO WARRANTY.

@@ -45,29 +45,24 @@ const char *methodlist::itemname(int index) {
 void methodlist::kd_abort() { }
 
 void methodlist::kd_quit() {
-  if (debug) fprintf(debug,"methodlist[%p]::kd_quit() setting coption=%p\n",
-                     this, table[cursorline]);
+  debug(dbg_general, "methodlist[%p]::kd_quit() setting coption=%p",
+        this, table[cursorline]);
   coption= table[cursorline];
 }
 
 void methodlist::setheights() {
-  if (debug) fprintf(debug,"methodlist[%p]::setheights()\n",this);
+  debug(dbg_general, "methodlist[%p]::setheights()", this);
   baselist::setheights();
   list_height++;
 }
 
 void methodlist::setwidths() {
-  if (debug) fprintf(debug,"methodlist[%p]::setwidths()\n",this);
+  debug(dbg_general, "methodlist[%p]::setwidths()", this);
 
   status_width= 1;
-  gap_width= 1;
   name_width= 14;
   name_column= status_width + gap_width;
   description_column= name_column + name_width + gap_width;
-
-  total_width= TOTAL_LIST_WIDTH;
-  if (total_width < COLS)
-    total_width= COLS;
   description_width= total_width - description_column;
 }
 
@@ -93,13 +88,13 @@ void methodlist::redraw1itemsel(int index, int selected) {
   int i;
   const char *p;
 
-  wattrset(listpad, selected ? listsel_attr : list_attr);
+  wattrset(listpad, part_attr[selected ? listsel : list]);
   mvwaddch(listpad,index,0,
            table[index] == coption ? '*' : ' ');
-  wattrset(listpad, selected ? listsel_attr : list_attr);
+  wattrset(listpad, part_attr[selected ? listsel : list]);
   mvwprintw(listpad,index,name_column-1, " %-*.*s ",
             name_width, name_width, table[index]->name);
-  
+
   i= description_width;
   p= table[index]->summary ? table[index]->summary : "";
   while (i>0 && *p && *p != '\n') {
@@ -114,7 +109,7 @@ void methodlist::redraw1itemsel(int index, int selected) {
 
 void methodlist::redrawcolheads() {
   if (colheads_height) {
-    wattrset(colheadspad,colheads_attr);
+    wattrset(colheadspad, part_attr[colheads]);
     mywerase(colheadspad);
     mvwaddstr(colheadspad,0,0, "  ");
     mvwaddnstr(colheadspad,0,name_column, _("Abbrev."), name_width);
@@ -125,9 +120,8 @@ void methodlist::redrawcolheads() {
 
 methodlist::methodlist() : baselist(&methodlistbindings) {
   int newcursor= -1;
-  
-  if (debug)
-    fprintf(debug,"methodlist[%p]::methodlist()\n",this);
+
+  debug(dbg_general, "methodlist[%p]::methodlist()", this);
 
   table= new struct dselect_option*[noptions];
 
@@ -141,12 +135,12 @@ methodlist::methodlist() : baselist(&methodlistbindings) {
   if (newcursor==-1) newcursor= 0;
   setcursor(newcursor);
 
-  if (debug)
-    fprintf(debug,"methodlist[%p]::methodlist done; noptions=%d\n", this, noptions);
+  debug(dbg_general, "methodlist[%p]::methodlist done; noptions=%d",
+        this, noptions);
 }
 
 methodlist::~methodlist() {
-  if (debug) fprintf(debug,"methodlist[%p]::~methodlist()\n",this);
+  debug(dbg_general, "methodlist[%p]::~methodlist()", this);
   delete[] table;
 }
 
@@ -154,12 +148,12 @@ quitaction methodlist::display() {
   int response;
   const keybindings::interpretation *interp;
 
-  if (debug) fprintf(debug,"methodlist[%p]::display()\n",this);
+  debug(dbg_general, "methodlist[%p]::display()", this);
 
   setupsigwinch();
   startdisplay();
-  
-  if (debug) fprintf(debug,"methodlist[%p]::display() entering loop\n",this);
+
+  debug(dbg_general, "methodlist[%p]::display() entering loop", this);
   for (;;) {
     if (whatinfo_height) wcursyncup(whatinfowin);
     if (doupdate() == ERR) ohshite(_("doupdate failed"));
@@ -171,17 +165,16 @@ quitaction methodlist::display() {
     if (sigprocmask(SIG_BLOCK,&sigwinchset,0)) ohshite(_("failed to re-block SIGWINCH"));
     if (response == ERR) ohshite(_("getch failed"));
     interp= (*bindings)(response);
-    if (debug)
-      fprintf(debug,"methodlist[%p]::display() response=%d interp=%s\n",
-              this,response, interp ? interp->action : "[none]");
+    debug(dbg_general, "methodlist[%p]::display() response=%d interp=%s",
+          this, response, interp ? interp->action : "[none]");
     if (!interp) { beep(); continue; }
     (this->*(interp->mfn))();
     if (interp->qa != qa_noquit) break;
   }
   pop_cleanup(ehflag_normaltidy); // unset the SIGWINCH handler
   enddisplay();
-  
-  if (debug) fprintf(debug,"methodlist[%p]::display() done\n",this);
+
+  debug(dbg_general, "methodlist[%p]::display() done", this);
 
   return interp->qa;
 }
@@ -189,11 +182,11 @@ quitaction methodlist::display() {
 void methodlist::itd_description() {
   whatinfovb(_("Explanation"));
 
-  wattrset(infopad,info_headattr);
+  wattrset(infopad, part_attr[info_head]);
   waddstr(infopad, table[cursorline]->name);
   waddstr(infopad," - ");
   waddstr(infopad, table[cursorline]->summary);
-  wattrset(infopad,info_attr);
+  wattrset(infopad, part_attr[info]);
 
   const char *m= table[cursorline]->description;
   if (!m || !*m) m= _("No explanation available.");
@@ -205,8 +198,8 @@ void methodlist::redrawinfo() {
   if (!info_height) return;
   whatinfovb.reset();
   werase(infopad); wmove(infopad,0,0);
-  
-  if (debug) fprintf(debug,"methodlist[%p]::redrawinfo()\n", this);
+
+  debug(dbg_general, "methodlist[%p]::redrawinfo()", this);
 
   itd_description();
 

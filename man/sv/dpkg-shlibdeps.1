@@ -1,14 +1,35 @@
+.\" dpkg manual page - dpkg-deb(1)
+.\"
+.\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
+.\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2012 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-shlibdeps 1 2009\-03\-08 Debianprojektet dpkg\-verktygen
+.TH dpkg\-shlibdeps 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-shlibdeps \- skapar substvar\-beroenden för delade bibliotek
 .
 .SH SYNOPS
-\fBdpkg\-shlibdeps\fP [\fIflaggor\fP] \fIprogramfil\fP|\fB\-e\fP\fIprogramfil\fP [\fIflaggor\fP]
+\fBdpkg\-shlibdeps\fP [\fIflagga\fP...] [\fB\-e\fP]\fIprogramfil\fP [\fIflagga\fP...]
 .
 .SH BESKRIVNING
 \fBdpkg\-shlibdeps\fP beräknar beroenden mellan exekverbara filer som anges som
@@ -46,9 +67,9 @@ binärpaket.
 Överstyrningsfil för beroendeinformation för delade bibliotek, per
 system. \fIarkitektur\fP är det aktuella systemets arkitektur (hämtas från
 \fBdpkg\-architecture \-qDEB_HOST_ARCH\fP).
-.IP \fIadminkat\fP/info/\fIpaket\fP.symbols
-Paketlokal överstyrande beroendeinformation för delade bibliotek. Normalt är
-\fIadminkat\fP /var/lib/dpkg.
+.IP "Utdata från \(rq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP symbols\(rq"
+Paketlokal överstyrande beroendeinformation för delade bibliotek. Filerna
+befinner sig i /var/lib/dpkg om inte överstyrt med \-\-admindir.
 .P
 \fBdpkg\-shlibs\fP kommer ihåg den (största) minimala version som behövs av
 varje bibliotek när den söker genom de symboler som används av alla
@@ -77,9 +98,9 @@ Information om delade bibliotek som skapats av den aktuella byggproceduren
 som också anropade \fBdpkg\-shlibdeps\fP. De genereras av
 \fBdpkg\-gensymbols\fP(1). De används bara om biblioteket finns i paketets
 byggträd. Filen shlibs i byggträdet går före shlibs\-filer från andra paket.
-.IP \fIadminkat\fP/info/\fIpaket\fP.shlibs
-Paketlokal överstyrande beroendeinformation för delade bibliotek. Normalt är
-\fIadminkat\fP /var/lib/dpkg.
+.IP "Utdata från \(rq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP shlibs\(rq"
+Paketlokal överstyrande beroendeinformation för delade bibliotek. Filerna
+befinner sig i /var/lib/dpkg om inte överstyrt med \-\-admindir.
 .IP /etc/dpkg/shlibs.default
 Systemspecifik standardberoendeinformation för delade bibliotek.
 .P
@@ -162,7 +183,7 @@ andra paket.
 \fIVärde\fP är ett bitfält som anger de varningar som kan ges av
 \fBdpkg\-shlibdeps\fP. Bit 0 (värde=1) aktiverar varningen "symbolen \fIsym\fP, som
 används av \fIbinär\fP, hittades inte i något av biblioteken", bit 1 (värde=2)
-aktiverar varningen "beroendet på \fIbibliotekt\fP kunde undvikas" och bit 2
+aktiverar varningen "paketet kunde undvika ett onödigt beroende" och bit 2
 (värde=4) aktiverar varningen "\fIbinär\fP borde inte vara länkat mot
 \fIbibliotek\fP". Standard för \fIvärde\fP är 3: de första två varningarna är
 aktiva som standard, men inte den sista. Sätt \fIvärde\fP till 7 om du vill att
@@ -171,7 +192,7 @@ alla varningar skall vara aktiva.
 \fB\-\-admindir=\fP\fIkat\fP
 Ändra platsen för \fBdpkg\fP\-databasen. Förval är \fI/var/lib/dpkg\fP.
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
 \fB\-\-version\fP
@@ -202,13 +223,16 @@ det är ett riktigt bibliotek och att program som länker det använder en
 RPATH så att den dynamiska länkaren hittar det. Om så är fallet är
 biblioteket trasigt och behöver fixas.
 .TP 
-\fBBeroendet på\fP \fIbibliotek\fP \fBkunde undvikas om inte\fP \fIbinärer\fP \fBmeningslöst länkades mot det (de använder inga av dess symboler).\fP
+\fBpaketet kan undvika ett onödigt beroende om\fP \fIbinär\fP \fBinte länkades mot\fP \fIbibliotek\fP \fB(det använder inget av bibliotekets symboler)\fP
 Ingen av \fIbinärer\fPna som länkas mot \fIbibliotek\fP använder någon av
 symbolerna som tillhandahålls av biblioteket. Genom att rätta alla binärer
 kan du undvika beroendet som gäller detta bibliotek (såvida inte samma
 beroende även genereras av ett annat bibliotek som faktiskt används).
 .TP 
-\fIbinär\fP \fBborde inte vara länkat mot\fP \fIbibliotek\fP \fB(inga av symbolerna används).\fP
+\fBpaketet kunde undvika ett onödigt beroende om\fP \fIbinärer\fP \fBinte länkades mot\fP \fIbibliotek\fP \fB(de använder inga av bibliotekets symboler)\fP
+Exakt samma varning som ovan, men för flera binärer
+.TP 
+\fIbinär\fP \fBborde inte vara länkat mot\fP \fIbibliotek\fP \fB(det använder inget av bibliotekets symboler)\fP
 \fIBinär\fP länkar mot ett bibliotek den inte behöver. Det är inte ett problem,
 Men genom att inte länka biblioteket mot binären kan man uppnå en mindre
 prestandaförbättring. Varningen kontrollerar samma information som den
@@ -268,17 +292,5 @@ mer information om var det försökte hitta beroendeinformationen. Det kan
 vara användbart om du inte förstår varför du får felmeddelandet.
 .SH "SE ÄVEN"
 \fBdeb\-shlibs\fP(5), \fBdeb\-symbols\fP(5), \fBdpkg\-gensymbols\fP(1).
-.
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 1995\-1996 Ian Jackson
-.br
-Upphovsrättsskyddat © 2000 Wichert Akkerman
-.br
-Upphovsrättsskyddat © 2006 Frank Lichtenheld
-.br
-Upphovsrättsskyddat © 2007\-2008 Raphaël Hertzog
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
 .SH "ÖVERSÄTTNING"
 Peter Krefting och Daniel Nylander.

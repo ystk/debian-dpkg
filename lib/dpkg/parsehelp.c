@@ -3,6 +3,7 @@
  * parsehelp.c - helpful routines for parsing and writing
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,9 @@
 #include <config.h>
 #include <compat.h>
 
+#include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,62 +33,58 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/string.h>
+#include <dpkg/error.h>
 #include <dpkg/parsedump.h>
 
-static void
-parse_error_msg(struct parsedb_state *ps, const struct pkginfo *pigp,
-                const char *type, char *buf)
+static const char *
+parse_error_msg(struct parsedb_state *ps, const char *fmt)
 {
-  if (pigp && pigp->name)
-    sprintf(buf, _("%s, in file '%.255s' near line %d package '%.255s':\n "),
-            type, ps->filename, ps->lno, pigp->name);
+  static char msg[1024];
+  char filename[256];
+
+  str_escape_fmt(filename, ps->filename, sizeof(filename));
+
+  if (ps->pkg && ps->pkg->set->name)
+    sprintf(msg, _("parsing file '%.255s' near line %d package '%.255s':\n"
+                   " %.255s"), filename, ps->lno,
+                   pkgbin_name(ps->pkg, ps->pkgbin, pnaw_nonambig), fmt);
   else
-    sprintf(buf, _("%s, in file '%.255s' near line %d:\n "),
-            type, ps->filename, ps->lno);
+    sprintf(msg, _("parsing file '%.255s' near line %d:\n"
+                   " %.255s"), filename, ps->lno, fmt);
+
+  return msg;
 }
 
 void
-parse_error(struct parsedb_state *ps,
-            const struct pkginfo *pigp, const char *fmt, ...)
+parse_error(struct parsedb_state *ps, const char *fmt, ...)
 {
   va_list args;
-  char buf1[768], buf2[1000], *q;
-
-  parse_error_msg(ps, pigp, _("parse error"), buf1);
-  q = str_escape_fmt(buf2, buf1);
-  strcat(q,fmt);
 
   va_start(args, fmt);
-  ohshitv(buf2, args);
+  ohshitv(parse_error_msg(ps, fmt), args);
 }
 
 void
-parse_warn(struct parsedb_state *ps,
-           const struct pkginfo *pigp, const char *fmt, ...)
+parse_warn(struct parsedb_state *ps, const char *fmt, ...)
 {
   va_list args;
-  char buf1[768], buf2[1000], *q;
-
-  parse_error_msg(ps, pigp, _("warning"), buf1);
-  q = str_escape_fmt(buf2, buf1);
-  strcat(q, fmt);
 
   va_start(args, fmt);
-  ps->warncount++;
-  if (ps->warnto) {
-    strcat(q,"\n");
-    if (vfprintf(ps->warnto, buf2, args) == EOF)
-      ohshite(_("failed to write parsing warning"));
-  }
+  warningv(parse_error_msg(ps, fmt), args);
   va_end(args);
 }
-
-#define NAMEVALUE_DEF(n, v) \
-	[v] = { .name = n, .value = v, .length = sizeof(n) - 1 }
 
 const struct namevalue booleaninfos[] = {
   NAMEVALUE_DEF("no",  false),
   NAMEVALUE_DEF("yes", true),
+  { .name = NULL }
+};
+
+const struct namevalue multiarchinfos[] = {
+  NAMEVALUE_DEF("no",      multiarch_no),
+  NAMEVALUE_DEF("same",    multiarch_same),
+  NAMEVALUE_DEF("allowed", multiarch_allowed),
+  NAMEVALUE_DEF("foreign", multiarch_foreign),
   { .name = NULL }
 };
 
@@ -95,7 +94,7 @@ const struct namevalue priorityinfos[] = {
   NAMEVALUE_DEF("standard",                      pri_standard),
   NAMEVALUE_DEF("optional",                      pri_optional),
   NAMEVALUE_DEF("extra",                         pri_extra),
-  NAMEVALUE_DEF("this is a bug - please report", pri_other),
+  NAMEVALUE_FALLBACK_DEF("this is a bug - please report", pri_other),
   NAMEVALUE_DEF("unknown",                       pri_unknown),
   { .name = NULL }
 };
@@ -127,48 +126,31 @@ const struct namevalue wantinfos[] = {
   { .name = NULL }
 };
 
-const char *illegal_packagename(const char *p, const char **ep) {
-  static const char alsoallowed[]= "-+._"; /* _ is deprecated */
+const char *
+pkg_name_is_illegal(const char *p)
+{
+  /* FIXME: _ is deprecated, remove sometime. */
+  static const char alsoallowed[] = "-+._";
   static char buf[150];
   int c;
-  
+
   if (!*p) return _("may not be empty string");
-  if (!isalnum(*p)) return _("must start with an alphanumeric");
+  if (!isalnum(*p))
+    return _("must start with an alphanumeric character");
   while ((c = *p++) != '\0')
     if (!isalnum(c) && !strchr(alsoallowed,c)) break;
   if (!c) return NULL;
-  if (isspace(c) && ep) {
-    while (isspace(*p)) p++;
-    *ep= p; return NULL;
-  }
+
   snprintf(buf, sizeof(buf), _(
 	   "character `%c' not allowed (only letters, digits and characters `%s')"),
 	   c, alsoallowed);
   return buf;
 }
 
-const struct nickname nicknames[]= {
-  /* NB: capitalisation of these strings is important. */
-  { .nick = "Recommended",      .canon = "Recommends" },
-  { .nick = "Optional",         .canon = "Suggests" },
-  { .nick = "Class",            .canon = "Priority" },
-  { .nick = "Package-Revision", .canon = "Revision" },
-  { .nick = "Package_Revision", .canon = "Revision" },
-  { .nick = NULL }
-};
-
-bool
-informativeversion(const struct versionrevision *version)
-{
-  return (version->epoch ||
-          (version->version && *version->version) ||
-          (version->revision && *version->revision));
-}
-
 void varbufversion
 (struct varbuf *vb,
- const struct versionrevision *version,
- enum versiondisplayepochwhen vdew) 
+ const struct dpkg_version *version,
+ enum versiondisplayepochwhen vdew)
 {
   switch (vdew) {
   case vdew_never:
@@ -177,66 +159,92 @@ void varbufversion
     if (!version->epoch &&
         (!version->version || !strchr(version->version,':')) &&
         (!version->revision || !strchr(version->revision,':'))) break;
-  case vdew_always: /* FALL THROUGH */
-    varbufprintf(vb,"%lu:",version->epoch);
+    /* Fall through. */
+  case vdew_always:
+    varbuf_printf(vb, "%u:", version->epoch);
     break;
   default:
     internerr("unknown versiondisplayepochwhen '%d'", vdew);
   }
-  if (version->version) varbufaddstr(vb,version->version);
-  if (version->revision && *version->revision) {
-    varbufaddc(vb,'-');
-    varbufaddstr(vb,version->revision);
+  if (version->version)
+    varbuf_add_str(vb, version->version);
+  if (str_is_set(version->revision)) {
+    varbuf_add_char(vb, '-');
+    varbuf_add_str(vb, version->revision);
   }
 }
 
 const char *versiondescribe
-(const struct versionrevision *version,
+(const struct dpkg_version *version,
  enum versiondisplayepochwhen vdew)
 {
   static struct varbuf bufs[10];
   static int bufnum=0;
 
   struct varbuf *vb;
-  
-  if (!informativeversion(version)) return _("<none>");
+
+  if (!dpkg_version_is_informative(version))
+    return C_("version", "<none>");
 
   vb= &bufs[bufnum]; bufnum++; if (bufnum == 10) bufnum= 0;
-  varbufreset(vb);
+  varbuf_reset(vb);
   varbufversion(vb,version,vdew);
-  varbufaddc(vb,0);
+  varbuf_end_str(vb);
 
   return vb->buf;
 }
 
-static const char *
-parseversion_lax(struct versionrevision *rversion, const char *string)
+/**
+ * Parse a version string and check for invalid syntax.
+ *
+ * Distinguish between lax (warnings) and strict (error) parsing.
+ *
+ * @param rversion The parsed version.
+ * @param string The version string to parse.
+ * @param err The warning or error message if any.
+ *
+ * @retval  0 On success.
+ * @retval -1 On failure, and err is set accordingly.
+ */
+int
+parseversion(struct dpkg_version *rversion, const char *string,
+             struct dpkg_error *err)
 {
   char *hyphen, *colon, *eepochcolon;
   const char *end, *ptr;
-  unsigned long epoch;
 
-  if (!*string) return _("version string is empty");
+  if (!*string)
+    return dpkg_put_error(err, _("version string is empty"));
 
-  /* trim leading and trailing space */
+  /* Trim leading and trailing space. */
   while (*string && isblank(*string))
     string++;
-  /* string now points to the first non-whitespace char */
+  /* String now points to the first non-whitespace char. */
   end = string;
-  /* find either the end of the string, or a whitespace char */
+  /* Find either the end of the string, or a whitespace char. */
   while (*end && !isblank(*end))
     end++;
-  /* check for extra chars after trailing space */
+  /* Check for extra chars after trailing space. */
   ptr = end;
   while (*ptr && isblank(*ptr))
     ptr++;
-  if (*ptr) return _("version string has embedded spaces");
+  if (*ptr)
+    return dpkg_put_error(err, _("version string has embedded spaces"));
 
   colon= strchr(string,':');
   if (colon) {
-    epoch= strtoul(string,&eepochcolon,10);
-    if (colon != eepochcolon) return _("epoch in version is not number");
-    if (!*++colon) return _("nothing after colon in version number");
+    long epoch;
+
+    errno = 0;
+    epoch = strtol(string, &eepochcolon, 10);
+    if (colon != eepochcolon)
+      return dpkg_put_error(err, _("epoch in version is not number"));
+    if (epoch < 0)
+      return dpkg_put_error(err, _("epoch in version is negative"));
+    if (epoch > INT_MAX || errno == ERANGE)
+      return dpkg_put_error(err, _("epoch in version is too big"));
+    if (!*++colon)
+      return dpkg_put_error(err, _("nothing after colon in version number"));
     string= colon;
     rversion->epoch= epoch;
   } else {
@@ -248,47 +256,20 @@ parseversion_lax(struct versionrevision *rversion, const char *string)
     *hyphen++ = '\0';
   rversion->revision= hyphen ? hyphen : "";
 
-  return NULL;
-}
-
-/**
- * Check for invalid syntax in version structure.
- *
- * The rest of the syntax has been already checked in parseversion_lax(). So
- * we only do the stricter checks here.
- *
- * @param rversion The version to verify.
- *
- * @return An error string, or NULL if eveyrthing was ok.
- */
-static const char *
-version_strict_check(struct versionrevision *rversion)
-{
-  const char *ptr;
-
   /* XXX: Would be faster to use something like cisversion and cisrevision. */
-  for (ptr = rversion->version; *ptr; ptr++) {
+  ptr = rversion->version;
+  if (*ptr && !cisdigit(*ptr++))
+    return dpkg_put_warn(err, _("version number does not start with digit"));
+  for (; *ptr; ptr++) {
     if (!cisdigit(*ptr) && !cisalpha(*ptr) && strchr(".-+~:", *ptr) == NULL)
-      return _("invalid character in version number");
+      return dpkg_put_warn(err, _("invalid character in version number"));
   }
   for (ptr = rversion->revision; *ptr; ptr++) {
-    if (!cisdigit(*ptr) && !cisalpha(*ptr) && strchr(".-+~", *ptr) == NULL)
-      return _("invalid character in revision number");
+    if (!cisdigit(*ptr) && !cisalpha(*ptr) && strchr(".+~", *ptr) == NULL)
+      return dpkg_put_warn(err, _("invalid character in revision number"));
   }
 
-  return NULL;
-}
-
-const char *
-parseversion(struct versionrevision *rversion, const char *string)
-{
-  const char *emsg;
-
-  emsg = parseversion_lax(rversion, string);
-  if (emsg)
-    return emsg;
-
-  return version_strict_check(rversion);
+  return 0;
 }
 
 /**
@@ -298,65 +279,53 @@ parseversion(struct versionrevision *rversion, const char *string)
  * on the parse options.
  *
  * @param ps The parsedb state.
- * @param pkg The package being parsed.
  * @param version The version to parse into.
  * @param value The version string to parse from.
  * @param fmt The error format string.
  */
 void
-parse_db_version(struct parsedb_state *ps, const struct pkginfo *pkg,
-                 struct versionrevision *version, const char *value,
-                 const char *fmt, ...)
+parse_db_version(struct parsedb_state *ps, struct dpkg_version *version,
+                 const char *value, const char *fmt, ...)
 {
-  const char *msg;
-  bool warn_msg = false;
+  struct dpkg_error err;
+  va_list args;
+  char buf[1000];
 
-  msg = parseversion_lax(version, value);
-  if (msg == NULL) {
-    msg = version_strict_check(version);
-    if (ps->flags & pdb_lax_parser)
-      warn_msg = true;
-  }
+  if (parseversion(version, value, &err) == 0)
+    return;
 
-  if (msg) {
-    va_list args;
-    char buf[1000];
+  va_start(args, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, args);
+  va_end(args);
 
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, args);
+  if (err.type == DPKG_MSG_WARN && (ps->flags & pdb_lax_version_parser))
+    parse_warn(ps, "%s: %.250s", buf, err.str);
+  else
+    parse_error(ps, "%s: %.250s", buf, err.str);
 
-    if (warn_msg)
-      parse_warn(ps, pkg, "%s: %.250s", buf, msg);
-    else
-      parse_error(ps, pkg, "%s: %.250s", buf, msg);
-
-    va_end(args);
-  }
+  dpkg_error_destroy(&err);
 }
 
 void
 parse_must_have_field(struct parsedb_state *ps,
-                      const struct pkginfo *pigp,
                       const char *value, const char *what)
 {
   if (!value)
-    parse_error(ps, pigp, _("missing %s"), what);
+    parse_error(ps, _("missing %s"), what);
   else if (!*value)
-    parse_error(ps, pigp, _("empty value for %s"), what);
+    parse_error(ps, _("empty value for %s"), what);
 }
 
 void
 parse_ensure_have_field(struct parsedb_state *ps,
-                        const struct pkginfo *pigp,
                         const char **value, const char *what)
 {
   static const char empty[] = "";
 
   if (!*value) {
-    parse_warn(ps, pigp, _("missing %s"), what);
+    parse_warn(ps, _("missing %s"), what);
     *value = empty;
   } else if (!**value) {
-    parse_warn(ps, pigp, _("empty value for %s"), what);
+    parse_warn(ps, _("empty value for %s"), what);
   }
 }
-

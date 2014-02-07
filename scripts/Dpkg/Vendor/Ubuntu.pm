@@ -26,8 +26,10 @@ our $VERSION = "0.01";
 
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
+use Dpkg::Path qw(find_command);
 use Dpkg::Control::Types;
 use Dpkg::BuildOptions;
+use Dpkg::Arch qw(debarch_eq get_host_arch);
 
 use base 'Dpkg::Vendor::Debian';
 
@@ -93,8 +95,17 @@ sub run_hook {
 
     } elsif ($hook eq "update-buildflags") {
 	my $flags = shift @params;
+
+	if (debarch_eq(get_host_arch(), 'ppc64')) {
+	    for my $flag (qw(CFLAGS CXXFLAGS FFLAGS)) {
+		$flags->set($flag, '-g -O3', 'vendor');
+	    }
+	}
 	# Per https://wiki.ubuntu.com/DistCompilerFlags
 	$flags->set('LDFLAGS', '-Wl,-Bsymbolic-functions', 'vendor');
+
+	# Run the Debian hook to add hardening flags
+	$self->SUPER::run_hook($hook, $flags);
 
 	# Allow control of hardening-wrapper via dpkg-buildpackage DEB_BUILD_OPTIONS
 	my $build_opts = Dpkg::BuildOptions->new();
@@ -109,7 +120,7 @@ sub run_hook {
 	if (defined $hardening) {
 	    my $flag = 'DEB_BUILD_HARDENING';
 	    if ($hardening ne "0") {
-		if (! -x '/usr/bin/hardened-cc') {
+		if (!find_command('hardened-cc')) {
 		    syserr(_g("'hardening' flag found but 'hardening-wrapper' not installed"));
 		}
 		if ($hardening ne "1") {

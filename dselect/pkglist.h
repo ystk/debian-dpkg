@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * dselect - selection of Debian packages
+ * dselect - Debian package maintenance user interface
  * pkglist.h - external definitions for package list handling
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
@@ -38,7 +38,7 @@ enum selpriority {
   sp_inherit,     // inherited from our parent list
   sp_selecting,   // propagating a selection
   sp_deselecting, // propagating a deselection
-  sp_fixed        // it came from the `status' file and we're not a recursive list
+  sp_fixed        // it came from the ‘status’ file and we're not a recursive list
   // high
 };
 
@@ -63,7 +63,7 @@ enum ssstateval {      // State sorting order, first to last:
 
 struct perpackagestate {
   struct pkginfo *pkg;
-  /* The `heading' entries in the list, for `all packages of type foo',
+  /* The ‘heading’ entries in the list, for “all packages of type foo”,
    * point to a made-up pkginfo, which has pkg->name==0.
    * pkg->priority and pkg->section are set to the values if appropriate, or to
    * pri_unset resp. null if the heading refers to all priorities resp. sections.
@@ -86,12 +86,12 @@ struct perpackagestate {
 
 class packagelist : public baselist {
 protected:
-  int status_width, gap_width, section_width, priority_width;
+  int status_width, section_width, priority_width;
   int package_width, versioninstalled_width, versionavailable_width, description_width;
   int section_column, priority_column, versioninstalled_column;
   int versionavailable_column, package_column, description_column;
 
-  // Only used when `verbose' is set
+  // Only used when ‘verbose’ is set
   int status_hold_width, status_status_width, status_want_width;
 
   // Table of packages
@@ -128,14 +128,14 @@ protected:
   void itd_description();
   void itd_statuscontrol();
   void itd_availablecontrol();
-  
+
   // Dependency and sublist processing
   struct doneent { doneent *next; void *dep; } *depsdone, *unavdone;
   bool alreadydone(doneent **, void *);
   int resolvedepcon(dependency*);
   int checkdependers(pkginfo*, int changemade); // returns new changemade
   int deselect_one_of(pkginfo *er, pkginfo *ed, dependency *dep);
-  
+
   // Define these virtuals
   bool checksearch(char *str);
   bool matchsearch(int index);
@@ -149,7 +149,7 @@ protected:
   const struct helpmenuentry *helpmenulist();
 
   // Miscellaneous internal routines
-  
+
   void redraw1package(int index, int selected);
   int compareentries(const struct perpackagestate *a, const struct perpackagestate *b);
   friend int qsort_compareentries(const void *a, const void *b);
@@ -174,14 +174,14 @@ protected:
   void affectedrange(int *startp, int *endp);
   void setwant(pkginfo::pkgwant nw);
   void sethold(int hold);
-  
+
  public:
 
   // Keybinding functions */
   void kd_quit_noop();
   void kd_revert_abort();
   void kd_revertsuggest();
-  void kd_revertdirect();  
+  void kd_revertdirect();
   void kd_revertinstalled();
   void kd_morespecific();
   void kd_lessspecific();
@@ -196,7 +196,7 @@ protected:
   void kd_toggleinfo();
   void kd_verbose();
   void kd_versiondisplay();
-  
+
   packagelist(keybindings *kb); // nonrecursive
   packagelist(keybindings *kb, pkginfo **pkgltab); // recursive
   void add(pkginfo **arry) { while (*arry) add(*arry++); }
@@ -206,7 +206,7 @@ protected:
   bool add(dependency *, showpriority displayimportance);
   void addunavailable(deppossi*);
   bool useavailable(pkginfo *);
-  pkginfoperfile *findinfo(pkginfo*);
+  pkgbin *find_pkgbin(pkginfo *);
 
   int resolvesuggest();
   int deletelessimp_anyleft(showpriority than);
@@ -228,9 +228,5 @@ extern const char *const sssstrings[], *const sssabbrevs[];
 extern const char statuschars[];
 extern const char eflagchars[];
 extern const char wantchars[];
-
-const struct pkginfoperfile *i2info(struct pkginfo *pkg);
-
-extern modstatdb_rw readwrite;
 
 #endif /* PKGLIST_H */

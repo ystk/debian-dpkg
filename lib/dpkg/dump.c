@@ -4,6 +4,9 @@
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman
+ * Copyright © 2006,2008-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2011 Linaro Limited
+ * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* FIXME: don't write uninteresting packages */
+/* FIXME: Don't write uninteresting packages. */
+
 #include <config.h>
 #include <compat.h>
 
@@ -38,142 +42,218 @@
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
+#include <dpkg/string.h>
 #include <dpkg/dir.h>
 #include <dpkg/parsedump.h>
 
-void w_name(struct varbuf *vb,
-            const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-            enum fwriteflags flags, const struct fieldinfo *fip) {
-  assert(pigp->name);
+void
+w_name(struct varbuf *vb,
+       const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+       enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  assert(pkg->set->name);
   if (flags&fw_printheader)
-    varbufaddstr(vb,"Package: ");
-  varbufaddstr(vb, pigp->name);
+    varbuf_add_str(vb, "Package: ");
+  varbuf_add_str(vb, pkg->set->name);
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void w_version(struct varbuf *vb,
-               const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-               enum fwriteflags flags, const struct fieldinfo *fip) {
-  /* Epoch and revision information is printed in version field too. */
-  if (!informativeversion(&pifp->version)) return;
-  if (flags&fw_printheader)
-    varbufaddstr(vb,"Version: ");
-  varbufversion(vb,&pifp->version,vdew_nonambig);
-  if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
-}
-
-void w_configversion(struct varbuf *vb,
-                     const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                     enum fwriteflags flags, const struct fieldinfo *fip) {
-  if (pifp != &pigp->installed) return;
-  if (!informativeversion(&pigp->configversion)) return;
-  if (pigp->status == stat_installed ||
-      pigp->status == stat_notinstalled ||
-      pigp->status == stat_triggerspending ||
-      pigp->status == stat_triggersawaited)
+void
+w_version(struct varbuf *vb,
+          const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+          enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  if (!dpkg_version_is_informative(&pkgbin->version))
     return;
   if (flags&fw_printheader)
-    varbufaddstr(vb,"Config-Version: ");
-  varbufversion(vb,&pigp->configversion,vdew_nonambig);
+    varbuf_add_str(vb, "Version: ");
+  varbufversion(vb, &pkgbin->version, vdew_nonambig);
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void w_null(struct varbuf *vb,
-            const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-            enum fwriteflags flags, const struct fieldinfo *fip) {
+void
+w_configversion(struct varbuf *vb,
+                const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+                enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  if (pkgbin != &pkg->installed)
+    return;
+  if (!dpkg_version_is_informative(&pkg->configversion))
+    return;
+  if (pkg->status == stat_installed ||
+      pkg->status == stat_notinstalled ||
+      pkg->status == stat_triggerspending)
+    return;
+  if (flags&fw_printheader)
+    varbuf_add_str(vb, "Config-Version: ");
+  varbufversion(vb, &pkg->configversion, vdew_nonambig);
+  if (flags&fw_printheader)
+    varbuf_add_char(vb, '\n');
 }
 
-void w_section(struct varbuf *vb,
-               const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-               enum fwriteflags flags, const struct fieldinfo *fip) {
-  const char *value= pigp->section;
-  if (!value || !*value) return;
-  if (flags&fw_printheader)
-    varbufaddstr(vb,"Section: ");
-  varbufaddstr(vb,value);
-  if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+void
+w_null(struct varbuf *vb,
+       const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+       enum fwriteflags flags, const struct fieldinfo *fip)
+{
 }
 
-void w_charfield(struct varbuf *vb,
-                 const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                 enum fwriteflags flags, const struct fieldinfo *fip) {
-  const char *value = PKGPFIELD(pifp, fip->integer, const char *);
-  if (!value || !*value) return;
+void
+w_section(struct varbuf *vb,
+          const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+          enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  const char *value = pkg->section;
+
+  if (str_is_unset(value))
+    return;
+  if (flags&fw_printheader)
+    varbuf_add_str(vb, "Section: ");
+  varbuf_add_str(vb, value);
+  if (flags&fw_printheader)
+    varbuf_add_char(vb, '\n');
+}
+
+void
+w_charfield(struct varbuf *vb,
+            const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+            enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  const char *value = PKGPFIELD(pkgbin, fip->integer, const char *);
+
+  if (str_is_unset(value))
+    return;
   if (flags&fw_printheader) {
-    varbufaddstr(vb,fip->name);
-    varbufaddstr(vb, ": ");
+    varbuf_add_str(vb, fip->name);
+    varbuf_add_str(vb, ": ");
   }
-  varbufaddstr(vb,value);
+  varbuf_add_str(vb, value);
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void w_filecharf(struct varbuf *vb,
-                 const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                 enum fwriteflags flags, const struct fieldinfo *fip) {
+void
+w_filecharf(struct varbuf *vb,
+            const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+            enum fwriteflags flags, const struct fieldinfo *fip)
+{
   struct filedetails *fdp;
-  
-  if (pifp != &pigp->available) return;
-  fdp= pigp->files;
+
+  if (pkgbin != &pkg->available)
+    return;
+  fdp = pkg->files;
   if (!fdp || !FILEFFIELD(fdp,fip->integer,const char*)) return;
 
   if (flags&fw_printheader) {
-    varbufaddstr(vb,fip->name);
-    varbufaddc(vb,':');
+    varbuf_add_str(vb, fip->name);
+    varbuf_add_char(vb, ':');
   }
 
   while (fdp) {
-    varbufaddc(vb,' ');
-    varbufaddstr(vb,FILEFFIELD(fdp,fip->integer,const char*));
+    varbuf_add_char(vb, ' ');
+    varbuf_add_str(vb, FILEFFIELD(fdp, fip->integer, const char *));
     fdp= fdp->next;
   }
 
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void w_booleandefno(struct varbuf *vb,
-                    const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                    enum fwriteflags flags, const struct fieldinfo *fip) {
-  bool value = PKGPFIELD(pifp, fip->integer, bool);
-  if (!(flags&fw_printheader)) {
-    varbufaddstr(vb, value ? "yes" : "no");
+void
+w_booleandefno(struct varbuf *vb,
+               const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+               enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  bool value = PKGPFIELD(pkgbin, fip->integer, bool);
+
+  if ((flags & fw_printheader) && !value)
     return;
+
+  if (flags & fw_printheader) {
+    varbuf_add_str(vb, fip->name);
+    varbuf_add_str(vb, ": ");
   }
-  if (!value) return;
-  assert(value == true);
-  varbufaddstr(vb,fip->name); varbufaddstr(vb, ": yes\n"); 
+
+  varbuf_add_str(vb, value ? "yes" : "no");
+
+  if (flags & fw_printheader)
+    varbuf_add_char(vb, '\n');
 }
 
-void w_priority(struct varbuf *vb,
-                const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                enum fwriteflags flags, const struct fieldinfo *fip) {
-  if (pigp->priority == pri_unknown) return;
-  assert(pigp->priority <= pri_unknown);
-  if (flags&fw_printheader)
-    varbufaddstr(vb,"Priority: ");
-  varbufaddstr(vb,
-               pigp->priority == pri_other
-               ? pigp->otherpriority
-               : priorityinfos[pigp->priority].name);
-  if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+void
+w_multiarch(struct varbuf *vb,
+            const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+            enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  int value = PKGPFIELD(pkgbin, fip->integer, int);
+
+  if ((flags & fw_printheader) && !value)
+    return;
+
+  if (flags & fw_printheader) {
+    varbuf_add_str(vb, fip->name);
+    varbuf_add_str(vb, ": ");
+  }
+
+  varbuf_add_str(vb, multiarchinfos[value].name);
+
+  if (flags & fw_printheader)
+    varbuf_add_char(vb, '\n');
 }
 
-void w_status(struct varbuf *vb,
-              const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-              enum fwriteflags flags, const struct fieldinfo *fip) {
-  if (pifp != &pigp->installed) return;
-  assert(pigp->want <= want_purge);
-  assert(pigp->eflag <= eflag_reinstreq);
+void
+w_architecture(struct varbuf *vb,
+               const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+               enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  if (!pkgbin->arch)
+    return;
+  if (pkgbin->arch->type == arch_none)
+    return;
+  if (pkgbin->arch->type == arch_empty)
+    return;
 
-#define PEND pigp->trigpend_head
-#define AW pigp->trigaw.head
-  switch (pigp->status) {
+  if (flags & fw_printheader) {
+    varbuf_add_str(vb, fip->name);
+    varbuf_add_str(vb, ": ");
+  }
+  varbuf_add_str(vb, pkgbin->arch->name);
+  if (flags & fw_printheader)
+    varbuf_add_char(vb, '\n');
+}
+
+void
+w_priority(struct varbuf *vb,
+           const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+           enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  if (pkg->priority == pri_unknown)
+    return;
+  assert(pkg->priority <= pri_unknown);
+  if (flags&fw_printheader)
+    varbuf_add_str(vb, "Priority: ");
+  varbuf_add_str(vb, pkg->priority == pri_other ?
+                     pkg->otherpriority :
+                     priorityinfos[pkg->priority].name);
+  if (flags&fw_printheader)
+    varbuf_add_char(vb, '\n');
+}
+
+void
+w_status(struct varbuf *vb,
+         const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+         enum fwriteflags flags, const struct fieldinfo *fip)
+{
+  if (pkgbin != &pkg->installed)
+    return;
+  assert(pkg->want <= want_purge);
+  assert(pkg->eflag <= eflag_reinstreq);
+
+#define PEND pkg->trigpend_head
+#define AW pkg->trigaw.head
+  switch (pkg->status) {
   case stat_notinstalled:
   case stat_configfiles:
     assert(!PEND);
@@ -196,18 +276,20 @@ void w_status(struct varbuf *vb,
     assert(!AW);
     break;
   default:
-    internerr("unknown package status '%d'", pigp->status);
+    internerr("unknown package status '%d'", pkg->status);
   }
 #undef PEND
 #undef AW
 
   if (flags&fw_printheader)
-    varbufaddstr(vb,"Status: ");
-  varbufaddstr(vb,wantinfos[pigp->want].name); varbufaddc(vb,' ');
-  varbufaddstr(vb,eflaginfos[pigp->eflag].name); varbufaddc(vb,' ');
-  varbufaddstr(vb,statusinfos[pigp->status].name);
+    varbuf_add_str(vb, "Status: ");
+  varbuf_add_str(vb, wantinfos[pkg->want].name);
+  varbuf_add_char(vb, ' ');
+  varbuf_add_str(vb, eflaginfos[pkg->eflag].name);
+  varbuf_add_char(vb, ' ');
+  varbuf_add_str(vb, statusinfos[pkg->status].name);
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
 void varbufdependency(struct varbuf *vb, struct dependency *dep) {
@@ -217,29 +299,44 @@ void varbufdependency(struct varbuf *vb, struct dependency *dep) {
   possdel= "";
   for (dop= dep->list; dop; dop= dop->next) {
     assert(dop->up == dep);
-    varbufaddstr(vb,possdel); possdel= " | ";
-    varbufaddstr(vb,dop->ed->name);
-    if (dop->verrel != dvr_none) {
-      varbufaddstr(vb," (");
+    varbuf_add_str(vb, possdel);
+    possdel = " | ";
+    varbuf_add_str(vb, dop->ed->name);
+    if (!dop->arch_is_implicit)
+      varbuf_add_archqual(vb, dop->arch);
+    if (dop->verrel != dpkg_relation_none) {
+      varbuf_add_str(vb, " (");
       switch (dop->verrel) {
-      case dvr_exact: varbufaddc(vb,'='); break;
-      case dvr_laterequal: varbufaddstr(vb,">="); break;
-      case dvr_earlierequal: varbufaddstr(vb,"<="); break;
-      case dvr_laterstrict: varbufaddstr(vb,">>"); break;
-      case dvr_earlierstrict: varbufaddstr(vb,"<<"); break;
+      case dpkg_relation_eq:
+        varbuf_add_char(vb, '=');
+        break;
+      case dpkg_relation_ge:
+        varbuf_add_str(vb, ">=");
+        break;
+      case dpkg_relation_le:
+        varbuf_add_str(vb, "<=");
+        break;
+      case dpkg_relation_gt:
+        varbuf_add_str(vb, ">>");
+        break;
+      case dpkg_relation_lt:
+        varbuf_add_str(vb, "<<");
+        break;
       default:
-        internerr("unknown verrel '%d'", dop->verrel);
+        internerr("unknown dpkg_relation %d", dop->verrel);
       }
-      varbufaddc(vb,' ');
+      varbuf_add_char(vb, ' ');
       varbufversion(vb,&dop->version,vdew_nonambig);
-      varbufaddc(vb,')');
+      varbuf_add_char(vb, ')');
     }
   }
 }
 
-void w_dependency(struct varbuf *vb,
-                  const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                  enum fwriteflags flags, const struct fieldinfo *fip) {
+void
+w_dependency(struct varbuf *vb,
+             const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+             enum fwriteflags flags, const struct fieldinfo *fip)
+{
   char fnbuf[50];
   const char *depdel;
   struct dependency *dyp;
@@ -250,172 +347,170 @@ void w_dependency(struct varbuf *vb,
     fnbuf[0] = '\0';
 
   depdel= fnbuf;
-  for (dyp= pifp->depends; dyp; dyp= dyp->next) {
+  for (dyp = pkgbin->depends; dyp; dyp = dyp->next) {
     if (dyp->type != fip->integer) continue;
-    assert(dyp->up == pigp);
-    varbufaddstr(vb,depdel); depdel= ", ";
+    assert(dyp->up == pkg);
+    varbuf_add_str(vb, depdel);
+    depdel = ", ";
     varbufdependency(vb,dyp);
   }
   if ((flags&fw_printheader) && (depdel!=fnbuf))
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void w_conffiles(struct varbuf *vb,
-                 const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
-                 enum fwriteflags flags, const struct fieldinfo *fip) {
+void
+w_conffiles(struct varbuf *vb,
+            const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+            enum fwriteflags flags, const struct fieldinfo *fip)
+{
   struct conffile *i;
 
-  if (!pifp->conffiles || pifp == &pigp->available)
+  if (!pkgbin->conffiles || pkgbin == &pkg->available)
     return;
   if (flags&fw_printheader)
-    varbufaddstr(vb,"Conffiles:\n");
-  for (i=pifp->conffiles; i; i= i->next) {
-    if (i!=pifp->conffiles) varbufaddc(vb,'\n');
-    varbufaddc(vb,' '); varbufaddstr(vb,i->name); varbufaddc(vb,' ');
-    varbufaddstr(vb,i->hash);
-    if (i->obsolete) varbufaddstr(vb," obsolete");
+    varbuf_add_str(vb, "Conffiles:\n");
+  for (i = pkgbin->conffiles; i; i = i->next) {
+    if (i != pkgbin->conffiles)
+      varbuf_add_char(vb, '\n');
+    varbuf_add_char(vb, ' ');
+    varbuf_add_str(vb, i->name);
+    varbuf_add_char(vb, ' ');
+    varbuf_add_str(vb, i->hash);
+    if (i->obsolete)
+      varbuf_add_str(vb, " obsolete");
   }
   if (flags&fw_printheader)
-    varbufaddc(vb,'\n');
+    varbuf_add_char(vb, '\n');
 }
 
 void
 w_trigpend(struct varbuf *vb,
-           const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
+           const struct pkginfo *pkg, const struct pkgbin *pkgbin,
            enum fwriteflags flags, const struct fieldinfo *fip)
 {
   struct trigpend *tp;
 
-  if (pifp == &pigp->available || !pigp->trigpend_head)
+  if (pkgbin == &pkg->available || !pkg->trigpend_head)
     return;
 
-  assert(pigp->status >= stat_triggersawaited &&
-         pigp->status <= stat_triggerspending);
+  assert(pkg->status >= stat_triggersawaited &&
+         pkg->status <= stat_triggerspending);
 
   if (flags & fw_printheader)
-    varbufaddstr(vb, "Triggers-Pending:");
-  for (tp = pigp->trigpend_head; tp; tp = tp->next) {
-    varbufaddc(vb, ' ');
-    varbufaddstr(vb, tp->name);
+    varbuf_add_str(vb, "Triggers-Pending:");
+  for (tp = pkg->trigpend_head; tp; tp = tp->next) {
+    varbuf_add_char(vb, ' ');
+    varbuf_add_str(vb, tp->name);
   }
   if (flags & fw_printheader)
-    varbufaddc(vb, '\n');
+    varbuf_add_char(vb, '\n');
 }
 
 void
 w_trigaw(struct varbuf *vb,
-         const struct pkginfo *pigp, const struct pkginfoperfile *pifp,
+         const struct pkginfo *pkg, const struct pkgbin *pkgbin,
          enum fwriteflags flags, const struct fieldinfo *fip)
 {
   struct trigaw *ta;
 
-  if (pifp == &pigp->available || !pigp->trigaw.head)
+  if (pkgbin == &pkg->available || !pkg->trigaw.head)
     return;
 
-  assert(pigp->status > stat_configfiles &&
-         pigp->status <= stat_triggersawaited);
+  assert(pkg->status > stat_configfiles &&
+         pkg->status <= stat_triggersawaited);
 
   if (flags & fw_printheader)
-    varbufaddstr(vb, "Triggers-Awaited:");
-  for (ta = pigp->trigaw.head; ta; ta = ta->sameaw.next) {
-    varbufaddc(vb, ' ');
-    varbufaddstr(vb, ta->pend->name);
+    varbuf_add_str(vb, "Triggers-Awaited:");
+  for (ta = pkg->trigaw.head; ta; ta = ta->sameaw.next) {
+    varbuf_add_char(vb, ' ');
+    varbuf_add_pkgbin_name(vb, ta->pend, &ta->pend->installed, pnaw_nonambig);
   }
   if (flags & fw_printheader)
-    varbufaddc(vb, '\n');
+    varbuf_add_char(vb, '\n');
 }
 
-void varbufrecord(struct varbuf *vb,
-                  const struct pkginfo *pigp, const struct pkginfoperfile *pifp) {
+void
+varbufrecord(struct varbuf *vb,
+             const struct pkginfo *pkg, const struct pkgbin *pkgbin)
+{
   const struct fieldinfo *fip;
   const struct arbitraryfield *afp;
 
   for (fip= fieldinfos; fip->name; fip++) {
-    fip->wcall(vb,pigp,pifp,fw_printheader,fip);
+    fip->wcall(vb, pkg, pkgbin, fw_printheader, fip);
   }
-  for (afp = pifp->arbs; afp; afp = afp->next) {
-    varbufaddstr(vb, afp->name);
-    varbufaddstr(vb, ": ");
-    varbufaddstr(vb, afp->value);
-    varbufaddc(vb, '\n');
+  for (afp = pkgbin->arbs; afp; afp = afp->next) {
+    varbuf_add_str(vb, afp->name);
+    varbuf_add_str(vb, ": ");
+    varbuf_add_str(vb, afp->value);
+    varbuf_add_char(vb, '\n');
   }
-}
-
-void writerecord(FILE *file, const char *filename,
-                 const struct pkginfo *pigp, const struct pkginfoperfile *pifp) {
-  struct varbuf vb = VARBUF_INIT;
-
-  varbufrecord(&vb,pigp,pifp);
-  varbufaddc(&vb,'\0');
-  if (fputs(vb.buf,file) < 0)
-    ohshite(_("failed to write details of `%.50s' to `%.250s'"), pigp->name,
-	    filename);
-   varbuf_destroy(&vb);
 }
 
 void
-writedb(const char *filename, bool available, bool mustsync)
+writerecord(FILE *file, const char *filename,
+            const struct pkginfo *pkg, const struct pkgbin *pkgbin)
+{
+  struct varbuf vb = VARBUF_INIT;
+
+  varbufrecord(&vb, pkg, pkgbin);
+  varbuf_end_str(&vb);
+  if (fputs(vb.buf,file) < 0) {
+    struct varbuf pkgname = VARBUF_INIT;
+    int errno_saved = errno;
+
+    varbuf_add_pkgbin_name(&pkgname, pkg, pkgbin, pnaw_nonambig);
+
+    errno = errno_saved;
+    ohshite(_("failed to write details of `%.50s' to `%.250s'"),
+            pkgname.buf, filename);
+  }
+
+  varbuf_destroy(&vb);
+}
+
+void
+writedb(const char *filename, enum writedb_flags flags)
 {
   static char writebuf[8192];
-  
+
   struct pkgiterator *it;
-  struct pkginfo *pigp;
-  struct pkginfoperfile *pifp;
-  char *oldfn, *newfn;
+  struct pkginfo *pkg;
+  struct pkgbin *pkgbin;
   const char *which;
-  FILE *file;
+  struct atomic_file *file;
   struct varbuf vb = VARBUF_INIT;
-  int old_umask;
 
-  which = available ? "available" : "status";
-  oldfn= m_malloc(strlen(filename)+sizeof(OLDDBEXT));
-  strcpy(oldfn,filename); strcat(oldfn,OLDDBEXT);
-  newfn= m_malloc(strlen(filename)+sizeof(NEWDBEXT));
-  strcpy(newfn,filename); strcat(newfn,NEWDBEXT);
+  which = (flags & wdb_dump_available) ? "available" : "status";
 
-  old_umask = umask(022);
-  file= fopen(newfn,"w");
-  umask(old_umask);
-  if (!file)
-    ohshite(_("failed to open '%s' for writing %s database"), filename, which);
-  
-  if (setvbuf(file,writebuf,_IOFBF,sizeof(writebuf)))
+  file = atomic_file_new(filename, aff_backup);
+  atomic_file_open(file);
+  if (setvbuf(file->fp, writebuf, _IOFBF, sizeof(writebuf)))
     ohshite(_("unable to set buffering on %s database file"), which);
 
-  it= iterpkgstart();
-  while ((pigp= iterpkgnext(it)) != NULL) {
-    pifp= available ? &pigp->available : &pigp->installed;
+  it = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(it)) != NULL) {
+    pkgbin = (flags & wdb_dump_available) ? &pkg->available : &pkg->installed;
     /* Don't dump records which have no useful content. */
-    if (!informative(pigp,pifp)) continue;
-    varbufrecord(&vb,pigp,pifp);
-    varbufaddc(&vb,'\n'); varbufaddc(&vb,0);
-    if (fputs(vb.buf,file) < 0)
+    if (!pkg_is_informative(pkg, pkgbin))
+      continue;
+    varbufrecord(&vb, pkg, pkgbin);
+    varbuf_add_char(&vb, '\n');
+    varbuf_end_str(&vb);
+    if (fputs(vb.buf, file->fp) < 0)
       ohshite(_("failed to write %s database record about '%.50s' to '%.250s'"),
-              which, pigp->name, filename);
-    varbufreset(&vb);      
+              which, pkgbin_name(pkg, pkgbin, pnaw_nonambig), filename);
+    varbuf_reset(&vb);
   }
-  iterpkgend(it);
+  pkg_db_iter_free(it);
   varbuf_destroy(&vb);
-  if (mustsync) {
-    if (fflush(file))
-      ohshite(_("failed to flush %s database to '%.250s'"), which, filename);
-    if (fsync(fileno(file)))
-      ohshite(_("failed to fsync %s database to '%.250s'"), which, filename);
-  }
-  if (fclose(file))
-    ohshite(_("failed to close '%.250s' after writing %s database"),
-            filename, which);
-  unlink(oldfn);
-  if (link(filename,oldfn) && errno != ENOENT)
-    ohshite(_("failed to link '%.250s' to '%.250s' for backup of %s database"),
-            filename, oldfn, which);
-  if (rename(newfn,filename))
-    ohshite(_("failed to install '%.250s' as '%.250s' containing %s database"),
-            newfn, filename, which);
+  if (flags & wdb_must_sync)
+    atomic_file_sync(file);
 
-  if (mustsync)
+  atomic_file_close(file);
+  atomic_file_commit(file);
+  atomic_file_free(file);
+
+  if (flags & wdb_must_sync)
     dir_sync_path_parent(filename);
-
-  free(newfn);
-  free(oldfn);
 }

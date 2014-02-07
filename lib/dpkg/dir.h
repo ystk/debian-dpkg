@@ -27,10 +27,17 @@
 
 DPKG_BEGIN_DECLS
 
-void dir_sync(DIR *dir, const char *path);
+/**
+ * @defgroup dir Directory handling
+ * @ingroup dpkg-internal
+ * @{
+ */
+
 void dir_sync_path(const char *path);
 void dir_sync_path_parent(const char *path);
 void dir_sync_contents(const char *path);
+
+/** @} */
 
 DPKG_END_DECLS
 

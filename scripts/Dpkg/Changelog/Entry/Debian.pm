@@ -28,6 +28,7 @@ our @EXPORT_OK = qw($regex_header $regex_trailer find_closes);
 use Date::Parse;
 
 use Dpkg::Gettext;
+use Dpkg::Control::Fields;
 use Dpkg::Control::Changelog;
 use Dpkg::Version;
 
@@ -56,7 +57,7 @@ email ($2), some blanks ($3) and the timestamp ($4).
 =cut
 
 my $name_chars = qr/[-+0-9a-z.]/i;
-our $regex_header = qr/^(\w$name_chars*) \(([^\(\) \t]+)\)((?:\s+$name_chars+)+)\;(.*)$/i;
+our $regex_header = qr/^(\w$name_chars*) \(([^\(\) \t]+)\)((?:\s+$name_chars+)+)\;(.*?)\s*$/i;
 our $regex_trailer = qr/^ \-\- (.*) <(.*)>(  ?)((\w+\,\s*)?\d{1,2}\s+\w+\s+\d{4}\s+\d{1,2}:\d\d:\d\d\s+[-+]\d{4}(\s+\([^\\\(\)]\))?)\s*$/o;
 
 =head1 FUNCTIONS
@@ -114,7 +115,7 @@ sub check_header {
     my ($self) = @_;
     my @errors;
     if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	my $options = $4;
+	my ($version, $options) = ($2, $4);
 	$options =~ s/^\s+//;
 	my %optdone;
 	foreach my $opt (split(/\s*,\s*/, $options)) {
@@ -122,7 +123,7 @@ sub check_header {
 		push @errors, sprintf(_g("bad key-value after \`;': \`%s'"), $opt);
 		next;
 	    }
-	    my ($k, $v) = (ucfirst($1), $2);
+	    my ($k, $v) = (field_capitalize($1), $2);
 	    if ($optdone{$k}) {
 		push @errors, sprintf(_g("repeated key-value %s"), $k);
 	    }
@@ -130,10 +131,17 @@ sub check_header {
 	    if ($k eq 'Urgency') {
 		push @errors, sprintf(_g("badly formatted urgency value: %s"), $v)
 		    unless ($v =~ m/^([-0-9a-z]+)((\s+.*)?)$/i);
+	    } elsif ($k eq 'Binary-Only') {
+		push @errors, sprintf(_g("bad binary-only value: %s"), $v)
+		    unless ($v eq "yes");
 	    } elsif ($k =~ m/^X[BCS]+-/i) {
 	    } else {
 		push @errors, sprintf(_g("unknown key-value %s"), $k);
 	    }
+	}
+	my ($ok, $msg) = version_check($version);
+	unless ($ok) {
+	    push @errors, sprintf(_g("version '%s' is invalid: %s"), $version, $msg);
 	}
     } else {
 	push @errors, _g("the header doesn't match the expected regex");

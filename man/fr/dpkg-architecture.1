@@ -1,15 +1,35 @@
+.\" dpkg manual page - dpkg-architecture(1)
+.\"
+.\" Copyright Â© 2005 Marcus Brinkmann <brinkmd@debian.org>
+.\" Copyright Â© 2005 Scott James Remnant <scott@netsplit.com>
+.\" Copyright Â© 2006-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2009-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-architecture 1 15\-08\-2009 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-architecture 1 20\-01\-2012 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-architecture \- Fixer et déterminer l'architecture pour la construction
 d'un paquet
 .
 .SH SYNOPSIS
-\fBdpkg\-architecture\fP [\fIoptions\fP] [\fIcommandes\fP]
+\fBdpkg\-architecture\fP [\fIoption\fP...] [\fIcommande\fP]
 .PP
 .
 .SH DESCRIPTION
@@ -64,7 +84,7 @@ positionnées aux valeurs spécifiées.
 \fB\-L\fP
 Affiche une liste des architectures valables.
 .TP 
-\fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
@@ -122,6 +142,9 @@ Partie \s-1CPU\s0 de \s-1DEB_BUILD_GNU_TYPE\s0.
 Partie «\ système\ » de \s-1DEB_BUILD_GNU_TYPE\s0.
 .IP \s-1DEB_BUILD_GNU_TYPE\s0 4
 Type de système \s-1GNU\s0 de la machine de construction.
+.IP \s-1DEB_BUILD_MULTIARCH\s0 4
+Le type de système clarifié \s-1GNU\s0 de la machine de construction,
+utilisé pour les chemins du système de fichiers.
 .IP \s-1DEB_HOST_ARCH\s0 4
 Architecture Debian de la machine hôte.
 .IP \s-1DEB_HOST_ARCH_OS\s0 4
@@ -138,6 +161,9 @@ Partie «\ processeur\ » de \s-1DEB_HOST_GNU_TYPE\s0.
 Partie «\ système\ » de \s-1DEB_HOST_GNU_TYPE\s0.
 .IP \s-1DEB_HOST_GNU_TYPE\s0 4
 Type de système \s-1GNU\s0 de la machine hôte.
+.IP \s-1DEB_HOST_MULTIARCH\s0 4
+Le type de système clarifié \s-1GNU\s0 de la machine hôte, utilisé pour les
+chemins du système de fichiers.
 .
 .SH DEBIAN/RULES
 Les variables d'environnement définies par \fBdpkg\-architecture\fP sont
@@ -149,116 +175,55 @@ toujours les initialiser en utilisant \fBdpkg\-architecture\fP avec l'option
 gestion des compilations croisées de votre paquet\ :
 .PP
 
-Au lieu de\ :
+Récupération du type de système GNU et passage à ./configure\ :
 .IP
 .nf
-ARCH=\`dpkg \-\-print\-architecture\`
-configure $(\s-1ARCH\s0)\-linux
-.fi
-.PP
-Veuillez utiliser\ :
-.IP
-.nf
-\&\s-1DEB_BUILD_GNU_TYPE\s0\ := $(shell dpkg\-architecture \-qDEB_BUILD_GNU_TYPE)
-\&\s-1DEB_HOST_GNU_TYPE\s0\ := $(shell dpkg\-architecture \-qDEB_HOST_GNU_TYPE)
-
+\&\s-1DEB_BUILD_GNU_TYPE\s0 := $(shell dpkg\-architecture \-qDEB_BUILD_GNU_TYPE)
+\&\s-1DEB_HOST_GNU_TYPE\s0 := $(shell dpkg\-architecture \-qDEB_HOST_GNU_TYPE)
+[...]
 configure \-\-build=$(\s-1DEB_BUILD_GNU_TYPE\s0) \-\-host=$(\s-1DEB_HOST_GNU_TYPE\s0)
 .fi
 .PP
 
-Au lieu de\ :
-.IP
-.nf
-ARCH=\`dpkg \-\-print\-architecture\`
-ifeq ($(\s-1ARCH\s0),alpha)
-  ...
-endif
-.fi
-.PP
-Veuillez utiliser\ :
+Effectuer une action pour une architecture spécifique\ :
 .IP
 .nf
 \&\s-1DEB_HOST_ARCH\s0\ := $(shell dpkg\-architecture \-qDEB_HOST_ARCH)
 
 ifeq ($(\s-1DEB_HOST_ARCH\s0),alpha)
-  ...
+  [...]
 endif
 .fi
 .PP
 Ou, si vous n'avez besoin que de vérifier le type du processeur et du
 système, utilisez les variables DEB_HOST_ARCH_CPU ou DEB_HOST_ARCH_OS.
 .PP
-Appeler dpkg dans les fichiers «\ rules\ » pour obtenir les informations sur
-l'architecture est déconseillé (sauf pour des raisons de compatibilité
-arrière, voyez ci\-dessous). En particulier, l'option \-\-print\-architecture
-n'est pas fiable puisque certaines architectures Debian ne correspondent à
-aucun nom de processeur.
+Veuillez noter qu'il est également possible d'utiliser un fragment externe
+de fichier Makefile pour définir correctement toutes les variables que
+\fBdpkg\-architecture\fP peut fournir\ :
+.IP
+.nf
+include /usr/share/dpkg/architecture.mk
+
+ifeq ($(\s-1DEB_HOST_ARCH\s0),alpha)
+  [...]
+endif
+.fi
+.PP
+Dans tous les cas, il ne faut jamais utiliser \fBdpkg \-\-print\-architecture\fP
+pour récupérer les informations relatives à l'architecture pendant la
+construction d'un paquet.
 .
 .SH "COMPATIBILITÉ ARRIÈRE"
+Le fragment de fichier Makefile /usr/share/dpkg/architecture.mk Makefile est
+fourni par dpkg\-dev depuis la version 1.16.1.
+.PP
 Les variables DEB_*_ARCH_BITS et DEB_*_ARCH_ENDIAN sont apparues avec la
 version 1.15.4 de dpkg\-dev. Si elles sont utilisées dans \fIdebian/rules\fP,
 une dépendance de construction sur dpkg\-dev (>= 1.15.4) est nécessaire.
 .PP
-Les variables DEB_HOST_ARCH_CPU et DEB_HOST_ARCH_OS sont apparues avec la
-version 1.13.2 de dpkg\-dev. Auparavant, les fichiers \fIdebian/rules\fP
-utilisaient les variables DEB_HOST_GNU_CPU ou DEB_HOST_GNU_TYPE qui ont eu
-tendance à varier dans le temps.
-.PP
-Si ces variables sont encore utilisées dans un fichier \fIdebian/rules\fP pour
-décider quoi construire et comment, il faut les remplacer par les nouvelles
-variables. Vous pouvez rester compatible avec les versions précédentes de
-dpkg\-dev en utilisant le code suivant\ :
-.IP
-.nf
-DEB_HOST_ARCH_CPU\ := $(shell dpkg\-architecture \-qDEB_HOST_ARCH_CPU 2>/dev/null)
-DEB_HOST_ARCH_OS\ := $(shell dpkg\-architecture \-qDEB_HOST_ARCH_OS 2>/dev/null)
-
-# Prise en compte des anciennes versions de dpkg\-architecture.
-ifeq ($(DEB_HOST_ARCH_CPU),)
-  DEB_HOST_ARCH_CPU\ := $(shell dpkg\-architecture \-qDEB_HOST_GNU_CPU)
-  ifeq ($(DEB_HOST_ARCH_CPU),x86_64)
-    DEB_HOST_ARCH_CPU\ := amd64
-  endif
-endif
-ifeq ($(DEB_HOST_ARCH_OS),)
-  DEB_HOST_ARCH_OS\ := $(subst \-gnu,,$(shell dpkg\-architecture \-qDEB_HOST_GNU_SYSTEM))
-  ifeq ($(DEB_HOST_ARCH_OS),gnu)
-    DEB_HOST_ARCH_OS\ := hurd
-  endif
-endif
-.fi
-.PP
-Et de la même façon pour DEB_BUILD_ARCH_CPU et DEB_BUILD_ARCH_OS.
-.PP
-Pour accepter encore les versions de dpkg\-dev qui n'incluent pas
-\fBdpkg\-architecture\fP, vous pouvez utiliser\ :
-.IP
-.nf
-\&\s-1DEB_BUILD_ARCH\s0\ := $(shell dpkg \-\-print\-architecture)
-\&\s-1DEB_BUILD_GNU_CPU\s0\ := $(patsubst hurd\-%,%,$(\s-1DEB_BUILD_ARCH\s0))
-ifeq ($(filter\-out hurd\-%,$(\s-1DEB_BUILD_ARCH\s0)),)
-  \s-1DEB_BUILD_GNU_SYSTEM\s0\ := gnu
-else
-  \s-1DEB_BUILD_GNU_SYSTEM\s0\ := linux\-gnu
-endif
-DEB_BUILD_GNU_TYPE=$(\s-1DEB_BUILD_GNU_CPU\s0)\-$(\s-1DEB_BUILD_GNU_SYSTEM\s0)
-
-\&\s-1DEB_HOST_ARCH\s0\ := $(\s-1DEB_BUILD_ARCH\s0)
-\&\s-1DEB_HOST_GNU_CPU\s0\ := $(\s-1DEB_BUILD_GNU_CPU\s0)
-\&\s-1DEB_HOST_GNU_SYSTEM\s0\ := $(\s-1DEB_BUILD_GNU_SYSTEM\s0)
-\&\s-1DEB_HOST_GNU_TYPE\s0\ := $(\s-1DEB_BUILD_GNU_TYPE\s0)
-.fi
-.PP
-Vous pouvez placer certaines de ces lignes au début de votre
-debian/rules. Ces valeurs par défaut seront écrasées si dpkg\-architecture
-est utilisé.
-.PP
-Vous n'avez pas besoin de toutes ces lignes. Choisissez uniquement les
-variables que vous utilisez dans votre fichier «\ rules\ ». Par exemple, si
-vous n'avez besoin que de l'architecture hôte Debian, `DEB_HOST_ARCH=\`dpkg
-\-\-print\-architecture\`' est suffisant (il s'agit bien sûr de l'architecture
-Debian de la machine de construction, mais le but est ici de rester
-compatible avec les anciennes compilations natives).
+Les variables DEB_HOST_ARCH_CPU et DEB_HOST_ARCH_OS sont apparues dans la
+version 1.13.2 de dpkg\-dev.
 .PP
 Les options \fB\-e\fP et \fB\-i\fP n'ont été ajoutées que relativement récemment à
 \fBdpkg\-architecture\fP (depuis la version 1.13.13 de dpkg).
@@ -288,7 +253,7 @@ dpkg\-architecture \-ai386 \-ilinux\-any
 .SH FICHIERS
 Tous ces fichiers sont nécessaires afin que \fBdpkg\-architecture\fP puisse
 fonctionner. Leurs emplacements peuvent être modifiés lors du traitement via
-la variable d'environnement DPKG_DATADIR.
+la variable d'environnement \fBDPKG_DATADIR\fP.
 .TP 
 \fI/usr/share/dpkg/cputable\fP
 Table des noms de processeurs connus et liaison avec leur nom GNU.
@@ -303,11 +268,6 @@ architectures Debian.
 .
 .SH "VOIR AUSSI"
 \fBdpkg\-buildpackage\fP(1), \fBdpkg\-cross\fP(1).
-.
-.SH AUTEUR
-\fBdpkg\-architecture\fP et cette page de manuel ont été initialement écrits par
-Marcus Brinkmann <brinkmd@debian.org>.
-
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

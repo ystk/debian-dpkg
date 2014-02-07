@@ -24,6 +24,7 @@
 #include <dpkg/test.h>
 #include <dpkg/string.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 static void
@@ -32,24 +33,53 @@ test_str_escape_fmt(void)
 	char buf[1024], *q;
 
 	memset(buf, 'a', sizeof(buf));
-	q = str_escape_fmt(buf, "");
+	q = str_escape_fmt(buf, "", sizeof(buf));
 	strcpy(q, " end");
 	test_str(buf, ==, " end");
 
 	memset(buf, 'a', sizeof(buf));
-	q = str_escape_fmt(buf, "%");
+	q = str_escape_fmt(buf, "%", sizeof(buf));
 	strcpy(q, " end");
 	test_str(buf, ==, "%% end");
 
 	memset(buf, 'a', sizeof(buf));
-	q = str_escape_fmt(buf, "%%%");
+	q = str_escape_fmt(buf, "%%%", sizeof(buf));
 	strcpy(q, " end");
 	test_str(buf, ==, "%%%%%% end");
 
 	memset(buf, 'a', sizeof(buf));
-	q = str_escape_fmt(buf, "%b%b%c%c%%");
+	q = str_escape_fmt(buf, "%b%b%c%c%%", sizeof(buf));
 	strcpy(q, " end");
 	test_str(buf, ==, "%%b%%b%%c%%c%%%% end");
+
+	/* Test delimited buffer. */
+	memset(buf, 'a', sizeof(buf));
+	q = str_escape_fmt(buf, "%%%", 5);
+	strcpy(q, " end");
+	test_str(buf, ==, "%%%% end");
+
+	memset(buf, 'a', sizeof(buf));
+	q = str_escape_fmt(buf, "%%%", 4);
+	strcpy(q, " end");
+	test_str(buf, ==, "%% end");
+}
+
+static void
+test_str_quote_meta(void)
+{
+	char *str;
+
+	str = str_quote_meta("foo bar");
+	test_str(str, ==, "foo\\ bar");
+	free(str);
+
+	str = str_quote_meta("foo?bar");
+	test_str(str, ==, "foo\\?bar");
+	free(str);
+
+	str = str_quote_meta("foo*bar");
+	test_str(str, ==, "foo\\*bar");
+	free(str);
 }
 
 static void
@@ -98,6 +128,6 @@ static void
 test(void)
 {
 	test_str_escape_fmt();
+	test_str_quote_meta();
 	test_str_strip_quotes();
 }
-

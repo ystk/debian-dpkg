@@ -26,13 +26,27 @@
 
 DPKG_BEGIN_DECLS
 
+/**
+ * @defgroup trigdeferred Trigger deferred file handling
+ * @ingroup dpkg-internal
+ * @{
+ */
+
 enum trigdef_updateflags {
-	tduf_nolockok =           001,
-	tduf_write =              002,
-	tduf_nolock =             003,
-	/* Should not be set unless _write is. */
-	tduf_writeifempty =       010,
-	tduf_writeifenoent =      020,
+	tduf_nolockok		= DPKG_BIT(0),
+	tduf_write		= DPKG_BIT(1),
+	tduf_nolock		= tduf_nolockok | tduf_write,
+	/** Should not be set unless _write is. */
+	tduf_writeifempty	= DPKG_BIT(3),
+	tduf_writeifenoent	= DPKG_BIT(4),
+};
+
+enum trigdef_update_status {
+	tdus_error_no_dir = -1,
+	tdus_error_empty_deferred = -2,
+	tdus_error_no_deferred = -3,
+	tdus_no_deferred = 1,
+	tdus_ok = 2,
 };
 
 struct trigdefmeths {
@@ -43,18 +57,12 @@ struct trigdefmeths {
 
 void trigdef_set_methods(const struct trigdefmeths *methods);
 
-/*
- * Return values:
- *  -1  Lock ENOENT with O_CREAT (directory does not exist)
- *  -2  Unincorp empty, tduf_writeifempty unset
- *  -3  Unincorp ENOENT, tduf_writeifenoent unset
- *   1  Unincorp ENOENT, tduf_writeifenoent set   } caller must call
- *   2  ok                                        }  trigdef_update_done!
- */
-int trigdef_update_start(enum trigdef_updateflags uf, const char *admindir);
+enum trigdef_update_status trigdef_update_start(enum trigdef_updateflags uf);
 void trigdef_update_printf(const char *format, ...) DPKG_ATTR_PRINTF(1);
 int trigdef_parse(void);
 void trigdef_process_done(void);
+
+/** @} */
 
 DPKG_END_DECLS
 

@@ -78,14 +78,14 @@ void baselist::kd_bottom() {
 void baselist::kd_redraw() {
 //#define RFSH(x) werase(x); redrawwin(x)
 //  RFSH(listpad);
-//  RFSH(infopad); 
-//  RFSH(colheadspad); 
-//  RFSH(thisstatepad); 
-//  RFSH(titlewin); 
+//  RFSH(infopad);
+//  RFSH(colheadspad);
+//  RFSH(thisstatepad);
+//  RFSH(titlewin);
 //  RFSH(whatinfowin); /* FIXME: why does ncurses need this? */
   clearok(curscr,TRUE);
   redrawall();
-  if (debug) fprintf(debug,"baselist[%p]::kd_redraw() done\n",this);
+  debug(dbg_general, "baselist[%p]::kd_redraw() done", this);
 }
 
 void baselist::kd_searchagain() {
@@ -112,7 +112,7 @@ baselist::matchsearch(int index)
   searchlen=strlen(searchstring);
   lendiff = strlen(name) - searchlen;
   for (i=0; i<=lendiff; i++)
-    if (!strncasecmp(name + i, searchstring, searchlen))
+    if (strncasecmp(name + i, searchstring, searchlen) == 0)
       return true;
 
   return false;
@@ -143,8 +143,10 @@ void baselist::kd_search() {
     kd_searchagain();
 }
 
-void baselist::displayerror(const char* str) {
-  const char* pr = _("Error: ");
+void
+baselist::displayerror(const char *str)
+{
+  const char *pr = _("Error: ");
   int prlen=strlen(pr);
 
   beep();
@@ -159,10 +161,10 @@ void baselist::displayerror(const char* str) {
 
 
 void baselist::displayhelp(const struct helpmenuentry *helpmenu, int key) {
-  int maxx, maxy, i, y, x, nextkey;
-  
+  int maxx, maxy, i, nextkey;
+
   getmaxyx(stdscr,maxy,maxx);
-  wbkgdset(stdscr, ' ' | helpscreen_attr);
+  wbkgdset(stdscr, ' ' | part_attr[helpscreen]);
   clearok(stdscr,TRUE);
   for (;;) {
     werase(stdscr);
@@ -170,14 +172,16 @@ void baselist::displayhelp(const struct helpmenuentry *helpmenu, int key) {
     while (hme->key && hme->key != key)
       hme++;
     if (hme->key) {
-      attrset(helpscreen_attr);
+      int x, y DPKG_ATTR_UNUSED;
+
+      attrset(part_attr[helpscreen]);
       mvaddstr(1,0, gettext(hme->msg->text));
-      attrset(title_attr);
+      attrset(part_attr[title]);
       mvaddstr(0,0, _("Help: "));
       addstr(gettext(hme->msg->title));
       getyx(stdscr,y,x);
       while (++x<maxx) addch(' ');
-      attrset(thisstate_attr);
+      attrset(part_attr[thisstate]);
       mvaddstr(maxy-1,0,
 _("Press ? for help menu, . for next topic, <space> to exit help."));
       getyx(stdscr,y,x);
@@ -219,7 +223,7 @@ _("Press ? for help menu, . for next topic, <space> to exit help."));
   redrawthisstate();
   refreshinfo();
   wnoutrefresh(whatinfowin);
-}     
+}
 
 void baselist::kd_help() {
   displayhelp(helpmenulist(),0);
@@ -251,7 +255,7 @@ void baselist::kd_down() {
   if (cursorline+1 < nitems) ncursor++;
   setcursor(ncursor);
 }
-  
+
 void baselist::kd_up() {
   int ncursor= cursorline;
   // scroll by one line if there are any lines not shown yet

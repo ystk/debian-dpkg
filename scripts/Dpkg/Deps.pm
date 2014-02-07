@@ -48,10 +48,10 @@ All the deps_* functions are exported by default.
 use strict;
 use warnings;
 
-our $VERSION = "1.00";
+our $VERSION = "1.01";
 
 use Dpkg::Version;
-use Dpkg::Arch qw(get_host_arch);
+use Dpkg::Arch qw(get_host_arch get_build_arch);
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
 
@@ -123,6 +123,29 @@ sub _arch_is_superset {
 	return 0 unless $subset;
     }
     return 1;
+}
+
+# Dpkg::Deps::_arch_qualifier_allows_implication($p, $q)
+#
+# Returns true if the arch qualifier $p and $q are compatible with the
+# implication $p -> $q, false otherwise. $p/$q can be
+# undef/"any"/"native" or an architecture string.
+
+sub _arch_qualifier_allows_implication {
+    my ($p, $q) = @_;
+    if (defined $p and $p eq "any") {
+	return 1 if defined $q and $q eq "any";
+	return 0;
+    } elsif (defined $p and $p eq "native") {
+	return 1 if defined $q and ($q eq "any" or $q eq "native");
+	return 0;
+    } elsif (defined $p) {
+	return 1 if defined $q and ($p eq $q or $q eq "any");
+	return 0;
+    } else {
+	return 0 if defined $q and $q ne "any" and $q ne "native";
+	return 1;
+    }
 }
 
 =item deps_eval_implication($rel_p, $v_p, $rel_q, $v_q)
@@ -220,7 +243,7 @@ sub deps_eval_implication {
 
 =item my $dep = deps_parse($line, %options)
 
-This function parse the dependency line and returns an object, either a
+This function parses the dependency line and returns an object, either a
 Dpkg::Deps::AND or a Dpkg::Deps::Union. Various options can alter the
 behaviour of that function.
 
@@ -233,9 +256,8 @@ Set to 0 to completely ignore that information.
 
 =item host_arch (defaults to the current architecture)
 
-Define the host architecture. Needed only if the reduce_arch option is
-set to 1. By default it uses Dpkg::Arch::get_host_arch() to identify
-the proper architecture.
+Define the host architecture. By default it uses
+Dpkg::Arch::get_host_arch() to identify the proper architecture.
 
 =item reduce_arch (defaults to 0)
 
@@ -249,6 +271,11 @@ current architecture.
 If set to 1, returns a Dpkg::Deps::Union instead of a Dpkg::Deps::AND. Use
 this when parsing non-dependency fields like Conflicts.
 
+=item build_dep (defaults to 0)
+
+If set to 1, allow build-dep only arch qualifiers, that is “:native”.
+This should be set whenever working with build-deps.
+
 =back
 
 =cut
@@ -260,6 +287,7 @@ sub deps_parse {
     $options{reduce_arch} = 0 if not exists $options{reduce_arch};
     $options{host_arch} = get_host_arch() if not exists $options{host_arch};
     $options{union} = 0 if not exists $options{union};
+    $options{build_dep} = 0 if not exists $options{build_dep};
 
     # Strip trailing/leading spaces
     $dep_line =~ s/^\s+//;
@@ -269,7 +297,10 @@ sub deps_parse {
     foreach my $dep_and (split(/\s*,\s*/m, $dep_line)) {
         my @or_list = ();
         foreach my $dep_or (split(/\s*\|\s*/m, $dep_and)) {
-	    my $dep_simple = Dpkg::Deps::Simple->new($dep_or);
+	    my $dep_simple = Dpkg::Deps::Simple->new($dep_or, host_arch =>
+	                                             $options{host_arch},
+	                                             build_dep =>
+	                                             $options{build_dep});
 	    if (not defined $dep_simple->{package}) {
 		warning(_g("can't parse dependency %s"), $dep_or);
 		return undef;
@@ -362,7 +393,7 @@ In practice, the code is only meant to handle the realistic cases which,
 given Debian's dependencies structure, imply those restrictions: AND can
 contain Simple or OR objects, OR can only contain Simple objects.
 
-Dpkg::Deps::KnowFacts is a special object that is used while evaluating
+Dpkg::Deps::KnownFacts is a special object that is used while evaluating
 dependencies and while trying to simplify them. It represents a set of
 installed packages along with the virtual packages that they might
 provide.
@@ -380,14 +411,14 @@ an empty list of dependencies.
 
 =item $dep->get_deps()
 
-Return a list of sub-dependencies. For Dpkg::Deps::Simple it returns
+Returns a list of sub-dependencies. For Dpkg::Deps::Simple it returns
 itself.
 
 =item $dep->output([$fh])
 
 =item "$dep"
 
-Return a string representing the dependency. If $fh is set, it prints
+Returns a string representing the dependency. If $fh is set, it prints
 the string to the filehandle.
 
 =item $dep->implies($other_dep)
@@ -398,7 +429,7 @@ $other_dep do not need to be of the same type.
 
 =item $dep->sort()
 
-Sort alphabetically the internal list of dependencies. It's a no-op for
+Sorts alphabetically the internal list of dependencies. It's a no-op for
 Dpkg::Deps::Simple objects.
 
 =item $dep->arch_is_concerned($arch)
@@ -409,7 +440,7 @@ sub-dependencies apply to this architecture.
 
 =item $dep->reduce_arch($arch)
 
-Simplify the dependency to contain only information relevant to the given
+Simplifies the dependency to contain only information relevant to the given
 architecture. A Dpkg::Deps::Simple object can be left empty after this
 operation. For Dpkg::Deps::Multiple objects, the non-relevant
 sub-dependencies are simply removed.
@@ -428,15 +459,20 @@ is lacking to conclude.
 
 =item $dep->simplify_deps($facts, @assumed_deps)
 
-Simplify the dependency as much as possible given the list of facts (see
-object Dpkg::Deps::KnownFacts) and a list of other dependencies that we
-know to be true.
+Simplifies the dependency as much as possible given the list of facts (see
+object Dpkg::Deps::KnownFacts) and a list of other dependencies that are
+known to be true.
 
 =item $dep->has_arch_restriction()
 
 For a simple dependency, returns the package name if the dependency
 applies only to a subset of architectures.  For multiple dependencies, it
 returns the list of package names that have such a restriction.
+
+=item $dep->reset()
+
+Clears any dependency information stored in $dep so that $dep->is_empty()
+returns true.
 
 =back
 
@@ -468,6 +504,11 @@ undefined when there's no restriction, otherwise it's an
 array ref. It can contain an exclusion list, in that case each
 architecture is prefixed with an exclamation mark.
 
+=item archqual
+
+The arch qualifier of the dependency (can be undef if there's none).
+In the dependency "python:any (>= 2.6)", the arch qualifier is "any".
+
 =back
 
 =head3 Methods
@@ -476,7 +517,7 @@ architecture is prefixed with an exclamation mark.
 
 =item $simple_dep->parse_string("dpkg-dev (>= 1.14.8) [!hurd-i386]")
 
-Parse the dependency and modify internal properties to match the parsed
+Parses the dependency and modifies internal properties to match the parsed
 dependency.
 
 =item $simple_dep->merge_union($other_dep)
@@ -499,17 +540,25 @@ use Dpkg::Gettext;
 use base qw(Dpkg::Interface::Storable);
 
 sub new {
-    my ($this, $arg) = @_;
+    my ($this, $arg, %opts) = @_;
     my $class = ref($this) || $this;
-    my $self = {
-	'package' => undef,
-	'relation' => undef,
-	'version' => undef,
-	'arches' => undef,
-    };
+    my $self = {};
     bless $self, $class;
+    $self->reset();
+    $self->{host_arch} = $opts{host_arch} || Dpkg::Arch::get_host_arch();
+    $self->{build_arch} = $opts{build_arch} || Dpkg::Arch::get_build_arch();
+    $self->{build_dep} = $opts{build_dep} || 0;
     $self->parse_string($arg) if defined($arg);
     return $self;
+}
+
+sub reset {
+    my ($self) = @_;
+    $self->{'package'} = undef;
+    $self->{'relation'} = undef;
+    $self->{'version'} = undef;
+    $self->{'arches'} = undef;
+    $self->{'archqual'} = undef;
 }
 
 sub parse {
@@ -525,6 +574,10 @@ sub parse_string {
             /^\s*                           # skip leading whitespace
               ([a-zA-Z0-9][a-zA-Z0-9+.-]*)  # package name
               (?:                           # start of optional part
+                :                           # colon for architecture
+                ([a-zA-Z0-9][a-zA-Z0-9-]*)  # architecture name
+              )?                            # end of optional part
+              (?:                           # start of optional part
                 \s* \(                      # open parenthesis for version part
                 \s* (<<|<=|=|>=|>>|<|>)     # relation part
                 \s* (.*?)                   # do not attempt to parse version
@@ -537,19 +590,26 @@ sub parse_string {
               )?                            # end of optional architecture
 	      \s*$			    # trailing spaces at end
             /x;
-    $self->{package} = $1;
-    $self->{relation} = version_normalize_relation($2) if defined($2);
-    if (defined($3)) {
-        $self->{version} = Dpkg::Version->new($3);
+    if (defined($2)) {
+	return if $2 eq "native" and not $self->{build_dep};
+	$self->{archqual} = $2;
     }
+    $self->{package} = $1;
+    $self->{relation} = version_normalize_relation($3) if defined($3);
     if (defined($4)) {
-	$self->{arches} = [ split(/\s+/, $4) ];
+	$self->{version} = Dpkg::Version->new($4);
+    }
+    if (defined($5)) {
+	$self->{arches} = [ split(/\s+/, $5) ];
     }
 }
 
 sub output {
     my ($self, $fh) = @_;
     my $res = $self->{package};
+    if (defined($self->{archqual})) {
+	$res .= ":" . $self->{archqual};
+    }
     if (defined($self->{relation})) {
 	$res .= " (" . $self->{relation} . " " . $self->{version} .  ")";
     }
@@ -574,6 +634,11 @@ sub implies {
 	# Our architecture set must be a superset of the architectures for
 	# o, otherwise we can't conclude anything.
 	return undef unless Dpkg::Deps::_arch_is_superset($self->{arches}, $o->{arches});
+
+	# The arch qualifier must not forbid an implication
+	return undef unless
+	    Dpkg::Deps::_arch_qualifier_allows_implication($self->{archqual},
+	                                                   $o->{archqual});
 
 	# If o has no version clause, then our dependency is stronger
 	return 1 if not defined $o->{relation};
@@ -665,10 +730,7 @@ sub arch_is_concerned {
 sub reduce_arch {
     my ($self, $host_arch) = @_;
     if (not $self->arch_is_concerned($host_arch)) {
-	$self->{package} = undef;
-	$self->{relation} = undef;
-	$self->{version} = undef;
-	$self->{arches} = undef;
+	$self->reset();
     } else {
 	$self->{arches} = undef;
     }
@@ -686,42 +748,13 @@ sub has_arch_restriction {
 sub get_evaluation {
     my ($self, $facts) = @_;
     return undef if not defined $self->{package};
-    my ($check, $param) = $facts->check_package($self->{package});
-    if ($check) {
-	if (defined $self->{relation}) {
-	    if (ref($param)) {
-		# Provided packages
-		# XXX: Once support for versioned provides is in place,
-		# this part must be adapted
-		return 0;
-	    } else {
-		if (defined($param)) {
-		    if (version_compare_relation($param, $self->{relation},
-						 $self->{version})) {
-			return 1;
-		    } else {
-			return 0;
-		    }
-		} else {
-		    return undef;
-		}
-	    }
-	} else {
-	    return 1;
-	}
-    }
-    return 0;
+    return $facts->_evaluate_simple_dep($self);
 }
 
 sub simplify_deps {
     my ($self, $facts) = @_;
     my $eval = $self->get_evaluation($facts);
-    if (defined($eval) and $eval == 1) {
-	$self->{package} = undef;
-	$self->{relation} = undef;
-	$self->{version} = undef;
-	$self->{arches} = undef;
-    }
+    $self->reset() if defined $eval and $eval == 1;
 }
 
 sub is_empty {
@@ -769,13 +802,14 @@ package Dpkg::Deps::Multiple;
 
 =head2 Dpkg::Deps::Multiple
 
-This the base class for Dpkg::Deps::{AND,OR,Union}. It contains the
+This is the base class for Dpkg::Deps::{AND,OR,Union}. It implements
+the following methods:
 
 =over 4
 
 =item $mul->add($dep)
 
-Add a new dependency object at the end of the list.
+Adds a new dependency object at the end of the list.
 
 =back
 
@@ -794,6 +828,11 @@ sub new {
     my $self = { 'list' => [ @_ ] };
     bless $self, $class;
     return $self;
+}
+
+sub reset {
+    my ($self) = @_;
+    $self->{'list'} = [];
 }
 
 sub add {
@@ -1075,7 +1114,7 @@ Those methods are not meaningful for this object and always return undef.
 =item $union->simplify_deps($facts)
 
 The simplication is done to generate an union of all the relationships.
-It uses $simple_dep->merge_union($other_dep) to get the its job done.
+It uses $simple_dep->merge_union($other_dep) to get its job done.
 
 =back
 
@@ -1111,18 +1150,18 @@ sub simplify_deps {
 
 WHILELOOP:
     while (@{$self->{list}}) {
-	my $dep = shift @{$self->{list}};
-	foreach my $odep (@new) {
+	my $odep = shift @{$self->{list}};
+	foreach my $dep (@new) {
 	    next WHILELOOP if $dep->merge_union($odep);
 	}
-	push @new, $dep;
+	push @new, $odep;
     }
     $self->{list} = [ @new ];
 }
 
 package Dpkg::Deps::KnownFacts;
 
-=head2 Dpkg::Deps::KnowFacts
+=head2 Dpkg::Deps::KnownFacts
 
 This object represents a list of installed packages and a list of virtual
 packages provided (by the set of installed packages).
@@ -1131,12 +1170,14 @@ packages provided (by the set of installed packages).
 
 =item my $facts = Dpkg::Deps::KnownFacts->new();
 
-Create a new object.
+Creates a new object.
 
 =cut
 
 use strict;
 use warnings;
+
+use Dpkg::Version;
 
 sub new {
     my $this = shift;
@@ -1146,22 +1187,33 @@ sub new {
     return $self;
 }
 
-=item $facts->add_installed_package($package, $version)
+=item $facts->add_installed_package($package, $version, $arch, $multiarch)
 
-Record that the given version of the package is installed. If $version is
-undefined we know that the package is installed but we don't know which
-version it is.
+Records that the given version of the package is installed. If
+$version/$arch is undefined we know that the package is installed but we
+don't know which version/architecture it is. $multiarch is the Multi-Arch
+field of the package. If $multiarch is undef, it will be equivalent to
+"Multi-Arch: no".
+
+Note that $multiarch is only used if $arch is provided.
 
 =cut
 
 sub add_installed_package {
-    my ($self, $pkg, $ver) = @_;
-    $self->{pkg}{$pkg} = $ver;
+    my ($self, $pkg, $ver, $arch, $multiarch) = @_;
+    my $p = {
+	"package" => $pkg,
+	"version" => $ver,
+	"architecture" => $arch,
+	"multi-arch" => $multiarch || "no",
+    };
+    $self->{pkg}{"$pkg:$arch"} = $p if defined $arch;
+    push @{$self->{pkg}{$pkg}}, $p;
 }
 
 =item $facts->add_provided_package($virtual, $relation, $version, $by)
 
-Record that the "$by" package provides the $virtual package. $relation
+Records that the "$by" package provides the $virtual package. $relation
 and $version correspond to the associated relation given in the Provides
 field. This might be used in the future for versioned provides.
 
@@ -1182,6 +1234,10 @@ contains the version. For a virtual package, $param contains an array
 reference containing the list of packages that provide it (each package is
 listed as [ $provider, $relation, $version ]).
 
+This function is obsolete and should not be used. Dpkg::Deps::KnownFacts
+is only meant to be filled with data and then passed to Dpkg::Deps
+methods where appropriate, but it should not be directly queried.
+
 =back
 
 =cut
@@ -1189,12 +1245,94 @@ listed as [ $provider, $relation, $version ]).
 sub check_package {
     my ($self, $pkg) = @_;
     if (exists $self->{pkg}{$pkg}) {
-	return (1, $self->{pkg}{$pkg});
+	return (1, $self->{pkg}{$pkg}[0]{version});
     }
     if (exists $self->{virtualpkg}{$pkg}) {
 	return (1, $self->{virtualpkg}{$pkg});
     }
     return (0, undef);
 }
+
+## The functions below are private to Dpkg::Deps
+
+sub _find_package {
+    my ($self, $dep, $lackinfos) = @_;
+    my ($pkg, $archqual) = ($dep->{package}, $dep->{archqual});
+    return undef if not exists $self->{pkg}{$pkg};
+    my $host_arch = $dep->{host_arch};
+    my $build_arch = $dep->{build_arch};
+    foreach my $p (@{$self->{pkg}{$pkg}}) {
+	my $a = $p->{"architecture"};
+	my $ma = $p->{"multi-arch"};
+	if (not defined $a) {
+	    $$lackinfos = 1;
+	    next;
+	}
+	if (not defined $archqual) {
+	    return $p if $ma eq "foreign";
+	    return $p if $a eq $host_arch or $a eq "all";
+	} elsif ($archqual eq "any") {
+	    return $p if $ma eq "allowed";
+	} elsif ($archqual eq "native") {
+	    return $p if $a eq $build_arch and $ma ne "foreign";
+	} else {
+	    return $p if $a eq $archqual;
+	}
+    }
+    return undef;
+}
+
+sub _find_virtual_packages {
+    my ($self, $pkg) = @_;
+    return () if not exists $self->{virtualpkg}{$pkg};
+    return @{$self->{virtualpkg}{$pkg}};
+}
+
+sub _evaluate_simple_dep {
+    my ($self, $dep) = @_;
+    my ($lackinfos, $pkg) = (0, $dep->{package});
+    my $p = $self->_find_package($dep, \$lackinfos);
+    if ($p) {
+	if (defined $dep->{relation}) {
+	    if (defined $p->{version}) {
+		return 1 if version_compare_relation($p->{version},
+		                           $dep->{relation}, $dep->{version});
+	    } else {
+		$lackinfos = 1;
+	    }
+	} else {
+	    return 1;
+	}
+    }
+    foreach my $virtpkg ($self->_find_virtual_packages($pkg)) {
+	# XXX: Adapt when versioned provides are allowed
+	next if defined $virtpkg->[1];
+	next if defined $dep->{relation}; # Provides don't satisfy versioned deps
+	return 1;
+    }
+    return undef if $lackinfos;
+    return 0;
+}
+
+=head1 CHANGES
+
+=head2 Version 1.01
+
+=over
+
+=item * Add new $dep->reset() method that all dependency objects support.
+
+=item * Dpkg::Deps::Simple now recognizes the arch qualifier "any" and
+stores it in the "archqual" property when present.
+
+=item * Dpkg::Deps::KnownFacts->add_installed_package() now accepts 2
+supplementary parameters ($arch and $multiarch).
+
+=item * Dpkg::Deps::KnownFacts->check_package() is obsolete, it should
+not have been part of the public API.
+
+=back
+
+=cut
 
 1;
