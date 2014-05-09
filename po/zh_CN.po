@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.15.8.7\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2011-01-30 20:38+0100\n"
+"POT-Creation-Date: 2014-04-30 13:17+0000\n"
 "PO-Revision-Date: 2010-12-18 02:26+0100\n"
 "Last-Translator: Aron Xu <happyaron.xu@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -1184,7 +1184,7 @@ msgstr "读取 %.250s 时发现未预期的文件结束符"
 msgid "error formatting string into varbuf variable"
 msgstr "将字符串格式化为 varbuf 变量时出错"
 
-#: src/archives.c:188 src/archives.c:210 src/archives.c:699
+#: src/archives.c:188 src/archives.c:210 src/archives.c:711
 msgid "error reading from dpkg-deb pipe"
 msgstr "从 dpkg-deb 的管道读取数据时出错"
 
@@ -1198,73 +1198,73 @@ msgstr "已跳过未解包文件 %.255s (已被替换或排除？)"
 msgid "error setting timestamps of `%.255s'"
 msgstr "为 %.255s 设置时间戳时出错"
 
-#: src/archives.c:260 src/archives.c:713 src/statcmd.c:173
+#: src/archives.c:260 src/archives.c:725 src/statcmd.c:173
 #, c-format
 msgid "error setting ownership of `%.255s'"
 msgstr "为 %.255s 设置属主时出错"
 
-#: src/archives.c:262 src/archives.c:717 src/statcmd.c:175
+#: src/archives.c:262 src/archives.c:729 src/statcmd.c:175
 #, c-format
 msgid "error setting permissions of `%.255s'"
 msgstr "为 %.255s 设置权限位时出错"
 
-#: src/archives.c:379
+#: src/archives.c:385
 #, c-format
 msgid "failed to stat (dereference) existing symlink `%.250s'"
 msgstr "获取现有的符号链接 %.250s 的状态(反引用)失败"
 
-#: src/archives.c:401
+#: src/archives.c:407
 #, c-format
 msgid ""
 "failed to stat (dereference) proposed new symlink target `%.250s' for "
 "symlink `%.250s'"
 msgstr "获取建议的新符号链接 %.250s 的状态失败，它将替代符号链接 %.250s"
 
-#: src/archives.c:459
+#: src/archives.c:465
 #, c-format
 msgid ""
 "trying to overwrite `%.250s', which is the diverted version of `"
 "%.250s' (package: %.100s)"
 msgstr "正在尝试覆盖 %.250s，它是 %.250s 的本地修改版本(软件包：%.100s)"
 
-#: src/archives.c:465
+#: src/archives.c:471
 #, c-format
 msgid "trying to overwrite `%.250s', which is the diverted version of `%.250s'"
 msgstr "正在尝试覆盖 %.250s，它是 %.250s 的本地修改版本"
 
-#: src/archives.c:491
+#: src/archives.c:497
 #, c-format
 msgid "unable to stat `%.255s' (which I was about to install)"
 msgstr "无法获取 %.255s 的状态(正准备安装该文件)"
 
-#: src/archives.c:500
+#: src/archives.c:506
 #, c-format
 msgid ""
 "unable to clean up mess surrounding `%.255s' before installing another "
 "version"
 msgstr "在安装另一版本前，无法清理 %.255s 的临时文件"
 
-#: src/archives.c:506
+#: src/archives.c:512
 #, c-format
 msgid "unable to stat restored `%.255s' before installing another version"
 msgstr "在安装另一版本前，无法获取恢复后的 %.255s 的状态"
 
-#: src/archives.c:543
+#: src/archives.c:549
 #, c-format
 msgid "archive contained object `%.255s' of unknown type 0x%x"
 msgstr "包文件中含有一个对象 %.255s，无法识别它的类型 0x%x"
 
-#: src/archives.c:611
+#: src/archives.c:626
 #, c-format
 msgid "Replacing files in old package %s ...\n"
 msgstr "正在替换原软件包中的文件 %s ...\n"
 
-#: src/archives.c:615
+#: src/archives.c:630
 #, c-format
 msgid "Replaced by files in installed package %s ...\n"
 msgstr "被已安装的软件包 %s 中的文件替换了...\n"
 
-#: src/archives.c:623
+#: src/archives.c:639
 #, c-format
 msgid ""
 "trying to overwrite directory '%.250s' in package %.250s %.250s with "
@@ -1272,97 +1272,97 @@ msgid ""
 msgstr ""
 "正试图用一个非目录的文件替换目录 %.250s，该目录属于软件包 %.250s %.250s"
 
-#: src/archives.c:634
+#: src/archives.c:646
 #, c-format
 msgid "trying to overwrite '%.250s', which is also in package %.250s %.250s"
 msgstr "正试图覆盖 %.250s，它同时被包含于软件包 %.250s %.250s"
 
-#: src/archives.c:686
+#: src/archives.c:698
 #, c-format
 msgid "unable to create `%.255s' (while processing `%.255s')"
 msgstr "无法创建 %.255s (处理 %.255s 时)"
 
-#: src/archives.c:693
+#: src/archives.c:705
 #, c-format
 msgid "backend dpkg-deb during `%.255s'"
 msgstr "%.255s  时，dpkg-deb 被作为后端"
 
-#: src/archives.c:725 src/archives.c:889 src/archives.c:937
+#: src/archives.c:737 src/archives.c:902 src/archives.c:950
 #, c-format
 msgid "error closing/writing `%.255s'"
 msgstr "关闭/写入 %.255s 出错"
 
-#: src/archives.c:730
+#: src/archives.c:742
 #, c-format
 msgid "error creating pipe `%.255s'"
 msgstr "新建管道 %.255s 时出错"
 
-#: src/archives.c:736 src/archives.c:742
+#: src/archives.c:748 src/archives.c:754
 #, c-format
 msgid "error creating device `%.255s'"
 msgstr "新建设备文件 %.255s 时出错"
 
-#: src/archives.c:755
+#: src/archives.c:767
 #, c-format
 msgid "error creating hard link `%.255s'"
 msgstr "新建硬链接 %.255s 时出错"
 
-#: src/archives.c:762
+#: src/archives.c:774
 #, c-format
 msgid "error creating symbolic link `%.255s'"
 msgstr "新建符号链接 %.255s 时出错"
 
-#: src/archives.c:769
+#: src/archives.c:781
 #, c-format
 msgid "error setting ownership of symlink `%.255s'"
 msgstr "为符号链接 %.255s 设置属主时出错"
 
-#: src/archives.c:774
+#: src/archives.c:786
 #, c-format
 msgid "error creating directory `%.255s'"
 msgstr "新建目录 %.255s 时出错"
 
-#: src/archives.c:812
+#: src/archives.c:824
 #, c-format
 msgid "unable to move aside `%.255s' to install new version"
 msgstr "无法将 %.255s 改名，以安装新的版本"
 
-#: src/archives.c:822
+#: src/archives.c:834
 #, c-format
 msgid "unable to read link `%.255s'"
 msgstr "无法读取符号链接 %.255s "
 
-#: src/archives.c:827
+#: src/archives.c:839
 #, c-format
 msgid "unable to make backup symlink for `%.255s'"
 msgstr "无法为 %.255s 做一个符号链接备份"
 
-#: src/archives.c:829
+#: src/archives.c:841
 #, c-format
 msgid "unable to chown backup symlink for `%.255s'"
 msgstr "无法更改 %.255s 的符号链接备份的属主"
 
-#: src/archives.c:834
+#: src/archives.c:846
 #, c-format
 msgid "unable to make backup link of `%.255s' before installing new version"
 msgstr "无法在安装新的版本前，为 %.255s 做一个符号链接备份"
 
-#: src/archives.c:849 src/archives.c:946
+#: src/archives.c:862 src/archives.c:959
 #, c-format
 msgid "unable to install new version of `%.255s'"
 msgstr "无法安装 %.255s 的新版本"
 
-#: src/archives.c:886 src/archives.c:933
+#: src/archives.c:899 src/archives.c:946
 #, c-format
 msgid "unable to open '%.255s'"
 msgstr "无法打开 %.255s "
 
-#: src/archives.c:935
+#: src/archives.c:948
 #, c-format
 msgid "unable to sync file '%.255s'"
 msgstr "无法同步文件 %.255s "
 
-#: src/archives.c:983
+#: src/archives.c:996
 #, c-format
 msgid ""
 "ignoring dependency problem with %s:\n"
@@ -1371,14 +1371,14 @@ msgstr ""
 "忽视 %s 的依赖关系问题：\n"
 "%s"
 
-#: src/archives.c:988
+#: src/archives.c:1001
 #, c-format
 msgid ""
 "considering deconfiguration of essential\n"
 " package %s, to enable %s."
 msgstr "正在考虑反配置基础软件包 %s，以便启用 %s。"
 
-#: src/archives.c:991
+#: src/archives.c:1004
 #, c-format
 msgid ""
 "dpkg: no, %s is essential, will not deconfigure\n"
@@ -1387,7 +1387,7 @@ msgstr ""
 "dpkg：拒绝，%s 是基础软件包，不能反配置该软件包\n"
 " 启用开启 %s。\n"
 
-#: src/archives.c:1005
+#: src/archives.c:1018
 #, c-format
 msgid ""
 "dpkg: no, cannot proceed with %s (--auto-deconfigure will help):\n"
@@ -1396,28 +1396,28 @@ msgstr ""
 "dpkg：拒绝，不能继续进行 %s (不妨尝试 --auto-deconfigure)：\n"
 "%s"
 
-#: src/archives.c:1015
+#: src/archives.c:1028
 #, c-format
 msgid "removal of %.250s"
 msgstr "卸载 %.250s"
 
-#: src/archives.c:1040
+#: src/archives.c:1053
 #, c-format
 msgid "installation of %.250s"
 msgstr "安装 %.250s"
 
-#: src/archives.c:1041
+#: src/archives.c:1054
 #, c-format
 msgid ""
 "dpkg: considering deconfiguration of %s, which would be broken by %s ...\n"
 msgstr "dpkg：正在考虑反配置 %s，否则会被 %s 破坏 ...\n"
 
-#: src/archives.c:1048
+#: src/archives.c:1061
 #, c-format
 msgid "dpkg: yes, will deconfigure %s (broken by %s).\n"
 msgstr "dpkg：好的，将反配置 %s (被 %s 破坏)。\n"
 
-#: src/archives.c:1052 src/archives.c:1173
+#: src/archives.c:1065 src/archives.c:1186
 #, c-format
 msgid ""
 "dpkg: regarding %s containing %s:\n"
@@ -1426,11 +1426,11 @@ msgstr ""
 "dpkg：关于含有 %2$s 的 %1$s：\n"
 "%3$s"
 
-#: src/archives.c:1060
+#: src/archives.c:1073
 msgid "ignoring breakage, may proceed anyway!"
 msgstr "忽视软件包间的破坏，无论怎样，继续安装！"
 
-#: src/archives.c:1065
+#: src/archives.c:1078
 #, c-format
 msgid ""
 "installing %.250s would break %.250s, and\n"
@@ -1439,27 +1439,27 @@ msgstr ""
 "安装 %.250s 将破坏 %.250s，并且\n"
 "不允许反配置(--auto-deconfigure 也许会有帮助)"
 
-#: src/archives.c:1069
+#: src/archives.c:1082
 #, c-format
 msgid "installing %.250s would break existing software"
 msgstr "安装 %.250s 将破坏现有软件"
 
-#: src/archives.c:1099
+#: src/archives.c:1112
 #, c-format
 msgid "dpkg: considering removing %s in favour of %s ...\n"
 msgstr "dpkg：为了 %2$s，正考虑卸载 %1$s ...\n"
 
-#: src/archives.c:1105
+#: src/archives.c:1118
 #, c-format
 msgid "%s is not properly installed - ignoring any dependencies on it.\n"
 msgstr "%s 没有被正常安装 - 将忽略所有对它的依赖关系。\n"
 
-#: src/archives.c:1134
+#: src/archives.c:1147
 #, c-format
 msgid "dpkg: may have trouble removing %s, as it provides %s ...\n"
 msgstr "dpkg：也许卸载 %s 会有问题，因为它提供了 %s ...\n"
 
-#: src/archives.c:1149
+#: src/archives.c:1162
 #, c-format
 msgid ""
 "dpkg: package %s requires reinstallation, but will remove anyway as you "
@@ -1468,66 +1468,66 @@ msgstr ""
 "dpkg：尽管软件包 %s 需要重新安装，但还是将遵照您的要求，\n"
 "把它卸载。\n"
 
-#: src/archives.c:1152
+#: src/archives.c:1165
 #, c-format
 msgid "dpkg: package %s requires reinstallation, will not remove.\n"
 msgstr "dpkg：软件包 %s 需要重新安装，它不会被卸载。\n"
 
-#: src/archives.c:1159
+#: src/archives.c:1172
 #, c-format
 msgid "package %s has too many Conflicts/Replaces pairs"
 msgstr "软件包 %s 有太多的冲突/替换组合"
 
-#: src/archives.c:1165
+#: src/archives.c:1178
 #, c-format
 msgid "dpkg: yes, will remove %s in favour of %s.\n"
 msgstr "dpkg：好的，为了 %2$s 卸载 %1$s。\n"
 
-#: src/archives.c:1176
+#: src/archives.c:1189
 #, c-format
 msgid "conflicting packages - not installing %.250s"
 msgstr "软件包相互冲突 - 将不安装 %.250s"
 
-#: src/archives.c:1177
+#: src/archives.c:1190
 msgid "ignoring conflict, may proceed anyway!"
 msgstr "忽视软件包间的冲突，无论怎样，继续安装！"
 
-#: src/archives.c:1218
+#: src/archives.c:1231
 #, c-format
 msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --递归执行需要至少一个路径作为参数"
 
-#: src/archives.c:1228
+#: src/archives.c:1241
 msgid "find for dpkg --recursive"
 msgstr "启用 --recursive 选项执行 find"
 
-#: src/archives.c:1250
+#: src/archives.c:1263
 msgid "failed to fdopen find's pipe"
 msgstr "无法 fdopen find 的管道"
 
-#: src/archives.c:1256
+#: src/archives.c:1269
 msgid "error reading find's pipe"
 msgstr "读取 find 的管道时出错"
 
-#: src/archives.c:1257
+#: src/archives.c:1270
 msgid "error closing find's pipe"
 msgstr "关闭 find 的管道时出错"
 
-#: src/archives.c:1260
+#: src/archives.c:1273
 #, c-format
 msgid "find for --recursive returned unhandled error %i"
 msgstr "--recursive 选项所调用的 find 返回了一个没有被处理的错误 %i"
 
-#: src/archives.c:1263
+#: src/archives.c:1276
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "已搜索包文件，但是没有发现任何软件包(即与 *.deb 匹配的文件)"
 
-#: src/archives.c:1279
+#: src/archives.c:1292
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s 需要至少一个软件包文件作为参数"
 
-#: src/archives.c:1311 src/divertcmd.c:78 src/divertcmd.c:118
+#: src/archives.c:1324 src/divertcmd.c:78 src/divertcmd.c:118
 #: src/enquiry.c:163 src/enquiry.c:270 src/enquiry.c:413 src/enquiry.c:415
 #: src/enquiry.c:424 src/main.c:65 src/main.c:159 src/main.c:259
 #: src/main.c:435 src/packages.c:249 src/querycmd.c:187 src/querycmd.c:290
@@ -1541,33 +1541,33 @@ msgstr "--%s 需要至少一个软件包文件作为参数"
 msgid "<standard output>"
 msgstr "<标准输出>"
 
-#: src/archives.c:1312 src/packages.c:250 src/querycmd.c:188
+#: src/archives.c:1325 src/packages.c:250 src/querycmd.c:188
 #: src/querycmd.c:288 src/querycmd.c:394 src/querycmd.c:455 src/select.c:78
 #: dpkg-split/main.c:199 dpkg-split/queue.c:213
 msgid "<standard error>"
 msgstr "<标准错误>"
 
-#: src/archives.c:1356
+#: src/archives.c:1369
 #, c-format
 msgid "Selecting previously deselected package %s.\n"
 msgstr "选中了曾被取消选择的软件包 %s。\n"
 
-#: src/archives.c:1361
+#: src/archives.c:1374
 #, c-format
 msgid "Skipping deselected package %s.\n"
 msgstr "忽略了被取消选择的软件包 %s。\n"
 
-#: src/archives.c:1378
+#: src/archives.c:1391
 #, c-format
 msgid "Version %.250s of %.250s already installed, skipping.\n"
 msgstr "%1$.250s 的 %2$.250s 版本已经安装，因而将不再安装它。\n"
 
-#: src/archives.c:1389
+#: src/archives.c:1402
 #, c-format
 msgid "downgrading %.250s from %.250s to %.250s."
 msgstr "即将把 %.250s 从 %.250s 降级到 %.250s。"
 
-#: src/archives.c:1394
+#: src/archives.c:1407
 #, c-format
 msgid "Will not downgrade %.250s from version %.250s to %.250s, skipping.\n"
 msgstr "由于不希望把 %.250s 从 %.250s 降级到 %.250s，因而将不再安装它。\n"
@@ -3277,25 +3277,25 @@ msgstr ""
 msgid "passed\n"
 msgstr "验证通过\n"
 
-#: src/processarc.c:200
+#: src/processarc.c:202
 msgid "unable to create temporary directory"
 msgstr "无法创建临时目录"
 
-#: src/processarc.c:227
+#: src/processarc.c:234
 msgid "failed to exec dpkg-deb to extract control information"
 msgstr "无法 exec dpkg-deb，通过它来解压缩控制信息"
 
-#: src/processarc.c:253
+#: src/processarc.c:260
 #, c-format
 msgid "Recorded info about %s from %s.\n"
 msgstr "从 %2$s 获得的关于 %1$s 的信息。\n"
 
-#: src/processarc.c:262
+#: src/processarc.c:269
 #, c-format
 msgid "package architecture (%s) does not match system (%s)"
 msgstr "软件包的体系架构(%s)与本机系统的架构(%s)不符"
 
-#: src/processarc.c:313
+#: src/processarc.c:320
 #, c-format
 msgid ""
 "dpkg: regarding %s containing %s, pre-dependency problem:\n"
@@ -3304,163 +3304,163 @@ msgstr ""
 "dpkg：对于含 %2$s 的文件 %1$s 来说，有预依赖(pre-dependency)方面的问题：\n"
 "%3$s"
 
-#: src/processarc.c:316
+#: src/processarc.c:323
 #, c-format
 msgid "pre-dependency problem - not installing %.250s"
 msgstr "预依赖(pre-dependency)问题 - 将不安装%.250s"
 
-#: src/processarc.c:317
+#: src/processarc.c:324
 msgid "ignoring pre-dependency problem!"
 msgstr "忽略预依赖(pre-dependency)问题！"
 
-#: src/processarc.c:332
+#: src/processarc.c:339
 #, c-format
 msgid "Preparing to replace %s %s (using %s) ...\n"
 msgstr "正预备替换 %s %s (使用 %s) ...\n"
 
-#: src/processarc.c:338
+#: src/processarc.c:345
 #, c-format
 msgid "Unpacking %s (from %s) ...\n"
 msgstr "正在解压缩 %s (从 %s) ...\n"
 
-#: src/processarc.c:369
+#: src/processarc.c:376
 #, c-format
 msgid "name of conffile (starting `%.250s') is too long (>%d characters)"
 msgstr "conffile 的文件名(其开头是 %.250s )太长(> %d 个字符)"
 
-#: src/processarc.c:423
+#: src/processarc.c:430
 #, c-format
 msgid "read error in %.250s"
 msgstr "读取 %.250s 出错"
 
-#: src/processarc.c:425
+#: src/processarc.c:432
 #, c-format
 msgid "error closing %.250s"
 msgstr "关闭 %.250s 出错"
 
-#: src/processarc.c:427
+#: src/processarc.c:434
 #, c-format
 msgid "error trying to open %.250s"
 msgstr "试图打开 %.250s 出错"
 
-#: src/processarc.c:463
+#: src/processarc.c:470
 #, c-format
 msgid "De-configuring %s, to allow removal of %s ...\n"
 msgstr "正在反配置 %s 以允许删除 %s ...\n"
 
-#: src/processarc.c:466
+#: src/processarc.c:473
 #, c-format
 msgid "De-configuring %s ...\n"
 msgstr "正在反配置 %s ...\n"
 
-#: src/processarc.c:541
+#: src/processarc.c:548
 #, c-format
 msgid "Unpacking replacement %.250s ...\n"
 msgstr "正在解压缩将用于更替的包文件 %.250s ...\n"
 
-#: src/processarc.c:622
+#: src/processarc.c:629
 msgid "unable to exec dpkg-deb to get filesystem archive"
 msgstr "无法 exec dpkg-deb，以此来获得打包后的文件系统"
 
-#: src/processarc.c:636
+#: src/processarc.c:643
 msgid "error reading dpkg-deb tar output"
 msgstr "无法读取 dpkg-deb 输出的 tar 文件"
 
-#: src/processarc.c:638
+#: src/processarc.c:645
 msgid "corrupted filesystem tarfile - corrupted package archive"
 msgstr "文件系统的 tar 文件已损坏 - 软件包文件已毁损"
 
-#: src/processarc.c:641
+#: src/processarc.c:648
 msgid "dpkg-deb: zap possible trailing zeros"
 msgstr "dpkg-deb：截去了最后的零数据(zeros)"
 
-#: src/processarc.c:703
+#: src/processarc.c:710
 #, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "无法获取旧文件 %.250s 的信息，因此不删除它：%s"
 
-#: src/processarc.c:709
+#: src/processarc.c:716
 #, c-format
 msgid "unable to delete old directory '%.250s': %s"
 msgstr "无法删除原有的目录 %.250s ：%s"
 
-#: src/processarc.c:712
+#: src/processarc.c:719
 #, c-format
 msgid "old conffile '%.250s' was an empty directory (and has now been deleted)"
 msgstr "原有 conffile  %.250s 是一个空目录(现在已被删除)"
 
-#: src/processarc.c:758
+#: src/processarc.c:765
 #, c-format
 msgid "unable to stat other new file `%.250s'"
 msgstr "无法获取其它新文件 %.250s 的信息"
 
-#: src/processarc.c:769
+#: src/processarc.c:776
 #, c-format
 msgid ""
 "old file '%.250s' is the same as several new files! (both '%.250s' and "
 "'%.250s')"
 msgstr "旧文件 %.250s 与多个新文件相同！( %.250s 和 %.250s )"
 
-#: src/processarc.c:808
+#: src/processarc.c:815
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "无法安全地删除旧的文件 %.250s ：%s"
 
-#: src/processarc.c:842 src/processarc.c:1111 src/querycmd.c:501
+#: src/processarc.c:849 src/processarc.c:1118 src/querycmd.c:501
 #: src/remove.c:272
 msgid "cannot read info directory"
 msgstr "无法读取信息(info)目录"
 
-#: src/processarc.c:855
+#: src/processarc.c:862
 #, c-format
 msgid "old version of package has overly-long info file name starting `%.250s'"
 msgstr "原先版本的软件包中有一个信息文件的文件名太长，文件名是以 %.250s 开头的"
 
-#: src/processarc.c:880
+#: src/processarc.c:887
 #, c-format
 msgid "unable to remove obsolete info file `%.250s'"
 msgstr "无法删除废弃不用的信息文件 %.250s"
 
-#: src/processarc.c:884
+#: src/processarc.c:891
 #, c-format
 msgid "unable to install (supposed) new info file `%.250s'"
 msgstr "无法安装文件 %.250s，该文件被认定是新的信息文件"
 
-#: src/processarc.c:895
+#: src/processarc.c:902
 msgid "unable to open temp control directory"
 msgstr "无法打开临时主控目录"
 
-#: src/processarc.c:904
+#: src/processarc.c:911
 #, c-format
 msgid "package contains overly-long control info file name (starting `%.50s')"
 msgstr "软件包中有一个主控信息文件的文件名太长(该文件名是以 %.250s 开头的)"
 
-#: src/processarc.c:909
+#: src/processarc.c:916
 #, c-format
 msgid "package control info contained directory `%.250s'"
 msgstr "软件包的主控信息含有一个目录 %.250s"
 
-#: src/processarc.c:911
+#: src/processarc.c:918
 #, c-format
 msgid "package control info rmdir of `%.250s' didn't say not a dir"
 msgstr "软件包控制信息，rmdir  %.250s 也没有说这不是一个目录"
 
-#: src/processarc.c:917
+#: src/processarc.c:924
 #, c-format
 msgid "package %s contained list as info file"
 msgstr "软件包 %s 把一个列表作为信息文件使用"
 
-#: src/processarc.c:923
+#: src/processarc.c:930
 #, c-format
 msgid "unable to install new info file `%.250s' as `%.250s'"
 msgstr "无法把新的信息文件 %.250s 安装到 %.250s"
 
-#: src/processarc.c:1090
+#: src/processarc.c:1097
 #, c-format
 msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
 msgstr "(注意到 %s 已经不复存在，它已然被完全取代了。)\n"
 
-#: src/processarc.c:1127
+#: src/processarc.c:1134
 #, c-format
 msgid "unable to delete disappearing control info file `%.250s'"
 msgstr "无法删除已经消失了的控制信息文件 %.250s"

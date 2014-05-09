@@ -1,3 +1,78 @@
+dpkg (1.15.10) squeeze-security; urgency=high
+
+  [ Guillem Jover ]
+  * Do not allow patch files with C-style encoded filenames. Closes: #746306
+    Unconditionally fixes CVE-2014-0471.
+
+ -- Guillem Jover <guillem@debian.org>  Wed, 30 Apr 2014 15:15:09 +0200
+
+dpkg (1.15.9) squeeze-security; urgency=high
+
+  * Correctly parse C-style diff filenames in Dpkg::Source::Patch, to avoid
+    directory traversal attempts from hostile source packages when unpacking
+    them. Reported by Jakub Wilk <jwilk@debian.org>. Fixes CVE-2014-0471.
+
+ -- Guillem Jover <guillem@debian.org>  Fri, 25 Apr 2014 05:01:27 +0200
+
+dpkg (1.15.8.13) stable; urgency=low
+
+  [ Guillem Jover ]
+  * Do not translate SE Linux context to human readable form while unpacking,
+    as that might cause the operation to fail if the mcstransd daemon
+    stopped running during the transaction. Closes: #679641
+    Thanks to Russell Coker <russell@coker.com.au>.
+
+  [ Updated man page translations ]
+  * German (Helge Kreutzmann). Fix sub optimal translation of package states
+    LP: #368783, a fix by Chris Leick and other fixes.
+
+ -- Guillem Jover <guillem@debian.org>  Fri, 07 Sep 2012 08:28:56 +0200
+
+dpkg (1.15.8.12) stable; urgency=low
+
+  [ Guillem Jover ]
+  * Do not fail to unpack shared directories missing on the file system
+    from packages being replaced by other packages. Closes: #631808
+  * Defer hardlink renames so that there's never a point were the new
+    file contents are accessible from the final path before they have
+    been fsync()ed and cannot be executed causing ETXTBSY when trying
+    to open the to be installed paths for writing.
+    Thanks to Jonathan Nieder <jrnieder@gmail.com>. Closes: #635683
+  * Add armhf support to ostable and triplettable. Closes: #594179, #639674
+
+  [ Updated man page translations ]
+  * German (Helge Kreutzmann). Minor fixe(s), including improvement by "Flo".
+
+  [ Updated scripts translations ]
+  * German (Helge Kreutzmann). Minor fix from Sven Joachim.
+    Typo fixes. Closes: #646496
+
+ -- Guillem Jover <guillem@debian.org>  Thu, 10 Nov 2011 07:20:52 +0100
+
+dpkg (1.15.8.11) stable; urgency=high
+
+  [ Guillem Jover ]
+  * Do not segfault on “dpkg -i --no-act”.
+  * Add missing semicolon to the vsnprintf() compat declaration.
+    Thanks to Robert Millan. Closes: #612203
+  * Fix typo in «dpkg-name --overwrite» argument parsing so that it actually
+    works at all. Thanks to Ivan Gagis <igagis@gmail.com>. LP: #728708
+  * Fix dpkg-split to not corrupt binary part metadata when generating the
+    split packages on 32-bit systems.
+
+  [ Raphaël Hertzog ]
+  * Fix a regression in dpkg-divert where using --rename led to a failure when
+    the rename implies crossing file systems. Thanks to Durk Strooisma for
+    spotting it.
+
+  [ Updated dpkg translations ]
+  * German (Sven Joachim).
+
+  [ Updated man page translations ]
+  * German (Helge Kreutzmann). Minor fixe(s).
+
+ -- Guillem Jover <guillem@debian.org>  Tue, 26 Apr 2011 08:21:04 +0200
+
 dpkg (1.15.8.10) unstable; urgency=low
 
   * Do not segfault on “update-alternatives --auto” when the link group only

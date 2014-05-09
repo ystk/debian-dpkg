@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2011-01-30 20:38+0100\n"
+"POT-Creation-Date: 2014-04-30 13:17+0000\n"
 "PO-Revision-Date: 2010-12-16 20:37+0100\n"
 "Last-Translator: Ivan Masár <helix84@centrum.sk>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
@@ -1203,7 +1203,7 @@ msgstr "neočakávaný koniec súboru pri čítaní „%.250s“"
 msgid "error formatting string into varbuf variable"
 msgstr "chyba pri formátovaní reťazca do premennej varbuf"
 
-#: src/archives.c:188 src/archives.c:210 src/archives.c:699
+#: src/archives.c:188 src/archives.c:210 src/archives.c:711
 msgid "error reading from dpkg-deb pipe"
 msgstr "chyba pri čítaní z rúry dpkg-deb"
 
@@ -1217,24 +1217,24 @@ msgstr "preskočené rozbaľovanie súboru „%.255s“ (nahradený alebo vynech
 msgid "error setting timestamps of `%.255s'"
 msgstr "chyba pri nastavovaní časovej značky u „%.255s“"
 
-#: src/archives.c:260 src/archives.c:713 src/statcmd.c:173
+#: src/archives.c:260 src/archives.c:725 src/statcmd.c:173
 #, c-format
 msgid "error setting ownership of `%.255s'"
 msgstr "chyba pri nastavovaní vlastníckych práv u „%.255s“"
 
-#: src/archives.c:262 src/archives.c:717 src/statcmd.c:175
+#: src/archives.c:262 src/archives.c:729 src/statcmd.c:175
 #, c-format
 msgid "error setting permissions of `%.255s'"
 msgstr "chyba pri nastavovaní prístupových práv u „%.255s“"
 
-#: src/archives.c:379
+#: src/archives.c:385
 #, c-format
 msgid "failed to stat (dereference) existing symlink `%.250s'"
 msgstr ""
 "nie je možné vykonať stat() (dereferencovanie) existujúceho symbolického "
 "odkazu „%.250s“"
 
-#: src/archives.c:401
+#: src/archives.c:407
 #, c-format
 msgid ""
 "failed to stat (dereference) proposed new symlink target `%.250s' for "
@@ -1243,7 +1243,7 @@ msgstr ""
 "nepodarilo sa vykonať stat() (dereferencovanie) na navrhovanom novom cieli "
 "symbolického odkazu „%.250s“ symbolického odkazu „%.250s“"
 
-#: src/archives.c:459
+#: src/archives.c:465
 #, c-format
 msgid ""
 "trying to overwrite `%.250s', which is the diverted version of `"
@@ -1252,17 +1252,17 @@ msgstr ""
 "pokus o prepísanie „%.250s“, ktorý je odklonenou verziou „%.250s“ (balík: "
 "„%.100s“)"
 
-#: src/archives.c:465
+#: src/archives.c:471
 #, c-format
 msgid "trying to overwrite `%.250s', which is the diverted version of `%.250s'"
 msgstr "pokus o prepísanie „%.250s“, ktorý je odklonenou verziou „%.250s“"
 
-#: src/archives.c:491
+#: src/archives.c:497
 #, c-format
 msgid "unable to stat `%.255s' (which I was about to install)"
 msgstr "nie je možné zistiť stav „%.255s“ (ktorý bude práve nainštalovaný)"
 
-#: src/archives.c:500
+#: src/archives.c:506
 #, c-format
 msgid ""
 "unable to clean up mess surrounding `%.255s' before installing another "
@@ -1271,28 +1271,28 @@ msgstr ""
 "nie je možné upratať odpad obklopujúci „%.255s“ pred nainštalovaním inej "
 "verzie"
 
-#: src/archives.c:506
+#: src/archives.c:512
 #, c-format
 msgid "unable to stat restored `%.255s' before installing another version"
 msgstr ""
 "nie je možné zistiť stav obnoveného „%.255s“ pred nainštalovaním inej verzie"
 
-#: src/archives.c:543
+#: src/archives.c:549
 #, c-format
 msgid "archive contained object `%.255s' of unknown type 0x%x"
 msgstr "archív obsahoval objekt „%.255s“ neznámeho typu 0x%x"
 
-#: src/archives.c:611
+#: src/archives.c:626
 #, c-format
 msgid "Replacing files in old package %s ...\n"
 msgstr "Nahradzujú sa súbory v starom balíku %s ...\n"
 
-#: src/archives.c:615
+#: src/archives.c:630
 #, c-format
 msgid "Replaced by files in installed package %s ...\n"
 msgstr "Nahradzujú sa súbory v nainštalovanom balíku %s ...\n"
 
-#: src/archives.c:623
+#: src/archives.c:639
 #, c-format
 msgid ""
 "trying to overwrite directory '%.250s' in package %.250s %.250s with "
@@ -1300,100 +1300,100 @@ msgid ""
 msgstr ""
 "pokus o prepísanie adresára „%.250s“ v balíku %.250s %.250s neadresárom"
 
-#: src/archives.c:634
+#: src/archives.c:646
 #, c-format
 msgid "trying to overwrite '%.250s', which is also in package %.250s %.250s"
 msgstr "pokus o prepísanie „%.250s“, ktorý je tiež v balíku %.250s %.250s"
 
-#: src/archives.c:686
+#: src/archives.c:698
 #, c-format
 msgid "unable to create `%.255s' (while processing `%.255s')"
 msgstr "nie je možné vytvoriť „%.255s“ (počas spracovania „%.255s“)"
 
-#: src/archives.c:693
+#: src/archives.c:705
 #, c-format
 msgid "backend dpkg-deb during `%.255s'"
 msgstr "backend dpkg-deb počas „%.255s“"
 
-#: src/archives.c:725 src/archives.c:889 src/archives.c:937
+#: src/archives.c:737 src/archives.c:902 src/archives.c:950
 #, c-format
 msgid "error closing/writing `%.255s'"
 msgstr "chyba pri uzatváraní/zápise „%.255s“"
 
-#: src/archives.c:730
+#: src/archives.c:742
 #, c-format
 msgid "error creating pipe `%.255s'"
 msgstr "chyba pri vytváraní rúry „%.255s“"
 
-#: src/archives.c:736 src/archives.c:742
+#: src/archives.c:748 src/archives.c:754
 #, c-format
 msgid "error creating device `%.255s'"
 msgstr "chyba pri vytváraní zariadenia „%.255s“"
 
-#: src/archives.c:755
+#: src/archives.c:767
 #, c-format
 msgid "error creating hard link `%.255s'"
 msgstr "chyba pri vytváraní pevného odkazu „%.255s“"
 
-#: src/archives.c:762
+#: src/archives.c:774
 #, c-format
 msgid "error creating symbolic link `%.255s'"
 msgstr "chyba pri vytváraní symbolického odkazu „%.255s“"
 
-#: src/archives.c:769
+#: src/archives.c:781
 #, c-format
 msgid "error setting ownership of symlink `%.255s'"
 msgstr "chyba pri nastavovaní vlastníckych práv symbolického odkazu „%.255s“"
 
-#: src/archives.c:774
+#: src/archives.c:786
 #, c-format
 msgid "error creating directory `%.255s'"
 msgstr "chyba pri vytváraní adresára „%.255s“"
 
-#: src/archives.c:812
+#: src/archives.c:824
 #, c-format
 msgid "unable to move aside `%.255s' to install new version"
 msgstr "nie je možné odsunúť „%.255s“ aby sa dala nainštalovať nová verzia"
 
-#: src/archives.c:822
+#: src/archives.c:834
 #, c-format
 msgid "unable to read link `%.255s'"
 msgstr "nie je možné prečítať odkaz „%.255s“"
 
-#: src/archives.c:827
+#: src/archives.c:839
 #, c-format
 msgid "unable to make backup symlink for `%.255s'"
 msgstr "nie je možné vytvoriť záložný symbolický odkaz na „%.255s“"
 
-#: src/archives.c:829
+#: src/archives.c:841
 #, c-format
 msgid "unable to chown backup symlink for `%.255s'"
 msgstr ""
 "nie je možné zmeniť vlastnícke práva na záložnom symbolickom odkaze na "
 "„%.255s“"
 
-#: src/archives.c:834
+#: src/archives.c:846
 #, c-format
 msgid "unable to make backup link of `%.255s' before installing new version"
 msgstr ""
 "nie je možné vytvoriť záložný odkaz „%.255s“ pred nainštalovaním novej verzie"
 
-#: src/archives.c:849 src/archives.c:946
+#: src/archives.c:862 src/archives.c:959
 #, c-format
 msgid "unable to install new version of `%.255s'"
 msgstr "nie je možné nainštalovať novú verziu „%.255s“"
 
-#: src/archives.c:886 src/archives.c:933
+#: src/archives.c:899 src/archives.c:946
 #, c-format
 msgid "unable to open '%.255s'"
 msgstr "nepodarilo sa otvoriť „%.255s“"
 
-#: src/archives.c:935
+#: src/archives.c:948
 #, c-format
 msgid "unable to sync file '%.255s'"
 msgstr "nepodarilo sa vyprázdniť (sync) súbor „%.255s“"
 
-#: src/archives.c:983
+#: src/archives.c:996
 #, c-format
 msgid ""
 "ignoring dependency problem with %s:\n"
@@ -1402,7 +1402,7 @@ msgstr ""
 "ignoruje sa problém so závislosťami balíka %s:\n"
 "%s"
 
-#: src/archives.c:988
+#: src/archives.c:1001
 #, c-format
 msgid ""
 "considering deconfiguration of essential\n"
@@ -1411,7 +1411,7 @@ msgstr ""
 "uvažuje sa o odkonfigurovaní nevyhnutného\n"
 " balíka %s, ktoré umožní %s."
 
-#: src/archives.c:991
+#: src/archives.c:1004
 #, c-format
 msgid ""
 "dpkg: no, %s is essential, will not deconfigure\n"
@@ -1420,7 +1420,7 @@ msgstr ""
 "dpkg: nie, %s je nevyhnutný, nebude odkonfigurovaný,\n"
 " aby sa umožnil %s.\n"
 
-#: src/archives.c:1005
+#: src/archives.c:1018
 #, c-format
 msgid ""
 "dpkg: no, cannot proceed with %s (--auto-deconfigure will help):\n"
@@ -1429,28 +1429,28 @@ msgstr ""
 "dpkg: nie, nie je možné pokračovať v %s (--auto-deconfigure pomôže):\n"
 "%s"
 
-#: src/archives.c:1015
+#: src/archives.c:1028
 #, c-format
 msgid "removal of %.250s"
 msgstr "odstránení %.250s"
 
-#: src/archives.c:1040
+#: src/archives.c:1053
 #, c-format
 msgid "installation of %.250s"
 msgstr "inštalácii %.250s"
 
-#: src/archives.c:1041
+#: src/archives.c:1054
 #, c-format
 msgid ""
 "dpkg: considering deconfiguration of %s, which would be broken by %s ...\n"
 msgstr "dpkg: uvažuje sa o odstránení %s, ktorý by %s pokazil ...\n"
 
-#: src/archives.c:1048
+#: src/archives.c:1061
 #, c-format
 msgid "dpkg: yes, will deconfigure %s (broken by %s).\n"
 msgstr "dpkg: áno, odkonfiguruje sa %s (pokazený balíkom %s).\n"
 
-#: src/archives.c:1052 src/archives.c:1173
+#: src/archives.c:1065 src/archives.c:1186
 #, c-format
 msgid ""
 "dpkg: regarding %s containing %s:\n"
@@ -1459,11 +1459,11 @@ msgstr ""
 "dpkg: ohľadom %s obsahujúci %s:\n"
 "%s"
 
-#: src/archives.c:1060
+#: src/archives.c:1073
 msgid "ignoring breakage, may proceed anyway!"
 msgstr "ignoruje sa pokazenie, je možné pokračovať!"
 
-#: src/archives.c:1065
+#: src/archives.c:1078
 #, c-format
 msgid ""
 "installing %.250s would break %.250s, and\n"
@@ -1472,28 +1472,28 @@ msgstr ""
 "nainštalovanie %.250s by pokazilo %.250s a\n"
 " odkonfigurovanie nie je povolené (--auto-deconfigure by mohlo pomôcť)"
 
-#: src/archives.c:1069
+#: src/archives.c:1082
 #, c-format
 msgid "installing %.250s would break existing software"
 msgstr "nainštalovanie %.250s by pokazilo existujúci softvér"
 
-#: src/archives.c:1099
+#: src/archives.c:1112
 #, c-format
 msgid "dpkg: considering removing %s in favour of %s ...\n"
 msgstr "dpkg: uvažuje sa o odstránení %s v prospech %s ...\n"
 
-#: src/archives.c:1105
+#: src/archives.c:1118
 #, c-format
 msgid "%s is not properly installed - ignoring any dependencies on it.\n"
 msgstr ""
 "%s nie je správne nainštalovaný - ignorujú sa všetky závislosti na ňom.\n"
 
-#: src/archives.c:1134
+#: src/archives.c:1147
 #, c-format
 msgid "dpkg: may have trouble removing %s, as it provides %s ...\n"
 msgstr "dpkg: možné problémy s odstránením %s, pretože poskytuje %s ...\n"
 
-#: src/archives.c:1149
+#: src/archives.c:1162
 #, c-format
 msgid ""
 "dpkg: package %s requires reinstallation, but will remove anyway as you "
@@ -1502,67 +1502,67 @@ msgstr ""
 "dpkg: balík %s vyžaduje reinštaláciu, ale bude odstránený ako ste "
 "požadovali.\n"
 
-#: src/archives.c:1152
+#: src/archives.c:1165
 #, c-format
 msgid "dpkg: package %s requires reinstallation, will not remove.\n"
 msgstr ""
 "dpkg: balík %s vyžaduje reinštaláciu, nepokračuje sa v odinštalovaní.\n"
 
-#: src/archives.c:1159
+#: src/archives.c:1172
 #, c-format
 msgid "package %s has too many Conflicts/Replaces pairs"
 msgstr "balík %s má príliš veľa dvojíc V konflikte s/Nahrádza"
 
-#: src/archives.c:1165
+#: src/archives.c:1178
 #, c-format
 msgid "dpkg: yes, will remove %s in favour of %s.\n"
 msgstr "dpkg: áno, odstránim %s v prospech %s.\n"
 
-#: src/archives.c:1176
+#: src/archives.c:1189
 #, c-format
 msgid "conflicting packages - not installing %.250s"
 msgstr "konflikt balíkov - nebude sa inštalovať %.250s"
 
-#: src/archives.c:1177
+#: src/archives.c:1190
 msgid "ignoring conflict, may proceed anyway!"
 msgstr "ignoruje sa konflikt, je možné pokračovať!"
 
-#: src/archives.c:1218
+#: src/archives.c:1231
 #, c-format
 msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive vyžaduje aspoň jednu cestu ako argument"
 
-#: src/archives.c:1228
+#: src/archives.c:1241
 msgid "find for dpkg --recursive"
 msgstr "príkaz find pre dpkg --recursive"
 
-#: src/archives.c:1250
+#: src/archives.c:1263
 msgid "failed to fdopen find's pipe"
 msgstr "zlyhalo vykonanie funkcie fdopen na rúre príkazu find"
 
-#: src/archives.c:1256
+#: src/archives.c:1269
 msgid "error reading find's pipe"
 msgstr "chyba pri čítaní z rúry príkazu find"
 
-#: src/archives.c:1257
+#: src/archives.c:1270
 msgid "error closing find's pipe"
 msgstr "chyba pri uzatváraní rúry príkazu find"
 
-#: src/archives.c:1260
+#: src/archives.c:1273
 #, c-format
 msgid "find for --recursive returned unhandled error %i"
 msgstr "príkaz find pre --recursive vrátil nespracovanú chybu %i"
 
-#: src/archives.c:1263
+#: src/archives.c:1276
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "prehľadané, nebol ale nájdený žiadny balík (súbory vyhovujúce *.deb)"
 
-#: src/archives.c:1279
+#: src/archives.c:1292
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s vyžaduje ako argument aspoň jeden súbor s balíkom"
 
-#: src/archives.c:1311 src/divertcmd.c:78 src/divertcmd.c:118
+#: src/archives.c:1324 src/divertcmd.c:78 src/divertcmd.c:118
 #: src/enquiry.c:163 src/enquiry.c:270 src/enquiry.c:413 src/enquiry.c:415
 #: src/enquiry.c:424 src/main.c:65 src/main.c:159 src/main.c:259
 #: src/main.c:435 src/packages.c:249 src/querycmd.c:187 src/querycmd.c:290
@@ -1576,33 +1576,33 @@ msgstr "--%s vyžaduje ako argument aspoň jeden súbor s balíkom"
 msgid "<standard output>"
 msgstr "<štand. výstup>"
 
-#: src/archives.c:1312 src/packages.c:250 src/querycmd.c:188
+#: src/archives.c:1325 src/packages.c:250 src/querycmd.c:188
 #: src/querycmd.c:288 src/querycmd.c:394 src/querycmd.c:455 src/select.c:78
 #: dpkg-split/main.c:199 dpkg-split/queue.c:213
 msgid "<standard error>"
 msgstr "<štand. chybový>"
 
-#: src/archives.c:1356
+#: src/archives.c:1369
 #, c-format
 msgid "Selecting previously deselected package %s.\n"
 msgstr "Vyberá sa predtým zrušený balík %s.\n"
 
-#: src/archives.c:1361
+#: src/archives.c:1374
 #, c-format
 msgid "Skipping deselected package %s.\n"
 msgstr "Preskakuje sa zrušený balík %s.\n"
 
-#: src/archives.c:1378
+#: src/archives.c:1391
 #, c-format
 msgid "Version %.250s of %.250s already installed, skipping.\n"
 msgstr "Verzia %.250s %.250s je uz nainštalovaná, preskakuje sa.\n"
 
-#: src/archives.c:1389
+#: src/archives.c:1402
 #, c-format
 msgid "downgrading %.250s from %.250s to %.250s."
 msgstr "inštaluje sa staršia verzia %.250s; z %.250s na %.250s."
 
-#: src/archives.c:1394
+#: src/archives.c:1407
 #, c-format
 msgid "Will not downgrade %.250s from version %.250s to %.250s, skipping.\n"
 msgstr ""
@@ -3386,25 +3386,25 @@ msgstr ""
 msgid "passed\n"
 msgstr "prešiel\n"
 
-#: src/processarc.c:200
+#: src/processarc.c:202
 msgid "unable to create temporary directory"
 msgstr "zlyhalo vytvorenie dočasného adresára"
 
-#: src/processarc.c:227
+#: src/processarc.c:234
 msgid "failed to exec dpkg-deb to extract control information"
 msgstr "zlyhalo spustenie dpkg-deb na extrakciu riadiacich informácií"
 
-#: src/processarc.c:253
+#: src/processarc.c:260
 #, c-format
 msgid "Recorded info about %s from %s.\n"
 msgstr "Zaznamenané informácie o %s z %s.\n"
 
-#: src/processarc.c:262
+#: src/processarc.c:269
 #, c-format
 msgid "package architecture (%s) does not match system (%s)"
 msgstr "architektúra balíka (%s) nezodpovedá systému (%s)"
 
-#: src/processarc.c:313
+#: src/processarc.c:320
 #, c-format
 msgid ""
 "dpkg: regarding %s containing %s, pre-dependency problem:\n"
@@ -3413,99 +3413,99 @@ msgstr ""
 "dpkg: problém s pred-závislosťami v súvislosti s %s, obsahujúcim %s:\n"
 "%s"
 
-#: src/processarc.c:316
+#: src/processarc.c:323
 #, c-format
 msgid "pre-dependency problem - not installing %.250s"
 msgstr "problém s pred-závislosťami - neinštaluje sa %.250s"
 
-#: src/processarc.c:317
+#: src/processarc.c:324
 msgid "ignoring pre-dependency problem!"
 msgstr "ignoruje sa problém s pred-závislosťami!"
 
-#: src/processarc.c:332
+#: src/processarc.c:339
 #, c-format
 msgid "Preparing to replace %s %s (using %s) ...\n"
 msgstr "Pripravuje sa nahradenie %s %s (pomocou %s) ...\n"
 
-#: src/processarc.c:338
+#: src/processarc.c:345
 #, c-format
 msgid "Unpacking %s (from %s) ...\n"
 msgstr "Rozbaľuje sa %s (z %s) ...\n"
 
-#: src/processarc.c:369
+#: src/processarc.c:376
 #, c-format
 msgid "name of conffile (starting `%.250s') is too long (>%d characters)"
 msgstr ""
 "názov konfiguračného súboru (začínajúci „%.250s“) je príliš dlhý (>%d znakov)"
 
-#: src/processarc.c:423
+#: src/processarc.c:430
 #, c-format
 msgid "read error in %.250s"
 msgstr "chyba pri čítaní v %.250s"
 
-#: src/processarc.c:425
+#: src/processarc.c:432
 #, c-format
 msgid "error closing %.250s"
 msgstr "chyba pri zatváraní %.250s"
 
-#: src/processarc.c:427
+#: src/processarc.c:434
 #, c-format
 msgid "error trying to open %.250s"
 msgstr "chyba pri pokuse otvoriť %.250s"
 
-#: src/processarc.c:463
+#: src/processarc.c:470
 #, c-format
 msgid "De-configuring %s, to allow removal of %s ...\n"
 msgstr "Dekonfiguruje sa %s, aby sa umožnilo odstránenie %s ...\n"
 
-#: src/processarc.c:466
+#: src/processarc.c:473
 #, c-format
 msgid "De-configuring %s ...\n"
 msgstr "Dekonfiguruje sa %s ...\n"
 
-#: src/processarc.c:541
+#: src/processarc.c:548
 #, c-format
 msgid "Unpacking replacement %.250s ...\n"
 msgstr "Rozbaľuje sa náhrada %.250s ...\n"
 
-#: src/processarc.c:622
+#: src/processarc.c:629
 msgid "unable to exec dpkg-deb to get filesystem archive"
 msgstr "nie je možné spustiť dpkg-deb pre získanie obsahu archívu súborov"
 
-#: src/processarc.c:636
+#: src/processarc.c:643
 msgid "error reading dpkg-deb tar output"
 msgstr "chyba pri čítaní dpkg-deb tar výstupu"
 
-#: src/processarc.c:638
+#: src/processarc.c:645
 msgid "corrupted filesystem tarfile - corrupted package archive"
 msgstr "poškodený systémový tar súbor - poškodený archív balíkov"
 
-#: src/processarc.c:641
+#: src/processarc.c:648
 msgid "dpkg-deb: zap possible trailing zeros"
 msgstr "dpkg-deb: zrušiť možné koncové nuly"
 
-#: src/processarc.c:703
+#: src/processarc.c:710
 #, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "nedá sa zistiť stav starého súboru „%.250s“, takže sa nebude mazať: %s"
 
-#: src/processarc.c:709
+#: src/processarc.c:716
 #, c-format
 msgid "unable to delete old directory '%.250s': %s"
 msgstr "nedá sa zmazať starý adresár „%.250s“: %s"
 
-#: src/processarc.c:712
+#: src/processarc.c:719
 #, c-format
 msgid "old conffile '%.250s' was an empty directory (and has now been deleted)"
 msgstr ""
 "starý konfiguračný súbor „%.250s“ je prázdny adresár (a teraz bol zmazaný)"
 
-#: src/processarc.c:758
+#: src/processarc.c:765
 #, c-format
 msgid "unable to stat other new file `%.250s'"
 msgstr "nedá sa zistiť stav ďalšieho nového súboru „%.250s“"
 
-#: src/processarc.c:769
+#: src/processarc.c:776
 #, c-format
 msgid ""
 "old file '%.250s' is the same as several new files! (both '%.250s' and "
@@ -3514,70 +3514,70 @@ msgstr ""
 "starý súbor „%.250s“ je rovnaký ako niekoľko nových súborov! („%.250s“ aj "
 "„%.250s“)"
 
-#: src/processarc.c:808
+#: src/processarc.c:815
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "nedá sa bezpečne odstrániť starý súbor „%.250s“: %s"
 
-#: src/processarc.c:842 src/processarc.c:1111 src/querycmd.c:501
+#: src/processarc.c:849 src/processarc.c:1118 src/querycmd.c:501
 #: src/remove.c:272
 msgid "cannot read info directory"
 msgstr "nedá sa prečítať informácia o adresári"
 
-#: src/processarc.c:855
+#: src/processarc.c:862
 #, c-format
 msgid "old version of package has overly-long info file name starting `%.250s'"
 msgstr ""
 "stará verzia balíka má príliš dlhý názov info súboru, ktorý začína „%.250s“"
 
-#: src/processarc.c:880
+#: src/processarc.c:887
 #, c-format
 msgid "unable to remove obsolete info file `%.250s'"
 msgstr "nie je možné odstrániť zastaralý info súbor „%.250s“"
 
-#: src/processarc.c:884
+#: src/processarc.c:891
 #, c-format
 msgid "unable to install (supposed) new info file `%.250s'"
 msgstr "nie je možné nainštalovať (navrhovaný) nový info súbor „%.250s“"
 
-#: src/processarc.c:895
+#: src/processarc.c:902
 msgid "unable to open temp control directory"
 msgstr "nie je možné otvoriť dočasný riadiaci adresár"
 
-#: src/processarc.c:904
+#: src/processarc.c:911
 #, c-format
 msgid "package contains overly-long control info file name (starting `%.50s')"
 msgstr ""
 "balík obsahuje príliš dlhý názov riadiaceho info súboru (začínajúci „%.50s“)"
 
-#: src/processarc.c:909
+#: src/processarc.c:916
 #, c-format
 msgid "package control info contained directory `%.250s'"
 msgstr "riadiaci info balík obsahoval adresár „%.250s“"
 
-#: src/processarc.c:911
+#: src/processarc.c:918
 #, c-format
 msgid "package control info rmdir of `%.250s' didn't say not a dir"
 msgstr ""
 "funkcia rmdir u informácií o riadení balíka „%.250s“ nepovedala, že to nie "
 "je adresár"
 
-#: src/processarc.c:917
+#: src/processarc.c:924
 #, c-format
 msgid "package %s contained list as info file"
 msgstr "balík %s obsahoval zoznam ako info súbor"
 
-#: src/processarc.c:923
+#: src/processarc.c:930
 #, c-format
 msgid "unable to install new info file `%.250s' as `%.250s'"
 msgstr "nie je možné nainštalovať nový info súbor „%.250s“ ako „%.250s“"
 
-#: src/processarc.c:1090
+#: src/processarc.c:1097
 #, c-format
 msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
 msgstr "(Vyskytlo sa zmiznutie balíka %s, ktorý bol úplne nahradený.)\n"
 
-#: src/processarc.c:1127
+#: src/processarc.c:1134
 #, c-format
 msgid "unable to delete disappearing control info file `%.250s'"
 msgstr "nie je možné zrušiť zmiznutie riadiaceho info súboru „%.250s“"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.15.8.5\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2011-01-30 20:38+0100\n"
+"POT-Creation-Date: 2014-04-30 13:17+0000\n"
 "PO-Revision-Date: 2010-09-01 22:22+0400\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -2567,7 +2567,7 @@ msgstr "вызов write для ввода tar"
 msgid "close on tar input"
 msgstr "закрытие ввода tar"
 
-#: scripts/Dpkg/Source/Archive.pm:114 scripts/Dpkg/Source/Patch.pm:463
+#: scripts/Dpkg/Source/Archive.pm:114 scripts/Dpkg/Source/Patch.pm:475
 #, perl-format
 msgid "cannot create directory %s"
 msgstr "не удалось создать каталог %s"
@@ -2692,134 +2692,140 @@ msgstr "  новая версия %s"
 msgid "  old version is %s"
 msgstr "  старая версия %s"
 
-#: scripts/Dpkg/Source/Patch.pm:352
+#: scripts/Dpkg/Source/Patch.pm:292
+#, fuzzy, perl-format
+#| msgid "diff `%s' patches file with name ending .dpkg-orig"
+msgid "diff %s patches file with C-style encoded filename"
+msgstr "файл заплаток diff «%s» с именем, оканчивающимся на .dpkg-orig"
+
+#: scripts/Dpkg/Source/Patch.pm:364
 #, perl-format
 msgid "expected ^--- in line %d of diff `%s'"
 msgstr "ожидается ^--- в строке %d в diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:357
+#: scripts/Dpkg/Source/Patch.pm:369
 #, perl-format
 msgid "diff `%s' patches file with name ending .dpkg-orig"
 msgstr "файл заплаток diff «%s» с именем, оканчивающимся на .dpkg-orig"
 
-#: scripts/Dpkg/Source/Patch.pm:361
+#: scripts/Dpkg/Source/Patch.pm:373
 #, perl-format
 msgid "diff `%s' finishes in middle of ---/+++ (line %d)"
 msgstr "diff «%s» завершился в середине ---/+++ (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:364
+#: scripts/Dpkg/Source/Patch.pm:376
 #, perl-format
 msgid "line after --- isn't as expected in diff `%s' (line %d)"
 msgstr "строка после --- не та, что ожидалась в diff «%s» (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:370
+#: scripts/Dpkg/Source/Patch.pm:382
 #, fuzzy, perl-format
 #| msgid "none of the filenames in ---/+++ are relative in diff `%s' (line %d)"
 msgid "none of the filenames in ---/+++ are valid in diff '%s' (line %d)"
 msgstr "ни один из имён файлов в ---/+++ не связаны с diff «%s» (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:378
+#: scripts/Dpkg/Source/Patch.pm:390
 #: scripts/Dpkg/Source/Package/V3/quilt.pm:126
 #, perl-format
 msgid "%s contains an insecure path: %s"
 msgstr "%s содержит небезопасный путь: %s"
 
-#: scripts/Dpkg/Source/Patch.pm:383
+#: scripts/Dpkg/Source/Patch.pm:395
 #, perl-format
 msgid "diff %s modifies file %s through a symlink: %s"
 msgstr "diff %s изменяет файл %s через символьную ссылку: %s"
 
-#: scripts/Dpkg/Source/Patch.pm:392
+#: scripts/Dpkg/Source/Patch.pm:404
 #, perl-format
 msgid "original and modified files are /dev/null in diff `%s' (line %d)"
 msgstr ""
 "оригинальный и изменённый файлы равны /dev/null для diff «%s» (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:395
+#: scripts/Dpkg/Source/Patch.pm:407
 #, perl-format
 msgid "file removal without proper filename in diff `%s' (line %d)"
 msgstr "удаление файла без правильного имени файла в diff «%s» (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:397
+#: scripts/Dpkg/Source/Patch.pm:409
 #, perl-format
 msgid "diff %s removes a non-existing file %s (line %d)"
 msgstr "diff %s удаляет несуществующий файл %s (строка %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:408
+#: scripts/Dpkg/Source/Patch.pm:420
 #, perl-format
 msgid "diff `%s' patches something which is not a plain file"
 msgstr "diff «%s» латает что-то не являющееся простым файлом"
 
-#: scripts/Dpkg/Source/Patch.pm:412
+#: scripts/Dpkg/Source/Patch.pm:424
 #, perl-format
 msgid "diff `%s' patches file %s twice"
 msgstr "diff «%s» латает файл %s дважды"
 
-#: scripts/Dpkg/Source/Patch.pm:427 scripts/Dpkg/Source/Patch.pm:430
+#: scripts/Dpkg/Source/Patch.pm:439 scripts/Dpkg/Source/Patch.pm:442
 #, perl-format
 msgid "unexpected end of diff `%s'"
 msgstr "неожиданный конец diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:439
+#: scripts/Dpkg/Source/Patch.pm:451
 #, perl-format
 msgid "expected [ +-] at start of line %d of diff `%s'"
 msgstr "ожидается [ +-] в начале строки %d в diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:446
+#: scripts/Dpkg/Source/Patch.pm:458
 #, perl-format
 msgid "expected ^@@ at line %d of diff `%s'"
 msgstr "ожидается ^@@ в строке %d в diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:451
+#: scripts/Dpkg/Source/Patch.pm:463
 #, perl-format
 msgid "diff `%s' doesn't contain any patch"
 msgstr "diff «%s» не содержит заплатки"
 
-#: scripts/Dpkg/Source/Patch.pm:508
+#: scripts/Dpkg/Source/Patch.pm:520
 #, perl-format
 msgid "cannot change timestamp for %s"
 msgstr "не удалось изменить метку времени для %s"
 
-#: scripts/Dpkg/Source/Patch.pm:512
+#: scripts/Dpkg/Source/Patch.pm:524
 #, perl-format
 msgid "remove patch backup file %s"
 msgstr "удаление резервной копии заплатки %s"
 
-#: scripts/Dpkg/Source/Patch.pm:553
+#: scripts/Dpkg/Source/Patch.pm:565
 msgid "nonexistent"
 msgstr "несуществующий"
 
-#: scripts/Dpkg/Source/Patch.pm:554 scripts/Dpkg/Source/Package.pm:358
+#: scripts/Dpkg/Source/Patch.pm:566 scripts/Dpkg/Source/Package.pm:358
 #, perl-format
 msgid "cannot stat %s"
 msgstr "не удалось выполнить функцию stat %s"
 
-#: scripts/Dpkg/Source/Patch.pm:556
+#: scripts/Dpkg/Source/Patch.pm:568
 msgid "plain file"
 msgstr "простой файл"
 
-#: scripts/Dpkg/Source/Patch.pm:557
+#: scripts/Dpkg/Source/Patch.pm:569
 msgid "directory"
 msgstr "каталог"
 
-#: scripts/Dpkg/Source/Patch.pm:558
+#: scripts/Dpkg/Source/Patch.pm:570
 #, perl-format
 msgid "symlink to %s"
 msgstr "символьная ссылка на %s"
 
-#: scripts/Dpkg/Source/Patch.pm:559
+#: scripts/Dpkg/Source/Patch.pm:571
 msgid "block device"
 msgstr "блочное устройство"
 
-#: scripts/Dpkg/Source/Patch.pm:560
+#: scripts/Dpkg/Source/Patch.pm:572
 msgid "character device"
 msgstr "символьное устройство"
 
-#: scripts/Dpkg/Source/Patch.pm:561
+#: scripts/Dpkg/Source/Patch.pm:573
 msgid "named pipe"
 msgstr "именованный канал"
 
-#: scripts/Dpkg/Source/Patch.pm:562
+#: scripts/Dpkg/Source/Patch.pm:574
 msgid "named socket"
 msgstr "именованный сокет"
 

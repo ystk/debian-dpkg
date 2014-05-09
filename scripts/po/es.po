@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.18.8.5\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2011-01-30 20:38+0100\n"
+"POT-Creation-Date: 2014-04-30 13:17+0000\n"
 "PO-Revision-Date: 2010-12-09 02:35+0100\n"
 "Last-Translator: Omar Campagne <ocampagne@gmail.com>\n"
 "Language-Team: Debian l10n Spanish <debian-l10n-spanish@lists.debian.org>\n"
@@ -2700,7 +2700,7 @@ msgstr "escribe en la entrada tar"
 msgid "close on tar input"
 msgstr "cierra con la entrada tar"
 
-#: scripts/Dpkg/Source/Archive.pm:114 scripts/Dpkg/Source/Patch.pm:463
+#: scripts/Dpkg/Source/Archive.pm:114 scripts/Dpkg/Source/Patch.pm:475
 #, perl-format
 msgid "cannot create directory %s"
 msgstr "no se puede crear el directorio «%s»"
@@ -2827,140 +2827,146 @@ msgstr "  la versión nueva es %s"
 msgid "  old version is %s"
 msgstr "  la versión antigua es %s"
 
-#: scripts/Dpkg/Source/Patch.pm:352
+#: scripts/Dpkg/Source/Patch.pm:292
+#, fuzzy, perl-format
+#| msgid "diff `%s' patches file with name ending .dpkg-orig"
+msgid "diff %s patches file with C-style encoded filename"
+msgstr "el diff «%s» parchea el fichero cuyo nombre termina con «.dpkg-orig»"
+
+#: scripts/Dpkg/Source/Patch.pm:364
 #, perl-format
 msgid "expected ^--- in line %d of diff `%s'"
 msgstr "se esperaba «^---» en la línea %d del fichero de diferencias «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:357
+#: scripts/Dpkg/Source/Patch.pm:369
 #, perl-format
 msgid "diff `%s' patches file with name ending .dpkg-orig"
 msgstr "el diff «%s» parchea el fichero cuyo nombre termina con «.dpkg-orig»"
 
-#: scripts/Dpkg/Source/Patch.pm:361
+#: scripts/Dpkg/Source/Patch.pm:373
 #, perl-format
 msgid "diff `%s' finishes in middle of ---/+++ (line %d)"
 msgstr "el diff «%s» termina en la mitad de «---/+++» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:364
+#: scripts/Dpkg/Source/Patch.pm:376
 #, perl-format
 msgid "line after --- isn't as expected in diff `%s' (line %d)"
 msgstr ""
 "la línea después de «---» no es como se esperaba en el diff «%s» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:370
+#: scripts/Dpkg/Source/Patch.pm:382
 #, fuzzy, perl-format
 #| msgid "none of the filenames in ---/+++ are relative in diff `%s' (line %d)"
 msgid "none of the filenames in ---/+++ are valid in diff '%s' (line %d)"
 msgstr ""
 "ninguno de los ficheros en «---/+++» son relativos en el diff «%s» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:378
+#: scripts/Dpkg/Source/Patch.pm:390
 #: scripts/Dpkg/Source/Package/V3/quilt.pm:126
 #, perl-format
 msgid "%s contains an insecure path: %s"
 msgstr "%s contiene una ruta no segura: «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:383
+#: scripts/Dpkg/Source/Patch.pm:395
 #, perl-format
 msgid "diff %s modifies file %s through a symlink: %s"
 msgstr ""
 "el diff «%s» modifica el fichero «%s» a través de un enlace simbólico: %s"
 
-#: scripts/Dpkg/Source/Patch.pm:392
+#: scripts/Dpkg/Source/Patch.pm:404
 #, perl-format
 msgid "original and modified files are /dev/null in diff `%s' (line %d)"
 msgstr ""
 "los ficheros originales y modificados son están en «/dev/null» en el diff "
 "«%s» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:395
+#: scripts/Dpkg/Source/Patch.pm:407
 #, perl-format
 msgid "file removal without proper filename in diff `%s' (line %d)"
 msgstr ""
 "se ha detectado la eliminación de un fichero sin un nombre adecuado en el "
 "diff «%s» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:397
+#: scripts/Dpkg/Source/Patch.pm:409
 #, perl-format
 msgid "diff %s removes a non-existing file %s (line %d)"
 msgstr "el diff «%s» elimina el fichero no existente «%s» (línea %d)"
 
-#: scripts/Dpkg/Source/Patch.pm:408
+#: scripts/Dpkg/Source/Patch.pm:420
 #, perl-format
 msgid "diff `%s' patches something which is not a plain file"
 msgstr "el diff «%s» parchea algo que no es un fichero simple"
 
-#: scripts/Dpkg/Source/Patch.pm:412
+#: scripts/Dpkg/Source/Patch.pm:424
 #, perl-format
 msgid "diff `%s' patches file %s twice"
 msgstr "el diff «%s» parchea el fichero «%s» dos veces"
 
-#: scripts/Dpkg/Source/Patch.pm:427 scripts/Dpkg/Source/Patch.pm:430
+#: scripts/Dpkg/Source/Patch.pm:439 scripts/Dpkg/Source/Patch.pm:442
 #, perl-format
 msgid "unexpected end of diff `%s'"
 msgstr "se ha detectado un fin del fichero de diferencias «%s» inesperado"
 
-#: scripts/Dpkg/Source/Patch.pm:439
+#: scripts/Dpkg/Source/Patch.pm:451
 #, perl-format
 msgid "expected [ +-] at start of line %d of diff `%s'"
 msgstr "se esperaba [ +-] al principio de la línea %d del diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:446
+#: scripts/Dpkg/Source/Patch.pm:458
 #, perl-format
 msgid "expected ^@@ at line %d of diff `%s'"
 msgstr "se esperaba ^@@ en la línea %d del diff «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:451
+#: scripts/Dpkg/Source/Patch.pm:463
 #, perl-format
 msgid "diff `%s' doesn't contain any patch"
 msgstr "el diff «%s» no contiene ningún parche"
 
-#: scripts/Dpkg/Source/Patch.pm:508
+#: scripts/Dpkg/Source/Patch.pm:520
 #, perl-format
 msgid "cannot change timestamp for %s"
 msgstr "no se puede cambiar la marca de tiempo de «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:512
+#: scripts/Dpkg/Source/Patch.pm:524
 #, perl-format
 msgid "remove patch backup file %s"
 msgstr "eliminar el fichero de respaldo «%s» del parche"
 
-#: scripts/Dpkg/Source/Patch.pm:553
+#: scripts/Dpkg/Source/Patch.pm:565
 msgid "nonexistent"
 msgstr "inexistente"
 
-#: scripts/Dpkg/Source/Patch.pm:554 scripts/Dpkg/Source/Package.pm:358
+#: scripts/Dpkg/Source/Patch.pm:566 scripts/Dpkg/Source/Package.pm:358
 #, perl-format
 msgid "cannot stat %s"
 msgstr "no se puede obtener el estado (stat) de «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:556
+#: scripts/Dpkg/Source/Patch.pm:568
 msgid "plain file"
 msgstr "fichero simple"
 
-#: scripts/Dpkg/Source/Patch.pm:557
+#: scripts/Dpkg/Source/Patch.pm:569
 msgid "directory"
 msgstr "directorio"
 
-#: scripts/Dpkg/Source/Patch.pm:558
+#: scripts/Dpkg/Source/Patch.pm:570
 #, perl-format
 msgid "symlink to %s"
 msgstr "enlace simbólico a «%s»"
 
-#: scripts/Dpkg/Source/Patch.pm:559
+#: scripts/Dpkg/Source/Patch.pm:571
 msgid "block device"
 msgstr "dispositivo de bloque"
 
-#: scripts/Dpkg/Source/Patch.pm:560
+#: scripts/Dpkg/Source/Patch.pm:572
 msgid "character device"
 msgstr "fichero de dispositivo («character device»)"
 
-#: scripts/Dpkg/Source/Patch.pm:561
+#: scripts/Dpkg/Source/Patch.pm:573
 msgid "named pipe"
 msgstr "tubería nombrada"
 
-#: scripts/Dpkg/Source/Patch.pm:562
+#: scripts/Dpkg/Source/Patch.pm:574
 msgid "named socket"
 msgstr "socket de Unix nombrado"
 

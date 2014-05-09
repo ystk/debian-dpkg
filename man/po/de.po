@@ -1,6 +1,6 @@
 # German translation of the manpages in the dpkg package
 # This file is distributed under the same license as the dpkg package.
-# (C) Helge Kreutzmann <debian@helgefjell.de>, 2004, 2006-2010.
+# (C) Helge Kreutzmann <debian@helgefjell.de>, 2004, 2006-2011.
 # (C) Florian Rehnisch <eixman@gmx.de>, 2007.
 # (C) Sven Joachim <svenjoac@gmx.de>, 2008.
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg man pages\n"
 "POT-Creation-Date: 2010-11-25 07:13+0100\n"
-"PO-Revision-Date: 2010-11-26 21:45+0100\n"
+"PO-Revision-Date: 2012-01-11 22:13+0100\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: de <debian-l10n-german@lists.debian.org>\n"
 "Language: \n"
@@ -2160,7 +2160,7 @@ msgid ""
 msgstr ""
 "Jedem exportierten I<Symbol> (aufgeführt als I<Name>@I<Version>, mit "
 "I<Version> als »Base«, falls die Bibliothek nicht versioniert ist) wird eine "
-"Minimalversion seiner Abhängigkeitsvorlage zugeordnet (die "
+"I<Minimalversion> seiner Abhängigkeitsvorlage zugeordnet (die "
 "Hauptabhängigkeitsvorlage wird verwandt, falls die I<Kennung der "
 "Abhängigkeitsvorlage> nicht vorhanden ist). Die erste alternative "
 "Abhängigkeitsvorlage wird mit 1 nummeriert, die zweite mit 2 usw."
@@ -2388,7 +2388,7 @@ msgstr "dpkg - Paketverwalter für Debian"
 #. type: Plain text
 #: dpkg.1:8
 msgid "B<dpkg> [I<options>] I<action>"
-msgstr "B<dpkg> [I<Optionen>] I<Aktionen>"
+msgstr "B<dpkg> [I<Optionen>] I<Aktion>"
 
 #. type: SH
 #: dpkg.1:9
@@ -2525,7 +2525,7 @@ msgstr "Nur die Konfigurationsdateien des Pakets existieren auf dem System."
 #: dpkg.1:55
 #, no-wrap
 msgid "B<half-installed>"
-msgstr "B<halb-installiert>"
+msgstr "B<half-installed> (halb-installiert)"
 
 #. type: Plain text
 #: dpkg.1:59
@@ -2540,7 +2540,7 @@ msgstr ""
 #: dpkg.1:59
 #, no-wrap
 msgid "B<unpacked>"
-msgstr "B<entpackt>"
+msgstr "B<unpacked> (entpackt)"
 
 #. type: Plain text
 #: dpkg.1:62
@@ -2551,7 +2551,7 @@ msgstr "Das Paket ist entpackt, aber nicht konfiguriert."
 #: dpkg.1:62
 #, no-wrap
 msgid "B<half-configured>"
-msgstr "B<halb-konfiguriert>"
+msgstr "B<half-configured> (halb-konfiguriert)"
 
 #. type: Plain text
 #: dpkg.1:66
@@ -2566,7 +2566,7 @@ msgstr ""
 #: dpkg.1:66
 #, no-wrap
 msgid "B<triggers-awaited>"
-msgstr "B<triggers-awaited>"
+msgstr "B<triggers-awaited> (triggers-awaited)"
 
 #. type: Plain text
 #: dpkg.1:69
@@ -2577,7 +2577,7 @@ msgstr "Das Paket erwartet Trigger-Verarbeitung durch ein anderes Paket."
 #: dpkg.1:69
 #, no-wrap
 msgid "B<triggers-pending>"
-msgstr "B<triggers-pending>"
+msgstr "B<triggers-pending> (triggers-pending)"
 
 #. type: Plain text
 #: dpkg.1:72
@@ -2588,7 +2588,7 @@ msgstr "Das Paket wurde getriggert."
 #: dpkg.1:72
 #, no-wrap
 msgid "B<installed>"
-msgstr "B<installiert>"
+msgstr "B<installed> (installiert)"
 
 #. type: Plain text
 #: dpkg.1:75
@@ -3071,7 +3071,7 @@ msgid ""
 "Searches for packages selected for installation, but which for some reason "
 "still haven't been installed."
 msgstr ""
-"Sucht nach Paketen dir zur Installation ausgewählt wurden, die aber aus "
+"Sucht nach Paketen, die zur Installation ausgewählt wurden, die aber aus "
 "irgendeinem Grund noch nicht installiert wurden."
 
 #. type: TP
@@ -5042,7 +5042,7 @@ msgstr "\\s-1DEB_BUILD_GNU_TYPE\\s0"
 #. type: Plain text
 #: dpkg-architecture.1:118
 msgid "The \\s-1GNU\\s0 system type of the build machine."
-msgstr "Der \\s-1GNU\\s0-Systemname der Baumaschine."
+msgstr "Der \\s-1GNU\\s0-Systemtyp der Baumaschine."
 
 #. type: IP
 #: dpkg-architecture.1:118
@@ -7683,7 +7683,7 @@ msgstr "dpkg-genchanges"
 #. type: Plain text
 #: dpkg-genchanges.1:4
 msgid "dpkg-genchanges - generate Debian .changes files"
-msgstr "dpkg-dpkg-genchanges - erstelle Debian .changes-Dateien"
+msgstr "dpkg-genchanges - erstelle Debian .changes-Dateien"
 
 #. type: Plain text
 #: dpkg-genchanges.1:8
@@ -10581,7 +10581,6 @@ msgstr ""
 msgid "Package status:"
 msgstr "Paketstatus:"
 
-# type: Plain text
 #. type: Plain text
 #: dpkg-query.1:51
 #, no-wrap
@@ -10595,8 +10594,8 @@ msgid ""
 "  t = Triggers-pending\n"
 "  i = Installed\n"
 msgstr ""
-"  n = Nicht\n"
-"  c = Config\n"
+"  n = Nicht installiert\n"
+"  c = Config-Datei\n"
 "  H = Halb installiert\n"
 "  U = Entpackt\n"
 "  F = Fehlgeschl. Konfiguration\n"
@@ -10879,7 +10878,7 @@ msgstr ""
 "    B<Source>\n"
 "    B<Status> (intern)\n"
 "    B<Suggests>\n"
-"    B<Tag> (normalerweise nicht in dem .deb sondern in APTs Packages-Dateien\n"
+"    B<Tag> (normalerweise nicht in dem .deb sondern in APTs Packages-Dateien)\n"
 "    B<Triggers-Awaited> (intern)\n"
 "    B<Triggers-Pending> (intern)\n"
 "    B<Version>\n"
@@ -12483,7 +12482,7 @@ msgid ""
 "options> to exclude some auto-generated files from the automatic patch "
 "generation."
 msgstr ""
-"Der angegebene reguläre Ausdruck (Perl-Format) wird dem standardmäßigen "
+"Der angegebene reguläre Ausdruck (Perl-Format) wird den standardmäßigen "
 "regulären Ausdruck, der mit B<-i> verknüpft ist, erweiteren, indem »B<|"
 ">I<regexp>« an den standardmäßigen regulären Ausdruck angehängt wird. Diese "
 "Option ist bequem in B<debian/source/options> zu nutzen, um einige "
@@ -15023,7 +15022,7 @@ msgid ""
 "currently selected package."
 msgstr ""
 "In der Liste der Pakete, der Text, der den aktuellen Zustand des aktuell "
-"ausgewählten Paketes anzeigt"
+"ausgewählten Paketes anzeigt."
 
 #. type: TP
 #: dselect.1:92
@@ -15166,7 +15165,7 @@ msgid ""
 msgstr ""
 "Standardmäßig stellt B<dselect> mehrere Methoden wie I<floppy>, I<harddisk> "
 "oder I<cdrom> zur Verfügung, aber andere Pakete können zusätzliche Methoden "
-"bereitstellen, z.B. das B<apt>-Paket stellt die I<apt>-Zugriffsmethode oder "
+"bereitstellen, z.B. stellt das B<apt>-Paket die I<apt>-Zugriffsmethode oder "
 "das B<dpkg-multicd>-Paket I<multi_cd> bereit."
 
 #. type: Plain text
@@ -16829,7 +16828,7 @@ msgid ""
 "instead (see below)."
 msgstr ""
 "Falls Sie nicht-interaktiv konfigurieren möchten, können Sie stattdessen die "
-"I<--set> Option verwenden (siehe unten)."
+"Option I<--set> verwenden (siehe unten)."
 
 #. type: Plain text
 #: update-alternatives.8:149
@@ -17603,7 +17602,7 @@ msgid ""
 "setting for it, use the I<--display> action:"
 msgstr ""
 "Um alle verfügbaren Programme anzuzeigen, die B<vi> bereitstellen, und die "
-"dazu gehörigen Einstellungen, benutzen Sie die I<--display> Aktion:"
+"dazu gehörigen Einstellungen, benutzen Sie die Aktion I<--display>:"
 
 #. type: Plain text
 #: update-alternatives.8:463

@@ -276,8 +276,14 @@ set_selinux_path_context(const char *matchpath, const char *path, mode_t mode)
     return;
 
   /* Set selinux_enabled if it is not already set (singleton). */
-  if (selinux_enabled < 0)
+  if (selinux_enabled < 0) {
     selinux_enabled = (is_selinux_enabled() > 0);
+
+    /* Do not translate from computer to human readable forms, to avoid
+     * issues when mcstransd has disappeared during the unpack process. */
+    if (selinux_enabled)
+      set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
+  }
 
   /* If SE Linux is not enabled just do nothing. */
   if (!selinux_enabled)
@@ -293,7 +299,7 @@ set_selinux_path_context(const char *matchpath, const char *path, mode_t mode)
     return;
 
   if (strcmp(scontext, "<<none>>") != 0) {
-    if (lsetfilecon(path, scontext) < 0)
+    if (lsetfilecon_raw(path, scontext) < 0)
       /* XXX: This might need to be fatal instead!? */
       perror("Error setting security context for next file object:");
   }
@@ -565,6 +571,15 @@ tarobject(void *ctx, struct tar_entry *ti)
           continue;
       }
 
+      /* If the new object is a directory and the previous object does
+       * not exist assume it's also a directory and skip further checks.
+       * XXX: Ideally with more information about the installed files we
+       * could perform more clever checks. */
+      if (statr != 0 && ti->type == tar_filetype_dir) {
+        debug(dbg_eachfile, "tarobject ... assuming shared directory");
+        continue;
+      }
+
       /* Nope ?  Hmm, file conflict, perhaps.  Check Replaces. */
       switch (otherpkg->clientdata->replacingfilesandsaid) {
       case 2:
@@ -618,6 +633,7 @@ tarobject(void *ctx, struct tar_entry *ti)
         nifd->namenode->flags &= ~fnnf_new_inarchive;
         keepexisting = true;
       } else {
+        /* At this point we are replacing something without a Replaces. */
         if (!statr && S_ISDIR(stab.st_mode)) {
           forcibleerr(fc_overwritedir,
                       _("trying to overwrite directory '%.250s' "
@@ -626,16 +642,12 @@ tarobject(void *ctx, struct tar_entry *ti)
                       versiondescribe(&otherpkg->installed.version,
                                       vdew_nonambig));
         } else {
-          /* WTA: At this point we are replacing something without a Replaces.
-           * if the new object is a directory and the previous object does not
-           * exist assume it's also a directory and don't complain. */
-          if (!(statr && ti->type == tar_filetype_dir))
-            forcibleerr(fc_overwrite,
-                        _("trying to overwrite '%.250s', "
-                          "which is also in package %.250s %.250s"),
-                        nifd->namenode->name, otherpkg->name,
-                        versiondescribe(&otherpkg->installed.version,
-                                        vdew_nonambig));
+          forcibleerr(fc_overwrite,
+                      _("trying to overwrite '%.250s', "
+                        "which is also in package %.250s %.250s"),
+                      nifd->namenode->name, otherpkg->name,
+                      versiondescribe(&otherpkg->installed.version,
+                                      vdew_nonambig));
         }
       }
     }
@@ -840,7 +852,8 @@ tarobject(void *ctx, struct tar_entry *ti)
    * in dpkg-new.
    */
 
-  if (ti->type == tar_filetype_file || ti->type == tar_filetype_symlink) {
+  if (ti->type == tar_filetype_file || ti->type == tar_filetype_hardlink ||
+      ti->type == tar_filetype_symlink) {
     nifd->namenode->flags |= fnnf_deferred_rename;
 
     debug(dbg_eachfiledetail, "tarobject done and installation deferred");

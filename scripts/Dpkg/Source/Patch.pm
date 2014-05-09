@@ -280,6 +280,26 @@ sub _fail_not_same_type {
     $self->register_error();
 }
 
+# Fetch the header filename ignoring the optional timestamp
+sub _fetch_filename {
+    my ($diff, $header) = @_;
+
+    # Strip any leading spaces.
+    $header =~ s/^\s+//;
+
+    # Is it a C-style string?
+    if ($header =~ m/^"/) {
+        error(_g('diff %s patches file with C-style encoded filename'), $diff);
+    } else {
+        # Tab is the official separator, it's always used when
+        # filename contain spaces. Try it first, otherwise strip on space
+        # if there's no tab
+        $header =~ s/\s.*// unless $header =~ s/\t.*//;
+    }
+
+    return $header;
+}
+
 # check diff for sanity, find directories to create as a side effect
 sub analyze {
     my ($self, $destdir, %opts) = @_;
@@ -298,14 +318,6 @@ sub analyze {
             $line =~ s/\r$//;
         }
         return $line;
-    }
-    sub strip_ts { # Strip timestamp
-        my $header = shift;
-        # Tab is the official separator, it's always used when
-        # filename contain spaces. Try it first, otherwise strip on space
-        # if there's no tab
-        $header =~ s/\s.*// unless ($header =~ s/\t.*//);
-        return $header;
     }
     sub intuit_file_patched {
 	my ($old, $new) = @_;
@@ -351,7 +363,7 @@ sub analyze {
 	unless(s/^--- //) {
 	    error(_g("expected ^--- in line %d of diff `%s'"), $., $diff);
 	}
-        $path{'old'} = $_ = strip_ts($_);
+	$path{'old'} = $_ = _fetch_filename($diff, $_);
 	$fn{'old'} = $_ if $_ ne '/dev/null' and s{^[^/]*/+}{$destdir/};
 	if (/\.dpkg-orig$/) {
 	    error(_g("diff `%s' patches file with name ending .dpkg-orig"), $diff);
@@ -363,7 +375,7 @@ sub analyze {
 	unless (s/^\+\+\+ //) {
 	    error(_g("line after --- isn't as expected in diff `%s' (line %d)"), $diff, $.);
 	}
-        $path{'new'} = $_ = strip_ts($_);
+	$path{'new'} = $_ = _fetch_filename($diff, $_);
 	$fn{'new'} = $_ if $_ ne '/dev/null' and s{^[^/]*/+}{$destdir/};
 
 	unless (defined $fn{'old'} or defined $fn{'new'}) {
