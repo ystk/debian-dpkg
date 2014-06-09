@@ -1,8 +1,25 @@
+dpkg (1.15.11) squeeze-security; urgency=high
+
+  [ Guillem Jover ]
+  * Test suite:
+    - Add test cases for Dpkg::Source::Patch CVE-2014-0471 and CVE-2014-3127.
+    - Add test case for patch disabling hunks; not security sensitive.
+  * Correctly parse patch headers in Dpkg::Source::Patch, to avoid directory
+    traversal attempts from hostile source packages when unpacking them.
+    Reported by Javier Serrano Polo <javier@jasp.net> as an unspecified
+    directory traversal; meanwhile also independently found by me both
+    #749183 and what was supposed to be #746498, which was later on published
+    and ended up being just a subset of the other non-reported issue.
+    Fixes CVE-2014-3864 and CVE-2014-3865. Closes: #746498, #749183
+
+ -- Guillem Jover <guillem@debian.org>  Thu, 05 Jun 2014 22:52:45 +0200
+
 dpkg (1.15.10) squeeze-security; urgency=high
 
   [ Guillem Jover ]
   * Do not allow patch files with C-style encoded filenames. Closes: #746306
-    Unconditionally fixes CVE-2014-0471.
+    Fixes CVE-2014-3127 and unconditionally fixes CVE-2014-0471.
+    Reported by Javier Serrano Polo <javier@jasp.net>.
 
  -- Guillem Jover <guillem@debian.org>  Wed, 30 Apr 2014 15:15:09 +0200
 

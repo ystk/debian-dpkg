@@ -1,3 +1,108 @@
+commit 0e174275c842ee92f880304e27466a350142ecbb
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Jun 5 22:53:04 2014 +0200
+
+    Release 1.15.11
+
+ debian/changelog |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit ceb5b2b38a2c9db3e738a5ad69afdc5aeef7a23b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu May 22 00:47:05 2014 +0200
+
+    scripts: Add test case for patch disabling hunks
+    
+    Cherry picked from commit bb2fe22738675a5a92d65aad03efcc73efd3a368.
+    
+    This does not pose any security issue, as the hunk parser is strict, and
+    will reject a patch if it considers that the hunk marker is not present.
+
+ debian/changelog                             |    1 +
+ scripts/Makefile.am                          |    1 +
+ scripts/t/Dpkg_Source_Patch.t                |    5 ++++-
+ scripts/t/Dpkg_Source_Patch/ghost-hunk.patch |    7 +++++++
+ 4 files changed, 13 insertions(+), 1 deletion(-)
+
+commit b1719917979ac339a610a27aef8de7f4dcf93887
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri May 2 01:41:18 2014 +0200
+
+    Dpkg::Source::Patch: Fix patch header parsing to avoid directory traversals
+    
+    Cherry picked from commit 5348cbc981a65c3c9b05bb4d13553bda930c2d78.
+    
+    The code parsing the patches was not taking into account that patches
+    w/ partial or no pathname headers are still valid patches, and that
+    they can specify the pathname in the Index: pseudo-header or in a
+    single «+++ » pathname header, which allows doing directory traversal
+    when unpacking source packages.
+    
+    The first vector is due to how the Index: pseudo-header is handled by
+    patch. Its value gets used (on non-POSIX mode) only when both «+++ »
+    and «--- » pathname headers do not provide a pathname, by either having
+    an empty pathname or by the header being completely absent. The minimal
+    fix for this is to just consider that we've parsed the header when we
+    see a hunk header marker «@@ -». This is CVE-2014-3865 and #749183.
+    
+    The other vector is due to patches with only a «+++ » pathname header,
+    which get skipped by the parser as it only checks for «--- » pathname
+    header lines. The minimal fix for this is to also check for «+++ » when
+    parsing the patch header. This is CVE-2014-3864 and #746498.
+    
+    The first issue is a superset of the second, and its fix is sufficient
+    and covers and fixes too the second vector, as the «@@ -» marker is
+    mandatory for a patch to be valid.
+    
+    An unspecified directory traversal vulnerability was initially reported
+    in #746498 by Javier Serrano Polo <javier@jasp.net>, and while no
+    information had been provided, I independently found #749183 and what
+    was supposed to be #746498, which was later on published.
+    
+    Fixes: CVE-2014-3864, CVE-2014-3865
+    Closes: #746498, #749183
+
+ debian/changelog                              |    7 +++++++
+ scripts/Dpkg/Source/Patch.pm                  |    2 +-
+ scripts/Makefile.am                           |    4 ++++
+ scripts/t/Dpkg_Source_Patch.t                 |   16 +++++++++++++++-
+ scripts/t/Dpkg_Source_Patch/index-+++.patch   |    4 ++++
+ scripts/t/Dpkg_Source_Patch/index-alone.patch |    3 +++
+ scripts/t/Dpkg_Source_Patch/index-inert.patch |    8 ++++++++
+ scripts/t/Dpkg_Source_Patch/partial.patch     |    3 +++
+ 8 files changed, 45 insertions(+), 2 deletions(-)
+
+commit f715e778ba8f7bab1b0e548a2888fb5ecf043490
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri May 2 00:09:43 2014 +0200
+
+    scripts: Add test cases for C-style encoded pathnames in patches
+    
+    Cherry picked from commit dbb9cc36ae606bc5cbdb81baae02b9067913d143.
+    
+    This covers the directory traversal issues from CVE-2014-0471 and
+    CVE-2014-3127.
+
+ debian/changelog                          |    8 +++++
+ scripts/Makefile.am                       |    2 ++
+ scripts/t/Dpkg_Source_Patch.t             |   53 +++++++++++++++++++++++++++++
+ scripts/t/Dpkg_Source_Patch/c-style.patch |    4 +++
+ 4 files changed, 67 insertions(+)
+
+commit f2161c74eb1c0cafab449f89bd5519c600732df5
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri May 30 17:53:24 2014 +0200
+
+    debian: Update changelog entry for #746306 bug fix (CVE-2014-0471)
+    
+    Cherry picked from commit 82f803592c55e5505f8d8e66ed6b011f03a6ba45.
+    
+    Add attribution for the reporter, and a reference to the newly assigned
+    CVE-2014-3127.
+
+ debian/changelog |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
 commit b6d21cc82df92e81587c038afcebbfd2004187a3
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Apr 30 15:15:22 2014 +0200
