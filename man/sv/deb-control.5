@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995 Raul Miller, Ian Jackson, Ian Murdock
 .\" Copyright Â© 1999 Ben Collins <bcollins@debian.org>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2007-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2007-2011, 2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2008-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-control 5 2011\-08\-14 Debianprojektet Debian
+.TH deb\-control 5 2013\-12\-20 Debianprojektet Debian
 .SH NAMN
 deb\-control \- Debians filformat för paketstyrfiler
 .
@@ -110,7 +110,7 @@ URL till uppströmsprojektets hemside\-\fIurl\fP.
 Lista över märken som beskriver paketets egenskaper. En beskrivningen och
 förteckning över kända märken finns i paketet \fBdebtags\fP.
 .TP 
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
 Det här fältet används för att ange hur paketet skall fungera på en
 flerarkitektursinstallation. Värdet \fBsame\fP (samma) betyder att paket kan
 saminstalleras med sig självt, men kan inte användas för att uppfylla
@@ -119,20 +119,19 @@ beroenden för paket med en annan arkitektur än sig självt. Värdet \fBforeign\fP
 att det kan användas för att uppfylla beroenden för paket med en annan
 arkitektur än sig självt. Värdet \fBallowed\fP (tillåtet) tillåter att omvända
 beroenden kan ange i sina Depends\-fält att de behöver ett paket från en
-främmande arkitektur, men har i övrigt ingen funktion.
+främmande arkitektur, men har i övrigt ingen funktion. Värdet \fBno\fP är
+standard om fältet utesluts, i vilket fall det vanligtvis inte är nödvändigt
+att lägga till fältet med ett explicit \fBno\fP\-värde.
 .TP 
 \fBSource:\fP\fI källkodsnamn\fP
 Namnet på det källkodspaket som binärpaketet kommer från, om det skiljer sig
 från namnet på själva paketet.
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP\fI värde\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP\fI värde\fP
-.TP 
-.PD
+.TQ
 \fBInstaller\-Menu\-Item:\fP\fI värde\fP
 Dessa fält används av debian\-installer och behövs normalt inte. Se
 /usr/share/doc/debian\-installer/devel/modules.txt från paketet
@@ -252,5 +251,5 @@ Description: GNU grep, egrep and fgrep.
 .
 .SH "SE ÄVEN"
 \fBdeb\fP(5), \fBdeb\-version\fP(5), \fBdebtags\fP(1), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

@@ -16,7 +16,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\"*******************************************************************
 .TH dpkg\-divert 8 2011\-08\-14 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.SH BEZEICHNUNG
 dpkg\-divert \- Hinwegsetzen über die Paketversion einer Datei
 .
 .SH ÜBERSICHT
@@ -40,9 +40,9 @@ zwingen, eine Datei nicht an ihren Standardplatz, sondern an einem
 Debian\-Paketskripte verwendet werden, um eine Datei beiseitezuschieben, wenn
 sie einen Konflikt auslöst. Systemadministratoren können sie auch verwenden,
 um sich über die Konfigurationsdateien einiger Pakete hinwegzusetzen, oder
-wann immer einige Dateien (die nicht als »Conffiles« markiert sind) von Dpkg
-erhalten werden müssen, wenn eine neuere Version eines Paketes, die diese
-Dateien enthält, installiert wird.
+wann immer einige Dateien (die nicht als »Conffiles« markiert sind) von
+\fBdpkg\fP erhalten werden müssen, wenn eine neuere Version eines Paketes, die
+diese Dateien enthält, installiert wird.
 .sp
 .SH BEFEHLE
 .TP 
@@ -66,7 +66,7 @@ Zeige den echten Namen für eine umgeleitete Datei an.
 .SH OPTIONEN
 .TP 
 \fB\-\-admindir\fP\fI Verzeichnis\fP
-Setze das Dpkg\-Datenverzeichnis auf \fIVerzeichnis\fP (Standard:
+Setze das \fBdpkg\fP\-Datenverzeichnis auf \fIVerzeichnis\fP (Standard:
 \fI/var/lib/dpkg\fP).
 .TP 
 \fB\-\-divert\fP\fI Umleitziel\fP
@@ -99,6 +99,26 @@ Zeige den Bedienungshinweis und beende.
 \fB\-\-version\fP
 Gebe die Version aus und beende sich.
 .
+.SH UMGEBUNG
+.TP 
+\fBDPKG_ADMINDIR\fP
+Falls gesetzt und die Option \fB\-\-admindir\fP nicht verwandt wurde, wird dies
+als Datenverzeichnis von \fBdpkg\fP verwandt.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Falls gesetzt und die Optionen \fB\-\-local\fP und \fB\-\-package\fP nicht verwandt
+wurden, wird \fBdpkg\-divert\fP dies als Paketnamen verwenden.
+.
+.SH DATEIEN
+.TP 
+\fI/var/lib/dpkg/diversions\fP
+Datei, die die aktuelle Liste von Umleitungen des Systems enthält. Sie
+befindet sich im \fBdpkg\fP\-Administrationsverzeichnis, zusammen mit anderen
+für \fBdpkg\fP wichtigen Dateien, wie \fIstatus\fP oder \fIavailable\fP.
+.br
+Hinweis: \fBdpkg\-divert\fP erhält die alte Kopie dieser Datei, mit der Endung
+\fI\-old\fP, bevor es sie mit der neuen ersetzt.
+.
 .SH BEMERKUNGEN
 Beim Hinzufügen ist die Standardeinstellung \fB\-\-local\fP und \fB\-\-divert\fP
 \fIOriginalname\fP.\fBdistrib\fP. Beim Entfernen müssen, falls angegeben,
@@ -108,10 +128,10 @@ Verzeichnisse können mit \fBdpkg\-divert\fP nicht umgeleitet werden.
 
 Vorsicht sollte beim Umleiten von Laufzeit\-Bibliotheken walten gelassen
 werden, da \fBldconfig\fP(8) einen symbolischen Link, basierend auf dem in der
-Bibliothek eingebetteten DT_SONAME\-Feld, anlegt. Da ldconfig keine
-Umleitungen anerkennt (nur Dpkg tut dies), kann der Symlink am Ende auf die
-umgeleitete Bibliothek zeigen, falls die umgeleitete Bibliothek den gleichen
-SONAME wie die nicht umgeleitete hat.
+Bibliothek eingebetteten DT_SONAME\-Feld, anlegt. Da \fBldconfig\fP keine
+Umleitungen anerkennt (nur \fBdpkg\fP tut dies), kann der Symlink am Ende auf
+die umgeleitete Bibliothek zeigen, falls die umgeleitete Bibliothek den
+gleichen SONAME wie die nicht umgeleitete hat.
 .
 .SH BEISPIELE
 Um alle Kopien von \fI/usr/bin/example\fP auf \fI/usr/bin/example.foo\fP
@@ -137,28 +157,8 @@ Um diese Umleitung zu entfernen:
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/example
 .
-.SH UMGEBUNG
-.TP 
-\fBDPKG_ADMINDIR\fP
-Falls gesetzt und die Option \fB\-\-admindir\fP nicht verwandt wurde, wird dies
-als Datenverzeichnis von Dpkg verwandt.
-.TP 
-\fBDPKG_MAINTSCRIPT_PACKAGE\fP
-Falls gesetzt und die Optionen \fB\-\-local\fP und \fB\-\-package\fP nicht verwandt
-wurden, wird \fBdpkg\-divert\fP dies als Paketnamen verwenden.
-.
-.SH DATEIEN
-.TP 
-\fI/var/lib/dpkg/diversions\fP
-Datei, die die aktuelle Liste von Umleitungen des Systems enthält. Sie
-befindet sich im Dpkg\-Administrationsverzeichnis, zusammen mit anderen für
-Dpkg wichtigen Dateien, wie \fIstatus\fP oder \fIavailable\fP.
-.br
-Hinweis: \fBdpkg\-divert\fP erhält die alte Kopie dieser Datei, mit der Endung
-\fI\-old\fP, bevor es sie mit der neuen ersetzt.
-.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

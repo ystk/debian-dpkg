@@ -4,7 +4,7 @@
 .\" Copyright Â© 2000 Josip Rodin
 .\" Copyright Â© 2001 Joost Kooij
 .\" Copyright Â© 2001 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2010-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2010-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dselect 1 2012\-04\-07 Debianprojektet Debian
+.TH dselect 1 2014\-08\-11 Debianprojektet Debian
 .SH NAMN
 dselect \- Debians pakethanteringsskal
 .
@@ -124,11 +124,11 @@ Används för att visa frågor.
 \fBhelpscreen\fP
 Färg på hjälpskärmar.
 .RE
-.P
+.IP
 Efter skärmdelen följer ett kolon och färgangivelsen. Du kan ange antingen
 förgrundsfärgen, bakgrundsfärgen eller båda två, vilka kommer att ersätta de
 inkompilerade färgerna. Använd de normala curses\-namnen för färgerna.
-.P
+.IP
 Du kan även ange ytterligare ett kolon efter färgangivelsen och där ge
 attribut. Detta är en lista med ett eller flera attribut, avdelade med
 plustecken ("+"). Tillgängliga attribut är (alla fungerar inte på alla
@@ -202,7 +202,7 @@ köra installationen på nytt. I de flesta fall kommer problemet försvinna
 eller lösas. Om problemet kvarstår eller den installation som genomfördes
 var felaktig, ber vi dig undersöka orsaken och omständigheterna och
 rapportera ett fel i Debians felrapporteringssystem. Instruktioner om hur du
-gör det finns på http://bugs.debian.org/ eller genom att läsa
+gör det finns på https://bugs.debian.org/ eller genom att läsa
 dokumentationen för \fBbug\fP(1) eller \fBreportbug\fP(1), om dessa är
 installerade.
 .sp
@@ -227,7 +227,7 @@ Avslutar \fBdselect\fP
 Avslutar dselect med felkod noll (lyckat).
 .sp
 .
-.SH Paketvalshantering
+.SH "HANTERING AV PAKETVAL"
 .sp
 .SS Introduktion
 .sp
@@ -278,12 +278,14 @@ Huvudvalskärmen visar en lista över samtliga paket som är kända för Debians
 pakethanteringssystem, vilket inbegriper paket installerade på systemet och
 paket kända från databasen över tillgängliga paket.
 .sp
-För varje paket visar listan paketets status, prioritet, avdelning,
-installerade och tillgängliga versioner, paketets namn och dess korta
-beskrivning, allt på en rad. Genom att trycka på tangenten \fB"V"\fP slås
-visningen av den installerade och den aktiva versionen på och av. Genom att
-trycka på tangenten \fB"v"\fP växlas paketstatusvisningen mellan ordrik och
-förkortad, med den förkortade visningen som förval.
+For every package, the list shows the package's status, priority, section,
+installed and available architecture, installed and available versions, the
+package name and its short description, all in one line.  By pressing the
+\&\fB'A'\fP key, the display of the installed and available architecture can be
+toggled between on an off.  By pressing the \fB'V'\fP key, the display of the
+installed and available version can be toggled between on an off.  By
+pressing the \fB'v'\fP key, the package status display is toggled between
+verbose and shorthand.  Shorthand display is the default.
 .sp
 Den förkortade statusindikeringen består av fyra delar: en felflagga, vilken
 normalt skall vara blank, aktuell status, senast vald status och nu vald
@@ -451,5 +453,5 @@ inte trasig, utan även mycket flexiblare än de inbyggda åtkomstmetoderna.
 .
 .SH "SE ÄVEN"
 \fBdpkg\fP(1), \fBapt\-get\fP(8), \fBsources.list\fP(5), \fBdeb\fP(5).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

@@ -4,6 +4,7 @@
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -55,19 +56,8 @@
 
 /*** filepackages support for tracking packages owning a file. ***/
 
-#define PERFILEPACKAGESLUMP 10
-
-struct filepackages {
-  struct filepackages *more;
-
-  /* pkgs is a NULL-pointer-terminated list; anything after the first NULL
-   * is garbage. */
-  struct pkginfo *pkgs[PERFILEPACKAGESLUMP];
-};
-
 struct filepackages_iterator {
-  struct filepackages *pkg_lump;
-  int pkg_idx;
+  struct pkg_list *pkg_node;
 };
 
 struct filepackages_iterator *
@@ -76,8 +66,7 @@ filepackages_iter_new(struct filenamenode *fnn)
   struct filepackages_iterator *iter;
 
   iter = m_malloc(sizeof(*iter));
-  iter->pkg_lump  = fnn->packages;
-  iter->pkg_idx = 0;
+  iter->pkg_node = fnn->packages;
 
   return iter;
 }
@@ -85,21 +74,15 @@ filepackages_iter_new(struct filenamenode *fnn)
 struct pkginfo *
 filepackages_iter_next(struct filepackages_iterator *iter)
 {
-  struct pkginfo *pkg;
+  struct pkg_list *pkg_node;
 
-  while (iter->pkg_lump) {
-    pkg = iter->pkg_lump->pkgs[iter->pkg_idx];
+  if (iter->pkg_node == NULL)
+    return NULL;
 
-    if (iter->pkg_idx < PERFILEPACKAGESLUMP && pkg) {
-      iter->pkg_idx++;
-      return pkg;
-    } else {
-      iter->pkg_lump = iter->pkg_lump->more;
-      iter->pkg_idx = 0;
-    }
-  }
+  pkg_node = iter->pkg_node;
+  iter->pkg_node = pkg_node->next;
 
-  return NULL;
+  return pkg_node->pkg;
 }
 
 void
@@ -119,8 +102,8 @@ ensure_package_clientdata(struct pkginfo *pkg)
   if (pkg->clientdata)
     return;
   pkg->clientdata = nfmalloc(sizeof(struct perpackagestate));
-  pkg->clientdata->istobe = itb_normal;
-  pkg->clientdata->color = white;
+  pkg->clientdata->istobe = PKG_ISTOBE_NORMAL;
+  pkg->clientdata->color = PKG_CYCLE_WHITE;
   pkg->clientdata->fileslistvalid = false;
   pkg->clientdata->files = NULL;
   pkg->clientdata->replacingfilesandsaid = 0;
@@ -134,7 +117,13 @@ void note_must_reread_files_inpackage(struct pkginfo *pkg) {
   pkg->clientdata->fileslistvalid = false;
 }
 
-static int saidread=0;
+enum pkg_filesdb_load_status {
+  PKG_FILESDB_LOAD_NONE = 0,
+  PKG_FILESDB_LOAD_INPROGRESS = 1,
+  PKG_FILESDB_LOAD_DONE = 2,
+};
+
+static enum pkg_filesdb_load_status saidread = PKG_FILESDB_LOAD_NONE;
 
 /**
  * Erase the files saved in pkg.
@@ -143,8 +132,6 @@ static void
 pkg_files_blank(struct pkginfo *pkg)
 {
   struct fileinlist *current;
-  struct filepackages *packageslump;
-  int search, findlast;
 
   /* Anything to empty? */
   if (!pkg->clientdata)
@@ -153,34 +140,26 @@ pkg_files_blank(struct pkginfo *pkg)
   for (current= pkg->clientdata->files;
        current;
        current= current->next) {
+    struct pkg_list *pkg_node, *pkg_prev = NULL;
+
     /* For each file that used to be in the package,
      * go through looking for this package's entry in the list
      * of packages containing this file, and blank it out. */
-    for (packageslump= current->namenode->packages;
-         packageslump;
-         packageslump= packageslump->more)
-      for (search= 0;
-           search < PERFILEPACKAGESLUMP && packageslump->pkgs[search];
-           search++)
-        if (packageslump->pkgs[search] == pkg) {
-          /* Hah!  Found it. */
-          for (findlast= search+1;
-               findlast < PERFILEPACKAGESLUMP && packageslump->pkgs[findlast];
-               findlast++);
-          findlast--;
-          /* findlast is now the last occupied entry, which may be the same as
-           * search. We blank out the entry for this package. We also
-           * have to copy the last entry into the empty slot, because
-           * the list is NULL-pointer-terminated. */
-          packageslump->pkgs[search]= packageslump->pkgs[findlast];
-          packageslump->pkgs[findlast] = NULL;
-          /* This may result in an empty link in the list. This is OK. */
-          goto xit_search_to_delete_from_perfilenodelist;
-        }
-  xit_search_to_delete_from_perfilenodelist:
-    ;
-    /* The actual filelist links were allocated using nfmalloc, so
-     * we shouldn't free them. */
+    for (pkg_node = current->namenode->packages;
+         pkg_node;
+         pkg_node = pkg_node->next) {
+      if (pkg_node->pkg == pkg) {
+        if (pkg_prev)
+          pkg_prev->next = pkg_node->next;
+        else
+          current->namenode->packages = pkg_node->next;
+
+        /* The actual filelist links were allocated using nfmalloc, so
+         * we shouldn't free them. */
+        break;
+      }
+      pkg_prev = pkg_node;
+    }
   }
   pkg->clientdata->files = NULL;
 }
@@ -190,8 +169,7 @@ pkg_files_add_file(struct pkginfo *pkg, struct filenamenode *namenode,
                    struct fileinlist **file_tail)
 {
   struct fileinlist *newent;
-  struct filepackages *packageslump;
-  int putat = 0;
+  struct pkg_list *pkg_node;
 
   ensure_package_clientdata(pkg);
 
@@ -211,23 +189,10 @@ pkg_files_add_file(struct pkginfo *pkg, struct filenamenode *namenode,
   file_tail = &newent->next;
 
   /* Add pkg to newent's package list. */
-  packageslump = newent->namenode->packages;
-  putat = 0;
-  if (packageslump) {
-    while (putat < PERFILEPACKAGESLUMP && packageslump->pkgs[putat])
-       putat++;
-    if (putat >= PERFILEPACKAGESLUMP)
-      packageslump = NULL;
-  }
-  if (!packageslump) {
-    packageslump = nfmalloc(sizeof(struct filepackages));
-    packageslump->more = newent->namenode->packages;
-    newent->namenode->packages = packageslump;
-    putat = 0;
-  }
-  packageslump->pkgs[putat]= pkg;
-  if (++putat < PERFILEPACKAGESLUMP)
-    packageslump->pkgs[putat] = NULL;
+  pkg_node = nfmalloc(sizeof(*pkg_node));
+  pkg_node->pkg = pkg;
+  pkg_node->next = newent->namenode->packages;
+  newent->namenode->packages = pkg_node;
 
   /* Return the position for the next guy. */
   return file_tail;
@@ -254,7 +219,7 @@ ensure_packagefiles_available(struct pkginfo *pkg)
   pkg_files_blank(pkg);
 
   /* Packages which aren't installed don't have a files list. */
-  if (pkg->status == stat_notinstalled) {
+  if (pkg->status == PKG_STAT_NOTINSTALLED) {
     pkg->clientdata->fileslistvalid = true;
     return;
   }
@@ -270,7 +235,7 @@ ensure_packagefiles_available(struct pkginfo *pkg)
       ohshite(_("unable to open files list file for package `%.250s'"),
               pkg_name(pkg, pnaw_nonambig));
     onerr_abort--;
-    if (pkg->status != stat_configfiles &&
+    if (pkg->status != PKG_STAT_CONFIGFILES &&
         dpkg_version_is_informative(&pkg->configversion)) {
       warning(_("files list file for package '%.250s' missing; assuming "
                 "package has no files currently installed"),
@@ -304,7 +269,8 @@ ensure_packagefiles_available(struct pkginfo *pkg)
     while (thisline < loaded_list_end) {
       struct filenamenode *namenode;
 
-      if (!(ptr = memchr(thisline, '\n', loaded_list_end - thisline)))
+      ptr = memchr(thisline, '\n', loaded_list_end - thisline);
+      if (ptr == NULL)
         ohshit(_("files list file for package '%.250s' is missing final newline"),
                pkg_name(pkg, pnaw_nonambig));
       /* Where to start next time around. */
@@ -370,7 +336,7 @@ pkg_files_optimize_load(struct pkg_array *array)
 
     ensure_package_clientdata(pkg);
 
-    if (pkg->status == stat_notinstalled ||
+    if (pkg->status == PKG_STAT_NOTINSTALLED ||
         pkg->clientdata->listfile_phys_offs != 0)
       continue;
 
@@ -432,10 +398,10 @@ void ensure_allinstfiles_available(void) {
   int i;
 
   if (allpackagesdone) return;
-  if (saidread<2) {
+  if (saidread < PKG_FILESDB_LOAD_DONE) {
     int max = pkg_db_count_pkg();
 
-    saidread=1;
+    saidread = PKG_FILESDB_LOAD_INPROGRESS;
     progress_init(&progress, _("(Reading database ... "), max);
   }
 
@@ -447,7 +413,7 @@ void ensure_allinstfiles_available(void) {
     pkg = array.pkgs[i];
     ensure_packagefiles_available(pkg);
 
-    if (saidread == 1)
+    if (saidread == PKG_FILESDB_LOAD_INPROGRESS)
       progress_step(&progress);
   }
 
@@ -455,17 +421,17 @@ void ensure_allinstfiles_available(void) {
 
   allpackagesdone = true;
 
-  if (saidread==1) {
+  if (saidread == PKG_FILESDB_LOAD_INPROGRESS) {
     progress_done(&progress);
     printf(P_("%d file or directory currently installed.)\n",
               "%d files and directories currently installed.)\n", nfiles),
            nfiles);
-    saidread=2;
+    saidread = PKG_FILESDB_LOAD_DONE;
   }
 }
 
 void ensure_allinstfiles_available_quiet(void) {
-  saidread=2;
+  saidread = PKG_FILESDB_LOAD_DONE;
   ensure_allinstfiles_available();
 }
 
@@ -475,7 +441,7 @@ void ensure_allinstfiles_available_quiet(void) {
  */
 void
 write_filelist_except(struct pkginfo *pkg, struct pkgbin *pkgbin,
-                      struct fileinlist *list, enum fnnflags mask)
+                      struct fileinlist *list, enum filenamenode_flags mask)
 {
   struct atomic_file *file;
   const char *listfile;
@@ -650,6 +616,7 @@ struct filenamenode *findnamenode(const char *name, enum fnnflags flags) {
   newnode->next = NULL;
   newnode->divert = NULL;
   newnode->statoverride = NULL;
+  newnode->oldhash = NULL;
   newnode->newhash = EMPTYHASHFLAG;
   newnode->filestat = NULL;
   newnode->trig_interested = NULL;
@@ -658,6 +625,3 @@ struct filenamenode *findnamenode(const char *name, enum fnnflags flags) {
 
   return newnode;
 }
-
-/* vi: ts=8 sw=2
- */

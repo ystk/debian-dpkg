@@ -17,39 +17,41 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use strict;
 use warnings;
 
-use Dpkg;
+use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Changelog::Parse;
 
-textdomain("dpkg-dev");
+textdomain('dpkg-dev');
 
 my %options;
+my $fieldname;
 
 sub version {
-    printf _g("Debian %s version %s.\n"), $progname, $version;
+    printf _g("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
 
-    printf _g("
+    printf _g('
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
-");
+');
 }
 
 sub usage {
     printf _g(
-"Usage: %s [<option>...]")
+'Usage: %s [<option>...]')
     . "\n\n" . _g(
-"Options:
+'Options:
   -l<changelog-file>       get per-version info from this file.
   -F<changelog-format>     force changelog format.
   -L<libdir>               look for changelog parsers in <libdir>.
+  -S, --show-field <field> show the values for <field>.
   -?, --help               show this help message.
-      --version            show the version.")
+      --version            show the version.')
     . "\n\n" . _g(
 "Parser options:
     --format <output-format>    see man page for list of available
@@ -69,33 +71,39 @@ sub usage {
       -o<number>                counted from the top (or the tail if
                                 <number> is lower than 0)
     --all                       include all changes
-"), $progname;
+"), $Dpkg::PROGNAME;
 }
 
 while (@ARGV) {
     last unless $ARGV[0] =~ m/^-/;
     $_ = shift(@ARGV);
     if (m/^-L(.+)$/) {
-	$options{"libdir"} = $1;
+	$options{libdir} = $1;
     } elsif (m/^-F([0-9a-z]+)$/) {
-	$options{"changelogformat"} = $1;
+	$options{changelogformat} = $1;
     } elsif (m/^-l(.+)$/) {
-	$options{"file"} = $1;
+	$options{file} = $1;
+    } elsif (m/^-S(.+)$/) {
+	$fieldname = $1;
+    } elsif (m/^--show-field(?:=(.+))?$/) {
+	$fieldname = $1 // shift(@ARGV);
     } elsif (m/^--$/) {
 	last;
     } elsif (m/^-([cfnostuv])(.*)$/) {
-	if (($1 eq "c") or ($1 eq "n")) {
-	    $options{"count"} = $2;
-	} elsif ($1 eq "f") {
-	    $options{"from"} = $2;
-	} elsif ($1 eq "o") {
-	    $options{"offset"} = $2;
-	} elsif (($1 eq "s") or ($1 eq "v")) {
-	    $options{"since"} = $2;
-	} elsif ($1 eq "t") {
-	    $options{"to"} = $2;
-	} elsif ($1 eq "u") {
-	    $options{"until"} = $2;
+	if (($1 eq 'c') or ($1 eq 'n')) {
+	    $options{count} = $2;
+	} elsif ($1 eq 'f') {
+	    $options{from} = $2;
+	} elsif ($1 eq 'o') {
+	    $options{offset} = $2;
+	} elsif (($1 eq 's') or ($1 eq 'v')) {
+	    $options{since} = $2;
+	} elsif ($1 eq 't') {
+	    $options{to} = $2;
+	} elsif ($1 eq 'u') {
+	    ## no critic (ControlStructures::ProhibitUntilBlocks)
+	    $options{until} = $2;
+	    ## use critic
 	}
     } elsif (m/^--(count|file|format|from|offset|since|to|until)(.*)$/) {
 	if ($2) {
@@ -104,8 +112,8 @@ while (@ARGV) {
 	    $options{$1} = shift(@ARGV);
 	}
     } elsif (m/^--all$/) {
-	$options{"all"} = undef;
-    } elsif (m/^-(\?|-help)$/) {
+	$options{all} = undef;
+    } elsif (m/^-(?:\?|-help)$/) {
 	usage(); exit(0);
     } elsif (m/^--version$/) {
 	version(); exit(0);
@@ -113,12 +121,15 @@ while (@ARGV) {
 	usageerr(_g("unknown option \`%s'"), $_);
     }
 }
-
-@ARGV && usageerr(_g("takes no non-option arguments"));
+usageerr(_g('takes no non-option arguments')) if @ARGV;
 
 my $count = 0;
 my @fields = changelog_parse(%options);
 foreach my $f (@fields) {
     print "\n" if $count++;
-    print $f->output();
+    if ($fieldname) {
+        print $f->{$fieldname} . "\n" if exists $f->{$fieldname};
+    } else {
+        print $f->output();
+    }
 }

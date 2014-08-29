@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -64,14 +64,21 @@ nie jest wymagane, tak wiêc w ten sposób wiele pakietów bêdzie umieszczonych
 w katalogu "no\-section". Proszê ostro¿nie u¿ywaæ tej opcji, jest niechlujna.
 .TP 
 \fB\-c\fP, \fB\-\-create\-dir\fP
-Opcja ta mo¿e byæ u¿yta ³±cznie z opcj± \-s. Je¶li katalog docelowy nie
-istnieje, to zostanie utworzony. \fBProszê ostro¿nie u¿ywaæ tej opcji.\fP
+This option can used together with the \fB\-s\fP option. If a target directory
+isn't found it will be created automatically.  \fBUse this option with care.\fP
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Wy¶wietla informacjê o u¿ytkowaniu i koñczy dzia³anie.
 .TP 
 \fB\-v\fP, \fB\-\-version\fP
 Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
+.
+.SH B£ÊDY
+Some packages don't follow the name structure
+\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.deb\fP.  Packages renamed by
+\fBdpkg\-name\fP will follow this structure. Generally this will have no impact
+on how packages are installed by \fBdselect\fP(1)/\fBdpkg\fP(1), but other
+installation tools might depend on this naming structure.
 .
 .SH PRZYK£ADY
 .TP 
@@ -81,9 +88,9 @@ co¶ podobnego (w zale¿no¶ci od informacji zawartych w pliku kontrolnym
 pakietu "bar\-foo.deb").
 .TP 
 \fBfind /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a\fP
-dpkg\-name, je¶li jest to konieczne, zmieni nazwy wszystkich pliki z
-rozszerzeniem "deb" z katalogu /root/debian i jego podkatalogów na nazwy
-niezawieraj±ce informacji o architekturze.
+All files with the extension `deb' in the directory /root/debian and its
+subdirectory's will be renamed by \fBdpkg\-name\fP if required into names with
+no architecture information.
 .TP 
 \fBfind \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c\fP
 \fBNie rób tego\fP. Twoje archiwum zostanie kompletnie zepsute, poniewa¿ wiele
@@ -92,18 +99,10 @@ pakietów nie bêdzie mia³o informacji o sekcji. \fBNie rób tego\fP.
 \fBdpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb\fP
 Mo¿e zostaæ u¿yte do budowania nowych pakietów.
 .
-.SH B£ÊDY
-Niektóre pakiety maj± inn± strukturê nazwy ni¿
-\fIpakiet\fP\fB_\fP\fIwersja\fP\fB_\fP\fIarchitektura\fP\fB.deb\fP. Pakiety, którym dpkg\-name
-zmieni nazwê, bêd± mia³y powy¿sz± strukturê nazwy. Ogólnie, polecenie to nie
-bêdzie mia³o ¿adnego wp³ywu na to, jak pakiety s± instalowane przez
-\fBdselect\fP(1)/ \fBdpkg\fP(1), ale inne narzêdzia instalacyjne mog± zale¿eæ od
-powy¿szej struktury nazywania pakietów.
-.
 .SH "ZOBACZ TAK¯E"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1), \fBfind\fP(1),
 \fBxargs\fP(1).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

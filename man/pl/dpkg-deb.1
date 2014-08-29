@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 2012\-05\-27 "Projekt Debian" "u¿ytki dpkg"
+.TH dpkg\-deb 1 2013\-03\-27 "Projekt Debian" "u¿ytki dpkg"
 .SH NAZWA
 dpkg\-deb \- narzêdzie obs³ugi plików archiwum Debiana (.deb)
 .
@@ -165,25 +165,37 @@ by³ odpowiednikiem braku kompresji w przypadku wszystkich programów
 kompresuj±cych.
 .TP 
 \fB\-S\fP\fIstrategia\-kompresji\fP
-Okre¶la strategiê kompresji u¿ywan± przez program kompresuj±cy podczas
-budowania pakietu (od dpkg 1.16.2). Dozwolone warto¶ci to: \fInone\fP (od
-wersji 1.16.4 dpkg) i \fIextreme\fP w przypadku xz.
+Specify which compression strategy to use on the compressor backend, when
+building a package (since dpkg 1.16.2). Allowed values are \fInone\fP (since
+dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrle\fP and \fIfixed\fP for gzip (since
+dpkg 1.17.0) and \fIextreme\fP for xz.
 .TP 
 \fB\-Z\fP\fItyp\-kompresji\fP
-Okre¶la typ kompresji u¿ywany podczas budowania pakietu. Dozwolonymi
-warto¶ciami s±: \fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP oraz \fInone\fP (domy¶ln±
-warto¶ci± jest \fIgzip\fP).
+Specify which compression type to use when building a package. Allowed
+values are \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecated), \fIlzma\fP (deprecated), and
+\fInone\fP (default is \fIxz\fP).
+.TP 
+\fB\-\-uniform\-compression\fP
+Specify that the same compression parameters should be used for all archive
+members (i.e. \fBcontrol.tar\fP and \fBdata.tar\fP). Otherwise only the
+\fBdata.tar\fP member will use those parameters. The only supported compression
+types allowed to be uniformly used are \fInone\fP, \fIgzip\fP and \fIxz\fP.
+.TP 
+\fB\-\-deb\-format=\fP\fIformat\fP
+Set the archive format version used when building (since dpkg 1.17.0).
+Allowed values are \fI2.0\fP for the new format, and \fI0.939000\fP for the old
+one (default is \fI2.0\fP).
+
+The old archive format is less easily parsed by non\-Debian tools and is now
+obsolete; its only use is when building packages to be parsed by versions of
+dpkg older than 0.93.76 (September 1995), which was released as i386 a.out
+only.
 .TP 
 \fB\-\-new\fP
-Zapewnia, ¿e \fBdpkg\-deb\fP utworzy "nowy" format archiwum. Ta opcja jest
-domy¶lna.
+This is a legacy alias for \fB\-\-deb\-format=2.0\fP.
 .TP 
 \fB\-\-old\fP
-Wymusza utworzenie przez \fBdpkg\-deb\fP "starego" formatu archiwum. Ten format
-jest s³abo obs³ugiwany przez narzêdzia spoza dystrybucji Debiana i obecnie
-jest przestarza³y. Ta opcja jest u¿yteczna jedynie w przypadku korzystania z
-wersji dpkg wcze¶niejszej ni¿ 0.93.76 (wrzesieñ 1995), która by³a
-opublikowana jedynie dla i386 a.out.
+This is a legacy alias for \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 Powoduje, ¿e polecenie \fBdpkg\-deb \-\-build\fP nie bêdzie sprawdzaæ zawarto¶ci
@@ -203,6 +215,11 @@ W³±cza opcjê debugowania. Nie jest to zbyt interesuj±ce.
 Je¶li jest ustawiona, \fBdpkg\-deb\fP bêdzie jej u¿ywa³ jako katalogu do
 tworzenia plików i katalogów tymczasowych.
 .
+.SH UWAGI
+Nie nale¿y u¿ywaæ \fBdpkg\-deb\fP do instalowania oprogramowania! Do tego celu
+nale¿y korzystaæ z \fBdpkg\fP, który zainstaluje poprawnie pliki i uruchomi
+potrzebne skrypty instalacyjne.
+.
 .SH B£ÊDY
 \fBdpkg\-deb \-I\fP \fIpakiet1\fP\fB.deb\fP \fIpakiet2\fP\fB.deb\fP dzia³a niepoprawnie.
 
@@ -212,14 +229,10 @@ uwierzytelnianie pakietów \fB.deb\fP pobieranych z danego repozytorium, za¶
 wiêkszo¶æ wspó³czesnych pakietów dostarcza plik kontrolny md5sum
 wygenerowany przez debian/rules. Niestety, nie jest to bezpo¶rednio
 wspierane przez narzêdzia ni¿szego poziomu.)
-
-Nie nale¿y u¿ywaæ \fBdpkg\-deb\fP do instalowania oprogramowania! Do tego celu
-nale¿y korzystaæ z \fBdpkg\fP, który zainstaluje poprawnie pliki i uruchomi
-potrzebne skrypty instalacyjne.
 .
 .SH "ZOBACZ TAK¯E"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

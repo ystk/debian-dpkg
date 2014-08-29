@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-checkbuilddeps 1 2012\-05\-22 Debianprojektet dpkg\-verktygen
+.TH dpkg\-checkbuilddeps 1 2013\-09\-17 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-checkbuilddeps \- kontrollera byggberoenden och \-konflikter
 .
@@ -43,12 +43,12 @@ anges på kommandoraden.
 Ändra platsen för \fBdpkg\fP\-databasen. Förval är \fI/var/lib/dpkg\fP.
 .TP 
 \fB\-A\fP
-Ignorera \fIBuild\-Depends\-Arch\fP\- och \fIBuild\-Conflicts\-Arch\fP\-rader. Använd
+Ignorera \fBBuild\-Depends\-Arch\fP\- och \fBBuild\-Conflicts\-Arch\fP\-rader. Använd
 när endast arkitekturoberoende paket skall byggas, eller kombinera med \fB\-B\fP
 när endast ett källkodspaket skall byggas.
 .TP 
 \fB\-B\fP
-Ignorera \fIBuild\-Depends\-Indep\fP\- och \fIBuild\-Conflicts\-Indep\fP\-rader. Använd
+Ignorera \fBBuild\-Depends\-Indep\fP\- och \fBBuild\-Conflicts\-Indep\fP\-rader. Använd
 om inga arkitekturoberoende paket skall byggas, eller kombinera med \fB\-A\fP
 när endast ett källkodspaket skall byggas.
 .TP 
@@ -63,10 +63,23 @@ Kontrollera byggberoenden/\-konflikter med antagandet att paketet som
 beskrivs i kontrollfilen skall byggas för den givna värdarkitekturen
 istället för det aktuella systemets arkitektur.
 .TP 
+\fB\-P \fP\fIprofil\fP[\fB,\fP...]
+Kontrollera byggberoenden/\-konflikter med antagandet att paketet som
+beskrivs i kontrollfilen skall byggas för den givna
+byggprofilen(\-erna). Argumentet är en kommaavdelad lista med profilnamn,
+utan namnrymdprefixen "\fBprofile.\fP".
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
 \fB\-\-version\fP
 Visar version och avslutar.
-.SH "ÖVERSÄTTNING"
+.
+.SH MILJÖVARIABLER
+.TP 
+\fBDEB_BUILD_PROFILES\fP
+Används som aktiv(a) byggprofil(er) för paketet som byggs, om det anges. Det
+är en blankstegsavdelad lista med profilnamn, utan namnrymdprefixet
+"\fBprofile.\fP". Överstyrs av flaggan \fB\-P\fP.
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

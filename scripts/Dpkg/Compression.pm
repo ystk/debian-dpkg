@@ -1,4 +1,5 @@
 # Copyright © 2010 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2010-2013 Guillem Jover <guillem@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,22 +12,23 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package Dpkg::Compression;
 
 use strict;
 use warnings;
 
-our $VERSION = "1.01";
+our $VERSION = '1.02';
 
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
 
-use base qw(Exporter);
+use Exporter qw(import);
 our @EXPORT = qw($compression_re_file_ext compression_get_list
 		 compression_is_supported compression_get_property
 		 compression_guess_from_filename
+		 compression_get_file_extension_regex
 		 compression_get_default compression_set_default
 		 compression_get_default_level
 		 compression_set_default_level
@@ -43,53 +45,43 @@ Dpkg::Compression - simple database of available compression methods
 This modules provides a few public funcions and a public regex to
 interact with the set of supported compression methods.
 
-=head1 EXPORTED VARIABLES
-
-=over 4
-
 =cut
 
 my $COMP = {
-    "gzip" => {
-	"file_ext" => "gz",
-	"comp_prog" => [ "gzip", "--no-name", "--rsyncable" ],
-	"decomp_prog" => [ "gunzip" ],
-	"default_level" => 9,
+    gzip => {
+	file_ext => 'gz',
+	comp_prog => [ 'gzip', '--no-name', '--rsyncable' ],
+	decomp_prog => [ 'gunzip' ],
+	default_level => 9,
     },
-    "bzip2" => {
-	"file_ext" => "bz2",
-	"comp_prog" => [ "bzip2" ],
-	"decomp_prog" => [ "bunzip2" ],
-	"default_level" => 9,
+    bzip2 => {
+	file_ext => 'bz2',
+	comp_prog => [ 'bzip2' ],
+	decomp_prog => [ 'bunzip2' ],
+	default_level => 9,
     },
-    "lzma" => {
-	"file_ext" => "lzma",
-	"comp_prog" => [ 'xz', '--format=lzma' ],
-	"decomp_prog" => [ 'unxz', '--format=lzma' ],
-	"default_level" => 6,
+    lzma => {
+	file_ext => 'lzma',
+	comp_prog => [ 'xz', '--format=lzma' ],
+	decomp_prog => [ 'unxz', '--format=lzma' ],
+	default_level => 6,
     },
-    "xz" => {
-	"file_ext" => "xz",
-	"comp_prog" => [ "xz" ],
-	"decomp_prog" => [ "unxz" ],
-	"default_level" => 6,
+    xz => {
+	file_ext => 'xz',
+	comp_prog => [ 'xz' ],
+	decomp_prog => [ 'unxz' ],
+	default_level => 6,
     },
 };
 
-our $default_compression = "gzip";
+# XXX: Backwards compatibility, stop exporting on VERSION 2.00.
+## no critic (Variables::ProhibitPackageVars)
+our $default_compression = 'xz';
 our $default_compression_level = undef;
 
-=item $compression_re_file_ext
-
-A regex that matches a file extension of a file compressed with one of the
-supported compression methods.
-
-=back
-
-=cut
-
-my $regex = join "|", map { $_->{"file_ext"} } values %$COMP;
+my $regex = join '|', map { $_->{file_ext} } values %$COMP;
 our $compression_re_file_ext = qr/(?:$regex)/;
+## use critic
 
 =head1 EXPORTED FUNCTIONS
 
@@ -102,7 +94,8 @@ Returns a list of supported compression methods (sorted alphabetically).
 =cut
 
 sub compression_get_list {
-    return sort keys %$COMP;
+    my @list = sort keys %$COMP;
+    return @list;
 }
 
 =item compression_is_supported($comp)
@@ -129,9 +122,9 @@ the name of the decompression program.
 
 sub compression_get_property {
     my ($comp, $property) = @_;
-    return undef unless compression_is_supported($comp);
+    return unless compression_is_supported($comp);
     return $COMP->{$comp}{$property} if exists $COMP->{$comp}{$property};
-    return undef;
+    return;
 }
 
 =item compression_guess_from_filename($filename)
@@ -144,12 +137,23 @@ filename based on its file extension.
 sub compression_guess_from_filename {
     my $filename = shift;
     foreach my $comp (compression_get_list()) {
-	my $ext = compression_get_property($comp, "file_ext");
+	my $ext = compression_get_property($comp, 'file_ext');
         if ($filename =~ /^(.*)\.\Q$ext\E$/) {
 	    return $comp;
         }
     }
-    return undef;
+    return;
+}
+
+=item my $regex = compression_get_file_extension_regex()
+
+Returns a regex that matches a file extension of a file compressed with
+one of the supported compression methods.
+
+=cut
+
+sub compression_get_file_extension_regex {
+    return $compression_re_file_ext;
 }
 
 =item my $comp = compression_get_default()
@@ -170,7 +174,7 @@ sub compression_get_default {
 
 sub compression_set_default {
     my ($method) = @_;
-    error(_g("%s is not a supported compression"), $method)
+    error(_g('%s is not a supported compression'), $method)
             unless compression_is_supported($method);
     $default_compression = $method;
 }
@@ -193,14 +197,14 @@ sub compression_get_default_level {
     if (defined $default_compression_level) {
         return $default_compression_level;
     } else {
-        return compression_get_property($default_compression, "default_level");
+        return compression_get_property($default_compression, 'default_level');
     }
 }
 
 sub compression_set_default_level {
     my ($level) = @_;
-    error(_g("%s is not a compression level"), $level)
-            unless !defined($level) or compression_is_valid_level($level);
+    error(_g('%s is not a compression level'), $level)
+        if defined($level) and not compression_is_valid_level($level);
     $default_compression_level = $level;
 }
 
@@ -217,6 +221,19 @@ sub compression_is_valid_level {
 }
 
 =back
+
+=head1 CHANGES
+
+=head2 Version 1.02
+
+New function: compression_get_file_extension_regex()
+
+Deprecated variables: $default_compression, $default_compression_level
+and $compression_re_file_ext
+
+=head2 Version 1.01
+
+Default compression level is not global any more, it is per compressor type.
 
 =head1 AUTHOR
 

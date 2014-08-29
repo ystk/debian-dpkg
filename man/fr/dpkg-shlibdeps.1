@@ -4,7 +4,7 @@
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-shlibdeps 1 04\-05\-2012 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-shlibdeps 1 06\-09\-2013 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-shlibdeps \- générateur de variables de substitution de dépendances pour
 bibliothèques partagées
@@ -75,7 +75,7 @@ systèmes. \fIarch\fP est l'architecture du système actuel (obtenu par
 .IP "Affichage de \(lq\fBdpkg\-query \-\-control\-path\fP \fIpaquet\fP symbols\(rq"
 Paquet fournissant des informations concernant les dépendances envers des
 bibliothèques partagées. Sauf indication contraire par le biais de
-\-\-admindir, ces fichiers sont par défaut dans /var/lib/dpkg.
+\fB\-\-admindir\fP, ces fichiers sont par défaut dans /var/lib/dpkg.
 .P
 Lors de l'analyse des symboles utilisés par tous les binaires,
 \fBdpkg\-shlibdeps\fP retient la (plus grande) version minimale nécessaire pour
@@ -84,10 +84,10 @@ dépendance minimale pour toutes les bibliothèques utilisées (à condition que
 l'information des fichiers \fIsymbols\fP soit exacte).
 .P
 Comme garde\-fou, un fichier de symboles peut fournir un champ
-\fIBuild\-Depends\-Package\fP de méta\-information et \fBdpkg\-shlibdeps\fP en
+\fBBuild\-Depends\-Package\fP de méta\-information et \fBdpkg\-shlibdeps\fP en
 extraira la version minimale requise par le paquet correspondant depuis ce
-champ Build\-Depends et utiliser cette version si elle est supérieure à la
-version minimale calculée par l'examen des symboles.
+champ \fBBuild\-Depends\fP et utilisera cette version si elle est supérieure à
+la version minimale calculée par l'examen des symboles.
 .SS "Fichiers Shlibs"
 Les fichiers Shlibs associent directement une bibliothèque à une dépendance
 (sans regarder les symboles). Il agit donc souvent plus fortement que ce
@@ -111,7 +111,7 @@ paquets binaires.
 .IP "Affichage de \(lq\fBdpkg\-query \-\-control\-path\fP \fIpaquet\fP shlibs\(rq"
 Paquet fournissant des informations concernant les dépendances envers des
 bibliothèques partagées. Sauf indication contraire par le biais de
-\-\-admindir, ces fichiers sont par défaut dans /var/lib/dpkg.
+\fB\-\-admindir\fP, ces fichiers sont par défaut dans /var/lib/dpkg.
 .IP /etc/dpkg/shlibs.default
 Fichier système par défaut concernant les informations de dépendance envers
 des bibliothèques partagées.
@@ -125,7 +125,19 @@ exécutables, comme si on avait simplement donné \fB\-e\fP\fIexécutable\fP.
 .TP 
 \fB\-e\fP\fIexécutable\fP
 Cette option inclut les bonnes dépendances envers les bibliothèques
-partagées que demande \fIexécutable\fP.
+partagées que demande \fIexécutable\fP. Cette option peut être utilisée
+plusieurs fois.
+.TP 
+\fB\-l\fP\fIrépertoire\fP
+Ajoute \fIrépertoire\fP à la liste des répertoires où chercher des
+bibliothèques partagées privées (depuis dpkg 1.17.0). Cette option peut être
+utilisée plusieurs fois.
+
+Note: Utilisez cette option plutôt que le réglage de \fBLD_LIBRARY_PATH\fP,
+parce que cette variable d'environnement est utilisé pour contrôler
+l'éditeur de liens d'exécution et et servir d'elle pour définir les chemins
+des bibliothèques partagées au moment de la construction peut être
+problématique, par exemple, lors d'une compilation croisée.
 .TP 
 \fB\-d\fP\fIchamp\-dépendance\fP
 Cette option ajoute les dépendances destinées au champ «\ dépendance\ » du
@@ -149,10 +161,11 @@ toute variable de substitution commençant par
 \fIpréfixe\-pour\-le\-nom\-des\-variables\fP\fB:\fP (au lieu de \fBshlibs:\fP) est enlevée
 du fichier de substitution des variables.
 .TP 
-\fB\-O\fP
-Affiche les définitions des variables de substitution sur la sortie
-standard, plutôt que de les ajouter dans le fichier de substitution des
-variables qui est par défaut debian/substvars.
+\fB\-O\fP[\fInom\-de\-fichier\fP]
+Affiche les définitions des variables de substitution sur la sortie standard
+(ou \fInom\-de\-fichier\fP si spécifié), plutôt que de les ajouter dans le
+fichier de substitution des variables qui est par défaut
+\fBdebian/substvars\fP.
 .TP 
 \fB\-t\fP\fItype\fP
 Préférer les informations sur les dépendances des bibliothèques partagées
@@ -171,7 +184,7 @@ bibliothèques partagées dans \fIfichier\-local\-shlibs\fP au lieu de
 par défaut est \fBdebian/substvars\fP.
 .TP 
 \fB\-v\fP
-Active le mode verbeux. De nombreux messages sont affichés pour expliquer ce
+Active le mode bavard. De nombreux messages sont affichés pour expliquer ce
 que \fBdpkg\-shlibdeps\fP fait.
 .TP 
 \fB\-x\fP\fIpackage\fP
@@ -217,7 +230,8 @@ Affiche un message d'aide puis quitte.
 \fB\-\-version\fP
 Affiche le numéro de version puis quitte.
 .
-.SH AVERTISSEMENTS
+.SH DIAGNOSTICS
+.SS Avertissements
 Depuis que \fBdpkg\-shlibdeps\fP analyse l'ensemble des symboles utilisés par
 chaque binaire généré par le paquet, il est en mesure d'émettre des
 avertissements dans plusieurs cas. Ils vous informent des choses qui peuvent
@@ -233,7 +247,7 @@ binaire. Le \fIbinaire\fP est probablement plutôt une bibliothèque et elle doit
 construction (l'option \fB\-l\fP\fIbibliothèque\fP de l'éditeur de liens).
 .TP 
 \fIbinary\fP\fB contient une référence non résolue au symbole \fP\fIsym\fP\fB: il s'agit probablement d'un greffon (plugin)\fP
-Le symbole indiqué n'a pas été trouvé dans les bilbiohtèques liées avec le
+Le symbole indiqué n'a pas été trouvé dans les bilbiothèques liées avec le
 fichier binaire. Le \fIbinaire\fP est très probablement un greffon (plugin) et
 le symbole est probablement fourni par le programme qui charge ce
 greffon. En théorie, un greffon n'a pas de «\ SONAME\ » mais ce binaire en
@@ -262,7 +276,7 @@ de chargement de celui\-ci peuvent être obtenues en ne le liant pas à cette
 bibliothèque. Cet avertissement vérifie la même information que la
 précédente mais elle le fait pour tous les binaires au lieu de ne faire le
 contrôle qu'au niveau global sur tous les binaires analysés.
-.SH ERREURS
+.SS Erreurs
 \fBdpkg\-shlibdeps\fP échouera s'il ne peut pas trouver de bibliothèque publique
 utilisée par un binaire ou si cette bibliothèque n'a pas d'informations sur
 les dépendances associées (soit les fichier shlibs, soit le fichier des
@@ -276,22 +290,23 @@ Le \fIbinaire\fP utilise une bibliothèque appelée \fIlibrary\-soname\fP mais
 \fBdpkg\-shlibdeps\fP n'a pas été en mesure de trouver cette
 bibliothèque. \fBdpkg\-shlibdeps\fP crée une liste de répertoires à vérifier de
 la manière suivante\ : les répertoires énumérés dans le RPATH du binaire, les
-répertoires listés dans /etc/ld.so.conf, les répertoires listés dans la
-variable d'environnement LD_LIBRARY_PATH, et les répertoires publics
-standard (/lib, /usr/lib, /lib32, /usr/lib32, /lib64, /usr/lib64). Ensuite,
-il vérifie les répertoires qui sont dans l'arbre de construction du paquet
-binaire en cours d'analyse, dans l'arbre de construction du paquet indiqué
-avec l'option de ligne de commande \-S, dans les autres arbres de paquets qui
-contiennent des fichiers DEBIAN/shlibs ou un DEBIAN/symbols et enfin dans le
-répertoire racine. Si la bibliothèque n'est pas trouvée dans l'un de ces
-répertoires, alors ce message d'erreur est obtenu.
+répertoires listés dans /etc/ld.so.conf, les répertoires ajoutés par
+l'option \fB\-l\fP, les répertoires listés dans la variable d'environnement
+LD_LIBRARY_PATH, et les répertoires publics standard (/lib, /usr/lib,
+/lib32, /usr/lib32, /lib64, /usr/lib64). Ensuite, il vérifie les répertoires
+qui sont dans l'arbre de construction du paquet binaire en cours d'analyse,
+dans l'arbre de construction du paquet indiqué avec l'option de ligne de
+commande \fB\-S\fP, dans les autres arbres de paquets qui contiennent un fichier
+DEBIAN/shlibs ou DEBIAN/symbols et enfin dans le répertoire racine. Si la
+bibliothèque n'est pas trouvée dans l'un de ces répertoires, alors ce
+message d'erreur est obtenu.
 
 Si la bibliothèque non trouvée est cependant disponible dans le répertoire
-privé de ce même paquet, alors il vous faut ajouter ce répertoire dans
-LD_LIBRARY_PATH. S'il est dans un autre paquet binaire en cours de
-construction, alors assurez\-vous que le fichier shlibs/symbols de ce paquet
-est déjà créé et que LD_LIBRARY_PATH contient le répertoire approprié si
-c'est aussi un répertoire privé.
+privé de ce même paquet, alors il vous faut ajouter ce répertoire avec
+\fB\-l\fP. S'il est dans un autre paquet binaire en cours de construction, alors
+assurez\-vous que les fichiers shlibs/symbols de ce paquet sont déjà créés et
+que \fB\-l\fP contient le répertoire approprié si c'est aussi un répertoire
+privé.
 .TP 
 \fBaucune information de dépendance trouvée pour\fP \fIla bibliothèque\fP \fB(utilisée par le\fP \fIbinaire\fP\fB).\fP
 La bibliothèque nécessaire au \fIbinaire\fP a été trouvée par \fBdpkg\-shlibdeps\fP
@@ -308,14 +323,14 @@ bibliothèque soit construite au sein du même paquet source et que les
 fichiers shlibs n'aient pas encore été créés (dans ce cas debian/rules doit
 être modifié pour créer le shlibs avant l'appel de \fBdpkg\-shlibdeps\fP). Un
 mauvais RPATH peut aussi conduire à ce que la bibliothèque soit trouvée sous
-un nom non\-canonique (comme: /usr/lib/openoffice.org/../lib/libssl.so.0.9.8
+un nom non\-canonique (comme\ : /usr/lib/openoffice.org/../lib/libssl.so.0.9.8
 au lieu de /usr/lib/libssl.so.0.9.8) qui n'est associé à aucun paquet,
 \fBdpkg\-shlibdeps\fP essaie de travailler sur ce nom non\-canonique (en
 utilisant \fBrealpath\fP(3)), mais cela ne fonctionne pas toujours. Il est
 toujours préférable de bien nettoyer le RPATH du binaire afin d'éviter ces
 problèmes.
 
-L'appel de \fBdpkg\-shlibdeps\fP en mode verbeux (\-v) fournira beaucoup plus
+L'appel de \fBdpkg\-shlibdeps\fP en mode bavard (\fB\-v\fP) fournira beaucoup plus
 d'informations sur l'endroit où il a essayé de trouver l'information sur les
 dépendances. Ceci peut être utile si vous ne comprenez pas pourquoi vous
 obtenez cette erreur.

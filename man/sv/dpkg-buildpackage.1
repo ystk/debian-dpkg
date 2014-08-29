@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995-1996 Ian Jackson
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
-.\" Copyright Â© 2008-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2008-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-buildpackage 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
+.TH dpkg\-buildpackage 1 2013\-12\-12 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-buildpackage \- bygg binär\- eller källkodspaket från källkod
 .
@@ -35,39 +35,59 @@ dpkg\-buildpackage \- bygg binär\- eller källkodspaket från källkod
 \fBdpkg\-buildprogram\fP är ett program som automatiserar processen med att
 bygga ett Debianpaket. Det består av följande steg:
 .IP \fB1.\fP 3
-Byggmiljön förbereds genom att diverse miljövariabler sätts (se \fBMILJÖ\fP)
-och anropar \fBdpkg\-source \-\-before\-build\fP (såvida inte \fB_T\fP eller
-\fB\-\-target\fP används).
+Byggmiljön förbereds genom att diverse miljövariabler sätts (se \fBMILJÖ\fP),
+kör haken \fBinit\fP och anropar \fBdpkg\-source \-\-before\-build\fP (såvida inte
+\fB\-T\fP eller \fB\-\-target\fP används).
 .IP \fB2.\fP 3
 Byggberoenden och \-konflikter kontrolleras att de uppfylls (såvida inte
 \fB\-d\fP anges).
 .IP \fB3.\fP 3
 Om ett specifikt mål har valts med flaggan \fB\-T\fP eller \fB\-\-target\fP anropas
-det målet, varpå programmet avslutas. I annat fall anropas \fBfakeroot
-debian/rules clean\fP för att städa byggträdet (såvida inte \fB\-nc\fP anges).
+det målet, varpå programmet avslutas. I annat fall körs haken \fBpreclean\fP
+och anropas \fBfakeroot debian/rules clean\fP för att städa byggträdet (såvida
+inte \fB\-nc\fP anges).
 .IP \fB4.\fP 3
-\fBdpkg\-source \-b\fP anropas för att skapa källkodspaketet (såvida inte ett
-bygge av enbart binärer har valts med \fB\-b\fP, \fB\-B\fP eller \fB\-A\fP).
+Kör haken \fBsource\fP och anropar \fBdpkg\-source \-b\fP för att skapa
+källkodspaketet (såvida inte ett bygge av enbart binärer har valts med
+\fB\-b\fP, \fB\-B\fP eller \fB\-A\fP).
 .IP \fB5.\fP 3
-\fBdebian/rules\fP \fIbyggmål\fP anropas, följt av \fBfakeroot debian/rules\fP
-\fIbinärmål\fP (såvida inte ett bygge av enbart källkod har valts med
-\fB\-S\fP). Observera att \fIbyggmål\fP och \fIbinärmål\fP är ett av \fBbuild\fP och
-\fBbinary\fP (standardval, eller om \fB\-b\fP anges), \fBbuild\-arch\fP och
-\fBbinary\-arch\fP (om \fB\-B\fP anges) eller \fBbuild\-indep\fP och \fBbinary\-indep\fP (om
-\fB\-A\fP anges).
+It runs the \fBbuild\fP hook and calls \fBdebian/rules\fP \fIbuild\-target\fP, then
+runs the \fBbinary\fP hook followed by \fBfakeroot debian/rules\fP
+\fIbinary\-target\fP (unless a source\-only build has been requested with
+\fB\-S\fP). Note that \fIbuild\-target\fP and \fIbinary\-target\fP are either \fBbuild\fP
+and \fBbinary\fP (default case, or if \fB\-b\fP is specified), or \fBbuild\-arch\fP and
+\fBbinary\-arch\fP (if \fB\-B\fP or \fB\-G\fP are specified), or \fBbuild\-indep\fP and
+\fBbinary\-indep\fP (if \fB\-A\fP or \fB\-g\fP are specified).
 .IP \fB6.\fP 3
-\fBgpg\fP anropas för att signera \fB.dsc\fP\-filen (om sådan finns, såvida inte
-\fB\-us\fP anges).
+Kör haken \fBchanges\fP och anropar \fBdpkg\-genchanges\fP för att skapa en
+\&\fB.changes\fP\-fil. Många av flaggorna till \fBdpkg\-buildpackage\fP vidaresänds
+till \fBdpkg\-genchanges\fP.
 .IP \fB7.\fP 3
-\fBdpkg\-genchanges\fP anropas för att skapa en \fB.changes\fP\-fil. Många av
-flaggorna till \fBdpkg\-buildpackage\fP vidaresänds till \fBdpkg\-genchanges\fP.
+Kör haken \fBpostclean\fP och, om \fB\-tc\fP anges, anropar \fBfakeroot debian/rules
+clean\fP ytterligare en gång.
 .IP \fB8.\fP 3
-\fBgpg\fP anropas för att signera \fB.changes\fP\-filen (såvida inte \fB\-uc\fP anges).
+Anropar \fBdpkg\-source \-\-after\-build\fP.
 .IP \fB9.\fP 3
-Om \fB\-tc\fP anges anropas \fBfakeroot debian/rules clean\fP ytterligare en
-gång. Till slut anropas \fBdpkg\-source \-\-after\-build\fP.
+It runs the \fBcheck\fP hook and calls a package checker for the \fB.changes\fP
+file (if a command is specified in \fBDEB_CHECK_COMMAND\fP or with
+\fB\-\-check\-command\fP).
+.IP \fB10.\fP 3
+Kör haken \fBsign\fP och anropar \fBgpg2\fP eller \fBgpg\fP för att signera
+\&\fB.dsc\fP\-filen (om sådan finns, såvida inte \fB\-us\fP anges eller på
+UNRELEASED\-byggen) och \fB.changes\fP\-filen (såvida inte \fB\-uc\fP anges eller på
+UNRELEASED\-byggen).
+.IP \fB11.\fP 3
+It runs the \fBdone\fP hook.
 .
 .SH FLAGGOR
+.TP 
+\fB\-g\fP
+Specifies a build limited to source and architecture independent packages.
+Passed to \fBdpkg\-genchanges\fP.
+.TP 
+\fB\-G\fP
+Specifies a build limited to source and architecture specific packages.
+Passed to \fBdpkg\-genchanges\fP.
 .TP 
 \fB\-b\fP
 Anger att enbart binära paket skall byggas, inga källkodsfiler byggs
@@ -88,39 +108,35 @@ byggas. Sänds vidare till \fBdpkg\-genchanges\fP.
 \fB\-F\fP
 Anger att ett normalt komplett bygge, binär\- och källkodspaket, skall
 byggas. Detta är detsamma som standardläget om inga byggflaggor anges.
-.P
+.TP 
 \fB\-\-target=\fP\fImål\fP
-.br
+.TQ
 \fB\-\-target \fP\fImål\fP
-.br
+.TQ
 \fB\-T\fP\fImål\fP
-.RS
 Anropar \fBdebian/rules\fP \fImål\fP efter att ha konfigurerat byggmiljön, och
 avbryter byggprocessen efteråt. Om \fB\-\-as\-root\fP också anges körs kommandot
 som root (se \fB\-r\fP). Observera att officiella mål som måste köras som root
 inte behöver flaggan.
-.RE
 .TP 
 \fB\-\-as\-root\fP
 Endast meningsfull tillsammans med \fB\-\-target\fP. Kräver att målet körs med
 root\-behörighet.
-.P
+.TP 
 \fB\-si\fP
-.br
+.TQ
 \fB\-sa\fP
-.br
+.TQ
 \fB\-sd\fP
-.br
+.TQ
 \fB\-v\fP\fIversion\fP
-.br
+.TQ
 \fB\-C\fP\fIändringsbeskrivning\fP
-.br
+.TQ
 \fB\-m\fP\fIpaketansvarige\-adress\fP
-.br
+.TQ
 \fB\-e\fP\fIpaketansvarige\-adress\fP
-.RS
 Sänds vidare utan ändringar till \fBdpkg\-genchanges\fP. Se dess manualsida.
-.RE
 .TP 
 \fB\-a\fP\fIarkitektur\fP
 Ange Debianarkitekturen vi bygger för. Arkitekturen för maskinen vi bygger
@@ -131,14 +147,27 @@ Ange GNU\-systemtyp vi bygger för. Den kan användas i stället för \-a eller
 som ett komplement för att överstyra standard\-GNU\-systemtypen för
 Debian\-målarkitekturen.
 .TP 
-\fB\-j\fP\fIjobb\fP
-Antalet jobb som tillåts att köras samtidigt, motsvarar \fBmake\fP(1)\-flaggan
-med samma namn. Lägger till sig själv i miljövariabeln MAKEFLAGS, vilket får
-alla påföljande make\-anrop att ärva flaggan. Lägger även till flaggan
-\fBparallel=\fP\fIjobb\fP till miljövariabeln DEB_BUILD_OPTIONS, vilket gör det
-möjligt för debian/rules\-filer att använda informationen för egna
-ändamål. Värdet \fBparallel=\fP\fIjobb\fP i miljövariabeln DEB_BUILD_OPTIONS
-kommer att överstyra värdet för \fB\-j\fP om den flaggan ges.
+\fB\-P\fP\fIprofil\fP[\fB,\fP...]
+Ange profil(er) vi bygger, som en kommaavdelad lista, utan namnrymdprefixet
+"\fBprofile.\fP". Standardbeteendet är att inte bygga för någon specifik
+profil. Lägger även till dem (som en blankstegsavdelad lista) till
+miljövariablen \fBDEB_BUILD_PROFILES\fP vilket, till exempel, gör det möjligt
+för \fBdebian/rules\fP\-filer att använda informationen för villkorliga byggen.
+.TP 
+\fB\-j\fP[\fIjobb\fP|\fBauto\fP]
+Antalet jobb som tillåts att köras samtidigt, antal jobb motsvarande antalet
+tillgängliga processorer om \fBauto\fP anges, eller ett obegränsat antal om
+\fIjobb\fP inte anges, motsvarar \fBmake\fP(1)\-flaggan med samma namn. Lägger till
+sig själv i miljövariabeln \fBMAKEFLAGS\fP, vilket får alla påföljande
+make\-anrop att ärva flaggan. Lägger även till flaggan \fBparallel=\fP\fIjobb\fP
+till miljövariabeln \fBDEB_BUILD_OPTIONS\fP, vilket gör det möjligt för
+debian/rules\-filer att använda informationen för egna ändamål. Värdet
+\fBparallel=\fP\fIjobb\fP i miljövariabeln \fBDEB_BUILD_OPTIONS\fP kommer att
+överstyra värdet för \fB\-j\fP om den flaggan ges. Observera att \fBauto\fP\-värdet
+kommer ersättas av det faktiska antalet för närvarande aktiva processorer,
+och därför inte kommer sändas med till barnprocesser. Om antalet
+tillgängliga processorer inte kan tas fram kommer koden att falla tillbaka
+till ett obegränsat antal.
 .TP 
 \fB\-D\fP
 Kontrollera  byggberoenden och \-konflikter; avbryt om de inte
@@ -148,8 +177,8 @@ uppfylls. Detta är standardbeteendet.
 Kontrollera inte byggberoenden eller \-konflikter.
 .TP 
 \fB\-nc\fP
-Städa inte upp byggträdet (implicerar \fB\-b\fP om inget annat har valts bland
-\fB\-B\fP, \fB\-A\fP eller \fB\-S\fP).
+Do not clean the source tree (implies \fB\-b\fP if nothing else has been
+selected among \fB\-F\fP, \fB\-g\fP, \fB\-G\fP, \fB\-B\fP, \fB\-A\fP or \fB\-S\fP).
 .TP 
 \fB\-tc\fP
 Städa källkodsträdet (använder \fIfå\-root\-kommando\fP \fBdebian/rules clean\fP)
@@ -176,13 +205,59 @@ blankstegsavdelade parametrar). Den kan även användas för att exekvera
 standardregelfilen med ett annat make\-program (till exempel genom att
 använda \fB/usr/local/bin/make \-f debian/rules\fP som \fIregelfil\fP).
 .TP 
+\fB\-\-check\-command=\fP\fIkontrollkommando\fP
+Kommando som kontrollerar själva \fB.changes\fP\-filen och byggda artifakter som
+refereras i filen. Kommandot skall ta sökvägen till \fB.changes\fP som
+argument. Kommandot är normalt \fBlintian\fP.
+.TP 
+\fB\-\-check\-option=\fP\fIval\fP
+Pass option \fIopt\fP to the \fIcheck\-command\fP specified with
+\fBDEB_CHECK_COMMAND\fP or \fB\-\-check\-command\fP.  Can be used multiple times.
+.TP 
+\fB\-\-hook\-\fP\fIhakenamn\fP\fB=\fP\fIhakekommando\fP
+Sätter den angivna skalkoden i \fIhakekommando\fP som haken \fIhakenamn\fP, vilket
+körs vid de tidpunkter som anges i byggstegen. Haken kommer alltid att
+exekveras även om de efterföljande funktionerna inte utförs (förutom haken
+\fBbinary\fP).
+
+Observera: Hakar kan påverka byggprocessen och orsaka att byggen misslyckas
+om deras kommandon misslyckas, så se upp för oförutsedda konsekvenser.
+
+För närvarande stöds följande \fIhakenamn\fP:
+
+\fBinit preclean source build binary changes postclean check sign done\fP
+
+\fIhakekommando\fP stöder följande substitueringsformatsträng, som appliceras
+på den föra exekvering:
+
+.RS
+.TP 
+\fB%%\fP
+Ett ensamt %\-tecken.
+.TP 
+\fB%a\fP
+Ett boolskt värde (0 eller 1) som anger om följande funktion utförs.
+.TP 
+\fB%p\fP
+Namnet på källkodspaketet.
+.TP 
+\fB%v\fP
+Version för källkodspaketet.
+.TP 
+\fB%s\fP
+Version för källkodspaketet (utan epoken).
+.TP 
+\fB%u\fP
+Uppströmsversionen.
+.RE
+.TP 
 \fB\-p\fP\fIsigneringskommando\fP
 När \fBdpkg\-buildpackage\fP måste exekvera GPG för att signera ett
 källkodsstyrfil (\fB.dsc\fP) eller en \fB.changes\fP\-fil kör det
 \fIsigneringskommando\fP (det letar i \fBPATH\fP om så behövs) istället för
-\fBgpg\fP. \fIsigneringskommando\fP får de argument \fBgpg\fP skulle ha
-fått. \fIsigneringskommando\fP får inte innehålla blanksteg eller andra
-skalmetatecken.
+\fBgpg2\fP eller \fBgpg\fP. \fIsigneringskommando\fP får de argument \fBgpg2\fP eller
+\fBgpg\fP skulle ha fått. \fIsigneringskommando\fP får inte innehålla blanksteg
+eller andra skalmetatecken.
 .TP 
 \fB\-k\fP\fInyckel\-id\fP
 Ange nyckel\-id att använda vid signering av paket.
@@ -192,31 +267,30 @@ Signera inte källkodspaketet.
 .TP 
 \fB\-uc\fP
 Signera inte \fB.changes\fP\-filen.
-.P
+.TP 
+\fB\-\-force\-sign\fP
+Tvinga signering av de slutliga filerna (sedan dpkg 1.17.0), oberoende av
+\fB\-us\fP eller \fB\-uc\fP eller annan intern heuristik.
+.TP 
 \fB\-i\fP[\fIreguljärt\-uttryck\fP]
-.br
-\fB\-I\fP\fI[mönster]\fP
-.br
+.TQ
+\fB\-I\fP[\fImönster\fP]
+.TQ
 \fB\-s\fP[\fBnsAkurKUR\fP]
-.br
+.TQ
 \fB\-z\fP, \fB\-Z\fP
-.br
-.RS
 Sänds vidare utan ändringar till \fBdpkg\-source\fP. Se dess manualsida.
-.RE
 .TP 
 \fB\-\-source\-option=\fP\fIval\fP
-Sänd flaggan \fIval\fP till \fBdpkg\-source\fP.
+Pass option \fIopt\fP to \fBdpkg\-source\fP.  Can be used multiple times.
 .TP 
 \fB\-\-changes\-option=\fP\fIval\fP
-Sänder flaggan \fIval\fP till \fBdpkg\-genchanges\fP.
-.P
+Pass option \fIopt\fP to \fBdpkg\-genchanges\fP.  Can be used multiple times.
+.TP 
 \fB\-\-admindir=\fP\fIkat\fP
-.br
+.TQ
 \fB\-\-admindir\fP \fIkat\fP
-.RS
 Ändra platsen för \fBdpkg\fP\-databasen. Förval är \fI/var/lib/dpkg\fP.
-.RE
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
@@ -225,6 +299,25 @@ Visar hjälpskärm och avslutar.
 Visar version och avslutar.
 .
 .SH MILJÖVARIABLER
+.TP 
+\fBDEB_CHECK_COMMAND\fP
+Om satt, används som kommandot för att kontrollera
+\&\fB.changes\fP\-filen. Överstyrs av flaggan \fB\-\-check\-command\fP.
+.TP 
+\fBDEB_SIGN_KEYID\fP
+Används för att signera filerna \fB.changes\fP och \fB.dsc\fP om satt. Överstyrs
+av flaggan \fB\-k\fP.
+.TP 
+\fBDEB_BUILD_OPTIONS\fP
+Om satt, och innehåller \fBnocheck\fP, kommer variabeln \fBDEB_CHECK_COMMAND\fP
+att ignoreras.
+.TP 
+\fBDEB_BUILD_PROFILES\fP
+Används som aktiv(a) byggprofil(er) för paketet som byggs, om det anges. Det
+är en blankstegsavdelad lista med profilnamn, utan namnrymdprefixet
+"\fBprofile.\fP". Överstyrs av flaggan \fB\-P\fP.
+
+.SS "Bero på exporterade miljöflaggor"
 Även om \fBdpkg\-buildpackage\fP exporterar några variabler bör inte
 \fBdebian/rules\fP vara beroende av deras närvaro och bör istället använda
 respektive gränssnitt för att hämta de värden som behövs.
@@ -232,23 +325,26 @@ respektive gränssnitt för att hämta de värden som behövs.
 \fBdpkg\-architecture\fP anropas med flaggorna \fB\-a\fP och \fB\-t\fP
 vidaresända. Variabler som skrivs ut via dess \fB\-s\fP\-flagga integreras i
 byggmiljön.
+.
+.SH ANTECKNINGAR
 .SS "Kompileringsflaggor exporteras inte längre."
-Mellan version 1.14.17 och 1.16.1 exporterade \fBdpkg\-buildpackage\fP
+Mellan dpkg 1.14.17 och 1.16.1 exporterade \fBdpkg\-buildpackage\fP
 kompilatorflaggor (\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBCPPFLAGS\fP och \fBLDFLAGS\fP) med
 värden enligt \fBdpkg\-buildflags\fP. Detta gäller inte längre.
-.
-.SH BAKÅTKOMPATIBILITET
+.SS "Förvalda byggmål"
 \fBdpkg\-buildpackage\fP använder målen \fBbuild\-archi\fP och \fBbuild\-indep\fP från
-version 1.16.2. Dessa mål krävs därmed, men för att undvika att existerande
+dpkg 1.16.2. Dessa mål krävs därmed, men för att undvika att existerande
 paket går sönder, och för att förenkla övergången, kommer den falla tillbaka
 till att använda målet \fBbuild\fP om \fBmake \-f debian/rules \-gn\fP \fIbyggmål\fP
 returnerar statuskoden 2.
 .SH PROGRAMFEL
-Det borde vara möjligt att ange blanksteg och skalmetatecken i, och
-inledande argument för, \fIfå\-root\-kommando\fP och \fIsigneringskommando\fP.
+It should be possible to specify spaces and shell metacharacters and initial
+arguments for \fIgain\-root\-command\fP and \fIsign\-command\fP.
 .
 .SH "SE ÄVEN"
+.ad l
+.nh
 \fBdpkg\-source\fP(1), \fBdpkg\-architecture\fP(1), \fBdpkg\-buildflags\fP(1),
-\fBdpkg\-genchanges\fP(1), \fBfakeroot\fP(1), \fBgpg\fP(1).
-.SH "ÖVERSÄTTNING"
+\fBdpkg\-genchanges\fP(1), \fBfakeroot\fP(1), \fBlintian\fP(1), \fBgpg2\fP(1), \fBgpg\fP(1).
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

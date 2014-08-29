@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2010 Oxan van Leeuwen <oxan@oxanvanleeuwen.nl>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2011-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-src\-control 5 2012\-06\-16 "Debian Project" Debian
+.TH deb\-src\-control 5 2013\-12\-20 "Debian Project" Debian
 .SH Ì¾Á°
 deb\-src\-control \- Debian ¥½¡¼¥¹¥Ñ¥Ã¥±¡¼¥¸¤Î¥Þ¥¹¥¿À©¸æ¥Õ¥¡¥¤¥ë¤Î¥Õ¥©¡¼¥Þ¥Ã¥È
 .
@@ -62,12 +62,6 @@ Debian ¤Î³Æ¥½¡¼¥¹¥Ñ¥Ã¥±¡¼¥¸¤Ë¤Ï¡¢¥Þ¥¹¥¿¤È¤Ê¤ë "control" ¥Õ¥¡¥¤¥ë¤¬¤¢¤ë¡£¥Õ¥¡¥¤¥ë
 ¤È´ØÏ¢¥É¥­¥å¥á¥ó¥È¤«¤é¹½À®¤µ¤ì¤ë) ¤ÎºÇ¿·¥Ð¡¼¥¸¥ç¥ó¤ò¼¨¤¹¡£
 
 .TP 
-\fBDM\-Upload\-Allowed:\fP \fByes\fP|\fBno\fP
-This field indicates whether the package can be uploaded by Debian
-Maintainers appearing in the Maintainer or Uploaders field. The default
-value is "no".
-
-.TP 
 \fBHomepage:\fP\fI url\fP
 ¥¢¥Ã¥×¥¹¥È¥ê¡¼¥à¤Î¥×¥í¥¸¥§¥¯¥È¤Î¥Û¡¼¥à¥Ú¡¼¥¸ URL¡£
 
@@ -77,7 +71,21 @@ value is "no".
 \fIbts\-type\fP\fB://\fP\fIbts_address\fP ·Á¼°¤Ç¤¢¤ë¡£¤³¤Î¥Õ¥£¡¼¥ë¥É¤Ï°ìÈÌÅª¤ËÉ¬Í×¤È¤µ¤ì¤Ê¤¤¡£
 
 .TP 
-\fBVcs\-*:\fP\fI url\fP
+\fBVcs\-Arch:\fP\fI url\fP
+.TQ
+\fBVcs\-Bzr:\fP\fI url\fP
+.TQ
+\fBVcs\-Cvs:\fP\fI url\fP
+.TQ
+\fBVcs\-Darcs:\fP\fI url\fP
+.TQ
+\fBVcs\-Git:\fP\fI url\fP
+.TQ
+\fBVcs\-Hg:\fP\fI url\fP
+.TQ
+\fBVcs\-Mtn:\fP\fI url\fP
+.TQ
+\fBVcs\-Svn:\fP\fI url\fP
 ¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤Î´ÉÍý¤ËÍÑ¤¤¤é¤ì¤Æ¤¤¤ë¥Ð¡¼¥¸¥ç¥ó´ÉÍý¥·¥¹¥Æ¥à¤Î¥ê¥Ý¥¸¥È¥ê \fIurl\fP¡£¸½ºß¥µ¥Ý¡¼¥È¤µ¤ì¤Æ¤¤¤ë¤Î¤Ï¡¢\fBArch\fP, \fBBzr\fP
 (Bazaar), \fBCvs\fP, \fBDarcs\fP, \fBGit\fP, \fBHg\fP(Mercurial), \fBMtn\fP (Monotone),
 \fBSvn\fP (Subversion) ¤Ç¤¢¤ë¡£ÄÌ¾ï¡¢¤³¤Î¥Õ¥£¡¼¥ë¥É¤Ï¡¢main ¥Ö¥é¥ó¥Á¤ä trunk ¤È¤¤¤Ã¤¿ºÇ¿·ÈÇ¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò¼¨¤·¤Æ¤¤¤ë¡£
@@ -110,9 +118,10 @@ Debian ¤Ç¤Ï¡¢\fBSection\fP ¤È \fBPriority\fP ¥Õ¥£¡¼¥ë¥É¤Ç»È¤¨¤ëÃÍ¤¬¥Ý¥ê¥·¡¼¥Þ¥Ë¥
 
 .TP 
 \fBBuild\-Depends\-Arch:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-\fBBuild\-Depends\fP ¤ÈÆ±ÍÍ¤À¤¬¡¢¥¢¡¼¥­¥Æ¥¯¥Á¥ãÈó°ÍÂ¸¤Ê¥Ñ¥Ã¥±¡¼¥¸¤ò¥Ó¥ë¥É¤¹¤ë¾ì¹ç¤Ë¤Î¤ßÉ¬Í×¤È¤µ¤ì¤ë¤â¤Î¡£\fBBuild\-Depends\fP
-¤â¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤ë¡£¤³¤Î¥Õ¥£¡¼¥ë¥É¤Ï dpkg ¥Ð¡¼¥¸¥ç¥ó 1.16.4 ¤ÇÆ³Æþ¤µ¤ì¤¿¡£¸Å¤¤¥Ð¡¼¥¸¥ç¥ó¤Î dpkg
-¤Ë¤è¤ë¥Ó¥ë¥É¤ò²ÄÇ½¤È¤¹¤ë¤¿¤á¤Ë¤Ï¡¢\fBBuild\-Depends\fP ¤òÂå¤ï¤ê¤ËÍÑ¤¤¤ë¤Ù¤­¤Ç¤¢¤ë¡£
+Same as \fBBuild\-Depends\fP, but they are only needed when building the
+architecture dependent packages. The \fBBuild\-Depends\fP are also installed in
+this case. This field is supported since dpkg 1.16.4; in order to build with
+older dpkg versions, \fBBuild\-Depends\fP should be used instead.
 
 .TP 
 \fBBuild\-Depends\-Indep:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
@@ -126,30 +135,43 @@ Debian ¤Ç¤Ï¡¢\fBSection\fP ¤È \fBPriority\fP ¥Õ¥£¡¼¥ë¥É¤Ç»È¤¨¤ëÃÍ¤¬¥Ý¥ê¥·¡¼¥Þ¥Ë¥
 
 .TP 
 \fBBuild\-Conflicts\-Arch:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-\fBBuild\-Conflicts\fP ¤ÈÆ±ÍÍ¤À¤¬¡¢¥¢¡¼¥­¥Æ¥¯¥Á¥ã°ÍÂ¸¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò¥Ó¥ë¥É¤¹¤ë¾ì¹ç¤Ë¤Î¤ßÉ¬Í×¤È¤µ¤ì¤ë¤â¤Î¡£¤³¤Î¥Õ¥£¡¼¥ë¥É¤Ï dpkg
-¥Ð¡¼¥¸¥ç¥ó 1.16.4 ¤ÇÆ³Æþ¤µ¤ì¤¿¡£¸Å¤¤¥Ð¡¼¥¸¥ç¥ó¤Î dpkg ¤Ë¤è¤ë¥Ó¥ë¥É¤ò²ÄÇ½¤È¤¹¤ë¤¿¤á¤Ë¤Ï¡¢\fBBuild\-Conflicts\fP
-¤òÂå¤ï¤ê¤ËÍÑ¤¤¤ë¤Ù¤­¤Ç¤¢¤ë¡£
+Same as \fBBuild\-Conflicts\fP, but only when building the architecture
+dependent packages. This field is supported since dpkg 1.16.4; in order to
+build with older dpkg versions, \fBBuild\-Conflicts\fP should be used instead.
 
 .TP 
 \fBBuild\-Conflicts\-Indep:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
 Build\-Conflicts ¤ÈÆ±ÍÍ¤À¤¬¡¢¥¢¡¼¥­¥Æ¥¯¥Á¥ãÈó°ÍÂ¸¤Ê¥Ñ¥Ã¥±¡¼¥¸¤ò¥Ó¥ë¥É¤¹¤ë¾ì¹ç¤Ë¤Î¤ß±Æ¶Á¤¹¤ë¤â¤Î¡£
 
 .PP
-\fBBuild\-Depends\fP, \fBBuild\-Depends\-Arch\fP, \fBBuild\-Depends\-Indep\fP
-¥Õ¥£¡¼¥ë¥É¤Ë¤Ï¡¢ÂåÂØ¥Ñ¥Ã¥±¡¼¥¸¥°¥ë¡¼¥×¤Î¥ê¥¹¥È¤ò»ØÄê¤¹¤ë¡£³Æ¥°¥ë¡¼¥×¤Ç¤Ï¡¢¸ß´¹À­¤Î¤¢¤ë¥Ñ¥Ã¥±¡¼¥¸¤ò½ÄËÀ(`¥Ñ¥¤¥×')µ­¹æ "|"
-¤Ç¶èÀÚ¤Ã¤¿¥ê¥¹¥È¤ÇÉ½¸½¤¹¤ë¡£ÂåÂØ¥Ñ¥Ã¥±¡¼¥¸¥°¥ë¡¼¥×´Ö¤Ï¥³¥ó¥Þ¤Ç¶èÀÚ¤ë¡£¥³¥ó¥Þ¤Ï "AND"¡¢¥Ñ¥¤¥×¤Ï "OR"
-¤Ç¡¢¥Ñ¥¤¥×¤ÎÍ¥ÀèÅÙ¤¬¹â¤¤¤È¤¤¤¦Íý²ò¤Ç¤è¤¤¡£³Æ¥Ñ¥Ã¥±¡¼¥¸Ì¾¤Î¸å¤Ë¡¢³ç¸Ì¤Ç°Ï¤ó¤Ç¥Ð¡¼¥¸¥ç¥óÈÖ¹æ¤Î»ØÄê¤ò¹Ô¤Ã¤¿¤ê¡¢³Ñ³ç¸Ì¤Ç°Ï¤ó¤Ç¥¢¡¼¥­¥Æ¥¯¥Á¥ã¤Î»ØÄê¤ò¹Ô¤Ã¤¿¤ê¤¹¤ë¤³¤È¤â¤Ç¤­¤ë¡£
+The syntax of the \fBBuild\-Depends\fP, \fBBuild\-Depends\-Arch\fP and
+\fBBuild\-Depends\-Indep\fP fields is a list of groups of alternative
+packages. Each group is a list of packages separated by vertical bar (or
+"pipe") symbols, "|". The groups are separated by commas. Commas are to be
+read as "AND", and pipes as "OR", with pipes binding more tightly. Each
+package name is optionally followed by a version number specification in
+parentheses, an architecture specification in square brackets, and a profile
+specification in angle brackets.
 
-\fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP, \fBBuild\-Conflicts\-Indep\fP
-¥Õ¥£¡¼¥ë¥É¤Ë¤Ï¡¢¥Ñ¥Ã¥±¡¼¥¸Ì¾¤ò¥³¥ó¥Þ¤Ç¶èÀÚ¤Ã¤ÆÎóµó¤¹¤ë¡£ ¥³¥ó¥Þ¤Ï "AND" ¤È¤¤¤¦Íý²ò¤Ç¤è¤¤¡£"¥Ñ¥¤¥×"
-¤òÍÑ¤¤¤ÆÊ£¿ô¤ÎÂåÂØ¥Ñ¥Ã¥±¡¼¥¸¤ò»ØÄê¤¹¤ëµ­Ë¡¤Ï¥µ¥Ý¡¼¥È¤µ¤ì¤Ê¤¤¡£³Æ¥Ñ¥Ã¥±¡¼¥¸Ì¾¤Î¸å¤Ë¡¢³ç¸Ì¤Ç°Ï¤ó¤Ç¥Ð¡¼¥¸¥ç¥óÈÖ¹æ¤Î»ØÄê¤ò¹Ô¤Ã¤¿¤ê¡¢³Ñ³ç¸Ì¤Ç°Ï¤ó¤Ç¥¢¡¼¥­¥Æ¥¯¥Á¥ã¤Î»ØÄê¤ò¹Ô¤Ã¤¿¤ê¤¹¤ë¤³¤È¤â¤Ç¤­¤ë¡£
+The syntax of the \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP and
+\fBBuild\-Conflicts\-Indep\fP fields is a list of comma\-separated package names,
+where the comma is read as an "AND". Specifying alternative packages using a
+"pipe" is not supported.  Each package name is optionally followed by a
+version number specification in parentheses, an architecture specification
+in square brackets, and a profile specification in angle brackets.
 
 ¥Ð¡¼¥¸¥ç¥óÈÖ¹æ¤¬ ">>" ¤Ç»Ï¤Þ¤ë¾ì¹ç¤Ï¡¢¤½¤ì¤è¤ê¿·¤·¤¤¥Ð¡¼¥¸¥ç¥ó¤¹¤Ù¤Æ¤Ë¥Þ¥Ã¥Á¤¹¤ë¡£¥Ð¡¼¥¸¥ç¥óÈÖ¹æ¤Ë¤Ï¡¢(¥Ï¥¤¥Õ¥ó¤ËÂ³¤±¤Æ)
 Debian ¥Ñ¥Ã¥±¡¼¥¸¥ê¥Ó¥¸¥ç¥ó¤ò»ØÄê¤¹¤ë¤³¤È¤â¤Ç¤­¤ë¤¬¡¢¾ÊÎ¬¤·¤Æ¤â¹½¤ï¤Ê¤¤¡£¡Ö¤è¤ê¿·¤·¤¤¡×¤ò°ÕÌ£¤¹¤ë
 ">>"¡¢¡Ö¤è¤ê¸Å¤¤¡×¤ò°ÕÌ£¤¹¤ë "<<"¡¢¡ÖÆ±¤¸¤«¿·¤·¤¤¡×¤ò°ÕÌ£¤¹¤ë ">="¡¢¡ÖÆ±¤¸¤«¸Å¤¤¡×¤ò°ÕÌ£¤¹¤ë
 "<="¡¢¡ÖÆ±¤¸¡×¤ò°ÕÌ£¤¹¤ë "=" ¤ò»ÈÍÑ¤Ç¤­¤ë¡£
 
-¶õÇòÊ¸»ú¤Ç¶èÀÚ¤Ã¤¿ 1 ¤Ä°Ê¾å¤Î¥¢¡¼¥­¥Æ¥¯¥Á¥ãÌ¾¤Ë¤è¤ê¡¢¥¢¡¼¥­¥Æ¥¯¥Á¥ã¤ò»ØÄê¤¹¤ë¡£´¶Ã²Éä¤¬¥¢¡¼¥­¥Æ¥¯¥Á¥ãÌ¾¤ÎÁ°¤Ë¤¢¤ë¾ì¹ç¤Ï "NOT" ¤ò°ÕÌ£¤¹¤ë¡£
+An architecture specification consists of one or more architecture names,
+separated by whitespace. Exclamation marks may be prepended to each of the
+names, meaning "NOT".
+
+A profile specification consists of one or more profile names, prefixed with
+the "\fBprofile.\fP" namespace, separated by whitespace. Exclamation marks may
+be prepended to each of the names, meaning "NOT".
 
 \fBbuild\-essential\fP
 ¤Ë´Þ¤Þ¤ì¤ë¥Ñ¥Ã¥±¡¼¥¸¤È¤Î°ÍÂ¸´Ø·¸¤Ï¾ÊÎ¬¤Ç¤­¤ë¤³¤È¡¢¤³¤ì¤é¤Î¥Ñ¥Ã¥±¡¼¥¸¤È¶¥¹ç¤¹¤ë¤è¤¦¤Ê¥Ó¥ë¥ÉÀßÄê¤Ï¶Ø»ß¤µ¤ì¤Æ¤¤¤ëÅÀ¤ËÎ±°Õ¤¹¤ë¤³¤È¡£³ºÅö¤¹¤ë¥Ñ¥Ã¥±¡¼¥¸¤Î°ìÍ÷¤Ï¡¢build\-essential
@@ -180,64 +202,46 @@ Debian ¥Ñ¥Ã¥±¡¼¥¸¥ê¥Ó¥¸¥ç¥ó¤ò»ØÄê¤¹¤ë¤³¤È¤â¤Ç¤­¤ë¤¬¡¢¾ÊÎ¬¤·¤Æ¤â¹½¤ï¤Ê¤¤¡£¡Ö¤è¤ê¿
 ¤Ï¥Ç¥Õ¥©¥ë¥È¤ÎÃÍ¤Ç¤¢¤ê¡¢¥Õ¥£¡¼¥ë¥É¤¬Â¸ºß¤·¤Ê¤«¤Ã¤¿¾ì¹ç¤Ë²¾Äê¤µ¤ì¤ëÃÍ¤Ç¤¢¤ë¡£¾­ÍèÅª¤Ë¤Ï¤³¤ì°Ê³°¤Î¥¿¥¤¥×¤¬ÄÉ²Ã¤µ¤ì¤ë¤«¤â¤·¤ì¤Ê¤¤¡£
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP\fI value\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP\fI value\fP
-.TP 
-.PD 0
+.TQ
 \fBInstaller\-Menu\-Item:\fP\fI value\fP
 ¤³¤ì¤é¤Î¥Õ¥£¡¼¥ë¥É¤Ï¡¢debian\-installer
 ¤Ë¤è¤Ã¤ÆÍÑ¤¤¤é¤ì¤ë¤â¤Î¤Ç¡¢ÄÌ¾ï¤ÏÉÔÍ×¤Ç¤¢¤ë¡£¾ÜºÙ¤Ë¤Ä¤¤¤Æ¤Ï¡¢\fBdebian\-installer\fP
 ¥Ñ¥Ã¥±¡¼¥¸¤Ë´Þ¤Þ¤ì¤Æ¤¤¤ë/usr/share/doc/debian\-installer/devel/modules.txt ¤ò»²¾È¤Î¤³¤È
 
 .TP 
-.PD 0
 \fBEssential:\fP \fByes\fP|\fBno\fP
-.TP 
-.PD 0
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
-.TP 
-.PD 0
+.TQ
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
+.TQ
 \fBTag:\fP\fI ¥¿¥°¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBDescription:\fP \fIÃ»¤¤ÀâÌÀ\fP (É¬¿Ü)
 ¤³¤ì¤é¤Î¥Õ¥£¡¼¥ë¥É¤Ï¡¢¥Ð¥¤¥Ê¥ê¥Ñ¥Ã¥±¡¼¥¸¤Î control ¥Õ¥¡¥¤¥ë¤Ë¤½¤Î¤Þ¤Þ¥³¥Ô¡¼¤µ¤ì¤ë¤¿¤á¡¢\fBdeb\-control\fP(5)
 ¤Î¥Þ¥Ë¥å¥¢¥ë¥Ú¡¼¥¸¤Ç²òÀâ¤µ¤ì¤Æ¤¤¤ë¡£
 
 .TP 
-.PD 0
 \fBDepends:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBPre\-Depends:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBRecommends:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBSuggests:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBBreaks:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBEnhances:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBReplaces:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBConflicts:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBProvides:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.TP 
-.PD 0
+.TQ
 \fBBuilt\-Using:\fP\fI ¥Ñ¥Ã¥±¡¼¥¸¤Î¥ê¥¹¥È\fP
-.br
 ¤³¤ì¤é¤Î¥Õ¥£¡¼¥ë¥É¤Ï¡¢¥Ñ¥Ã¥±¡¼¥¸´Ö¤Î´ØÏ¢À­¤ò»ØÄê¤¹¤ë¤â¤Î¤Ç¤¢¤ê¡¢\fBdeb\-control\fP(5) ¥Þ¥Ë¥å¥¢¥ë¥Ú¡¼¥¸¤È \fBdebian\-policy\fP
 ¥Ñ¥Ã¥±¡¼¥¸¤ÇÀâÌÀ¤µ¤ì¤Æ¤¤¤ë¡£
 
@@ -265,9 +269,9 @@ Priority: required
 Maintainer: Dpkg Developers <debian\-dpkg@lists.debian.org>
 # this field is copied to the binary and source packages
 XBS\-Upstream\-Release\-Status: stable
-Homepage: http://wiki.debian.org/Teams/Dpkg
-Vcs\-Browser: http://git.debian.org/?p=dpkg/dpkg.git
-Vcs\-Git: git://git.debian.org/git/dpkg/dpkg.git
+Homepage: https://wiki.debian.org/Teams/Dpkg
+Vcs\-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
+Vcs\-Git: git://anonscm.debian.org/dpkg/dpkg.git
 Standards\-Version: 3.7.3
 Build\-Depends: pkg\-config, debhelper (>= 4.1.81),
  libselinux1\-dev (>= 1.28\-4) [!linux\-any]

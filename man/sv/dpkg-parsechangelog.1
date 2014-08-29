@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
+.TH dpkg\-parsechangelog 1 2013\-07\-06 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-parsechangelog \- tolka Debians ändringsloggar
 .
@@ -39,7 +39,8 @@ maskinläsbar form.
 .SH FLAGGOR
 .TP 
 \fB\-l\fP\fIändringsloggfil\fP
-Anger ändringsloggfilen som information skall läsas från. Standardvärdet är
+Anger ändringsloggfilen som information skall läsas från. Ett "\-" kan
+användas för att ange läsning från stadnard in. Standardvärdet är
 \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIändringsloggformat\fP
@@ -52,6 +53,10 @@ Ange en ytterligare katalog att söka i efter parserskript. Katalogen söks
 genom innan standardkatalogerna, vilka för närvarande är
 \fB/usr/local/lib/dpkg/parsechangelog\fP och \fB/usr/lib/dpkg/parsechangelog\fP.
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIfält\fP
+Anger namnet på ett fält att visa (sedan dpkg 1.17.0). Fältnamnet visas
+inte, endast dess värde.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
@@ -60,7 +65,14 @@ Visar version och avslutar.
 .SS Parserflaggor
 Följande flaggor kan användas för att styra utdata från ändringsloggparsern,
 t.ex. omfånget av poster eller formatet på utdata. De måste stödas av
-parserskriptet i fråga. Se även \fBVARNINGAR\fP.
+parserskriptet i fråga. Se även \fBANMÄRKNINGAR\fP.
+.TP 
+\fB\-\-file\fP\fI fil\fP
+Ange ändringsloggfilnamnet som skall läsas. Standard är "\-" (standard in).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIfil\fP
+Ange ändringsloggfilnamnet som skall användas i felmeddelanden, istället för
+att använda namnet från flaggan \fB\-\-file\fP, eller dess standardvärde.
 .TP 
 \fB\-\-format\fP \fIutdataformat\fP
 Välj utdataformat. Stödda format är för närvarande \fIdpkg\fP och
@@ -120,8 +132,8 @@ ta med \fIantal\fP ändringar från början (eller slutet om \fIantal\fP är lägre ä
 0).
 .TP 
 \fB\-\-offset\fP \fIantal\fP, \fB\-o\fP\fIantal\fP
-ändra startpunkt för \-\-count, räknat från början (eller slutet om \fIantal\fP
-är lägre än 0).
+ändra startpunkt för \fB\-\-count\fP, räknat från början (eller slutet om
+\fIantal\fP är lägre än 0).
 .TP 
 \fB\-\-all\fP
 ta med alla ändringar. Observera: övriga flaggor har ingen effekt när denna
@@ -168,10 +180,10 @@ möjligen generera felaktiga utdata.
 
 En ändringsloggtolk kan inte på något sätt interagera med användaren.
 .
-.SH VARNINGAR
-De olika \fBparserflaggorna\fP, bortsett \-v, stöds enbart i \fBdpkg\fP version
-1.14.16 och senare. Tredjepartsparsrar för andra ändringsloggformat än
-\fIdebian\fP kanske inte stöder alla flaggor.
+.SH ANTECKNINGAR
+De olika \fBparserflaggorna\fP, bortsett \fB\-v\fP, stöds enbart i dpkg 1.14.16 och
+senare. Tredjepartsparsrar för andra ändringsloggformat än \fIdebian\fP kanske
+inte stöder alla flaggor.
 .
 .SH FILER
 .TP 
@@ -180,5 +192,5 @@ De olika \fBparserflaggorna\fP, bortsett \-v, stöds enbart i \fBdpkg\fP version
 källkodspaketet, till exempel brådska och utgåva för en insändning,
 ändringarna som utförts sedan en specifik version och själva versionsnumret
 på källkoden.
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

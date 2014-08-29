@@ -13,7 +13,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -38,8 +38,9 @@ dpkg\-vendor \- 配布ベンダに関する情報をクエリする
 現在のベンダが \fIvendor\fP の場合、戻り値 \fB0\fP で終了する。それ以外の場合 0 以外の戻り値で終了する。
 .TP 
 \fB\-\-derives\-from\fP\fI vendor\fP
-現在のベンダディストリビューションが \fIvendor\fP の派生であった場合、戻り値 \fB0\fP で終了する。それ以外の場合 0
-以外の戻り値で終了する。現在のベンダの祖先をたどるために、"Parent" フィールドが使用される。
+Exits with \fB0\fP if the current vendor distribution is a derivative of
+\fIvendor\fP, otherwise exits with non\-zero. It uses the \fBParent\fP field to
+browse all ancestors of the current vendor.
 .TP 
 \fB\-\-query\fP\fI field\fP
 標準出力に、現在のベンダのベンダ固有の \fIfield\fP の値を出力する。

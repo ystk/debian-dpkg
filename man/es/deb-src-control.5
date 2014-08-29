@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2010 Oxan van Leeuwen <oxan@oxanvanleeuwen.nl>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2011-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-src\-control 5 "16 de junio del 2012" "Proyecto Debian" Debian
+.TH deb\-src\-control 5 2013\-12\-20 "Proyecto Debian" Debian
 .SH NOMBRE
 deb\-src\-control \- Formato del fichero de control maestro de paquetes fuente
 de Debian
@@ -73,12 +73,6 @@ este paquete (que consiste del manual de Normas de Debian y textos
 mencionados en el paquete \fBdebian\-policy\fP).
 
 .TP 
-\fBDM\-Upload\-Allowed:\fP \fByes\fP|\fBno\fP
-Este campo indica si los responsables de Debian incluidos en los campos
-«Maintainer» u «Uploaders» pueden enviar el paquete al archivo. El valor
-predefinido es «no».
-
-.TP 
 \fBHomepage:\fP\fI url\fP
 La dirección url de la página oficial del autor original.
 
@@ -89,7 +83,21 @@ formato usado actualmente es: \fIbts\-type\fP\fB://\fP\fIbts\-address\fP, por ej
 \fBdebbugs://bugs.debian.org\fP. Habitualmente, este campo no es necesario.
 
 .TP 
-\fBVcs\-*:\fP\fI url\fP
+\fBVcs\-Arch:\fP\fI url\fP
+.TQ
+\fBVcs\-Bzr:\fP\fI url\fP
+.TQ
+\fBVcs\-Cvs:\fP\fI url\fP
+.TQ
+\fBVcs\-Darcs:\fP\fI url\fP
+.TQ
+\fBVcs\-Git:\fP\fI url\fP
+.TQ
+\fBVcs\-Hg:\fP\fI url\fP
+.TQ
+\fBVcs\-Mtn:\fP\fI url\fP
+.TQ
+\fBVcs\-Svn:\fP\fI url\fP
 La dirección \fIurl\fP del repositorio del sistema de control de versiones
 utilizado para desarrollar este paquete. Los permitidos actualmente son
 \fBArch\fP, \fBBzr\fP (Bazaar), \fBCvs\fP, \fBDarcs\fP, \fBGit\fP, \fBHg\fP (Mercurial),
@@ -132,11 +140,10 @@ construcciones solo de las fuentes.
 
 .TP 
 \fBBuild\-Depends\-Arch:\fP\fI lista\-de\-paquetes\fP
-Idéntico a \fBBuild\-Depends\fP, pero solo se requieren al construir paquetes
-independientes de la arquitectura, en cuyo caso también se instalan los
-paquetes \fBBuild\-Depends\fP. Esta campo se introdujo en la versión 1.16.4 de
-dpkg; para construir con versiones anteriores de dpkg, utilice
-\fBBuild\-Depends\fP.
+Same as \fBBuild\-Depends\fP, but they are only needed when building the
+architecture dependent packages. The \fBBuild\-Depends\fP are also installed in
+this case. This field is supported since dpkg 1.16.4; in order to build with
+older dpkg versions, \fBBuild\-Depends\fP should be used instead.
 
 .TP 
 \fBBuild\-Depends\-Indep:\fP\fI lista\-de\-paquetes\fP
@@ -154,9 +161,9 @@ efecto añadido de que se utiliza para construcciones solo de las fuentes.
 
 .TP 
 \fBBuild\-Conflicts\-Arch:\fP\fI lista\-de\-paquetes\fP
-Identicó a \fBBuild\-Conflicts\fP, pero solo al construir paquetes dependientes
-de la arquitectura. Este campo se introdujo en la versión 1.16.4 de dpkg;
-para construir con versiones anteriores de dpkg, utilice \fBBuild\-Conflicts\fP.
+Same as \fBBuild\-Conflicts\fP, but only when building the architecture
+dependent packages. This field is supported since dpkg 1.16.4; in order to
+build with older dpkg versions, \fBBuild\-Conflicts\fP should be used instead.
 
 .TP 
 \fBBuild\-Conflicts\-Indep:\fP\fI lista\-de\-paquetes\fP
@@ -164,20 +171,21 @@ Idéntico a \fBBuild\-Conflicts\fP, pero solo al construir paquetes
 independientes de la arquitectura.
 
 .PP
-La sintaxis de los campos \fBBuild\-Depends\fP, \fBBuild\-Depends\-Arch\fP y
-\fBBuild\-Depends\-Indep\fP es una lista de grupos de paquetes alternativos. Cada
-grupo es una lista de paquetes separados por una barra vertical «|». Los
-grupos se separan mediante comas. Las comas se leen como «AND», y las barras
-verticales como «OR», lo cual se evalúa antes que «AND». Cada nombre de
-paquete puede ir seguido de un número de versión definido entre paréntesis y
-la especificación de la arquitectura entre corchetes.
+The syntax of the \fBBuild\-Depends\fP, \fBBuild\-Depends\-Arch\fP and
+\fBBuild\-Depends\-Indep\fP fields is a list of groups of alternative
+packages. Each group is a list of packages separated by vertical bar (or
+"pipe") symbols, "|". The groups are separated by commas. Commas are to be
+read as "AND", and pipes as "OR", with pipes binding more tightly. Each
+package name is optionally followed by a version number specification in
+parentheses, an architecture specification in square brackets, and a profile
+specification in angle brackets.
 
-La sintaxis de \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP y
-\fBBuild\-Conflicts\-Indep\fP es una lista separada por comas de nombres de
-paquete, en el que la coma se lee como «AND». No se permite definir paquetes
-alternativos utilizando una barra vertical «|». Cada nombre de paquete puede
-ir seguido de un número de versión definido entre paréntesis y la
-especificación de la arquitectura entre corchetes.
+The syntax of the \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP and
+\fBBuild\-Conflicts\-Indep\fP fields is a list of comma\-separated package names,
+where the comma is read as an "AND". Specifying alternative packages using a
+"pipe" is not supported.  Each package name is optionally followed by a
+version number specification in parentheses, an architecture specification
+in square brackets, and a profile specification in angle brackets.
 
 Un número de versión puede empezar con «>>», en cuyo caso cualquier
 versión posterior encajaría, siendo posible omitir el número de revisión de
@@ -185,9 +193,13 @@ Debian (separado por un guión). Las relaciones de versión válidas son
 «>>» para «mayor que», «<<» para «menor que»,«>=» para
 «mayor o igual que», «<=» para «menor o igual» y «=» para «igual que».
 
-Una especificación de arquitectura consiste de uno o más nombres de
-arquitectura, separados por espacios en blanco. Un signo de exclamación
-puede preceder a cualquier de estos nombres, con el significado de «NOT».
+An architecture specification consists of one or more architecture names,
+separated by whitespace. Exclamation marks may be prepended to each of the
+names, meaning "NOT".
+
+A profile specification consists of one or more profile names, prefixed with
+the "\fBprofile.\fP" namespace, separated by whitespace. Exclamation marks may
+be prepended to each of the names, meaning "NOT".
 
 Tenga en cuenta que los paquetes del conjunto de paquetes \fBbuild\-essential\fP
 se pueden omitir, y que es casi imposible declarar conflictos de
@@ -225,13 +237,10 @@ tamaño limitado utilizados por el instalador de Debian. «deb» es el valor
 predefinido cuando se omite el campo. Se añadirán más tipos en el futuro.
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP\fI valor\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP\fI valor\fP
-.TP 
-.PD 0
+.TQ
 \fBInstaller\-Menu\-Item:\fP\fI valor\fP
 debian\-installer utiliza estos campos, y habitualmente no son
 necesarios. Para más información consulte
@@ -239,51 +248,36 @@ necesarios. Para más información consulte
 \fBdebian\-installer\fP.
 
 .TP 
-.PD 0
 \fBEssential:\fP \fByes\fP|\fBno\fP
-.TP 
-.PD 0
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
-.TP 
-.PD 0
+.TQ
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
+.TQ
 \fBTag:\fP\fI lista\-de\-etiquetas\fP
-.TP 
-.PD 0
+.TQ
 \fBDescription:\fP \fIdescripción\-corta\fP (obligatorio)
 Estos campos se describen en la página de manual \fBdeb\-control\fP(5), ya que
 se copian de forma literal al fichero «control» del paquete binario.
 
 .TP 
-.PD 0
 \fBDepends:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBPre\-Depends:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBRecommends:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBSuggests:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBBreaks:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBEnhances:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBReplaces:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBConflicts:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBProvides:\fP\fI lista\-de\-paquetes\fP
-.TP 
-.PD 0
+.TQ
 \fBBuilt\-Using:\fP\fI lista\-de\-paquetes\fP
-.br
 Estos campos declaran relaciones entre paquetes. Se describen en la página
 de manual \fBdeb\-control\fP(5) y el paquete \fBdebian\-policy\fP.
 
@@ -319,9 +313,9 @@ Priority: required
 Maintainer: Dpkg Developers <debian\-dpkg@lists.debian.org>
 # this field is copied to the binary and source packages
 XBS\-Upstream\-Release\-Status: stable
-Homepage: http://wiki.debian.org/Teams/Dpkg
-Vcs\-Browser: http://git.debian.org/?p=dpkg/dpkg.git
-Vcs\-Git: git://git.debian.org/git/dpkg/dpkg.git
+Homepage: https://wiki.debian.org/Teams/Dpkg
+Vcs\-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
+Vcs\-Git: git://anonscm.debian.org/dpkg/dpkg.git
 Standards\-Version: 3.7.3
 Build\-Depends: pkg\-config, debhelper (>= 4.1.81),
  libselinux1\-dev (>= 1.28\-4) [!linux\-any]
@@ -350,7 +344,7 @@ Description: Debian package development tools
 .\" .RE
 .SH "VÉASE TAMBIÉN"
 \fBdeb\-control\fP(5), \fBdeb\-version\fP(5), \fBdpkg\-source\fP(1)
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

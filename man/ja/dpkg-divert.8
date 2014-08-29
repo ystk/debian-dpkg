@@ -16,7 +16,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -33,11 +33,13 @@ dpkg\-divert \- ¥Ñ¥Ã¥±¡¼¥¸¤ÎÄó¶¡¤¹¤ë¥Õ¥¡¥¤¥ë¤Î¾å½ñ¤­
 .SH ÀâÌÀ
 \fBdpkg\-divert\fP ¤Ï¡¢ÂàÈò¥Õ¥¡¥¤¥ë¤Î°ìÍ÷¤òÀßÄê¡¢¹¹¿·¤¹¤ë¤¿¤á¤Î¥æ¡¼¥Æ¥£¥ê¥Æ¥£¤Ç¤¢¤ë¡£
 .PP
-\fIdiversions\fP ¥Õ¥¡¥¤¥ë¤Ë¤è¤ê¡¢\fBdpkg\fP(1) ¤Ï¥Õ¥¡¥¤¥ë¤òËÜÍè¤Î¾ì½ê¤Ç¤Ï¤Ê¤¯¡¢\fIÂàÈò (diverted) ÍÑ\fP
-¤Î¾ì½ê¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë¤è¤¦¤Ë¤Ê¤ë¡£diversions ¥Õ¥¡¥¤¥ë¤Ï¡¢Debian
-¥Ñ¥Ã¥±¡¼¥¸¥¹¥¯¥ê¥×¥È¤¬¶¥¹ç¤òÈ¯À¸¤µ¤»¤ë¥Õ¥¡¥¤¥ë¤ò°ÜÆ°¤µ¤»¤ë¤¿¤á¤Ë»È¤¦¤³¤È¤¬¤Ç¤­¤ë¡£¥·¥¹¥Æ¥à´ÉÍý¼Ô¤Ï¡¢¥Ñ¥Ã¥±¡¼¥¸¤ÎÄó¶¡¤¹¤ëÀßÄê¥Õ¥¡¥¤¥ë¤ò¾å½ñ¤­¤¹¤ë¾ì¹ç¤ä¡¢´ö¤Ä¤«¤Î¥Õ¥¡¥¤¥ë
-('conffiles' ¤È¤·¤Æ¥Þ¡¼¥¯¤µ¤ì¤Æ¤¤¤Ê¤¤¤â¤Î) ¤Ë¤Ä¤¤¤Æ¡¢¤½¤ì¤é¤Î¥Õ¥¡¥¤¥ë¤ò´Þ¤à¿·¤·¤¤¥Ð¡¼¥¸¥ç¥ó¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë»þ¤Ë¡¢dpkg
-¤Ë¤è¤ë¾å½ñ¤­¤«¤éÊÝ¸î¤¹¤ëÉ¬Í×¤¬¤¢¤ë¾ì¹ç¤Ë¤³¤ì¤ò»È¤¦¤³¤È¤â¤Ç¤­¤ë¡£
+File \fIdiversions\fP are a way of forcing \fBdpkg\fP(1)  not to install a file
+into its location, but to a \fIdiverted\fP location. Diversions can be used
+through the Debian package scripts to move a file away when it causes a
+conflict. System administrators can also use it to override some package's
+configuration file, or whenever some files (which aren't marked as
+\&'conffiles') need to be preserved by \fBdpkg\fP, when installing a newer
+version of a package which contains those files.
 .sp
 .SH ¥³¥Þ¥ó¥É
 .TP 
@@ -60,7 +62,7 @@ dpkg\-divert \- ¥Ñ¥Ã¥±¡¼¥¸¤ÎÄó¶¡¤¹¤ë¥Õ¥¡¥¤¥ë¤Î¾å½ñ¤­
 .SH ¥ª¥×¥·¥ç¥ó
 .TP 
 \fB\-\-admindir\fP\fI directory\fP
-dpkg ¥Ç¡¼¥¿¥Ç¥£¥ì¥¯¥È¥ê¤ò \fIdirectory\fP (¥Ç¥Õ¥©¥ë¥È¤Ï \fI/var/lib/dpkg\fP) ¤ËÀßÄê¤¹¤ë¡£
+Set the \fBdpkg\fP data directory to \fIdirectory\fP (default: \fI/var/lib/dpkg\fP).
 .TP 
 \fB\-\-divert\fP\fI divert\-to\fP
 \fIdivert\-to\fP ¤Ï¡¢Â¾¤Î¥Ñ¥Ã¥±¡¼¥¸¤Ë¤è¤Ã¤ÆÄó¶¡¤µ¤ì¤¿ \fIfile\fP ¤ÎÂàÈò¾ì½ê¤Ç¤¢¤ë¡£
@@ -87,6 +89,25 @@ dpkg ¥Ç¡¼¥¿¥Ç¥£¥ì¥¯¥È¥ê¤ò \fIdirectory\fP (¥Ç¥Õ¥©¥ë¥È¤Ï \fI/var/lib/dpkg\fP) ¤ËÀ
 \fB\-\-version\fP
 ¥Ð¡¼¥¸¥ç¥ó¾ðÊó¤òÉ½¼¨¤·¤Æ½ªÎ»¤¹¤ë¡£
 .
+.SH ´Ä¶­ÊÑ¿ô
+.TP 
+\fBDPKG_ADMINDIR\fP
+If set and the \fB\-\-admindir\fP option has not been specified, it will be used
+as the \fBdpkg\fP data directory.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+\fB\-\-local\fP ¤ª¤è¤Ó \fB\-\-package\fP ¥ª¥×¥·¥ç¥ó¤¬ÀßÄê¤µ¤ì¤Æ¤ª¤é¤º¡¢¤³¤ÎÊÑ¿ô¤¬ÀßÄê¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¡¢\fBdpkg\-divert\fP
+¤Ï¡¢¤³¤ÎÊÑ¿ô¤ÎÃÍ¤ò¥Ñ¥Ã¥±¡¼¥¸Ì¾¤È¤·¤Æ»ÈÍÑ¤¹¤ë¡£
+.
+.SH ¥Õ¥¡¥¤¥ë
+.TP 
+\fI/var/lib/dpkg/diversions\fP
+File which contains the current list of diversions of the system. It is
+located in the \fBdpkg\fP administration directory, along with other files
+important to \fBdpkg\fP, such as \fIstatus\fP or \fIavailable\fP.
+.br
+Ãíµ­: \fBdpkg\-divert\fP ¤Ï¡¢¤³¤Î¥Õ¥¡¥¤¥ë¤ò¹¹¿·¤¹¤ë»þ¤Ë¸Å¤¤¥Ð¡¼¥¸¥ç¥ó¤ò \fI\-old\fP ¤È¤¤¤¦³ÈÄ¥»Ò¤ò¤Ä¤±¤¿¥Õ¥¡¥¤¥ë¤Ë¥³¥Ô¡¼¤·¤ÆÊÝÂ¸¤¹¤ë¡£
+.
 .SH »²¹Í
 ¥Õ¥¡¥¤¥ë¤òÄÉ²Ã¤¹¤ë»þ¤Î¥Ç¥Õ¥©¥ë¥È¤Ï¡¢\fB\-\-local\fP ¤ª¤è¤Ó \fB\-\-divert\fP \fIoriginal\fP\fB.distrib\fP
 ¤Ç¤¢¤ë¡£ºï½ü¤¹¤ë»þ¤Ë¡¢\fB\-\-package\fP ¤â¤·¤¯¤Ï \fB\-\-local\fP ¤È \fB\-\-divert\fP
@@ -94,9 +115,11 @@ dpkg ¥Ç¡¼¥¿¥Ç¥£¥ì¥¯¥È¥ê¤ò \fIdirectory\fP (¥Ç¥Õ¥©¥ë¥È¤Ï \fI/var/lib/dpkg\fP) ¤ËÀ
 
 \fBdpkg\-divert\fP ¤Ç¥Ç¥£¥ì¥¯¥È¥ê¤òÂàÈò¤µ¤»¤ë¤³¤È¤Ï¤Ç¤­¤Ê¤¤¡£
 
-¶¦Í­¥é¥¤¥Ö¥é¥ê¤òÂàÈò¤¹¤ë¾ì¹ç¤ÏÃí°Õ¤¬É¬Í×¤Ç¤¢¤ë¡£\fBldconfig\fP(8) ¤Ï¡¢¥é¥¤¥Ö¥é¥ê¤ËËä¤á¹þ¤Þ¤ì¤Æ¤¤¤ë DT_SONAME
-¥Õ¥£¡¼¥ë¥É¤Ë´ð¤Å¤¤¤Æ¡¢¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤òºîÀ®¤¹¤ë¡£ldconfig ¤Ç¤ÏÂàÈò¤ò°·¤¦¤³¤È¤¬¤Ç¤­¤Ê¤¤ (dpkg ¤À¤±¤¬¤Ç¤­¤ë)
-¤¿¤á¡¢ÂàÈò¤·¤¿¥é¥¤¥Ö¥é¥ê¤ÈÂàÈò¤·¤Æ¤¤¤Ê¤¤¥é¥¤¥Ö¥é¥ê¤¬Æ±¤¸ SONAME ¤Ç¤¢¤ì¤Ð¡¢¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤ÏÂàÈò¤·¤¿Êý¤Î¥é¥¤¥Ö¥é¥ê¤ò»Ø¤¹¤³¤È¤Ë¤Ê¤ë¡£
+Care should be taken when diverting shared libraries, \fBldconfig\fP(8)
+creates a symbolic link based on the DT_SONAME field embedded in the
+library.  Because \fBldconfig\fP doesn't honour diverts (only \fBdpkg\fP does),
+the symlink may end up pointing at the diverted library, if a diverted
+library has the same SONAME as the undiverted one.
 .
 .SH Îã
 \fI/usr/bin/example\fP ¤È¤Ê¤ë¥Õ¥¡¥¤¥ë¤¹¤Ù¤Æ¤ò \fI/usr/bin/example.foo\fP
@@ -119,23 +142,6 @@ dpkg\-divert \-\-package wibble \-\-divert /usr/bin/example.foo \-\-rename
 ³ºÅö¤ÎÂàÈò¥Õ¥¡¥¤¥ë¤òºï½ü¤¹¤ë¡£
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/example
-.
-.SH ´Ä¶­ÊÑ¿ô
-.TP 
-\fBDPKG_ADMINDIR\fP
-\fB\-\-admindir\fP ¥ª¥×¥·¥ç¥ó¤¬ÀßÄê¤µ¤ì¤Æ¤ª¤é¤º¡¢¤³¤ÎÊÑ¿ô¤¬ÀßÄê¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¡¢¤³¤ÎÊÑ¿ô¤ÎÃÍ¤¬ dpkg ¥Ç¡¼¥¿¥Ç¥£¥ì¥¯¥È¥ê¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¡£
-.TP 
-\fBDPKG_MAINTSCRIPT_PACKAGE\fP
-\fB\-\-local\fP ¤ª¤è¤Ó \fB\-\-package\fP ¥ª¥×¥·¥ç¥ó¤¬ÀßÄê¤µ¤ì¤Æ¤ª¤é¤º¡¢¤³¤ÎÊÑ¿ô¤¬ÀßÄê¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¡¢\fBdpkg\-divert\fP
-¤Ï¡¢¤³¤ÎÊÑ¿ô¤ÎÃÍ¤ò¥Ñ¥Ã¥±¡¼¥¸Ì¾¤È¤·¤Æ»ÈÍÑ¤¹¤ë¡£
-.
-.SH ¥Õ¥¡¥¤¥ë
-.TP 
-\fI/var/lib/dpkg/diversions\fP
-¥·¥¹¥Æ¥à¤Î¸½ºß¤ÎÂàÈò¥Õ¥¡¥¤¥ë¤Î°ìÍ÷¤ò´Þ¤à¥Õ¥¡¥¤¥ë¡£¤³¤ì¤Ï dpkg ¤Ë¤È¤Ã¤Æ½ÅÍ×¤Ê¥Õ¥¡¥¤¥ë¤Ç¤¢¤ë \fIstatus\fP ¤ä \fIavailable\fP
-¤È¤È¤â¤Ë¡¢dpkg ¤Î´ÉÍý¥Ç¥£¥ì¥¯¥È¥ê¤ËÂ¸ºß¤¹¤ë¡£
-.br
-Ãíµ­: \fBdpkg\-divert\fP ¤Ï¡¢¤³¤Î¥Õ¥¡¥¤¥ë¤ò¹¹¿·¤¹¤ë»þ¤Ë¸Å¤¤¥Ð¡¼¥¸¥ç¥ó¤ò \fI\-old\fP ¤È¤¤¤¦³ÈÄ¥»Ò¤ò¤Ä¤±¤¿¥Õ¥¡¥¤¥ë¤Ë¥³¥Ô¡¼¤·¤ÆÊÝÂ¸¤¹¤ë¡£
 .
 .SH ´ØÏ¢¹àÌÜ
 \fBdpkg\fP(1).

@@ -4,6 +4,7 @@
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman <wakkerma@debian.org>
+ * Copyright © 2007-2013 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +17,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
 #include <sys/ioctl.h>
-#include <sys/termios.h>
 
 #include <assert.h>
+#include <errno.h>
 #include <ctype.h>
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -47,8 +49,9 @@ void mywerase(WINDOW *win) {
   wmove(win,0,0);
 }
 
-baselist *baselist::signallist= 0;
+baselist *baselist::signallist = nullptr;
 void baselist::sigwinchhandler(int) {
+  int save_errno = errno;
   struct winsize size;
   debug(dbg_general, "baselist::sigwinchhandler(), signallist=%p", signallist);
   baselist *p= signallist;
@@ -58,15 +61,18 @@ void baselist::sigwinchhandler(int) {
   resizeterm(size.ws_row, size.ws_col); wrefresh(curscr);
   p->startdisplay();
   if (doupdate() == ERR) ohshite(_("doupdate in SIGWINCH handler failed"));
+  errno = save_errno;
 }
 
 static void cu_sigwinch(int, void **argv) {
   struct sigaction *osigactp= (struct sigaction*)argv[0];
   sigset_t *oblockedp= (sigset_t*)argv[1];
 
-  if (sigaction(SIGWINCH,osigactp,0)) ohshite(_("failed to restore old SIGWINCH sigact"));
+  if (sigaction(SIGWINCH, osigactp, nullptr))
+    ohshite(_("failed to restore old SIGWINCH sigact"));
   delete osigactp;
-  if (sigprocmask(SIG_SETMASK,oblockedp,0)) ohshite(_("failed to restore old signal mask"));
+  if (sigprocmask(SIG_SETMASK, oblockedp, nullptr))
+    ohshite(_("failed to restore old signal mask"));
   delete oblockedp;
 }
 
@@ -76,17 +82,59 @@ void baselist::setupsigwinch() {
 
   osigactp= new(struct sigaction);
   oblockedp= new(sigset_t);
-  if (sigprocmask(0,0,oblockedp)) ohshite(_("failed to get old signal mask"));
-  if (sigaction(SIGWINCH,0,osigactp)) ohshite(_("failed to get old SIGWINCH sigact"));
+  if (sigprocmask(0, nullptr, oblockedp))
+    ohshite(_("failed to get old signal mask"));
+  if (sigaction(SIGWINCH, nullptr, osigactp))
+    ohshite(_("failed to get old SIGWINCH sigact"));
 
-  push_cleanup(cu_sigwinch,~0, 0,0, 2,(void*)osigactp,(void*)oblockedp);
+  push_cleanup(cu_sigwinch, ~0, nullptr, 0, 2, osigactp, oblockedp);
 
-  if (sigprocmask(SIG_BLOCK,&sigwinchset,0)) ohshite(_("failed to block SIGWINCH"));
+  if (sigprocmask(SIG_BLOCK, &sigwinchset, nullptr))
+    ohshite(_("failed to block SIGWINCH"));
   memset(&nsigact,0,sizeof(nsigact));
   nsigact.sa_handler= sigwinchhandler;
   sigemptyset(&nsigact.sa_mask);
 //nsigact.sa_flags= SA_INTERRUPT;
-  if (sigaction(SIGWINCH,&nsigact,0)) ohshite(_("failed to set new SIGWINCH sigact"));
+  if (sigaction(SIGWINCH, &nsigact, nullptr))
+    ohshite(_("failed to set new SIGWINCH sigact"));
+}
+
+void
+baselist::add_column(column &col, const char *title, int width)
+{
+  col.title = title;
+  col.x = col_cur_x;
+  col.width = width;
+
+  col_cur_x += col.width + gap_width;
+}
+
+void
+baselist::end_column(column &col, const char *title)
+{
+  col.title = title;
+  col.x = col_cur_x;
+  col.width = total_width - col.x;
+
+  col_cur_x += col.width + gap_width;
+}
+
+void
+baselist::draw_column_head(column &col)
+{
+  mvwaddnstr(colheadspad, 0, col.x, col.title, col.width);
+}
+
+void
+baselist::draw_column_sep(column &col, int y)
+{
+  mvwaddch(listpad, y, col.x - 1, ' ');
+}
+
+void
+baselist::draw_column_item(column &col, int y, const char *item)
+{
+  mvwprintw(listpad, y, col.x, "%-*.*s", col.width, col.width, item);
 }
 
 void baselist::setheights() {
@@ -207,7 +255,8 @@ void baselist::enddisplay() {
   delwin(thisstatepad);
   delwin(infopad);
   wmove(stdscr,ymax,0); wclrtoeol(stdscr);
-  listpad= 0;
+  listpad = nullptr;
+  col_cur_x = 0;
 }
 
 void baselist::redrawall() {
@@ -231,13 +280,15 @@ baselist::baselist(keybindings *kb) {
   bindings= kb;
   nitems= 0;
 
+  col_cur_x = 0;
   gap_width = 1;
   total_width = max(TOTAL_LIST_WIDTH, COLS);
 
   xmax= -1;
   list_height=0; info_height=0;
   topofscreen= 0; leftofscreen= 0;
-  listpad= 0; cursorline= -1;
+  listpad = nullptr;
+  cursorline = -1;
   showinfo= 1;
 
   searchstring[0]= 0;
@@ -249,7 +300,7 @@ void baselist::itd_keys() {
   const int givek= xmax/3;
   bindings->describestart();
   const char **ta;
-  while ((ta= bindings->describenext()) != 0) {
+  while ((ta = bindings->describenext()) != nullptr) {
     const char **tap= ta+1;
     for (;;) {
       waddstr(infopad, gettext(*tap));
@@ -261,6 +312,7 @@ void baselist::itd_keys() {
     if (x >= givek) y++;
     mvwaddstr(infopad, y,givek, ta[0]);
     waddch(infopad,'\n');
+    delete [] ta;
   }
 }
 
@@ -309,7 +361,8 @@ void baselist::refreshinfo() {
 void baselist::wordwrapinfo(int offset, const char *m) {
   int usemax= xmax-5;
   debug(dbg_general, "baselist[%p]::wordwrapinfo(%d, '%s')", this, offset, m);
-  int wrapping=0;
+  bool wrapping = false;
+
   for (;;) {
     int offleft=offset; while (*m == ' ' && offleft>0) { m++; offleft--; }
     const char *p= strchr(m,'\n');
@@ -317,12 +370,13 @@ void baselist::wordwrapinfo(int offset, const char *m) {
     while (l && isspace(m[l-1])) l--;
     if (!l || (*m == '.' && l == 1)) {
       if (wrapping) waddch(infopad,'\n');
-      waddch(infopad,'\n');
-      wrapping= 0;
+      waddch(infopad, '\n');
+      wrapping = false;
     } else if (*m == ' ' || usemax < 10) {
       if (wrapping) waddch(infopad,'\n');
       waddnstr(infopad, m, l);
-      waddch(infopad,'\n'); wrapping= 0;
+      waddch(infopad, '\n');
+      wrapping = false;
     } else {
       int x, y DPKG_ATTR_UNUSED;
 
@@ -350,7 +404,7 @@ void baselist::wordwrapinfo(int offset, const char *m) {
         if (l <= 0) break;
         waddch(infopad,'\n');
       }
-      wrapping= 1;
+      wrapping = true;
     }
     if (!p) break;
     if (getcury(infopad) == (MAX_DISPLAY_INFO - 1)) {
@@ -364,6 +418,3 @@ void baselist::wordwrapinfo(int offset, const char *m) {
 }
 
 baselist::~baselist() { }
-
-/* vi: sw=2 ts=8
- */

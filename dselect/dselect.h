@@ -1,4 +1,4 @@
-/* -*- c++ -*-
+/*
  * dselect - Debian package maintenance user interface
  * dselect.h - external definitions for this program
  *
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DSELECT_H
@@ -62,6 +62,15 @@ enum screenparts {
 	numscreenparts,
 };
 
+struct column {
+	column(): title(nullptr), x(0), width(0) {};
+	void blank() { title = nullptr; x = 0; width = 0; };
+
+	const char *title;
+	int x;
+	int width;
+};
+
 class baselist {
 protected:
   // Screen dimensions &c.
@@ -73,7 +82,14 @@ protected:
   int part_attr[numscreenparts];
 
   int gap_width;
+  int col_cur_x;
   int total_width;
+
+  void add_column(column &col, const char *title, int width);
+  void end_column(column &col, const char *title);
+  void draw_column_head(column &col);
+  void draw_column_sep(column &col, int y);
+  void draw_column_item(column &col, int y, const char *item);
 
   // (n)curses stuff
   WINDOW *listpad, *infopad, *colheadspad, *thisstatepad;
@@ -163,7 +179,7 @@ void mywerase(WINDOW *win);
 void curseson();
 void cursesoff();
 
-extern int expertmode;
+extern bool expertmode;
 
 struct colordata {
        int fore;
@@ -173,7 +189,7 @@ struct colordata {
 extern colordata color[];
 
 /* Evil recommends flag variable. */
-extern int manual_install;
+extern bool manual_install;
 
 enum urqresult { urqr_normal, urqr_fail, urqr_quitmenu };
 enum quitaction { qa_noquit, qa_quitchecksave, qa_quitnochecksave };

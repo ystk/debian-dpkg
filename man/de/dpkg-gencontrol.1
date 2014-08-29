@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -16,15 +16,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gencontrol 1 2012\-05\-04 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.TH dpkg\-gencontrol 1 2013\-09\-06 Debian\-Projekt dpkg\-Hilfsprogramme
+.SH BEZEICHNUNG
 dpkg\-gencontrol \- erstelle Debian control\-Dateien
 .
 .SH ÜBERSICHT
@@ -36,7 +36,7 @@ Debian\-Quellcodebaum und erzeugt eine binäre Paketsteuerdatei (standardmäßig
 debian/tmp/DEBIAN/control); dabei vereinfacht es die Felder mit
 Paketbeziehungen.
 .sp
-Daher werden \fIPre\-Depends\fP, \fIDepends\fP, \fIRecommends\fP und \fISuggests\fP in
+Daher werden \fBPre\-Depends\fP, \fBDepends\fP, \fBRecommends\fP und \fBSuggests\fP in
 dieser Reihenfolge vereinfacht, indem Abhängigkeiten, die aufgrund der
 jeweils ermittelten stärkeren Abhängigkeit bereits erfüllt sind, entfernt
 werden. Es wird auch alle Selbstabhängigkeiten entfernen (tatsächlich werden
@@ -48,8 +48,8 @@ eine Abhängigkeit aufgrund einer weiter hinten im Feld auftauchenden
 weiteren Abhängigkeit gestrichen werden muss, so übernimmt die letztere
 Abhängigkeit den Platz der gestrichenen.
 .sp
-Die anderen Paketbeziehungsfelder (\fIEnhances\fP, \fIConflicts\fP, \fIBreaks\fP,
-\fIReplaces\fP und \fIProvides\fP) werden auch individuell vereinfacht, indem die
+Die anderen Paketbeziehungsfelder (\fBEnhances\fP, \fBConflicts\fP, \fBBreaks\fP,
+\fBReplaces\fP und \fBProvides\fP) werden auch individuell vereinfacht, indem die
 Vereinigung der verschiedenen Abhängigkeiten berechnet wird, wenn ein Paket
 mehrfach in dem Feld aufgeführt ist.
 .sp
@@ -103,12 +103,12 @@ Gehe davon aus, das der Dateiname des Pakets \fIDateiname\fP sein wird, statt
 des normalen Dateinamens Paket_Version_Architektur.deb.
 .TP 
 \fB\-is\fP, \fB\-ip\fP, \fB\-isp\fP
-Diese Optionen werden aufgrund der Kompatibilität mit älteren Versionen von
-dpkg\-dev ignoriert, sind aber jetzt veraltet. Bisher wurden sie verwendet,
-um dpkg\-gencontrol mitzuteilen, die Felder »Section« und »Priority« in die
-Steuerdatei mit aufzunehmen. Dies passiert jetzt standardmäßig. Falls Sie
-das alte Verhalten erreichen möchten, können Sie die Option \fB\-U\fP verwenden,
-um Felder aus der Steuerdatei zu entfernen.
+Diese Optionen werden aufgrund der Kompatibilität mit älteren Versionen der
+Dpkg\-Bauskripte ignoriert, sind aber jetzt veraltet. Bisher wurden sie
+verwendet, um \fBdpkg\-gencontrol\fP mitzuteilen, die Felder »Section« und
+»Priority« in die Steuerdatei mit aufzunehmen. Dies passiert jetzt
+standardmäßig. Falls Sie das alte Verhalten erreichen möchten, können Sie
+die Option \fB\-U\fP verwenden, um Felder aus der Steuerdatei zu entfernen.
 .TP 
 \fB\-P\fP\fIPaketbauverzeichnis\fP
 Teilt \fBdpkg\-source\fP mit, dass das Paket in \fIPaketbauverzeichnis\fP statt in
@@ -117,10 +117,11 @@ der Substitutionsvariablen \fBInstalled\-Size\fP und des Feldes der Steuerdatei
 (mittels \fBdu\fP) zu finden, und für den Standard\-Ablageplatz der
 Ausgabedatei.
 .TP 
-\fB\-O\fP
-Gebe die Steuerdatei in die Standardausgabe statt nach
-\fBdebian/tmp/DEBIAN/control\fP (oder \fIPaketbauverzeichnis\fP\fB/DEBIAN/control\fP
-falls \fB\-P\fP verwendet worden ist) aus.
+\fB\-O\fP[\fIDateiname\fP]
+Die Steuerdatei in die Standardausgabe (oder \fIDateiname\fP falls angegeben)
+statt nach \fBdebian/tmp/DEBIAN/control\fP (oder
+\fIPaketbauverzeichnis\fP\fB/DEBIAN/control\fP falls \fB\-P\fP verwendet worden ist)
+ausgeben.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Zeige den Bedienungshinweis und beende.
@@ -140,7 +141,7 @@ Die Liste der erstellten Dateien, die Teil des Uploads sind, der vorbereitet
 wird. \fBdpkg\-gencontrol\fP fügt die vermuteten Dateinamen von Binärpaketen
 hinzu, deren Steuerdateien es hier generiert.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

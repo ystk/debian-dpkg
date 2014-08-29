@@ -3,6 +3,7 @@
  * ehandle.c - error handling
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -62,18 +63,21 @@ struct error_context {
   struct error_context *next;
 
   enum {
-    handler_type_func,
-    handler_type_jump,
+    HANDLER_TYPE_FUNC,
+    HANDLER_TYPE_JUMP,
   } handler_type;
 
   union {
-    error_handler *func;
+    error_handler_func *func;
     jmp_buf *jump;
   } handler;
 
+  struct {
+    error_printer_func *func;
+    const void *data;
+  } printer;
+
   struct cleanup_entry *cleanups;
-  void (*printerror)(const char *emsg, const char *contextstring);
-  const char *contextstring;
 };
 
 static struct error_context *volatile econtext = NULL;
@@ -100,10 +104,10 @@ run_error_handler(void)
     fprintf(stderr, _("%s: outside error context, aborting:\n %s\n"),
             dpkg_get_progname(), errmsg);
     exit(2);
-  } else if (econtext->handler_type == handler_type_func) {
+  } else if (econtext->handler_type == HANDLER_TYPE_FUNC) {
     econtext->handler.func();
     internerr("error handler returned unexpectedly!");
-  } else if (econtext->handler_type == handler_type_jump) {
+  } else if (econtext->handler_type == HANDLER_TYPE_JUMP) {
     longjmp(*econtext->handler.jump, 1);
   } else {
     internerr("unknown error handler type %d!", econtext->handler_type);
@@ -126,48 +130,50 @@ error_context_new(void)
 }
 
 static void
-set_error_printer(struct error_context *ec, error_printer *printerror,
-                  const char *contextstring)
+set_error_printer(struct error_context *ec, error_printer_func *func,
+                  const void *data)
 {
-  ec->printerror = printerror;
-  ec->contextstring = contextstring;
+  ec->printer.func = func;
+  ec->printer.data = data;
 }
 
 static void
-set_func_handler(struct error_context *ec, error_handler *func)
+set_func_handler(struct error_context *ec, error_handler_func *func)
 {
-  ec->handler_type = handler_type_func;
+  ec->handler_type = HANDLER_TYPE_FUNC;
   ec->handler.func = func;
 }
 
 static void
 set_jump_handler(struct error_context *ec, jmp_buf *jump)
 {
-  ec->handler_type = handler_type_jump;
+  ec->handler_type = HANDLER_TYPE_JUMP;
   ec->handler.jump = jump;
 }
 
 void
-push_error_context_func(error_handler *func, error_printer *printerror,
-                        const char *contextstring)
+push_error_context_func(error_handler_func *handler,
+                        error_printer_func *printer,
+                        const void *printer_data)
 {
   struct error_context *ec;
 
   ec = error_context_new();
-  set_error_printer(ec, printerror, contextstring);
-  set_func_handler(ec, func);
+  set_error_printer(ec, printer, printer_data);
+  set_func_handler(ec, handler);
   onerr_abort = 0;
 }
 
 void
-push_error_context_jump(jmp_buf *jump, error_printer *printerror,
-                        const char *contextstring)
+push_error_context_jump(jmp_buf *jumper,
+                        error_printer_func *printer,
+                        const void *printer_data)
 {
   struct error_context *ec;
 
   ec = error_context_new();
-  set_error_printer(ec, printerror, contextstring);
-  set_jump_handler(ec, jump);
+  set_error_printer(ec, printer, printer_data);
+  set_jump_handler(ec, jumper);
   onerr_abort = 0;
 }
 
@@ -178,7 +184,7 @@ push_error_context(void)
 }
 
 static void
-print_cleanup_error(const char *emsg, const char *contextstring)
+print_cleanup_error(const char *emsg, const void *data)
 {
   fprintf(stderr, _("%s: error while cleaning up:\n %s\n"),
           dpkg_get_progname(), emsg);
@@ -194,7 +200,8 @@ run_cleanups(struct error_context *econ, int flagsetin)
   jmp_buf recurse_jump;
   volatile int i, flagset;
 
-  if (econ->printerror) econ->printerror(errmsg,econ->contextstring);
+  if (econ->printer.func)
+    econ->printer.func(errmsg, econ->printer.data);
 
   if (++preventrecurse > 3) {
     onerr_abort++;
@@ -347,7 +354,7 @@ catch_fatal_error(void)
 }
 
 void
-print_fatal_error(const char *emsg, const char *contextstring)
+print_fatal_error(const char *emsg, const void *data)
 {
   fprintf(stderr, _("%s: error: %s\n"), dpkg_get_progname(), emsg);
 }

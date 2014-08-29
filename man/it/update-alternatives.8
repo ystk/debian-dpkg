@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -264,10 +264,10 @@ permette all'utente di selezionare in modo interattivo quale usare. Il
 gruppo di collegamenti viene aggiornato.
 .TP 
 \fB\-\-help\fP
-Show the usage message and exit.
+Mostra il messaggio sull'uso ed esce.
 .TP 
 \fB\-\-version\fP
-Show the version and exit.
+Mostra la versione ed esce.
 .
 .SH OPZIONI
 .TP 
@@ -299,6 +299,15 @@ Genera più commenti riguardo a ciò che \fBupdate\-alternatives\fP sta facendo.
 \fB\-\-quiet\fP
 Non genera alcun commento a meno che non si verifichi un errore.
 .
+.SH "STATO D'USCITA"
+.TP 
+\fB0\fP
+L'azione richiesta è stata effettuata con successo.
+.TP 
+\fB2\fP
+Si sono verificati dei problemi nell'analisi della riga di comando o
+nell'effettuare l'azione.
+.
 .SH AMBIENTE
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -314,15 +323,6 @@ essere modificata usando l'opzione \fB\-\-altdir\fP.
 \fI/var/lib/dpkg/alternatives/\fP
 La directory di amministrazione predefinita. La directory considerata può
 essere modificata usando l'opzione \fB\-\-admindir\fP.
-.
-.SH "STATO D'USCITA"
-.TP 
-\fB0\fP
-L'azione richiesta è stata effettuata con successo.
-.TP 
-\fB2\fP
-Si sono verificati dei problemi nell'analisi della riga di comando o
-nell'effettuare l'azione.
 .
 .SH "FORMATO DI QUERY"
 Il formato di \fBupdate\-alternatives \-\-query\fP è un formato semplice in stile
@@ -435,14 +435,6 @@ questo da root:
 .PP
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
-.
-.SH BUG
-Se si trova un bug, segnalarlo usando il sistema di tracciamento dei bug di
-Debian.
-.PP
-Se si trova una qualsiasi discrepanza tra il funzionamento di
-\fBupdate\-alternatives\fP e questa pagina di manuale, ciò è un bug
-dell'implementazione oppure della documentazione: segnalarlo.
 .
 .SH "VEDERE ANCHE"
 \fBln\fP(1), FHS: lo standard per la gerarchia del file system.

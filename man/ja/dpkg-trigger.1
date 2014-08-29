@@ -13,7 +13,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -72,7 +72,8 @@ dpkg\-trigger \- パッケージトリガユーティリティ
 .SH 環境変数
 .TP 
 \fBDPKG_ADMINDIR\fP
-\fB\-\-admindir\fP オプションが設定されておらず、この変数が設定されている場合、この変数の値が dpkg データディレクトリとして用いられる。
+If set and the \fB\-\-admindir\fP option has not been specified, it will be used
+as the \fBdpkg\fP data directory.
 .
 .SH 関連項目
 \fBdpkg\fP(1), \fBdeb\-triggers\fP(5), \fB/usr/share/doc/dpkg\-dev/triggers.txt.gz\fP

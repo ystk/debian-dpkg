@@ -16,7 +16,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -39,7 +39,7 @@ fil på sin plats, utan på en \fIomdirigerad\fP plats. Omdirigeringar kan
 användas i skript i Debianpaket för att flytta bort en fil när den orsakar
 en konflikt. Systemadministratörer kan också använda det för att överstyra
 några pakets konfigurationsfiler, eller när några filer (som inte markerats
-som konfigurationsfiler) måste bibehållas av dpkg när en nyare version av
+som konfigurationsfiler) måste bibehållas av \fBdpkg\fP när en nyare version av
 ett paket som innehåller de filerna installeras.
 .sp
 .SH KOMMANDON
@@ -63,7 +63,7 @@ Visa det riktiga namnet på en omdirigerad fil.
 .SH FLAGGOR
 .TP 
 \fB\-\-admindir\fP\fI katalog\fP
-Ställ dpkg:s datakatalog till \fIkatalog\fP (standard: \fI/var/lib/dpkg\fP).
+Ställ \fBdpkg\fP:s datakatalog till \fIkatalog\fP (standard: \fI/var/lib/dpkg\fP).
 .TP 
 \fB\-\-divert\fP\fI omdirigera\-till\fP
 \fIomdirigera\-till\fP är platsen där de versioner av \fIfil\fP som tillhandahålls
@@ -96,6 +96,26 @@ Visar hjälpskärm och avslutar.
 \fB\-\-version\fP
 Visar version och avslutar.
 .
+.SH MILJÖVARIABLER
+.TP 
+\fBDPKG_ADMINDIR\fP
+Om satt, och flaggan \fB\-\-admindir\fP inte har angivits, används värdet som
+datakatalog för \fBdpkg\fP.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Om satt, och flaggorna \fB\-\-local\fP och \fB\-\-package\fP inte har angivits, kommer
+\fBdpkg\-divert\fP använda det som paketnamn.
+.
+.SH FILER
+.TP 
+\fI/var/lib/dpkg/diversions\fP
+Filen som innehåller den aktuella listan med systemets omdirigeringar. Den
+är placerad i \fBdpkg\fP:s administrativa katalog, tillsammans med andra filer
+som är viktiga för \fBdpkg\fP, till exempel \fIstatus\fP och \fIavailable\fP.
+.br
+Observera: \fBdpkg\-divert\fP behåller den gamla versionen av filen, med
+filtillägget \fIold\fP, innan den ersätter den med den nya.
+.
 .SH ANTECKNINGAR
 Vid tillägg är standard \fB\-\-local\fP och \fB\-\-divert\fP
 \fIoriginal\fP\fB.distrib\fP. Vid borttagning måste \fB\-\-package\fP eller \fB\-\-local\fP
@@ -105,8 +125,8 @@ Kataloger kan inte omdirigeras med \fBdpkg\-divert\fP.
 
 Se upp när du omdirigerar delade bibliotek. \fBldconfig\fP(8) skapar en
 symbolisk länk baserad på DT_SONAME\-fältet som är inbyggt i
-biblioteket. Eftersom ldconfig inte följer omdirigeringar (bara dpkg gör
-det) kan den symboliska länken komma att peka på det omdirigerade
+biblioteket. Eftersom \fBldconfig\fP inte följer omdirigeringar (bara \fBdpkg\fP
+gör det) kan den symboliska länken komma att peka på det omdirigerade
 biblioteket om ett omdirigerat bibliotek har samma SONAMN som det ej
 omdirigerade.
 .
@@ -134,27 +154,7 @@ För att ta bort omdirigeringen:
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/exempel
 .
-.SH MILJÖVARIABLER
-.TP 
-\fBDPKG_ADMINDIR\fP
-Om satt, och flaggan \fB\-\-admindir\fP inte har angivits, används värdet som
-datakatalog för dpkg.
-.TP 
-\fBDPKG_MAINTSCRIPT_PACKAGE\fP
-Om satt, och flaggorna \fB\-\-local\fP och \fB\-\-package\fP inte har angivits, kommer
-\fBdpkg\-divert\fP använda det som paketnamn.
-.
-.SH FILER
-.TP 
-\fI/var/lib/dpkg/diversions\fP
-Filen som innehåller den aktuella listan med systemets omdirigeringar. Den
-är placerad i dpkg:s administrativa katalog, tillsammans med andra filer som
-är viktiga för dpkg, till exempel \fIstatus\fP och \fIavailable\fP.
-.br
-Observera: \fBdpkg\-divert\fP behåller den gamla versionen av filen, med
-filtillägget \fIold\fP, innan den ersätter den med den nya.
-.
 .SH "SE ÄVEN"
 \fBdpkg\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

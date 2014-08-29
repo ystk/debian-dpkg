@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .TH dpkg\-name 1 "2012-04-15" "Debian Project" "dpkg utilities"
 .SH NAME
@@ -65,7 +65,7 @@ so a lot of packages will find their way to the `no\-section' area. Use
 this option with care, it's messy.
 .TP
 .BR \-c ", " \-\-create\-dir
-This option can used together with the \-s option. If a target
+This option can used together with the \fB\-s\fP option. If a target
 directory isn't found it will be created automatically.
 .B Use this option with care.
 .TP
@@ -74,6 +74,16 @@ Show the usage message and exit.
 .TP
 .BR \-v ", " \-\-version
 Show the version and exit.
+.
+.SH BUGS
+Some packages don't follow the name structure
+.IB package _ version _ architecture .deb\fR.\fP
+Packages renamed by \fBdpkg\-name\fP
+will follow this structure. Generally this will have no impact on how
+packages are installed by
+.BR dselect (1)/ dpkg (1),
+but other installation tools
+might depend on this naming structure.
 .
 .SH EXAMPLES
 .TP
@@ -84,8 +94,8 @@ part of `bar\-foo.deb').
 .TP
 .B find /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a
 All files with the extension `deb' in the directory /root/debian and its
-subdirectory's will be renamed by dpkg\-name if required into names with no
-architecture information.
+subdirectory's will be renamed by \fBdpkg\-name\fP if required into names
+with no architecture information.
 .TP
 .B find \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c
 .B Don't do this.
@@ -95,16 +105,6 @@ don't come with section information.
 .TP
 .B dpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb
 This can be used when building new packages.
-.
-.SH BUGS
-Some packages don't follow the name structure
-.IB package _ version _ architecture .deb\fR.\fP
-Packages renamed by dpkg\-name
-will follow this structure. Generally this will have no impact on how
-packages are installed by
-.BR dselect (1)/ dpkg (1),
-but other installation tools
-might depend on this naming structure.
 .
 .SH SEE ALSO
 .BR deb (5),

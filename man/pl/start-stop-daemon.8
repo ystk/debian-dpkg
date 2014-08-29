@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 2012\-06\-17 "Projekt Debian" "programy pomocnicze dpkg"
+.TH start\-stop\-daemon 8 2014\-03\-26 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 start\-stop\-daemon \- uruchamia i zatrzymuje demony systemowe
 .
@@ -77,7 +77,16 @@ Wy¶wietla informacjê o u¿ytkowaniu programu i koñczy dzia³anie.
 \fB\-V\fP, \fB\-\-version\fP
 Wy¶wietla informacjê o wersji programu i koñczy dzia³anie.
 .
-.SH "OPCJE DOPASOWYWANIA"
+.SH OPCJE
+.SS "Matching options"
+.TP 
+\fB\-\-pid\fP \fIpid\fP
+Check for a process with the specified \fIpid\fP. The \fIpid\fP must be a number
+greater than 0.
+.TP 
+\fB\-\-ppid\fP \fIppid\fP
+Check for a process with the specified \fIppid\fP (parent pid).  The \fIppid\fP
+must be a number greater than 0.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIplik\-pid\fP
 Sprawdza, czy proces utworzy³ plik \fIplik\-pid\fP. Uwaga: u¿ywaj±c wy³±cznie
@@ -105,7 +114,7 @@ Sprawdza procesy bêd±ce w³asno¶ci± u¿ytkownika okre¶lonego
 spowoduje, ¿e pod uwagê bêd± wziête wszystkie procesy z pasuj±cym
 u¿ytkownikiem.
 .
-.SH OPCJE
+.SS "Generic options"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIgroup\fP|\fIgid\fP
 Podczas uruchamiania procesu zmienia grupê na \fIgrupê\fP lub \fIgid\fP.
@@ -170,11 +179,10 @@ przed wystartowaniem procesu. Proszê zauwa¿yæ, ¿e plik pidfile jest tworzony
 po wykonaniu chroot.
 .TP 
 \fB\-d\fP, \fB\-\-chdir\fP \fI¶cie¿ka\fP
-Przed uruchomieniem procesu zmienia katalog bie¿±cy na \fI¶cie¿kê\fP. Robione
-jest to przed zmienieniem g³ównego katalogu (roota), je¿eli podano równie¿
-opcjê \fB\-r\fP|\fB\-\-chroot\fP. Je¶li nie podano tej opcji, to przed uruchomieniem
-procesu \fBstart\-stop\-daemon\fP ustawi jego katalog bie¿±cy na g³ówny katalog
-(root).
+Chdir to \fIpath\fP before starting the process. This is done after the chroot
+if the \fB\-r\fP|\fB\-\-chroot\fP option is set. When not specified,
+\fBstart\-stop\-daemon\fP will chdir to the root directory before starting the
+process.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
 Zwykle u¿ywa siê tej opcji dla programów, które nie od³±czaj± siê od
@@ -281,7 +289,7 @@ Przyk³ad w³asnego planu zatrzymywania \fBfood\fP:
 start\-stop\-daemon \-\-stop \-\-oknodo \-\-user food \-\-name food \e
 	\-\-pidfile /run/food.pid \-\-retry=TERM/30/KILL/5
 .fi
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

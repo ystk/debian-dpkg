@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 2012\-06\-17 "Debian Project" "dpkg ¥æ¡¼¥Æ¥£¥ê¥Æ¥£"
+.TH start\-stop\-daemon 8 2014\-03\-26 "Debian Project" "dpkg ¥æ¡¼¥Æ¥£¥ê¥Æ¥£"
 .SH Ì¾Á°
 start\-stop\-daemon \- ¥·¥¹¥Æ¥à¥Ç¡¼¥â¥ó¥×¥í¥°¥é¥à¤Îµ¯Æ°¡¢Ää»ß
 .
@@ -66,7 +66,16 @@ start\-stop\-daemon \- ¥·¥¹¥Æ¥à¥Ç¡¼¥â¥ó¥×¥í¥°¥é¥à¤Îµ¯Æ°¡¢Ää»ß
 \fB\-V\fP, \fB\-\-version\fP
 ¥Ð¡¼¥¸¥ç¥ó¤ÈÃøºî¸¢¤Ë´Ø¤¹¤ë¾ðÊó¤òÉ½¼¨¤·¡¢½ªÎ»¤¹¤ë¡£
 .
-.SH ¥Þ¥Ã¥ÁÍÑ¥ª¥×¥·¥ç¥ó
+.SH ¥ª¥×¥·¥ç¥ó
+.SS "Matching options"
+.TP 
+\fB\-\-pid\fP \fIpid\fP
+Check for a process with the specified \fIpid\fP. The \fIpid\fP must be a number
+greater than 0.
+.TP 
+\fB\-\-ppid\fP \fIppid\fP
+Check for a process with the specified \fIppid\fP (parent pid).  The \fIppid\fP
+must be a number greater than 0.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIpid\-file\fP
 ¥×¥í¥»¥¹¤¬ \fIpid\-file\fP ¤òºîÀ®¤·¤¿¤«¤É¤¦¤«¤ò¥Á¥§¥Ã¥¯¤¹¤ë¡£¤³¤Î¥ª¥×¥·¥ç¥ó¤òÃ±ÂÎ¤Ç»ÈÍÑ¤·¤¿¾ì¹ç¡¢°ÊÁ°¤Î¥×¥í¥»¥¹¤¬ \fIpid\-file\fP
@@ -87,7 +96,7 @@ comm name ¤«¤é¼èÆÀ¤µ¤ì¤ë¤¿¤á¡¢Èæ³ÓÅªÃ»¤¤Ì¾¾Î¤Ç¤¢¤ëÉ¬Í×¤¬¤¢¤ë (15 Ê¸»ú¤òÄ¶¤¨¤ëÌ¾¾
 ¥×¥í¥»¥¹¤¬ \fIusername\fP ¤â¤·¤¯¤Ï \fIuid\fP
 ¤Ç»ØÄê¤µ¤ì¤¿¥æ¡¼¥¶¤Î½êÍ­¤È¤Ê¤Ã¤Æ¤¤¤ë¤«¤ò¥Á¥§¥Ã¥¯¤¹¤ë¡£¤³¤Î¥ª¥×¥·¥ç¥ó¤òÃ±ÂÎ¤ÇÍÑ¤¤¤¿¾ì¹ç¡¢»ØÄê¤µ¤ì¤¿¥æ¡¼¥¶¤Î½êÍ­¤¹¤ë¤¹¤Ù¤Æ¤Î¥×¥í¥»¥¹¤¬¹çÃ×¤¹¤ë¤«¤ò¥Á¥§¥Ã¥¯¤¹¤ëÅÀ¤ËÎ±°Õ¤¹¤ë¤³¤È¡£
 .
-.SH ¥ª¥×¥·¥ç¥ó
+.SS "Generic options"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIgroup\fP|\fIgid\fP
 ¥×¥í¥»¥¹¤ò³«»Ï¤¹¤ë»þÅÀ¤Ç¡¢\fIgroup\fP ¤ä \fIgid\fP ¤òÊÑ¹¹¤¹¤ë¡£
@@ -138,8 +147,10 @@ comm name ¤«¤é¼èÆÀ¤µ¤ì¤ë¤¿¤á¡¢Èæ³ÓÅªÃ»¤¤Ì¾¾Î¤Ç¤¢¤ëÉ¬Í×¤¬¤¢¤ë (15 Ê¸»ú¤òÄ¶¤¨¤ëÌ¾¾
 ¸å¤Ë¡¢½ñ¤­½Ð¤µ¤ì¤ë¤³¤È¤ËÃí°Õ¤¹¤ë¤³¤È¡£
 .TP 
 \fB\-d\fP, \fB\-\-chdir\fP \fIpath\fP
-¥×¥í¥»¥¹¤òµ¯Æ°¤¹¤ëÁ°¤Ë¡¢\fIpath\fP ¤Ë chdir ¤¹¤ë¡£\fB\-r\fP|\fB\-\-chroot\fP ¥ª¥×¥·¥ç¥ó¤òÆ±»þ¤Ë»ØÄê¤·¤¿¾ì¹ç¤Ï¡¢chroot ¤Î¸å¤Ë
-chdir ¤¹¤ë¡£¤½¤¦¤Ç¤Ê¤¤¾ì¹ç¡¢start\-stop\-daemon ¤Ï¡¢¥×¥í¥»¥¹¤òµ¯Æ°¤¹¤ëÁ°¤Ë root ¥Ç¥£¥ì¥¯¥È¥ê¤Ë chdir ¤¹¤ë¡£
+Chdir to \fIpath\fP before starting the process. This is done after the chroot
+if the \fB\-r\fP|\fB\-\-chroot\fP option is set. When not specified,
+\fBstart\-stop\-daemon\fP will chdir to the root directory before starting the
+process.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
 ÄÌ¾ï¡¢¼«¿È¤ò¥Ç¥¿¥Ã¥Á¤Ç¤­¤Ê¤¤¥×¥í¥°¥é¥à¤Ç»ÈÍÑ¤µ¤ì¤ë¡£¤³¤Î¥ª¥×¥·¥ç¥ó¤ò»ØÄê¤·¤¿¾ì¹ç¡¢ \fBstart\-stop\-daemon\fP

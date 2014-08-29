@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2006-2007 Frank Lichtenheld <djpig@debian.org>
-.\" Copyright Â© 2006-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2008-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2010 Joey Hess <joeyh@debian.org>
 .\"
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-source 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
+.TH dpkg\-source 1 2013\-12\-05 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-source \- Verktyg för att manipulera Debiankällkodspaket (.dsc)
 .
@@ -116,7 +116,8 @@ Visar hjälpskärm och avslutar.
 \fB\-\-version\fP
 Visar version och avslutar.
 .
-.SH "ALLMÄNNA BYGGFLAGGOR"
+.SH FLAGGOR
+.SS "Generiska byggflaggor"
 .TP 
 \fB\-c\fP\fIcontrol\-fil\fP
 Anger huvudkällkodsstyrfil som information skall läsas från. Standardvärde
@@ -155,8 +156,9 @@ Ta bort ett fält ur den genererade control\-filen.
 Anger vilken komprimering som skall användas för de skapade filerna
 (tar\-bollar och diffar). Observera att flaggan inte gör att befintliga
 tar\-bollar packas om, utan enbart påverkar nya filer. Värden som stöds är:
-\fIgzip\fP, \fIbzip2\fP, \fIlzma\fP samt \fIxz\fP. \fIgzip\fP är förvalet. Stöd för \fIxz\fP
-finns bara från och med dpkg\-dev 1.15.5.
+\fIgzip\fP, \fIbzip2\fP, \fIlzma\fP samt \fIxz\fP. Förvalet är \fIxz\fP för format 2.0 och
+senare, och \fIgzip\fP för format 1.0. Stöd för \fIxz\fP finns bara från och med
+dpkg 1.15.5.
 .TP 
 \fB\-z\fP\fInivå\fP, \fB\-\-compression\-level\fP=\fInivå\fP
 Komprimeringsnivå att använda. Som med \fB\-Z\fP påverkas bara filer som
@@ -168,12 +170,14 @@ Du kan ange ett reguljärt uttryck i perlformat för att matcha filer som du
 vill skall filtreras ut ur listan över filer för diffen. (Listan skapas av
 ett find\-kommando.) (Om källkodspaketet byggs som ett version 3\-paket med
 ett VCS kan detta användas för att ignorera ändringar som inte har checkats
-in på de angivna filerna. \-i.* kommer att ignorera samtliga.) \fB\-i\fP ensamt
-aktiverar funktionen, med ett standardvärde som filtrerar ut styrfiler och
-kataloger från de flesta vanliga versionshanteringssystem, säkerhetskopior,
-växlingsfiler och Libtool\-byggutdatakataloger. Endast ett reguljärt kan vara
-aktivt, om du anger flera \fB\-i\fP\-flaggor är det den sista på kommandoraden
-som gäller.
+in på de angivna filerna. \-i.* kommer att ignorera samtliga.)
+
+\fB\-i\fP ensamt aktiverar inställningen, med ett standardvärde (bibehåller
+modifieringar till standarduttrycket som gjorts med tidigare användning av
+\fB\-\-extend\-diff\-ignore\fP) som filtrerar ut styrfiler och kataloger från de
+flesta vanliga versionshanteringssystem, säkerhetskopior, växlingsfiler och
+Libtool\-byggutdatakataloger. Endast ett reguljärt kan vara aktivt, om du
+anger flera \fB\-i\fP\-flaggor är det den sista som gäller.
 
 Flaggan är mycket användbar för att utesluta extrafiler som kommer med i
 diffen, t.ex om du underhåller din källkod i ett versionshanteringssystem
@@ -186,20 +190,20 @@ måste du själv lägga till de förankringar som är nödvändiga (t.ex '(^|/)',
 \&'($|/)').
 .TP 
 \fB\-\-extend\-diff\-ignore\fP=\fIreg.uttr\fP
-Det reguljära uttrycket i perlformat som angavs utökar standardvärdet för
-\fB\-\-diff\-ignore\fP och dess nuvarande värde (om satt). Det gör så genom att
-lägga till "\fB|\fP\fIreg.uttry\fP" efter standarduttrycket. Flaggan är nyttig för
-\fBdebian/source/options\fP för att exkludera en del automatiskt genererade
-filer från skapandet av automatiska patchar.
+Det reguljära uttrycket i perlformat som angavs utökar standardvärdet som
+används av \fB\-\-diff\-ignore\fP och dess nuvarande värde (om satt). Det gör så
+genom att lägga till "\fB|\fP\fIreg.uttr\fP" efter standarduttrycket. Flaggan är
+nyttig för \fBdebian/source/options\fP för att exkludera en del automatiskt
+genererade filer från skapandet av automatiska patchar.
 .TP 
 \fB\-I\fP[\fIfilmönster\fP], \fB\-\-tar\-ignore\fP[=\fIfilmönster\fP]
 Om flaggan anges kommer filnamnet att sändas vidare till \fBtar\fP(1):s
-\-\-exclude\-flagga när det anropas för att skapa en .orig.tar.gz eller
-\&.tar.gz\-fil. Till exempel kommer \-ICVS att hoppa över CVS\-kataloger när
+\fB\-\-exclude\fP\-flagga när det anropas för att skapa en .orig.tar.gz eller
+\&.tar.gz\-fil. Till exempel kommer \fB\-I\fPCVS att hoppa över CVS\-kataloger när
 tar.gz\-filen skapas. Flaggan kan upprepas flera gånger för att lista flera
 filnamn som skall uteslutas.
 
-\fB\-i\fP ensamt aktiverar funktionen, med ett standardvärde som filtrerar ut
+\fB\-I\fP ensamt lägger till satandard \fB\-\-exclude\fP\-flaggor som filtrerar ut
 styrfiler och kataloger från de flesta vanliga versionshanteringssystem,
 säkerhetskopior, växlingsfiler och Libtool\-byggutdatakataloger.
 .PP
@@ -209,13 +213,13 @@ tar ett perl\-kompatibelt reguljärt uttryck, vilket matchas mot den kompletta
 relativa sökvägen för varje fil. \fB\-I\fP kan anges flera gånger och tar ett
 filnamnssökmänster med skaljokertecken. Mönstret matchas mot den kompletta
 relativa sökvägen, men även individuellt mot varje komponent i sökvägen. Den
-exakta semantiken för tar:s \-\-exclude\-flagga är något komplicerad, se
-http://www.gnu.org/software/tar/manual/tar.html#wildcards för fullständig
+exakta semantiken för tar:s \fB\-\-exclude\fP\-flagga är något komplicerad, se
+https://www.gnu.org/software/tar/manual/tar.html#wildcards för fullständig
 dokumentation.
 
 Förvalt reguljärt uttryck och sökmönster för de bägge flaggorna kan ses i
 utdata för \fB\-\-help\fP\-kommandot.
-.SH "ALLMÄNNA UPPACKNINGSFLAGGOR"
+.SS "Generiska extraheringsflaggor"
 .TP 
 \fB\-\-no\-copy\fP
 Kopiera inte original\-tarbollar i närheten av det uppackade källkodspaketet.
@@ -229,11 +233,16 @@ som kan verifieras antingen med användarens \fItrustedkeys.gpg\fP\-nyckelring,
 en av de säljarspecifka nyckelringarna, eller en av de officiella
 Debiannyckelringarna (\fI/usr/share/keyrings/debian\-keyring.gpg\fP och
 \fI/usr/share/keyrings/debian\-maintainers.gpg\fP).
+.TP 
+\fB\-\-ignore\-bad\-version\fP
+Ändrar testet för felaktig källkodspaketversion till en icke\-ödesdiger
+varning. Flaggan är endast nödvändig vid uppackning av väldigt gamla
+källkodspaket med trasiga versioner, bara för bakåtkompatibilitet.
 
 .SH "FORMAT PÅ KÄLLKODSPAKET"
 Om du inte vet vilket källkodspaketformat du skall använda, bör du
 antagligen välja antingen "3.0 (quilt)" eller "3.0 (native)". Se
-http://wiki.debian.org/Projects/DebSrc3.0 för information om hur dessa
+https://wiki.debian.org/Projects/DebSrc3.0 för information om hur dessa
 format sätts i produktion i Debian.
 
 .SS "Format: 1.0"
@@ -259,9 +268,8 @@ källkodskatalogen. Att bygga ett icke\-eget paket innefattar att extrahera
 original\-tarbollen i en separat ".orig"\-katalog och skapa \fB.diff.gz\fP\-filen
 på nytt genom att jämföra källkodspaketets \fIkatalog\fP med .orig\-katalogen.
 
-.TP 
 \fBByggflaggor (med \-b):\fP
-.PP
+
 Om ett andra argument som inte är en flagga anges skall det vara namnet på
 originalkällkodskatalogen eller \-tarfilen eller den tomma strängen om
 paketet är Debianspecifikt och därför inte har några
@@ -273,6 +281,7 @@ originalkällkodskatalogen \fIpaket\fP\fB.orig\fP beroende på \fB\-sX\fP\-flaggor
 \fB\-sa\fP, \fB\-sp\fP, \fB\-sk\fP, \fB\-su\fP och \fB\-sr\fP skriver inte över befintliga
 tar\-filer och kataloger. Om det önskas bör  \fB\-sA\fP, \fB\-sP\fP, \fB\-sK\fP, \fB\-sU\fP
 och \fB\-sR\fP anges i stället.
+.PP
 .TP 
 \fB\-sk\fP
 Anger att den ursprungliga källkoden är en tar\-fil, som standard
@@ -294,8 +303,8 @@ Som \fB\-su\fP, men tar bort katalogen när den har använts.
 .TP 
 \fB\-ss\fP
 Anger att originalkällkoden finns både som en katalog och en
-tar\-fil. Katalogen kommer att användas av dpkg\-source för att skapa diffen,
-men tarfilen för att skapa \fB.dsc\fP\-filen. Flaggan måste användas med
+tar\-fil. Katalogen kommer att användas av \fBdpkg\-source\fP för att skapa
+diffen, men tarfilen för att skapa \fB.dsc\fP\-filen. Flaggan måste användas med
 tillförsikt \- om katalogen och tarfilen inte stämmer överens kommer ett
 trasigt källkodsarkiv att skapas.
 .TP 
@@ -320,10 +329,10 @@ angavs. \fB\-sA\fP är standard.
 Processen misslyckas om den genererade diffen innehåller ändringar av filer
 utanför underkatalogen debian. Den här flaggan tillåts inte i
 \fBdebian/source/options\fP, men kan användas i \fBdebian/source/local\-options\fP.
-
-.TP 
-\fBExtraheringsflaggor (med \-x):\fP
 .PP
+
+\fBExtraheringsflaggor (med \-x):\fP
+
 Oavsett kommer ett befintligt källkodsträd att tas bort.
 .TP 
 \fB\-sp\fP
@@ -389,21 +398,20 @@ Alla patchar listade i \fBdebian/patches/debian.series\fP eller
 \fBdebian/patches/series\fP tillämpas sedan. Om den förstnämnda filen används
 och den sistnämnda inte existerar (eller är en symbolisk länk), kommer den
 senare att ersättas av en symbolisk länk till den första. Tanken är att göra
-det enklare att använda quilt till att hantera patchuppsättningen. Observera
-att, även om \fBdpkg\-source\fP korrekt tolkar series\-filer som använder
-explicita flaggor till patch\-programmet (lagrade på kommandoraden efter
-patch\-filnamnet och ett eller flera blanksteg), så ignoreras dessa flaggor
-och det förväntar sig att patchar kan tillämpas med flaggan \fB\-p1\fP till
-\fBpatch\fP. Det kommer därför visa en varning sådana flaggor upptäcks, och
-bygget kommer troligen att misslyckas.
+det enklare att använda \fBquilt\fP till att hantera
+patchuppsättningen. Observera att, även om \fBdpkg\-source\fP korrekt tolkar
+series\-filer som använder explicita flaggor till patch\-programmet (lagrade
+på kommandoraden efter patch\-filnamnet och ett eller flera blanksteg), så
+ignoreras dessa flaggor och det förväntar sig att patchar kan tillämpas med
+flaggan \fB\-p1\fP till \fBpatch\fP. Det kommer därför visa en varning sådana
+flaggor upptäcks, och bygget kommer troligen att misslyckas.
 .PP
-Till skillnad mot quilt:s originalbeteende förväntas det att patchar kan
+Till skillnad mot \fBquilt\fP:s originalbeteende förväntas det att patchar kan
 appliceras utan någon "fuzz". När så inte är fallet bör du uppdatera
-patcharna med hjälp av quilt, om inte kommer dpkg\-source rapportera ett
-felmeddelande när det försöker tillämpa dem.
+patcharna med hjälp av \fBquilt\fP, om inte kommer \fBdpkg\-source\fP rapportera
+ett felmeddelande när det försöker tillämpa dem.
 .PP
-Patchar kan även ta bort filer, på ungfär samma sätt som quilt normalt
-fungerar.
+Patchar kan även ta bort filer, på samma sätt som \fBquilt\fP normalt fungerar.
 .PP
 Filen \fB.pc/applied\-patchers\fP skapas om patchar tillämpades vid
 uppackningen.
@@ -419,7 +427,7 @@ därefter mot källkodskatalogen. Om diffen inte är tom misslyckas bygget,
 såvida inte \fB\-\-single\-debian\-patch\fP eller \fB\-\-auto\-commit\fP använts, i
 vilket fall diffen lagras i den automatiska patchen. Om den automatiska
 patchen skapas/tas bort, läggs den till/tas bort från series\-filen och från
-quilt\-metadata.
+\fBquilt\fP\-metadata.
 
 Eventuella ändringar på binärfiler kan inte representeras i en diff och
 kommer därmed att leda till ett felmeddelande, såvida inte paketansvariga
@@ -434,7 +442,7 @@ används sedan för att skapa debian\-tarbollen.
 Den automatiskt genererade diff\-filen innehåller inte ändringar för
 VCS\-specifika filer eller för många temporära filer (se standardvärdet som
 är knutet till flaggan \fB\-i\fP i texten för \fB\-\-help\fP). Detta gäller speciellt
-katalogen \fB.pc\fP som används av quilt, katalogen kommer att ignoreras när
+katalogen \fB.pc\fP som används av \fBquilt\fP, katalogen kommer att ignoreras när
 den automatiska patchen skapas.
 
 Observera: \fBdpkg\-source\fP \fB\-\-before\-build\fP (och \fB\-b\fP) ser till att alla
@@ -450,7 +458,7 @@ beteende.
 .TP 
 \fB\-\-commit\fP [\fIkatalog\fP] [\fIpatchnamn\fP] [\fIpatch\-fil\fP]
 Skapar en patch som motsvarar de lokala ändringar som inte hanteras av
-quilt\-patch\-systemet och integrerar dem i patch\-systemet under namnet
+\fBquilt\fP\-patch\-systemet och integrerar dem i patch\-systemet under namnet
 \fIpatchnamn\fP. Om namnet saknas kommer programmet be om ett interaktivt. Om
 \fIpatch\-fil\fP anges används den som patch som motsvarar de lokala ändringar
 som skall integreras. När patchen är integrerad startas ett
@@ -471,10 +479,10 @@ dyker upp i debian\-tarbollen (precis som \fBdpkg\-source \-\-include\-binaries
 .TP 
 \fB\-\-allow\-version\-of\-quilt\-db=\fP\fIversion\fP
 Tillåt \fBdpkg\-source\fP att bygga källkodspaketet om versionen av
-quilt\-metadata är den som angavs, även om \fBdpkg\-source\fP inte känner till
-den. Det betyder att den givna versionen av quilt\-metadata är kompatibel med
-version 2 som \fBdpkg\-source\fP för närvarande stöder. Versionen av
-quilt\-metadata lagras i \fB.pc/.version\fP.
+\fBquilt\fP\-metadata är den som angavs, även om \fBdpkg\-source\fP inte känner till
+den. Det betyder att den givna versionen av \fBquilt\fP\-metadata är kompatibel
+med version 2 som \fBdpkg\-source\fP för närvarande stöder. Versionen av
+\fBquilt\fP\-metadata lagras i \fB.pc/.version\fP.
 .TP 
 \fB\-\-include\-removal\fP
 Ignorera inte borttagna filer och ta med dem i den automatiskt genererade
@@ -509,7 +517,7 @@ källkodspaketet bara är en samling av flera uppströmsprogram och där det
 inte finns något "huvud"\-program.
 .TP 
 \fB\-\-no\-unapply\-patches, \-\-unapply\-patches\fP
-Som standard kommer dpkg\-source att automatiskt ta bort patchar i kroken
+Som standard kommer \fBdpkg\-source\fP att automatiskt ta bort patchar i kroken
 \fB\-\-after\-build\fP om de applicerades under \fB\-\-before\-build\fP. De här
 flaggorna låter dig överstyra om du vill inaktivera eller aktivera
 proceduren för borttagning av patchar. Flaggorna tillåts endast i
@@ -519,12 +527,13 @@ standard har samma beteende.
 \fB\-\-abort\-on\-upstream\-changes\fP
 Processen misslyckas om en automatisk patch har genererats. Flaggan kan
 användas för att se till att alla ändringar har lagrats undan korrekt i
-separata quilt\-patchar innan källkodspaketet byggts. Flaggan tillåts inte i
-\fBdebian/source/options\fP, men kan användas i \fBdebian/source/local\-options\fP.
+separata \fBquilt\fP\-patchar innan källkodspaketet byggts. Flaggan tillåts inte
+i \fBdebian/source/options\fP, men kan användas i
+\fBdebian/source/local\-options\fP.
 .TP 
 \fB\-\-auto\-commit\fP
 Processen misslyckas inte om en automatisk patch har skapats, den läggs
-istället direkt in i quilt\-serien.
+istället direkt in i \fBquilt\fP\-serien.
 
 .PP
 \fBExtraheringsflaggor\fP
@@ -547,7 +556,7 @@ katalog. Åtminstone en fil måste anges.
 .TP 
 \fB\-\-target\-format=\fP\fIvärde\fP
 \fBKrävs\fP. Anger det riktiga formatet på det genererade källkodspaketet. Den
-skapade .dsc\-filen kommer innehålla detta värde i sitt \fIFormat\fP\-fält och
+skapade .dsc\-filen kommer innehålla detta värde i sitt \fBFormat\fP\-fält och
 inte "3.0 (custom)".
 .
 .SS "Format: 3.0 (git)"
@@ -583,8 +592,9 @@ den anges överstyr den standardbeteendet som är att ta med alla grenar och
 taggar. Kan anges flera gånger. \fIref\fP kan vara namnet på en gren eller tagg
 som skall tas med. Den kan även vara vilken som helst annan parameter som
 kan sändas med till \fBgit\-rev\-list\fP(1). För att, till exempel, endast ta med
-grenen "master", angänd \-\-git\-ref=master. För att ta med alla taggar och
-grenar, förutom grenen private, använd \-\-git\-ref=\-\-all \-\-git\-ref=^private
+grenen "master", angänd \fB\-\-git\-ref=\fPmaster. För att ta med alla taggar och
+grenar, förutom grenen private, använd \fB\-\-git\-ref=\fP\-\-all
+\fB\-\-git\-ref=\fP^private
 .TP 
 \fB\-\-git\-depth=\fP\fIantal\fP
 Skapar en grund klon med en historik som är avhuggen vid det angivna antalet
@@ -606,12 +616,13 @@ till att vi inte har några ej ignorerade ej incheckade ändringar.
 De VCS\-specifika delarna av källkodskatalogen kommer därefter att kopieras
 över till en temporär katalog. Innan den temporära katalogen packas i en
 tarboll utförs viss städning för att spara plats.
-.SH "VARNINGAR OCH FELMEDDELANDEN"
+.SH DIAGNOSTIK
 .SS "källkodsformat ej angivet i debian/source/format"
 Filen \fBdebian/source/format\fP bör alltid finnas och ange det önskade
 källkodsformatet. För bakåtkompatibilitet antar formatet "1.0" om filen inte
 finns, men du bör inte förlita dig på detta: vid någon punkt i framtiden
-kommer dpkg\-source att justeras så att det misslyckas om filen inte finns.
+kommer \fBdpkg\-source\fP att justeras så att det misslyckas om filen inte
+finns.
 
 Resonemanget bakom detta är att formatet "1.0" inte längre är det
 rekommenderade formatet, du bör normalt välja ett av de nyare formaten ("3.0
@@ -635,6 +646,8 @@ katalog) får du det här felmeddelandet.
 Tomma filer kan inte skapas med patchfiler. Ändringen kommer därmed inte att
 sparas i källkodspaketet och du får en varning om det.
 .SS "exekveringsläge \fIläge\fP på \fIfil\fP kommer inte representeras i diffen"
+Patchfiler beskriver inte läget på filer och exekveringsbehörigheter sparas
+därmed inte i källkodspaketet. Den här varningen påminner dig om detta.
 .SS "specialläget \fIläge\fP på \fIfil\fP kommer inte representeras i diffen"
 Patchfiler beskriver inte läget på filer och ändrade lägen sparas inte i
 källkodspaketet. Den här varningen påminner dig om detta.
@@ -672,8 +685,7 @@ filen \fBdebian/source/format\fP istället.
 Precis som \fBdebian/source/options\fP förutom att filen inte inkluderas i det
 genererade källkodspaketet. Det kan vara användbart för att spara ett val
 som gäller för paketansvariga eller VCS\-systemet källkodspaketet hanteras i.
-.SS debian/source/local\-patch\-header
-.SS debian/source/patch\-header
+.SS "debian/source/local\-patch\-header \fRand\fP debian/source/patch\-header"
 Friformstext som läggs in på toppen av den automatiskt genererade patchen i
 formaten "2.0" eller "3.0 (quilt)". \fBlocal\-patch\-header\fP tas inte med i det
 genererade källkodspaketet medan \fBpatch\-header\fP tas med.
@@ -683,7 +695,7 @@ uppströmskällkodspaketet. Inledande och avslutande blanksteg tas bort. Rader
 som börjar med "#" är kommentarer och ignoreras. Tomma rader ignoreras. De
 rader som är kvar inleds med filnamnet på en patchfil (relativt till
 \fBdebian/patches/\fP\-katalogen) upp till det första blankstegstecknet eller
-slutet på raden. Valfria flaggor till quilt kan följa fram till slutet av
+slutet på raden. Valfria flaggor till \fBquilt\fP kan följa fram till slutet av
 raden eller det första "#" som följer på ett eller flera blanksteg (vilket
 anger början på en kommentar fram till slutet av raden).
 .SH PROGRAMFEL
@@ -691,5 +703,5 @@ Tidpunkten på fältöverstyrning inträffar jämfört med inställning av vissa
 standardutdatafält är ganska förvirrad.
 .SH "SE ÄVEN"
 \fBdpkg\-deb\fP(1), \fBdpkg\fP(1), \fBdselect\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

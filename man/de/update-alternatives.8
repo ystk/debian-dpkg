@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -28,7 +28,7 @@
 .\"
 .\"*******************************************************************
 .TH update\-alternatives 8 2012\-07\-31 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.SH BEZEICHNUNG
 update\-alternatives \- Verwaltung symbolischer Links zur Bestimmung von
 Standardwerten für Befehle
 .
@@ -295,6 +295,15 @@ Erzeugt mehr Kommentare über die Tätigkeit von \fBupdate\-alternatives\fP.
 \fB\-\-quiet\fP
 Erzeuge keine Kommentare, es sei denn, ein Fehler tritt auf.
 .
+.SH RÜCKGABEWERT
+.TP 
+\fB0\fP
+Die angeforderte Aktion wurde erfolgreich ausgeführt.
+.TP 
+\fB2\fP
+Beim Lesen der Kommandozeile oder beim Ausführen der Aktion traten Probleme
+auf.
+.
 .SH UMGEBUNG
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -310,15 +319,6 @@ Das standardmäßige Alternativ\-Verzeichnis. Kann mittels der Option
 \fI/var/lib/dpkg/alternatives/\fP
 Das standardmäßige administrative Verzeichnis. Kann mittels der
 \fB\-\-admindir\fP Option geändert werden.
-.
-.SH RÜCKGABEWERT
-.TP 
-\fB0\fP
-Die angeforderte Aktion wurde erfolgreich ausgeführt.
-.TP 
-\fB2\fP
-Beim Lesen der Kommandozeile oder beim Ausführen der Aktion traten Probleme
-auf.
 .
 .SH ABFRAGE\-FORMAT
 Das Format von \fBupdate\-alternatives \-\-query\fP ist ein RFC822\-artiges,
@@ -359,7 +359,7 @@ Pfad zum Block dieser Alternativen.
 Wert der Priorität dieser Alternativen.
 .TP 
 \fBSlaves:\fP\fI Liste\-von\-Slaves\fP
-Wenn diese Kopfzeile vorhanden ist enthält die \fBnächste\fP Zeile alle
+Wenn dieses Feld vorhanden ist enthält die \fBnächste\fP Zeile alle
 Slave\-Alternativen, die dem Masterlink dieser Alternativen zugeordnet
 sind. Pro Zeile wird ein Slave aufgeführt. Jede Zeile enthält ein
 Leerzeichen, den generischen Namen des Slaves, ein weiteres Leerzeichen und
@@ -431,17 +431,8 @@ Sie folgendes als Root aus:
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
-.SH FEHLER
-Falls Sie einen Fehler finden, melden Sie ihn bitte über die Fehlerdatenbank
-von Debian.
-.PP
-Falls Sie einen Unterschied zwischen der Implementation von
-\fBupdate\-alternatives\fP und dieser Handbuchseite finden, ist dies ein Fehler,
-entweder in der Implementation oder in der Dokumentation; bitte melden Sie
-dies.
-.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

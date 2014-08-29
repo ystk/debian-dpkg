@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_DPKG_H
@@ -108,7 +108,6 @@ DPKG_BEGIN_DECLS
 #define DPKG		"dpkg"
 #define DEBSIGVERIFY	"/usr/bin/debsig-verify"
 
-#define TAR		"tar"
 #define RM		"rm"
 #define CAT		"cat"
 #define FIND		"find"
@@ -119,18 +118,7 @@ DPKG_BEGIN_DECLS
 #include <dpkg/progname.h>
 #include <dpkg/ehandle.h>
 #include <dpkg/report.h>
-
-/*** from startup.c ***/
-
-#define standard_startup() do { \
-  push_error_context(); \
-  /* Make sure all our status databases are readable. */ \
-  umask(022); \
-} while (0)
-
-#define standard_shutdown() do { \
-  pop_error_context(ehflag_normaltidy); \
-} while (0)
+#include <dpkg/program.h>
 
 /*** log.c ***/
 
@@ -146,6 +134,7 @@ void cu_closestream(int argc, void **argv);
 void cu_closepipe(int argc, void **argv);
 void cu_closedir(int argc, void **argv);
 void cu_closefd(int argc, void **argv);
+void cu_filename(int argc, void **argv);
 
 /*** from mlib.c ***/
 

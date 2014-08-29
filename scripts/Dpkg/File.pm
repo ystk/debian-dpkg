@@ -12,21 +12,21 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package Dpkg::File;
 
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = '0.01';
 
 use Fcntl qw(:flock);
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 
-use base qw(Exporter);
-our @EXPORT = qw(file_lock);
+use Exporter qw(import);
+our @EXPORT = qw(file_lock file_slurp);
 
 sub file_lock($$) {
     my ($fh, $filename) = @_;
@@ -37,16 +37,24 @@ sub file_lock($$) {
     # be installed alongside.
     eval 'use File::FcntlLock';
     if ($@) {
-        warning(_g("File::FcntlLock not available; using flock which is not NFS-safe"));
-        flock($fh, LOCK_EX) ||
-            syserr(_g("failed to get a write lock on %s"), $filename);
+        warning(_g('File::FcntlLock not available; using flock which is not NFS-safe'));
+        flock($fh, LOCK_EX)
+            or syserr(_g('failed to get a write lock on %s'), $filename);
     } else {
         eval q{
             my $fs = File::FcntlLock->new(l_type => F_WRLCK);
-            $fs->lock($fh, F_SETLKW) ||
-                syserr(_g("failed to get a write lock on %s"), $filename);
+            $fs->lock($fh, F_SETLKW)
+                or syserr(_g('failed to get a write lock on %s'), $filename);
         }
     }
+}
+
+sub file_slurp {
+    my ($fh) = @_;
+
+    local $/;
+    my $data = <$fh>;
+    return $data;
 }
 
 1;

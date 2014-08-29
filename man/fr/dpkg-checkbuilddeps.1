@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-checkbuilddeps 1 22\-05\-2012 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-checkbuilddeps 1 17\-09\-2013 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-checkbuilddeps \- vérifier les dépendances et les conflits de
 construction
@@ -46,12 +46,12 @@ Change l'endroit où se trouve la base de données de \fBdpkg\fP. Par défaut,
 c'est \fI/var/lib/dpkg\fP.
 .TP 
 \fB\-A\fP
-Ignore les lignes \fIBuild\-Depends\-Arch\fP et \fIBuild\-Conflicts\-Arch\fP. À
+Ignore les lignes \fBBuild\-Depends\-Arch\fP et \fBBuild\-Conflicts\-Arch\fP. À
 utiliser lorsque seuls des paquets indépendants d'une architecture seront
 construits ou à combiner avec \fB\-B\fP si seul un paquet source est construit.
 .TP 
 \fB\-B\fP
-Ignore les lignes \fIBuild\-Depends\-Indep\fP et \fIBuild\-Conflicts\-Indep\fP. À
+Ignore les lignes \fBBuild\-Depends\-Indep\fP et \fBBuild\-Conflicts\-Indep\fP. À
 utiliser lorsque seuls des paquets dépendants de l'architecture sont
 construits ou à combiner avec \fB\-A\fP si seul un paquet source est construit.
 .TP 
@@ -66,11 +66,25 @@ Vérifie les dépendances et conflits de construction en supposant que le
 paquet décrit dans le fichier de contrôle doit être construit pour
 l'architecture indiquée au lieu de celle du système.
 .TP 
+\fB\-P \fP\fIprofil\fP[\fB,\fP...]
+Vérifie les dépendances et conflits de construction en supposant que le
+paquet décrit dans le fichier de contrôle doit être construit pour le ou les
+profils données. L'argument est une liste séparée par des virgules des noms
+de profil, sans le préfixe de l'espace de nommage de «\ \fBprofile.\fP\ ».
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
 Affiche le numéro de version puis quitte.
+.
+.SH ENVIRONNEMENT
+.TP 
+\fBDEB_BUILD_PROFILES\fP
+Si cette option est utilisée, elle sera utilisée comme profil(s) de
+construction actif(s) pour le paquet à construire. C'est une liste séparée
+par des espaces de nom de profils, sans le préfixe de l'espace de nommage de
+«\ \fBprofile.\fP\ ». Remplacée par l'option \fB\-P\fP.
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

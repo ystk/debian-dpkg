@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
@@ -17,15 +17,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 2012\-05\-04 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.TH dpkg\-parsechangelog 1 2013\-07\-06 Debian\-Projekt dpkg\-Hilfsprogramme
+.SH BEZEICHNUNG
 dpkg\-parsechangelog \- auswerten von Debian changelog\-Dateien
 .
 .SH ÜBERSICHT
@@ -40,7 +40,8 @@ Informationen in der Standard\-Ausgabe in maschinenlesbarer Form aus.
 .TP 
 \fB\-l\fP\fIChangelog\-Datei\fP
 Gibt die Änderungsprotokolldatei an, aus der Informationen gelesen werden
-sollen. Standardmäßig \fBdebian/changelog\fP.
+sollen. Ein »\-« kann zur Angabe des Lesens von der Standardeingabe verwandt
+werden. Standardmäßig \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIChangelog\-Format\fP
 Gibt das Format der Änderungsprotokolldatei an. Standardmäßig wird das
@@ -54,6 +55,10 @@ durchsucht werden soll. Diese Verzeichnis wird vor den
 Standardverzeichnissen (derzeit \fB/usr/local/lib/dpkg/parsechangelog\fP und
 \fB/usr/lib/dpkg/parsechangelog\fP) durchsucht.
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIFeld\fP
+Spezifiziert den Namen des anzuzeigenden Feldes (seit Dpkg 1.17.0). Der
+Feldname wird nicht angezeigt, nur sein Wert.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Zeige den Bedienungshinweis und beende.
 .TP 
@@ -63,7 +68,15 @@ Gebe die Version aus und beende sich.
 Die folgenden Optionen können verwendet werden, um die Ausgabe des
 Changelog\-Parsers zu beinflussen, z.B. den Bereich der Einträge oder das
 Format der Ausgabe. Sie müssen vom in Frage kommenden Parser\-Skript
-unterstützt werden. Lesen Sie auch \fBWARNUNGEN\fP.
+unterstützt werden. Lesen Sie auch \fBBEMERKUNGEN\fP.
+.TP 
+\fB\-\-file\fP\fI Datei\fP
+Setzt den auszuwertenden Changelog\-Dateinamen. Standardmäßig »\-«
+(Standardeingabe).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIDatei\fP
+Setzt die bei Fehlermeldungen zu verwendenden Changelog\-Datei, statt den
+Namen von der Option \fB\-\-file\fP oder den Vorgabewert zu verwenden.
 .TP 
 \fB\-\-format\fP\fI Ausgabeformat\fP
 Setze das Ausgabeformat. Derzeit werden die Werte \fIdpkg\fP und \fIrfc822\fP
@@ -125,7 +138,7 @@ füge \fIAnzahl\fP Einträge vom Kopf (oder vom Fuß, falls \fIAnzahl\fP negativ is
 hinzu.
 .TP 
 \fB\-\-offset\fP \fIZahl\fP, \fB\-o\fP\fIZahl\fP
-ändere den Startpunkt für \-\-count, gezählt vom Kopf (oder Fuß falls, falls
+ändere den Startpunkt für \fB\-\-count\fP, gezählt vom Kopf (oder Fuß, falls
 \fIZahl\fP negativ ist).
 .TP 
 \fB\-\-all\fP
@@ -176,9 +189,9 @@ Ausgabe zu erzeugen.
 
 Ein Changelog\-Parser darf nicht mit dem Nutzer interagieren.
 .
-.SH WARNUNG
-Alle \fBParser\-Optionen\fP außer \-v werden nur von \fBdpkg\fP Version 1.14.16 oder
-neuer unterstützt. Parser von Dritten für Changelog\-Formate außer \fIdebian\fP
+.SH BEMERKUNGEN
+Alle \fBParser\-Optionen\fP außer \fB\-v\fP werden seit Dpkg 1.14.16
+unterstützt. Parser von Dritten für Changelog\-Formate außer \fIdebian\fP
 könnten nicht alle Optionen unterstützen.
 .
 .SH DATEIEN
@@ -189,7 +202,7 @@ das Quellpaket, wie beispielsweise die Dringlichkeit (»urgency«) und die
 Distribution des Uploads, die Änderungen seit einer bestimmten
 Veröffentlichung und die Quellversionsnummer selbst zu erhalten.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

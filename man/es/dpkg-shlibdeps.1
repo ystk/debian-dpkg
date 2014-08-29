@@ -4,7 +4,7 @@
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-shlibdeps 1 "4 de mayo del 2012" "Proyecto Debian" "Herramientas de dpkg"
+.TH dpkg\-shlibdeps 1 2013\-09\-06 "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 dpkg\-shlibdeps \- Genera dependencias de bibliotecas compartidas de
 sustitución de variables
@@ -72,9 +72,8 @@ Información de redefinición de bibliotecas compartidas por cada
 sistema. \fIarquitectura\fP es la arquitectura del sistema actual (obtenido
 mediante \fBdpkg\-architecture \- qDEB_HOST_ARCH\fP).
 .IP "Salida de \(lq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP symbols\(rq"
-Información de dependencias de bibliotecas compartidas proporcionadas por el
-paquete. A menos que se redefina a través «\-\-admindir», los ficheros se
-encuentran bajo «/var/lib/dpkg».
+Package\-provided shared library dependency information.  Unless overridden
+by \fB\-\-admindir\fP, those files are located in /var/lib/dpkg.
 .P
 \fBdpkg\-shlibdeps\fP recuerda la versión mínima (más grande) necesaria para
 cada biblioteca al analizar los símbolos usados por todos los binarios. Al
@@ -82,11 +81,11 @@ finalizar el proceso, puede escribir la dependencia mínima para cada
 biblioteca usada (siempre que la información de los ficheros \fIsymbols\fP sea
 precisa).
 .P
-Como medida de precaución, un fichero de símbolos puede proporcionar un
-campo de meta información \fIBuild\-Depends\-Package\fP para que
-\fBdpkg\-shlibdeps\fP extraiga la versión mínima requerida por el paquete
-correspondiente en el campo «Build\-Depends», y utilizar tal versión si es
-mayor que la versión mínima calculada en el análisis de símbolos.
+As a safe\-guard measure, a symbols file can provide a
+\fBBuild\-Depends\-Package\fP meta\-information field and \fBdpkg\-shlibdeps\fP will
+extract the minimal version required by the corresponding package in the
+\fBBuild\-Depends\fP field and use this version if it's higher than the minimal
+version computed by scanning symbols.
 .SS "Ficheros «shlibs»"
 Los ficheros «shlibs» asocian de forma directa una librería con una
 dependencia (sin analizar «symbols»). Por ello, es más sólido que necesario,
@@ -107,9 +106,8 @@ la biblioteca se encuentra en el árbol de construcción del paquete. El
 fichero «shlibs» en el árbol de construcción tiene prioridad sobre otros
 ficheros «shlibs» de otros paquetes binarios.
 .IP "Salida de \(lq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP shlibs\(rq"
-Información de dependencias de bibliotecas compartidas proporcionadas por el
-paquete. A menos que se redefina a través «\-\-admindir», los ficheros se
-encuentran bajo «/var/lib/dpkg».
+Package\-provided shared library dependency information.  Unless overridden
+by \fB\-\-admindir\fP, those files are located in /var/lib/dpkg.
 .IP /etc/dpkg/shlibs.default
 Información del sistema acerca de las dependencias predefinidas de
 bibliotecas compartidas.
@@ -123,8 +121,17 @@ el nombre de un fichero ejecutable, igual que si se hubiesen proporcionado
 con \fB\-e\fP\fIejecutable\fP.
 .TP 
 \fB\-e\fP\fIejecutable\fP
-Incluye dependencias apropiadas para las bibliotecas compartidas requeridas
-por el \fIejecutable\fP.
+Include dependencies appropriate for the shared libraries required by
+\fIexecutable\fP.  This option can be used multiple times.
+.TP 
+\fB\-l\fP\fIdirectory\fP
+Add \fIdirectory\fP to the list of directories to search for private shared
+libraries (since dpkg 1.17.0). This option can be used multiple times.
+
+Note: Use this option instead of setting \fBLD_LIBRARY_PATH\fP, as that
+environment variable is used to control the run\-time linker and abusing it
+to set the shared library paths at build\-time can be problematic when
+cross\-compiling for example.
 .TP 
 \fB\-d\fP\fIcampo\-dependencias\fP
 Añade dependencias al campo \fIcampo\-dependencias\fP del fichero de
@@ -148,10 +155,10 @@ variable de sustitución ya existente que empiece por
 \fIprefijo\-de\-variable\fP\fB:\fP (en vez de \fBshlibs:\fP) se eliminará del fichero
 de sustitución de variables.
 .TP 
-\fB\-O\fP
-Muestra las propiedades de las variables de sustitución por la salida
-estándar, en lugar de añadirse al fichero de sustitución de variables (por
-omisión \fBdebian/substvars\fP).
+\fB\-O\fP[\fIfilename\fP]
+Print substitution variable settings to standard output (or \fIfilename\fP if
+specified), rather than being added to the substitution variables file
+(\fBdebian/substvars\fP by default).
 .TP 
 \fB\-t\fP\fItipo\fP
 Da prioridad a la información de dependencia de bibliotecas compartidas
@@ -216,7 +223,8 @@ Muestra el modo de uso y termina.
 \fB\-\-version\fP
 Muestra la versión y termina.
 .
-.SH ADVERTENCIAS
+.SH DIAGNÓSTICOS
+.SS Warnings
 Debido a que \fBdpkg\-shlibdeps\fP analiza el conjunto de símbolos usado por
 cada binario del paquete generado, puede mostrar avisos en varias
 situaciones. Éstos informan de aspectos mejorables del paquete. En la
@@ -258,7 +266,7 @@ problema, pero puede optimizar levemente el tiempo de carga del binario si
 no enlaza tal binario a la biblioteca. Este aviso revisa la misma
 información que el anterior, pero lo hace para cada binario, en lugar de una
 revisión global de todos los binarios.
-.SH FALLOS
+.SS Errors
 \fBdpkg\-shlibdeps\fP fallará si no puede encontrar ninguna biblioteca pública
 usada por un binario, o si no existe ninguna información de dependencia
 asociada a esta biblioteca (el fichero «shlibs», o el fichero
@@ -268,25 +276,24 @@ una extensión) no debería tener un «SONAME», y por ello no necesita
 información de versión.
 .TP 
 \fBcouldn't find library \fP\fIlibrary\-soname\fP\fB needed by \fP\fIbinary\fP\fB (its RPATH is '\fP\fIrpath\fP\fB')\fP
-El \fIbinario\fP utiliza una biblioteca llamada \fIsoname\-biblioteca\fP, pero
-\fBdpkg\-shlibdeps\fP ha sido incapaz de encontrar la
-biblioteca. \fBdpkg\-shlibdeps\fP crea una lista de directorios a revisar en el
-siguiente orden: los directorios listados en el «RPATH» del binario, los
-directorios listados en /etc/ld.so.conf, los directorios listados en la
-variable de entorno «LD_LIBRARY_PATH», y los directorios públicos estándar
-(/lib, /usr/lib, /lib32, /usr/lib32, /lib64, /usr/lib64). Después revisa
-esos directorios en el árbol de construcción del paquete del binario
-analizado, en los árboles de construcción de los paquetes indicados con la
-opción de línea de órdenes «\-S», en otros árboles de construcción de
-paquetes que contienen el fichero «DEBIAN/shlibs» o «DEBIAN/symbols», y por
-último en el directorio raíz. Este error se muestra cuando la biblioteca no
-se encuentra en ninguno de estos directorios.
+The \fIbinary\fP uses a library called \fIlibrary\-soname\fP but \fBdpkg\-shlibdeps\fP
+has been unable to find the library.  \fBdpkg\-shlibdeps\fP creates a list of
+directories to check as following: directories listed in the RPATH of the
+binary, directories listed in /etc/ld.so.conf, directories added by the
+\fB\-l\fP option, directories listed in the \fBLD_LIBRARY_PATH\fP environment
+variable, and standard public directories (/lib, /usr/lib, /lib32,
+/usr/lib32, /lib64, /usr/lib64). Then it checks those directories in the
+package's build tree of the binary being analyzed, in the packages' build
+trees indicated with the \fB\-S\fP command\-line option, in other packages' build
+trees that contains a DEBIAN/shlibs or DEBIAN/symbols file and finally in
+the root directory.  If the library is not found in any of those
+directories, then you get this error.
 
-Si la biblioteca que no se encontró está dentro de un directorio privado del
-mismo paquete, querrá añadir el directorio a «LD_LIBRARY_PATH». Si está en
-otro paquete binario en construcción, querrá asegurar que el fichero
-«shlibs» o «symbols» de este paquete ya existe, y que «LD_LIBRARY_PATH»
-contiene el directorio adecuado, en caso de ser un directorio privado.
+If the library not found is in a private directory of the same package, then
+you want to add the directory with \fB\-l\fP. If it's in another binary package
+being built, you want to make sure that the shlibs/symbols file of this
+package is already created and that \fB\-l\fP contains the appropriate directory
+if it also is in a private directory.
 .TP 
 \fBno dependency information found for \fP\fIlibrary\-file\fP\fB (used by \fP\fIbinary\fP\fB).\fP
 \fBdpkg\-shlibdeps\fP encontró la biblioteca que \fIbinario\fP necesita en
@@ -311,12 +318,12 @@ paquete. \fBdpkg\-shlibdeps\fP intenta evitar esto usando un nombre canónico
 (con \fBrealpath\fP(3)), pero no siempre funciona. Siempre es mejor limpiar el
 «RPATH» del binario para evitar problemas.
 
-Ejecutar \fBdpkg\-shlibdeps\fP en modo informativo (\-v) ofrece mucha más
-información acerca de dónde buscó la información de dependencia. Puede ser
-útil si no entiende porque muestra este fallo.
+Calling \fBdpkg\-shlibdeps\fP in verbose mode (\fB\-v\fP) will provide much more
+information about where it tried to find the dependency information. This
+might be useful if you don't understand why it's giving you this error.
 .SH "VÉASE TAMBIÉN"
 \fBdeb\-shlibs\fP(5), \fBdeb\-symbols\fP(5), \fBdpkg\-gensymbols\fP(1).
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

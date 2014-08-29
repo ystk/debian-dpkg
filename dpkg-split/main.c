@@ -16,13 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <config.h>
 #include <compat.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -104,8 +103,6 @@ usage(const struct cmdinfo *cip, const char *value)
 
 static const char printforhelp[] = N_("Type dpkg-split --help for help.");
 
-struct partqueue *queue= NULL;
-
 off_t opt_maxpartsize = SPLITPARTDEFMAX;
 static const char *admindir;
 const char *opt_depotdir;
@@ -118,7 +115,9 @@ void rerreof(FILE *f, const char *fn) {
   ohshit(_("unexpected end of file in %.250s"),fn);
 }
 
-static void setpartsize(const struct cmdinfo *cip, const char *value) {
+static void
+set_part_size(const struct cmdinfo *cip, const char *value)
+{
   off_t newpartsize;
   char *endp;
 
@@ -146,7 +145,7 @@ static const struct cmdinfo cmdinfos[]= {
   { "help",         '?',  0,  NULL, NULL,             usage               },
   { "version",       0,   0,  NULL, NULL,             printversion        },
   { "depotdir",      0,   1,  NULL, &opt_depotdir,    NULL                },
-  { "partsize",     'S',  1,  NULL, NULL,             setpartsize         },
+  { "partsize",     'S',  1,  NULL, NULL,             set_part_size       },
   { "output",       'o',  1,  NULL, &opt_outputfile,  NULL                },
   { "npquiet",      'Q',  0,  &opt_npquiet, NULL,     NULL,           1   },
   { "msdos",         0,   0,  &opt_msdos, NULL,       NULL,           1   },
@@ -156,13 +155,9 @@ static const struct cmdinfo cmdinfos[]= {
 int main(int argc, const char *const *argv) {
   int ret;
 
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-
-  dpkg_set_progname(SPLITTER);
-  standard_startup();
-  myopt(&argv, cmdinfos, printforhelp);
+  dpkg_locales_init(PACKAGE);
+  dpkg_program_init(SPLITTER);
+  dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
   admindir = dpkg_db_set_dir(admindir);
   if (opt_depotdir == NULL)
@@ -170,13 +165,11 @@ int main(int argc, const char *const *argv) {
 
   if (!cipaction) badusage(_("need an action option"));
 
-  setvbuf(stdout,NULL,_IONBF,0);
-
   ret = cipaction->action(argv);
 
   m_output(stderr, _("<standard error>"));
 
-  standard_shutdown();
+  dpkg_program_done();
 
   return ret;
 }

@@ -11,14 +11,14 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package Dpkg::BuildEnv;
 
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = '0.01';
 
 my %env_modified = ();
 my %env_accessed = ();
@@ -85,7 +85,8 @@ Returns a list of all environment variables that have been accessed.
 =cut
 
 sub list_accessed {
-    return sort keys %env_accessed;
+    my @list = sort keys %env_accessed;
+    return @list;
 }
 
 =item my @list = $bf->list_modified()
@@ -95,7 +96,8 @@ Returns a list of all environment variables that have been modified.
 =cut
 
 sub list_modified {
-    return sort keys %env_modified;
+    my @list = sort keys %env_modified;
+    return @list;
 }
 
 =back

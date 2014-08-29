@@ -4,7 +4,7 @@
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman
- * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2009 Canonical Ltd.
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
@@ -20,7 +20,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -129,7 +129,7 @@ f_filecharf(struct pkginfo *pkg, struct pkgbin *pkgbin,
       fdp->name= fdp->msdosname= fdp->size= fdp->md5sum= NULL;
       *fdpp= fdp;
     }
-    FILEFFIELD(fdp,fip->integer,const char*)= cpos;
+    STRUCTFIELD(fdp, fip->integer, const char *) = cpos;
     fdpp= &fdp->next;
     while (*space && isspace(*space)) space++;
     cpos= space;
@@ -146,7 +146,7 @@ f_charfield(struct pkginfo *pkg, struct pkgbin *pkgbin,
             const char *value, const struct fieldinfo *fip)
 {
   if (*value)
-    PKGPFIELD(pkgbin, fip->integer, char *) = nfstrsave(value);
+    STRUCTFIELD(pkgbin, fip->integer, char *) = nfstrsave(value);
 }
 
 void
@@ -161,7 +161,7 @@ f_boolean(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
   boolean = parse_nv_last(ps, _("yes/no in boolean field"),
                           booleaninfos, value);
-  PKGPFIELD(pkgbin, fip->integer, bool) = boolean;
+  STRUCTFIELD(pkgbin, fip->integer, bool) = boolean;
 }
 
 void
@@ -176,7 +176,7 @@ f_multiarch(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
   multiarch = parse_nv_last(ps, _("foreign/allowed/same/no in quadstate field"),
                             multiarchinfos, value);
-  PKGPFIELD(pkgbin, fip->integer, int) = multiarch;
+  STRUCTFIELD(pkgbin, fip->integer, int) = multiarch;
 }
 
 void
@@ -185,7 +185,7 @@ f_architecture(struct pkginfo *pkg, struct pkgbin *pkgbin,
                const char *value, const struct fieldinfo *fip)
 {
   pkgbin->arch = dpkg_arch_find(value);
-  if (pkgbin->arch->type == arch_illegal)
+  if (pkgbin->arch->type == DPKG_ARCH_ILLEGAL)
     parse_warn(ps, _("'%s' is not a valid architecture name: %s"),
                value, dpkg_arch_name_is_illegal(value));
 }
@@ -205,9 +205,9 @@ f_priority(struct pkginfo *pkg, struct pkgbin *pkgbin,
            const char *value, const struct fieldinfo *fip)
 {
   if (!*value) return;
-  pkg->priority = parse_nv_last(ps, _("word in `priority' field"),
+  pkg->priority = parse_nv_last(ps, _("word in 'Priority' field"),
                                 priorityinfos, value);
-  if (pkg->priority == pri_other)
+  if (pkg->priority == PKG_PRIO_OTHER)
     pkg->otherpriority = nfstrsave(value);
 }
 
@@ -218,15 +218,16 @@ f_status(struct pkginfo *pkg, struct pkgbin *pkgbin,
 {
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
-                _("value for `status' field not allowed in this context"));
+                _("value for '%s' field not allowed in this context"),
+                "Status");
   if (ps->flags & pdb_recordavailable)
     return;
 
-  pkg->want = parse_nv_next(ps, _("first (want) word in `status' field"),
+  pkg->want = parse_nv_next(ps, _("first (want) word in 'Status' field"),
                             wantinfos, &value);
-  pkg->eflag = parse_nv_next(ps, _("second (error) word in `status' field"),
+  pkg->eflag = parse_nv_next(ps, _("second (error) word in 'Status' field"),
                              eflaginfos, &value);
-  pkg->status = parse_nv_last(ps, _("third (status) word in `status' field"),
+  pkg->status = parse_nv_last(ps, _("third (status) word in 'Status' field"),
                               statusinfos, value);
 }
 
@@ -236,7 +237,8 @@ f_version(struct pkginfo *pkg, struct pkgbin *pkgbin,
           const char *value, const struct fieldinfo *fip)
 {
   parse_db_version(ps, &pkgbin->version, value,
-                   _("error in Version string '%.250s'"), value);
+                   _("error in '%s' field string '%.250s'"),
+                   "Version", value);
 }
 
 void
@@ -247,7 +249,8 @@ f_revision(struct pkginfo *pkg, struct pkgbin *pkgbin,
   char *newversion;
 
   parse_warn(ps,
-             _("obsolete `Revision' or `Package-Revision' field used"));
+             _("obsolete '%s' or '%s' field used"),
+             "Revision", "Package-Revision");
   if (!*value) return;
   if (str_is_set(pkgbin->version.revision)) {
     newversion = nfmalloc(strlen(pkgbin->version.version) +
@@ -266,12 +269,14 @@ f_configversion(struct pkginfo *pkg, struct pkgbin *pkgbin,
 {
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
-                _("value for `config-version' field not allowed in this context"));
+                _("value for '%s' field not allowed in this context"),
+                "Config-Version");
   if (ps->flags & pdb_recordavailable)
     return;
 
   parse_db_version(ps, &pkg->configversion, value,
-                   _("error in Config-Version string '%.250s'"), value);
+                   _("error in '%s' field string '%.250s'"),
+                   "Config-Version", value);
 
 }
 
@@ -297,8 +302,8 @@ static void conffvalue_lastword(const char *value, const char *from,
 
 malformed:
   parse_error(ps,
-              _("value for `conffiles' has malformatted line `%.*s'"),
-              (int)min(endent - value, 250), value);
+              _("value for '%s' field has malformatted line '%.*s'"),
+              "Conffiles", (int)min(endent - value, 250), value);
 }
 
 void
@@ -319,8 +324,8 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
     if (c == '\n') continue;
     if (c != ' ')
       parse_error(ps,
-                  _("value for `conffiles' has line starting with non-space `%c'"),
-                  c);
+                  _("value for '%s' has line starting with non-space '%c'"),
+                  "Conffiles", c);
     for (endent = value; (c = *endent) != '\0' && c != '\n'; endent++) ;
     conffvalue_lastword(value, endent, endent,
 			&hashstart, &hashlen, &endfn,
@@ -446,7 +451,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
         dop->arch_is_implicit = false;
         dop->arch = dpkg_arch_find(arch.buf);
 
-        if (dop->arch->type == arch_illegal)
+        if (dop->arch->type == DPKG_ARCH_ILLEGAL)
           emsg = dpkg_arch_name_is_illegal(arch.buf);
         if (emsg)
           parse_error(ps, _("'%s' field, reference to '%.255s': "
@@ -456,7 +461,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                  fip->integer == dep_replaces) {
         /* Conflics/Breaks/Replaces get an implicit "any" arch qualifier. */
         dop->arch_is_implicit = true;
-        dop->arch = dpkg_arch_get(arch_wildcard);
+        dop->arch = dpkg_arch_get(DPKG_ARCH_WILDCARD);
       } else {
         /* Otherwise use the pkgbin architecture, which will be assigned to
          * later on by parse.c, once we can guarantee we have parsed it from
@@ -474,9 +479,9 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
         c1= *p;
         if (c1 == '<' || c1 == '>') {
           c2= *++p;
-          dop->verrel = (c1 == '<') ? dpkg_relation_lt : dpkg_relation_gt;
+          dop->verrel = (c1 == '<') ? DPKG_RELATION_LT : DPKG_RELATION_GT;
           if (c2 == '=') {
-            dop->verrel |= dpkg_relation_eq;
+            dop->verrel |= DPKG_RELATION_EQ;
             p++;
           } else if (c2 == c1) {
             /* Either ‘<<’ or ‘>>’. */
@@ -486,16 +491,16 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                         _("`%s' field, reference to `%.255s':\n"
                           " bad version relationship %c%c"),
                         fip->name, depname.buf, c1, c2);
-            dop->verrel = dpkg_relation_none;
+            dop->verrel = DPKG_RELATION_NONE;
           } else {
             parse_warn(ps,
                        _("`%s' field, reference to `%.255s':\n"
                          " `%c' is obsolete, use `%c=' or `%c%c' instead"),
                        fip->name, depname.buf, c1, c1, c1, c1);
-            dop->verrel |= dpkg_relation_eq;
+            dop->verrel |= DPKG_RELATION_EQ;
           }
         } else if (c1 == '=') {
-          dop->verrel = dpkg_relation_eq;
+          dop->verrel = DPKG_RELATION_EQ;
           p++;
         } else {
           parse_warn(ps,
@@ -503,11 +508,12 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                        " implicit exact match on version number, "
                        "suggest using `=' instead"),
                      fip->name, depname.buf);
-          dop->verrel = dpkg_relation_eq;
+          dop->verrel = DPKG_RELATION_EQ;
         }
-        if ((dop->verrel != dpkg_relation_eq) && (fip->integer == dep_provides))
+        if ((dop->verrel != DPKG_RELATION_EQ) && (fip->integer == dep_provides))
           parse_warn(ps,
-                     _("Only exact versions may be used for Provides"));
+                     _("only exact versions may be used for '%s' field"),
+                     "Provides");
 
         if (!isspace(*p) && !isalnum(*p)) {
           parse_warn(ps,
@@ -546,7 +552,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                            "error in version"), fip->name, depname.buf);
         p++; while (isspace(*p)) p++;
       } else {
-        dop->verrel = dpkg_relation_none;
+        dop->verrel = DPKG_RELATION_NONE;
         dpkg_version_blank(&dop->version);
       }
       if (!*p || *p == ',') break;
@@ -613,8 +619,8 @@ f_trigpend(struct pkginfo *pend, struct pkgbin *pkgbin,
 
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
-                _("value for `triggers-pending' field not allowed in "
-                  "this context"));
+                _("value for '%s' field not allowed in this context"),
+                "Triggers-Pending");
 
   while ((word = scan_word(&value))) {
     emsg = trig_name_is_illegal(word);
@@ -638,8 +644,8 @@ f_trigaw(struct pkginfo *aw, struct pkgbin *pkgbin,
 
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
-                _("value for `triggers-awaited' field not allowed in "
-                  "this context"));
+                _("value for '%s' field not allowed in this context"),
+                "Triggers-Awaited");
 
   while ((word = scan_word(&value))) {
     struct dpkg_error err;

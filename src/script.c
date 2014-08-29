@@ -3,7 +3,7 @@
  * script.c - maintainer script routines
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2007-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,6 +30,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+#ifdef WITH_SELINUX
+#include <selinux/selinux.h>
+#endif
 
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
@@ -46,38 +50,28 @@
 void
 post_postinst_tasks(struct pkginfo *pkg, enum pkgstatus new_status)
 {
-	if (new_status < stat_triggersawaited)
+	if (new_status < PKG_STAT_TRIGGERSAWAITED)
 		pkg_set_status(pkg, new_status);
 	else if (pkg->trigaw.head)
-		pkg_set_status(pkg, stat_triggersawaited);
+		pkg_set_status(pkg, PKG_STAT_TRIGGERSAWAITED);
 	else if (pkg->trigpend_head)
-		pkg_set_status(pkg, stat_triggerspending);
+		pkg_set_status(pkg, PKG_STAT_TRIGGERSPENDING);
 	else
-		pkg_set_status(pkg, stat_installed);
-
-	post_postinst_tasks_core(pkg);
-}
-
-void
-post_postinst_tasks_core(struct pkginfo *pkg)
-{
+		pkg_set_status(pkg, PKG_STAT_INSTALLED);
 	modstatdb_note(pkg);
 
-	if (!f_noact) {
-		debug(dbg_triggersdetail,
-		      "post_postinst_tasks_core - trig_incorporate");
-		trig_incorporate(msdbrw_write);
-	}
+	debug(dbg_triggersdetail, "post_postinst_tasks - trig_incorporate");
+	trig_incorporate(modstatdb_get_status());
 }
 
 static void
 post_script_tasks(void)
 {
+	debug(dbg_triggersdetail, "post_script_tasks - ensure_diversions");
 	ensure_diversions();
 
-	debug(dbg_triggersdetail,
-	      "post_script_tasks - ensure_diversions; trig_incorporate");
-	trig_incorporate(msdbrw_write);
+	debug(dbg_triggersdetail, "post_script_tasks - trig_incorporate");
+	trig_incorporate(modstatdb_get_status());
 }
 
 static void
@@ -100,7 +94,7 @@ setexecute(const char *path, struct stat *stab)
  * Returns the path to the script inside the chroot.
  */
 static const char *
-preexecscript(struct command *cmd)
+maintscript_pre_exec(struct command *cmd)
 {
 	const char *admindir = dpkg_db_get_dir();
 	size_t instdirl = strlen(instdir);
@@ -113,9 +107,11 @@ preexecscript(struct command *cmd)
 
 		if (chroot(instdir))
 			ohshite(_("failed to chroot to `%.250s'"), instdir);
-		if (chdir("/"))
-			ohshite(_("failed to chdir to `%.255s'"), "/");
 	}
+	/* Switch to a known good directory to give the maintainer script
+	 * a saner environment, also needed after the chroot(). */
+	if (chdir("/"))
+		ohshite(_("failed to chdir to `%.255s'"), "/");
 	if (debug_has_flag(dbg_scripts)) {
 		struct varbuf args = VARBUF_INIT;
 		const char **argv = cmd->argv;
@@ -136,12 +132,31 @@ preexecscript(struct command *cmd)
 	return cmd->filename + instdirl;
 }
 
+/**
+ * Set a new security execution context for the maintainer script.
+ *
+ * Try to create a new execution context based on the current one and the
+ * specific maintainer script filename. If it's the same as the current
+ * one, use the given fallback.
+ */
 static int
-do_script(struct pkginfo *pkg, struct pkgbin *pkgbin,
-          struct command *cmd, struct stat *stab, int warn)
+maintscript_set_exec_context(struct command *cmd, const char *fallback)
+{
+	int rc = 0;
+
+#ifdef WITH_SELINUX
+	rc = setexecfilecon(cmd->filename, fallback);
+#endif
+
+	return rc < 0 ? rc : 0;
+}
+
+static int
+maintscript_exec(struct pkginfo *pkg, struct pkgbin *pkgbin,
+                 struct command *cmd, struct stat *stab, int warn)
 {
 	pid_t pid;
-	int r;
+	int rc;
 
 	setexecute(cmd->filename, stab);
 
@@ -149,27 +164,37 @@ do_script(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
 	pid = subproc_fork();
 	if (pid == 0) {
+		char *pkg_count;
+
+		m_asprintf(&pkg_count, "%d", pkgset_installed_instances(pkg->set));
+
 		if (setenv("DPKG_MAINTSCRIPT_PACKAGE", pkg->set->name, 1) ||
+		    setenv("DPKG_MAINTSCRIPT_PACKAGE_REFCOUNT", pkg_count, 1) ||
 		    setenv("DPKG_MAINTSCRIPT_ARCH", pkgbin->arch->name, 1) ||
 		    setenv("DPKG_MAINTSCRIPT_NAME", cmd->argv[0], 1) ||
 		    setenv("DPKG_RUNNING_VERSION", PACKAGE_VERSION, 1))
 			ohshite(_("unable to setenv for maintainer script"));
 
-		cmd->filename = cmd->argv[0] = preexecscript(cmd);
+		cmd->filename = cmd->argv[0] = maintscript_pre_exec(cmd);
+
+		if (maintscript_set_exec_context(cmd, "dpkg_script_t") < 0)
+			ohshite(_("cannot set security execution context for "
+			          "maintainer script"));
+
 		command_exec(cmd);
 	}
 	subproc_signals_setup(cmd->name); /* This does a push_cleanup(). */
-	r = subproc_wait_check(pid, cmd->name, warn);
+	rc = subproc_wait_check(pid, cmd->name, warn);
 	pop_cleanup(ehflag_normaltidy);
 
 	pop_cleanup(ehflag_normaltidy);
 
-	return r;
+	return rc;
 }
 
 static int
-vmaintainer_script_installed(struct pkginfo *pkg, const char *scriptname,
-                             const char *desc, va_list args)
+vmaintscript_installed(struct pkginfo *pkg, const char *scriptname,
+                       const char *desc, va_list args)
 {
 	struct command cmd;
 	const char *scriptpath;
@@ -187,13 +212,13 @@ vmaintainer_script_installed(struct pkginfo *pkg, const char *scriptname,
 		command_destroy(&cmd);
 		if (errno == ENOENT) {
 			debug(dbg_scripts,
-			      "vmaintainer_script_installed nonexistent %s",
+			      "vmaintscript_installed nonexistent %s",
 			      scriptname);
 			return 0;
 		}
 		ohshite(_("unable to stat %s `%.250s'"), buf, scriptpath);
 	}
-	do_script(pkg, &pkg->installed, &cmd, &stab, 0);
+	maintscript_exec(pkg, &pkg->installed, &cmd, &stab, 0);
 
 	command_destroy(&cmd);
 
@@ -201,47 +226,45 @@ vmaintainer_script_installed(struct pkginfo *pkg, const char *scriptname,
 }
 
 /*
- * All ...'s in maintainer_script_* are const char *'s.
+ * All ...'s in maintscript_* are const char *'s.
  */
 
 int
-maintainer_script_installed(struct pkginfo *pkg, const char *scriptname,
-                            const char *desc, ...)
+maintscript_installed(struct pkginfo *pkg, const char *scriptname,
+                      const char *desc, ...)
 {
 	va_list args;
-	int r;
+	int rc;
 
 	va_start(args, desc);
-	r = vmaintainer_script_installed(pkg, scriptname, desc, args);
+	rc = vmaintscript_installed(pkg, scriptname, desc, args);
 	va_end(args);
 
-	if (r)
+	if (rc)
 		post_script_tasks();
 
-	return r;
+	return rc;
 }
 
 int
-maintainer_script_postinst(struct pkginfo *pkg, ...)
+maintscript_postinst(struct pkginfo *pkg, ...)
 {
 	va_list args;
-	int r;
+	int rc;
 
 	va_start(args, pkg);
-	r = vmaintainer_script_installed(pkg, POSTINSTFILE, "post-installation",
-	                                 args);
+	rc = vmaintscript_installed(pkg, POSTINSTFILE, "post-installation", args);
 	va_end(args);
 
-	if (r)
+	if (rc)
 		ensure_diversions();
 
-	return r;
+	return rc;
 }
 
 int
-maintainer_script_new(struct pkginfo *pkg,
-                      const char *scriptname, const char *desc,
-                      const char *cidir, char *cidirrest, ...)
+maintscript_new(struct pkginfo *pkg, const char *scriptname,
+                const char *desc, const char *cidir, char *cidirrest, ...)
 {
 	struct command cmd;
 	struct stat stab;
@@ -261,13 +284,13 @@ maintainer_script_new(struct pkginfo *pkg,
 		command_destroy(&cmd);
 		if (errno == ENOENT) {
 			debug(dbg_scripts,
-			      "maintainer_script_new nonexistent %s '%s'",
+			      "maintscript_new nonexistent %s '%s'",
 			      scriptname, cidir);
 			return 0;
 		}
 		ohshite(_("unable to stat %s `%.250s'"), buf, cidir);
 	}
-	do_script(pkg, &pkg->available, &cmd, &stab, 0);
+	maintscript_exec(pkg, &pkg->available, &cmd, &stab, 0);
 
 	command_destroy(&cmd);
 	post_script_tasks();
@@ -276,10 +299,10 @@ maintainer_script_new(struct pkginfo *pkg,
 }
 
 int
-maintainer_script_alternative(struct pkginfo *pkg,
-                              const char *scriptname, const char *desc,
-                              const char *cidir, char *cidirrest,
-                              const char *ifok, const char *iffallback)
+maintscript_fallback(struct pkginfo *pkg,
+                     const char *scriptname, const char *desc,
+                     const char *cidir, char *cidirrest,
+                     const char *ifok, const char *iffallback)
 {
 	struct command cmd;
 	const char *oldscriptpath;
@@ -297,7 +320,7 @@ maintainer_script_alternative(struct pkginfo *pkg,
 	if (stat(oldscriptpath, &stab)) {
 		if (errno == ENOENT) {
 			debug(dbg_scripts,
-			      "maintainer_script_alternative nonexistent %s '%s'",
+			      "maintscript_fallback nonexistent %s '%s'",
 			      scriptname, oldscriptpath);
 			command_destroy(&cmd);
 			return 0;
@@ -305,7 +328,7 @@ maintainer_script_alternative(struct pkginfo *pkg,
 		warning(_("unable to stat %s '%.250s': %s"),
 		        cmd.name, oldscriptpath, strerror(errno));
 	} else {
-		if (!do_script(pkg, &pkg->installed, &cmd, &stab, PROCWARN)) {
+		if (!maintscript_exec(pkg, &pkg->installed, &cmd, &stab, PROCWARN)) {
 			command_destroy(&cmd);
 			post_script_tasks();
 			return 1;
@@ -330,7 +353,7 @@ maintainer_script_alternative(struct pkginfo *pkg,
 			ohshite(_("unable to stat %s `%.250s'"), buf, cidir);
 	}
 
-	do_script(pkg, &pkg->available, &cmd, &stab, 0);
+	maintscript_exec(pkg, &pkg->available, &cmd, &stab, 0);
 	notice(_("... it looks like that went OK"));
 
 	command_destroy(&cmd);

@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,15 +18,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 2012\-06\-17 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.TH start\-stop\-daemon 8 2014\-03\-26 Debian\-Projekt dpkg\-Hilfsprogramme
+.SH BEZEICHNUNG
 start\-stop\-daemon \- startet und stoppt System\-Daemon\-Programme
 .
 .SH ÜBERSICHT
@@ -78,7 +78,16 @@ Zeige Bedienungsinformationen und beendet sich.
 \fB\-V\fP, \fB\-\-version\fP
 Zeige die Programmversion und beendet sich.
 .
-.SH ABGLEICH\-OPTIONEN
+.SH OPTIONEN
+.SS Abgleichoptionen
+.TP 
+\fB\-\-pid\fP \fIPID\fP
+Prüfe auf einen Prozess mit der angegebenen \fIPID\fP. Die \fIPID\fP muss eine
+Zahl größer Null sein.
+.TP 
+\fB\-\-ppid\fP \fIPPID\fP
+Prüfe auf einen Prozess mit der angegebenen \fIPPID\fP (Eltern\-PID). Die
+\fIPPID\fP muss eine Zahl größer Null sein.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIpid\-Datei\fP
 Prüfe, ob ein Prozess \fIpid\-Datei\fP erstellt hat. Hinweis: Wird diese
@@ -107,7 +116,7 @@ ausgelesen. Dieser hat typischerweise eine recht kurze Längenbegrenzung
 spezifizierten Benutzer gehören. Hinweis: Wird diese Abgleichoption alleine
 verwandt, wird auf alle Prozesse, die auf den Benutzer passen, eingewirkt.
 .
-.SH OPTIONEN
+.SS "Allgemeine Optionen:"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIGruppe\fP|\fIgid\fP
 Wechsle zum Starten des Prozesses zur \fIGruppe\fP oder \fIgid\fP.
@@ -176,7 +185,7 @@ Sie, dass die PID\-Datei auch nach dem chroot geschrieben wird.
 \fB\-d\fP, \fB\-\-chdir\fP \fIPfad\fP
 Chdir vor dem Starten des Prozesses zu \fIPfad\fP. Dies wird, falls die
 \fB\-r\fP|\fB\-\-chroot\fP Option gesetzt ist, nach dem chroot durchgeführt. Falls
-nicht angegeben, wird start\-stop\-daemon vor dem Prozess\-Start in das
+nicht angegeben, wird \fBstart\-stop\-daemon\fP vor dem Prozess\-Start in das
 Wurzelverzeichnis wechseln.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
@@ -287,7 +296,7 @@ start\-stop\-daemon \-\-stop \-\-oknodo \-\-user food \-\-name food \e
 	\-\-pidfile /run/food.pid \-\-retry=TERM/30/KILL/5
 .fi
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

@@ -2,6 +2,7 @@
 .\"
 .\" Copyright Â© 2010-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2011 Kees Cook <kees@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-buildflags 1 03\-04\-2012 "Projet Debian" "suite dpkg"
+.TH dpkg\-buildflags 1 20\-10\-2013 "Projet Debian" "suite dpkg"
 .SH NOM
 dpkg\-buildflags \- retourne les options de compilation à utiliser pour la
 construction du paquet
@@ -57,13 +58,13 @@ Retire du drapeau \fIdrapeau\fP tous les drapeaux de construction listés dans
 \fIvaleur\fP.
 .TP 
 \fBAPPEND\fP\fI drapeau valeur\fP
-Étend le drapeau \fIdrapeau\fP avec les options indiquées dans \fIvaleur\fP. Un
-espace est ajouté au début de ce qui est ajouté si la valeur actuelle du
+Étend le drapeau \fIdrapeau\fP avec les options indiquées dans \fIvaleur\fP. Une
+espace est ajoutée au début de ce qui est ajouté si la valeur actuelle du
 drapeau n'est pas vide.
 .TP 
 \fBPREPEND\fP\fI valeur drapeau\fP
-Préfixe le drapeau \fIdrapeau\fP avec les options indiquées dans \fIvaleur\fP. Un
-espace est ajouté au début de ce qui est ajouté si la valeur actuelle du
+Préfixe le drapeau \fIdrapeau\fP avec les options indiquées dans \fIvaleur\fP. Une
+espace est ajoutée au début de ce qui est ajouté si la valeur actuelle du
 drapeau n'est pas vide.
 .P
 Les fichiers de configuration peuvent contenir des commentaires sur les
@@ -94,13 +95,31 @@ compilation utilisés. Cela peut être utile pour diagnostiquer des problèmes
 qui y seraient liés.
 .TP 
 \fB\-\-export=\fP\fIformat\fP
-Affiche sur la sortie standard les commandes shell (si \fIformat\fP est \fBsh\fP)
-ou make (si \fIformat\fP est \fBmake\fP) qui permettent d'exporter tous les
-drapeaux de compilation dans l'environnement. Si \fIformat\fP est \fBconfigure\fP,
-la sortie peut être utilisée comme une ligne de commande de \fB./configure\fP?
-Si \fIformat\fP n'est pas spécifié, sa valeur est \fBsh\fP. Seuls les drapeaux de
-compilation commençant par une majuscule sont inclus, les autres étant
-supposés inadaptés à l'environnement.
+Affiche sur la sortie standard les commandes qui permettent d'exporter tous
+les drapeaux de compilation pour un outil particulier. Si \fIformat\fP n'est
+pas spécifié, sa valeur est \fBsh\fP. Seuls les drapeaux de compilation
+commençant par une majuscule sont inclus, les autres étant supposés
+inadaptés à l'environnement. Formats pris en charge\ :
+.RS
+.TP 
+\fBsh\fP
+Commandes shell pour définir et exporter tous les drapeaux de compilation
+dans l'environnement. Les valeurs drapeau sont protégées et ainsi la sortie
+est prête à être évaluée par un shell.
+.TP 
+\fBcmdline\fP
+Arguments à passer à la ligne de commande d'un programme de construction
+pour utiliser tous les drapeaux de compilation (depuis dpkg 1.17.0). Les
+valeurs drapeau sont protégées dans la syntaxe du shell.
+.TP 
+\fBconfigure\fP
+C'est un ancien alias pour \fBcmdline\fP.
+.TP 
+\fBmake\fP
+Directives de make pour définir et exporter tous les drapeaux de compilation
+dans l'environnement. La sortie peut être écrite dans un fragment de
+makefile et évaluée en utilisant une directive \fBinclude\fP.
+.RE
 .TP 
 \fB\-\-get\fP\fI drapeau\fP
 Affiche la valeur de ce drapeau sur la sortie standard. Retourne un code de
@@ -129,10 +148,11 @@ l'environnement.
 .TP 
 \fB\-\-query\-features\fP\fI domaine\fP
 Affiche les fonctionnalités activées pour un domaine donné. Le seul domaine
-reconnu à ce jour est \fBhardening\fP. Retourne un code de sortie 0 si le
-domaine est connu et 1 s'il est inconnu.
+reconnu à ce jour est \fBhardening\fP, voir la section \fBZONES D'OPTION\fP pour
+plus de détails. Retourne un code de sortie 0 si le domaine est connu et 1
+s'il est inconnu.
 .IP
-Le format d'affichage est dans le style RFC822, avec une section par
+L'affichage est dans le format RFC822, avec une section par
 fonctionnalité. Par exemple\ :
 .IP
 .nf
@@ -153,8 +173,8 @@ Affiche le numéro de version puis quitte.
 .TP 
 \fBCFLAGS\fP
 Options du compilateur C. La valeur par défaut définie par l'éditeur
-comporte \fI\-g\fP le niveau d'optimisation par défaut (\fI\-O2\fP en général, ou
-\fI\-O0\fP si la variable d'environnement \fBDEB_BUILD_OPTIONS\fP contient
+comporte \fB\-g\fP et le niveau d'optimisation par défaut (\fB\-O2\fP en général, ou
+\fB\-O0\fP si la variable d'environnement \fBDEB_BUILD_OPTIONS\fP contient
 \fInoopt\fP).
 .TP 
 \fBCPPFLAGS\fP
@@ -163,21 +183,156 @@ Options du préprocesseur C. Valeur par défaut\ :\ aucune.
 \fBCXXFLAGS\fP
 Options du compilateur C++. Analogue à \fBCFLAGS\fP.
 .TP 
+\fBOBJCFLAGS\fP
+Options du compilateur Objective C. Analogue à \fBCFLAGS\fP.
+.TP 
+\fBOBJCXXFLAGS\fP
+Options du compilateur Objective C++. Analogue à \fBCXXFLAGS\fP.
+.TP 
+\fBGCJFLAGS\fP
+Options du compilateur Java GNU (gcj). Un sous\-ensemble de \fBCFLAGS\fP.
+.TP 
 \fBFFLAGS\fP
-Options du compilateur Fortran. Analogue à \fBCFLAGS\fP.
+Options du compilateur Fortran 77. Un sous\-ensemble de \fBCFLAGS\fP.
+.TP 
+\fBFCFLAGS\fP
+Options du compilateur Fortran 9x. Analogue à \fBFFLAGS\fP.
 .TP 
 \fBLDFLAGS\fP
 Options passées au compilateur lors du processus de liaison des exécutables
 ou des objets partagés (si le linker est appelé directement, alors \fB\-Wl\fP et
 \fB,\fP doivent être retirés de ces options). Valeur par défaut\ :\ aucune.
+.PP
+De nouveaux drapeaux pourront être ajoutés si besoin est (par exemple pour
+la prise en charge de nouveaux langages).
 .
-.SH FICHIERS
+.SH "ZONES D'OPTION"
+.SS "Compilation renforcée"
+Plusieurs options de compilation (détaillées ci\-dessous) peuvent aider à
+rendre le binaire compilé moins sensible aux attaques par corruption de la
+mémoire ou à fournir des messages supplémentaires d'avertissement lors de la
+compilation. Sauf mention contraire, ces options sont activées par défaut
+pour les architectures qui les gèrent.
+.P
+Chaque option de renforcement peut être activée ou désactivée avec la valeur
+\fBhardening\fP de la variable d'environnement \fBDEB_BUILD_MAINT_OPTIONS\fP, via
+un modificateur «\ +\ » ou «\ \-\ ». Par exemple, pour activer l'option «\ pie\ »
+et désactiver l'option «\ fortify\ », il est possible d'indiquer ceci dans
+\fBdebian/rules\fP\ :
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
+.P
+L'option spéciale \fBall\fP peut être utilisée pour activer ou désactiver
+toutes les options de renforcement à la fois. Ainsi, tout désactiver en
+n'activant que «\ format\ » et «\ fortify\ » peut être réalisé avec\ :
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
+.
 .TP 
-\fB/etc/dpkg/buildflags.conf\fP
-Fichier de configuration pour l'ensemble du système.
+\fBformat\fP
+Ce réglage, activé par défaut, ajoute \fB\-Wformat \-Werror=format\-security\fP à
+\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP et \fBOBJCXXFLAGS\fP. Cela provoquera
+l'avertissement en cas d'utilisation de chaînes de formatage incorrectes et
+échouera si les fonctions de formatage sont utilisées d'une façon qui
+présente des risques pour la sécurité. Actuellement, ce réglage crée des
+avertissements pour les appels des fonctions \fBprintf\fP et \fBscanf\fP lorsque
+la chaîne de formatage n'est pas une chaîne littérale et qu'aucun paramètre
+de formatage n'est utilisé (par exemple dans \fBprintf(foo);\fP au lieu de \fB
+printf("%s", foo);\fP. Ce type de syntaxe peut créer un problème de sécurité
+si la chaîne de formatage vient d'une source non sûre et contient «\ %n\ ».
+.
 .TP 
-\fB$XDG_CONFIG_HOME/dpkg/buildflags.conf\fP ou \fB$HOME/.config/dpkg/buildflags.conf\fP
-Fichier de configuration propre à l'utilisateur
+\fBfortify\fP
+Ce réglage, activé par défaut, ajoute \fB\-D_FORTIFY_SOURCE=2\fP à \fBCFLAGS\fP et
+\fBCPPFLAGS\fP. Lors de la création du code, le compilateur connaît un nombre
+important d'informations relatives aux tailles de tampons (quand c'est
+possible) et tente alors de remplacer des appels de fonctions avec une
+taille illimitée de tampons, peu sûrs, par des appels avec des tampons de
+taille limitée. Cette fonctionnalité est particulièrement utile pour du code
+ancien et mal écrit. De plus, les chaînes de formatage dans la mémoire
+accessible en écriture qui contiennent «\ %n\ » sont bloquées. Si une
+application dépend de telles chaînes de formatage, un contournement devra
+être mis en place.
+
+Veuillez noter que pour que cette option fasse effet, la source devra aussi
+être compilée avec \fB\-O1\fP ou plus. Si la variable d'environnement
+\fBDEB_BUILD_OPTIONS\fP contient \fInoopt\fP, la prise en charge de \fBfortify\fP
+sera désactivée du fait des nouveaux avertissements émis par glibc version
+2.16 et ultérieure.
+.TP 
+\fBstackprotector\fP
+Ce réglage (activé par défaut si stackprotectorstrong n'est pas employé),
+ajoute \fB\-fstack\-protector \-\-param=ssp\-buffer\-size=4\fP à \fBCFLAGS\fP,
+\fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP et
+\fBFCFLAGS\fP. Il ajoute des contrôles liés aux réécritures de piles. Cela
+conduit des tentatives d'attaques par injection de code à terminer en
+échec. Dans le meilleur des cas, cette protection transforme une
+vulnérabilité d'injection de code en déni de service ou en non\-problème
+(selon les applications).
+
+Cette fonctionnalité impose de lier le code à glibc (ou toute autre
+bibliothèque fournissant \fB__stack_chk_fail\fP) et doit donc être désactivée
+lorsque le code est construit avec \fB\-nostdlib\fP, \fB\-ffreestanding\fP ou
+équivalents.
+.
+.TP 
+\fBstackprotectorstrong\fP
+Ce réglage, activé par défaut, ajoute \fB\-fstack\-protector\-strong\fP à
+\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP
+et \fBFCFLAGS\fP. Il s'agit d'une version renforcée de \fBstackprotector\fPqui
+n'affecte pas les performances de manière importante.
+
+Désactiver \fBstackprotector\fP désactive également ce paramètre.
+
+Cette fonctionnalité a les même exigences que \fBstackprotector\fP, en plus de
+nécessiter gcc 4.9 ou plus récent.
+.
+.TP 
+\fBrelro\fP
+Ce réglage, activé par défaut, ajoute \fB\-Wl,\-z,relro\fP à \fBLDFLAGS\fP. Lors du
+chargement du programme, plusieurs parties de la mémoire ELF doivent être
+écrites par l'éditeur de liens. Ce réglage indique au chargeur de mettre ces
+sections en lecture seule avant de rendre le contrôle au
+programme. L'utilisation habituelle de ce réglage est la protection contre
+les attaques par réécriture GOT. Si cette option est désactivée, l'option
+\fBbindnow\fP sera également désactivée.
+.
+.TP 
+\fBbindnow\fP
+Ce réglage, désactivé par défaut, ajoute \fB\-Wl,\-z,now\fP à \fBLDFLAGS\fP. Lors du
+chargement du programme, tous les symboles dynamiques sont résolus, ce qui
+permet au «\ PLT\ » entier (NdT\ : jargon détecté\ !) d'être en lecture seule
+(du fait du réglage \fBrelro\fP ci\-dessus). Cette option ne peut être activée
+si \fBrelro\fP ne l'est pas.
+.
+.TP 
+\fBpie\fP
+Ce réglage, désactivé par défaut, ajoute \fB\-fPIE\fP à \fBCFLAGS\fP, \fBCXXFLAGS\fP
+\fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP et \fBFCFLAGS\fP,ainsi que
+\fB\-fPIE \-pie\fP à \fBLDFLAGS\fP. Les exécutables à position indépendante
+(«\ Position Independent Executable\ ») permettent d'utiliser la randomisation
+de l'organisation de l'espace d'adressage (ASLR\ :\ «\ Address Space Layout
+Randomization\ »), qui est gérée par certaines versions du noyau. Bien que
+ASLR puisse déjà être mise en ?uvre pour les zones de données dans la pile
+et le tampon (brk et mmap), les zones de codes doivent être compilées comme
+indépendantes de la position. Les bibliothèques partagées font déjà cela
+(\-fPIC) ce qui permet automatiquement d'utiliser ASLR. Par contre les
+régions .text binaires doivent être construites en mode PIE pour mettre en
+?uvre ASLR. Une fois cela réalisé, les attaques ROP («\ Return Oriented
+Programming\ ») deviennent plus difficiles car il n'existe pas d'emplacement
+statique d'où rebondir sur une attaque par corruption de la mémoire.
+
+Ce réglage n'est pas compatible avec \fB\-Fpic\fP\ :\ la prudence est donc
+conseillée pour la construction d'objets partagés.
+
+De plus, comme la protection PIE est mise en ?uvre à l'aide dun registre
+global, certaines architectures (notamment i386) peuvent souffrir de pertes
+de performances allant jusqu'à 15\ % sur des charges d'applications utilisant
+largement les segments de texte\ ; le plus souvent, cette perte de
+performances n'excèdera pas 1\ %. Pour des architectures offrant plus de
+registres globaux (par exemple amd64), cette pénalisation n'existe
+pratiquement pas.
+.
 .SH ENVIRONNEMENT
 Deux jeux de variables d'environnement effectuent les mêmes opérations. Le
 premier (DEB_\fIdrapeau\fP_\fIopération\fP) ne devrait jamais être utilisé depuis
@@ -214,117 +369,103 @@ indiqué par des options supplémentaires.
 .TP 
 \fBDEB_BUILD_MAINT_OPTIONS\fP
 Cette variable permet d'activer ou désactiver différents drapeaux de
-compilation renforcée via l'option \fBhardening\fP. Voir la section
-\fBCOMPILATION RENFORCÉE\fP pour plus d'informations.
+compilation renforcée avec l'option \fBhardening\fP. Voir la section \fBZONES
+D'OPTION\fP pour plus d'informations.
 .
-.SH "COMPILATION RENFORCÉE (« HARDENING\ »)"
-Plusieurs options de compilation (détaillées ci\-dessous) peuvent aider à
-rendre le binaire compilé moins sensible aux attaques par corruption de la
-mémoire ou à fournir des messages supplémentaires d'avertissement lors de la
-compilation. Sauf mention contraire, ces options sont activées par défaut
-pour les architectures qui les gèrent.
-.P
-Chaque option de renforcement peut être activée ou désactivée avec la valeur
-\fBhardening\fP de la variable d'environnement \fBDEB_BUILD_MAINT_OPTIONS\fP, via
-un modificateur «\ +\ » ou «\ \-\ ». Par exemple, pour activer l'option «\ pie\ »
-et désactiver l'option «\ feature\ », il est possible d'indiquer ceci dans
-\fBdebian/rules\fP\ :
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
-.P
-L'option spéciale \fBall\fP peut être utilisée pour activer ou désactiver
-toutes les options de renforcement à la fois. Ainsi, tout désactiver en
-n'activant que «\ format\ » et «\ fortify\ » peut être réalisé avec\ :
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
-.
+.SH FICHIERS
+.SS "Fichiers de configuration."
 .TP 
-\fBformat\fP
-Ce réglage, activé par défaut, ajoute \fB\-Wformat \-Werror=format\-security\fP à
-\fBCFLAGS\fP et \fBCXXFLAGS\fP. Cela provoquera l'avertissement en cas
-d'utilisation de chaînes de formatage incorrectes et échouera si les
-fonctions de formatage sont utilisées d'une façon qui présente des risques
-pour la sécurité. Actuellement, ce réglage crée des avertissements pour les
-appels des fonctions \fBprintf\fP et \fBscanf\fP lorsque la chaîne de formatage
-n'est pas une chaîne littérale et qu'aucun paramètre de formatage n'est
-utilisé (par exemple dans \fBprintf(foo);\fP au lieu de \fBprintf("%s",
-foo);\fP. Ce type de syntaxe peut créer un problème de sécurité si la chaîne
-de formatage vient d'une source non sûre et contient «\ %n\ ».
-.
+\fB/etc/dpkg/buildflags.conf\fP
+Fichier de configuration pour l'ensemble du système.
 .TP 
-\fBfortify\fP
-Ce réglage, activé par défaut, ajoute \fB\-D_FORTIFY_SOURCE=2\fP à \fBCFLAGS\fP et
-\fBCPPFLAGS\fP. Lors de la création du code, le compilateur connaît un nombre
-important d'informations relatives aux tailles de tampons (quand c'est
-possible) et tente alors de remplacer des appels de fonctions avec une
-taille illimitée de tampons, peu sûrs, par des appels avec des tampons de
-taille limitée. Cette fonctionnalité est particulièrement utile pour du code
-ancien et mal écrit. De plus, les chaînes de formatage dans la mémoire
-accessible en écriture qui contiennent «\ %n\ » sont bloquées. Si une
-application dépend de telles chaînes de formatage, un contournement devra
-être mis en place.
+\fB$XDG_CONFIG_HOME/dpkg/buildflags.conf\fP ou \fB$HOME/.config/dpkg/buildflags.conf\fP
+Fichier de configuration propre à l'utilisateur
+.SS "Gestion de l'empaquetage"
+.TP 
+\fB/usr/share/dpkg/buildflags.mk\fP
+Fragment de fichier Makefile qui chargera (et facultativement exportera)
+dans les variables (depuis dpkg 1.16.1) tous les drapeaux pris en charge par
+\fBdpkg\-buildflags\fP.
+.
+.SH EXEMPLES
+Pour passer des drapeaux de compilation à une commande de compilation dans
+un Makefile\ :
+.PP
+.RS 4
+.nf
+$(MAKE) $(shell dpkg\-buildflags \-\-export=cmdline)
 
-Veuillez noter que pour que cette option ait une utilité, le code source
-doit être compilé avec l'option \fB\-O1\fP ou supérieure.
-.TP 
-\fBstackprotector\fP
-Ce réglage, activé par défaut, ajoute \fB\-fstack\-protector
-\-\-param=ssp\-buffer\-size=4\fP à \fBCFLAGS\fP et \fBCXXFLAGS\fP. Il ajoute des
-contrôles liés aux réécritures de piles. Cela conduit des tentatives
-d'attaques par injection de code à terminer en échec. Dans le meilleur des
-cas, cette protection transforme une vulnérabilité d'injection de code en
-déni de service ou en non\-problème (selon les applications).
-
-Cette fonctionnalité impose de lier le code à glibc (ou toute autre
-bibliothèque fournissant \fB__stack_chk_fail\fP) et doit donc être désactivée
-lorsque le code est construit avec \fB\-nostdlib\fP, \fB\-ffreestanding\fP ou
-équivalents.
+\&./configure $(shell dpkg\-buildflags \-\-export=cmdline)
+.fi
+.RE
+.PP
+Pour définir les drapeaux de compilation dans un script shell ou un fragment
+de shell, on peut utiliser «\ eval\ » pour interpréter la sortie et exporter
+les drapeaux dans l'environnement\ :
+.PP
+.RS 4
+.nf
+eval "$(dpkg\-buildflags \-\-export=sh)" && make
+.fi
+.RE
+.PP
+ou définir les paramètres de position à passer à la commande\ :
+.PP
+.RS 4
+.nf
+eval "set \-\- $(dpkg\-buildflags \-\-export=cmdline)"
+for dir in a b c; do (cd $dir && ./configure "$@" && make); done
+.fi
+.RE
 .
-.TP 
-\fBrelro\fP
-Ce réglage, activé par défaut, ajoute \fB\-Wl,\-z,relro\fP à \fBLDFLAGS\fP. Lors du
-chargement du programme, plusieurs parties de la mémoire ELF doivent être
-écrites par l'éditeur de liens. Ce réglage indique au chargeur de mettre ces
-sections en lecture seule avant de rendre le contrôle au
-programme. L'utilisation habituelle de ce réglage est la protection contre
-les attaques par réécriture GOT. Si cette option est désactivée, l'option
-\fBbindnow\fP sera également désactivée.
-.
-.TP 
-\fBbindnow\fP
-Ce réglage, désactivé par défaut, ajoute \fB\-Wl,\-z,now\fP à \fBLDFLAGS\fP. Lors du
-chargement du programme, tous les symboles dynamiques sont résolus, ce qui
-permet au «\ PLT\ » entier (NdT\ : jargon détecté\ !) d'être en lecture seule
-(du fait du réglage \fBrelro\fP ci\-dessus). Cette option ne peut être activée
-si \fBrelro\fP ne l'est pas.
-.
-.TP 
-\fBpie\fP
-Ce réglage, désactivé par défaut, ajoute \fB\-fPIE\fP à \fBCFLAGS\fP et \fBCXXFLAGS\fP
-ainsi que \fB\-fPIE \-pie\fP à \fBLDFLAGS\fP. Les exécutables à position
-indépendante («\ Position Independent Executable\ ») permettent d'utiliser la
-randomisation de l'organisation de l'espace d'adressage (ASLR\ :\ «\ Address
-Space Layout Randomization\ »), qui est gérée par certaines versions du
-noyau. Bien que ASLR puisse déjà être mise en oeuvre pour les zones de
-données dans la pile et le tampon (brk et mmap), les zones de codes doivent
-être compilées comme indépendantes de la position. Les bibliothèques
-partagées font déjà cela (\-fPIC) ce qui permet automatiquement d'utiliser
-ASLR. Par contre les régions .text binaires doivent être construites en mode
-PIE pour mettre en ?uvre ASLR. Une fois cela réalisé, les attaques ROP
-(«\ Return Oriented Programming\ ») deviennent plus difficiles car il n'existe
-pas d'emplacement statique d'où rebondir sur une attaque par corruption de
-la mémoire.
-
-Ce réglage n'est pas compatible avec \fB\-Fpic\fP\ :\ la prudence est donc
-conseillée pour la construction d'objets partagés.
-
-De plus, comme la protection PIE est mise en ?uvre via un registre global,
-certaines architectures (notamment i386) peuvent souffrir de pertes de
-performances allant jusqu'à 15\ % sur des charges d'applications utilisant
-largement les segments de texte\ ;\ le plus souvent, cette perte de
-performances n'excèdera pas 1\ %. Pour des architectures offrant plus de
-registres globaux (par exemple amd64), cette pénalisation n'existe
-pratiquement pas.
+.SS "Utilisation dans debian/rules"
+Il faut appeler \fBdpkg\-buildflags\fP ou inclure \fBbuildflags.mk\fP à partir du
+fichier \fBdebian/rules\fP pour obtenir les drapeaux de compilation nécessaires
+à passer au système de construction. Veuillez noter que les anciennes
+versions de \fBdpkg\-buildpackage\fP (antérieures à dpkg 1.16.1) exportaient ces
+drapeaux automatiquement. Néanmoins, il est déconseillé de dépendre de ce
+comportement parce qu'il casse l'appel manuel de \fBdebian/rules\fP.
+.PP
+Pour les paquets avec des systèmes de construction du style autoconf, il est
+possible de passer les options appropriées à configure ou \fBmake\fP(1)
+directement, comme vu ci\-dessus.
+.PP
+Pour d'autres système de construction ou si on souhaite un contrôle
+extrêmement précis sur le choix et la position où sont passés les drapeaux,
+\fB\-\-get\fP peut être utilisé. Autrement, il est possible d'inclure
+\fBbuildflags.mk\fP qui s'occupe de l'appel de \fBdpkg\-buildflags\fP et du
+placement des drapeaux de compilation dans les variables de make.
+.PP
+Si vous voulez exporter tous les drapeaux de compilation dans
+l'environnement (où le système de construction peut les récupérer)\ :
+.PP
+.RS 4
+.nf
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+.fi
+.RE
+.PP
+Pour un contrôle supplémentaire sur ce qui est exporté, vous pouvez exporter
+manuellement les variables (puisque aucune n'est exportée par défaut)\ :
+.PP
+.RS 4
+.nf
+include /usr/share/dpkg/buildflags.mk
+export CPPFLAGS CFLAGS LDFLAGS
+.fi
+.RE
+.PP
+Et enfin, vous pouvez bien sûr passer manuellement les drapeaux aux
+commandes\ :
+.PP
+.RS 4
+.nf
+include /usr/share/dpkg/buildflags.mk
+build\-arch:
+\&	$(CC) \-o hello hello.c $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
+.fi
+.RE
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

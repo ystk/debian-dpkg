@@ -15,7 +15,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -24,10 +24,10 @@
 .\"*******************************************************************
 .TH dpkg\-scansources 1 14\-08\-2011 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
-dpkg\-scansources \- créer des fichiers d'index de sources
+dpkg\-scansources \- crée des fichiers d'index de sources
 .
 .SH SYNOPSIS
-\fBdpkg\-scansources\fP [\fIoption\fP...] \fIrep\-de\-binaires\fP [\fIfichier\-override\fP
+\fBdpkg\-scansources\fP [\fIoption\fP...] \fIrep\-de\-binaires\fP [\fIfichier\-d'override\fP
 [\fIchemin\-à\-préfixer\fP]] \fB>\fP \fISources\fP
 .
 .SH DESCRIPTION
@@ -35,19 +35,19 @@ dpkg\-scansources \- créer des fichiers d'index de sources
 \fIrep\-de\-binaires\fP indiqué. Ces fichiers sont utilisés pour créer un index
 de sources Debian, qui est envoyé sur la sortie standard.
 .PP
-Le \fIfichier\-override\fP, s'il est indiqué, est utilisé pour fixer les
+Le \fIfichier\-d'override\fP, s'il est indiqué, est utilisé pour fixer les
 priorités dans l'index créé et pour modifier le responsable donné par les
 fichiers \fI.dsc\fP. Consultez \fBdeb\-override\fP(5) pour plus de détails sur le
-format de ce fichier. \s-1Note\ :\s0 S comme le fichier override est indexé
-par paquet binaire et non pas par paquet source, cela pose un léger
+format de ce fichier. Note\ : comme le fichier override est indexé par paquet
+binaire et non pas par paquet source, cela pose un léger
 problème. L'implémentation actuelle utilise la priorité la plus élevée des
 paquets produits par un fichier \fI.dsc\fP comme priorité du paquet source, et
 l'entrée du fichier override du premier paquet binaire listé dans le fichier
-\&\fI.dsc\fP pour modifier l'information sur le responsable. Ceci pourra changer.
+\&\fI.dsc\fP pour modifier l'information sur le responsable. Cela pourra changer.
 .PP
 Le \fIchemin\-à\-préfixer\fP, s'il est indiqué, est ajouté au début du champ
-Directory («\ répertoire\ ») dans l'index des sources généré. C'est en règle
-générale utilisé pour que le champ Directory contienne un chemin depuis la
+Directory («\ répertoire\ ») dans l'index des sources généré. C'est, en règle
+générale, utilisé pour que le champ Directory contienne un chemin depuis la
 racine de l'archive Debian.
 .
 .PP

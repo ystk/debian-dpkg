@@ -1,6 +1,6 @@
 .\" dpkg manual page - deb-triggers(5)
 .\"
-.\" Copyright 息 2008 Guillem Jover <guillem@debian.org>
+.\" Copyright 息 2008, 2013 Guillem Jover <guillem@debian.org>
 .\" Copyright 息 2011 Rapha谷l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -14,14 +14,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-triggers 5 2011\-08\-14 "Debian Project" "dpkg ユーティリティ"
+.TH deb\-triggers 5 2013\-04\-02 "Debian Project" "dpkg ユーティリティ"
 .SH 名前
 deb\-triggers \- パッケージトリガ
 .
@@ -67,9 +67,10 @@ configure, remove(競合状態にあるパッケージによるものも含まれる), purge, deconfig
 .PP
 不明なディレクティブがあるとエラーが発生し、パッケージのインストールが失敗する。
 .PP
-"\-noawait" は、dpk 1.16.1 以降でのみサポートされ、それ以前の dpkg
-で使用するとエラーとなる。そのため、これらのディレクティブを使用するパッケージは、"Pre\-Depends: dpkg (>= 1.16.1)"
-を付加することが推奨される。
+The "\-noawait" variants are only supported since dpkg 1.16.1, and will lead
+to errors if used with an older dpkg. It is thus recommended to add a
+"Pre\-Depends: dpkg (>= 1.16.1)" to any package that wish to use those
+directives.
 .
 .SH 関連項目
 \fBdpkg\-trigger\fP(1), \fBdpkg\fP(1), \fB/usr/share/doc/dpkg\-dev/triggers.txt.gz\fP.

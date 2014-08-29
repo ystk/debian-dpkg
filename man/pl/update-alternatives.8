@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -278,6 +278,15 @@ Podaje wiêcej informacji o przebiegu wykonywania \fBupdate\-alternatives\fP.
 \fB\-\-quiet\fP
 Nie wy¶wietla ¿adnych komentarzy, chyba ¿e wyst±pi b³±d.
 .
+.SH "KOD WYJ¦CIA"
+.TP 
+\fB0\fP
+Akcja zakoñczy³a siê powodzeniem.
+.TP 
+\fB2\fP
+Wyst±pi³y problemy podczas przetwarzania linii poleceñ lub wykonywania
+akcji.
+.
 .SH ¦RODOWISKO
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -291,15 +300,6 @@ Domy¶lny katalog alternatyw. Mo¿na go zmieniæ opcj± \fB\-altdir\fP.
 .TP 
 \fI/var/lib/dpkg/alternatives/\fP
 Domy¶lny katalog administracyjny. Mo¿na go zmieniæ opcj± \fB\-admindir\fP.
-.
-.SH "KOD WYJ¦CIA"
-.TP 
-\fB0\fP
-Akcja zakoñczy³a siê powodzeniem.
-.TP 
-\fB2\fP
-Wyst±pi³y problemy podczas przetwarzania linii poleceñ lub wykonywania
-akcji.
 .
 .SH "FORMAT ZAPYTANIA"
 Wynik polecenia \fBupdate\-alternatives\fP \fB\-\-query\fP u¿ywa formatu podobnego do
@@ -341,11 +341,10 @@ Inne bloki opisuj± dostêpne alternatywy w grupie dowi±zañ, do której odnosi siê 
 Warto¶æ priorytetu alternatywy.
 .TP 
 \fBSlaves:\fP\fI lista\-alternatyw\-podrzêdnych\fP
-Gdy obecny jest ten nag³ówek, \fBnastêpne\fP linie zawieraj± wszystkie
-podrzêdne alternatywy zwi±zane z g³ównym dowi±zaniem alternatywy. W ka¿dej
-linii podana jest jedna podrzêdna alternatywa. Ka¿da linia zawiera jedn±
-spacjê, ogóln± nazwê alternatywy podrzêdnej, kolejn± spacjê i w koñcu
-¶cie¿kê do alternatywy podrzêdnej.
+When this field is present, the \fBnext\fP lines hold all slave alternatives
+associated to the master link of the alternative. There is one slave per
+line. Each line contains one space, the generic name of the slave
+alternative, another space, and the path to the slave alternative.
 .
 .TP 
 \fBPrzyk³ad\fP
@@ -413,17 +412,9 @@ jako u¿ytkownik root wykonaæ:
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
-.SH B£ÊDY
-W razie znalezienia b³êdu, prosimy o jego zg³oszenie, u¿ywaj±c systemu
-¶ledzenia b³êdów Debiana.
-.PP
-Rozbie¿no¶ci pomiêdzy dzia³aniem \fBupdate\-alternatives\fP a t± stron±
-podrêcznika stanowi± albo b³±d w implementacji, albo w dokumentacji. W razie
-znalezienia jakichkolwiek rozbie¿no¶ci, prosimy o ich zg³oszenie.
-.
 .SH "ZOBACZ TAK¯E"
 \fBln\fP(1), FHS \- standard hierarchii systemu plików.
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

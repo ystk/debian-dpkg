@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -139,11 +139,6 @@ dpkg\-split \- Debian パッケージアーカイブの分割/統合ツール
 \fB2\fP
 何らかのトラブルが発生した。これにはシステムコールの失敗、ファイルはパッケージのパートのようだが壊れていた場合、文法エラーなどが含まれる。
 .
-.SH バグ
-キューにあるパッケージの詳細は、キューディレクトリを自分で調べない限り確認することができない。
-
-ファイルがバイナリパッケージのパートかどうかを簡単に確認する手段が存在しない。
-.
 .SH ファイル
 .TP 
 \fI/var/lib/dpkg/parts\fP
@@ -151,6 +146,11 @@ dpkg\-split \- Debian パッケージアーカイブの分割/統合ツール
 
 このディレクトリ内のファイル名は \fBdpkg\-split\fP
 の内部形式となっており、その他のプログラムから参照されることを想定していない。いかなる場合もファイル名の形式に依存すべきではない。
+.
+.SH バグ
+キューにあるパッケージの詳細は、キューディレクトリを自分で調べない限り確認することができない。
+
+ファイルがバイナリパッケージのパートかどうかを簡単に確認する手段が存在しない。
 .
 .SH 関連項目
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).

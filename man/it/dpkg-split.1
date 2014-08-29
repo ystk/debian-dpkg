@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -124,10 +124,10 @@ completamente; se ne è specificato qualcuno, allora vengono eliminate solo
 le parti dei pacchetti indicati.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Show the usage message and exit.
+Mostra il messaggio sull'uso ed esce.
 .TP 
 \fB\-\-version\fP
-Show the version and exit.
+Mostra la versione ed esce.
 .
 .SH OPZIONI
 .TP 
@@ -182,13 +182,6 @@ Si è verificato un qualche problema, come una chiamata di sistema fallita o
 un file che sembrava una parte di pacchetto ma che era corrotto, un errore
 nell'uso o qualche altro problema.
 .
-.SH BUG
-I dettagli completi sui pacchetti nella coda sono impossibili da ottenere a
-meno che l'utente non guardi da solo nella directory della coda.
-
-Non esiste un modo semplice per testare se un file che potrebbe essere una
-parte di un pacchetto binario lo è realmente.
-.
 .SH FILE
 .TP 
 \fI/var/lib/dpkg/parts\fP
@@ -198,6 +191,13 @@ essere automaticamente riassemblate.
 I nomi dei file usati in questa directory sono nel formato interno di
 \fBdpkg\-split\fP ed è improbabile che siano utili per altri programmi; in ogni
 caso non si dovrebbe fare affidamento sul formato del nome file.
+.
+.SH BUG
+I dettagli completi sui pacchetti nella coda sono impossibili da ottenere a
+meno che l'utente non guardi da solo nella directory della coda.
+
+Non esiste un modo semplice per testare se un file che potrebbe essere una
+parte di un pacchetto binario lo è realmente.
 .
 .SH "VEDERE ANCHE"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).

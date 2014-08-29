@@ -3,7 +3,7 @@
  * select.c - by-hand (rather than dselect-based) package selection
  *
  * Copyright © 1995,1996 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2006,2008-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006,2008-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -46,14 +46,15 @@ static void getsel1package(struct pkginfo *pkg) {
   const char *pkgname;
   int l;
 
-  if (pkg->want == want_unknown) return;
+  if (pkg->want == PKG_WANT_UNKNOWN)
+    return;
   pkgname = pkg_name(pkg, pnaw_nonambig);
   l = strlen(pkgname);
   l >>= 3;
   l = 6 - l;
   if (l < 1)
     l = 1;
-  printf("%s%.*s%s\n", pkgname, l, "\t\t\t\t\t\t", wantinfos[pkg->want].name);
+  printf("%s%.*s%s\n", pkgname, l, "\t\t\t\t\t\t", pkg_want_name(pkg));
 }
 
 int
@@ -72,7 +73,8 @@ getselections(const char *const *argv)
   if (!*argv) {
     for (i = 0; i < array.n_pkgs; i++) {
       pkg = array.pkgs[i];
-      if (pkg->status == stat_notinstalled) continue;
+      if (pkg->status == PKG_STAT_NOTINSTALLED)
+        continue;
       getsel1package(pkg);
     }
   } else {
@@ -80,7 +82,7 @@ getselections(const char *const *argv)
       struct pkg_spec pkgspec;
 
       found= 0;
-      pkg_spec_init(&pkgspec, psf_patterns | psf_arch_def_wildcard);
+      pkg_spec_init(&pkgspec, PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
       pkg_spec_parse(&pkgspec, thisarg);
 
       for (i = 0; i < array.n_pkgs; i++) {
@@ -112,6 +114,7 @@ setselections(const char *const *argv)
   int c, lno;
   struct varbuf namevb = VARBUF_INIT;
   struct varbuf selvb = VARBUF_INIT;
+  bool db_possibly_outdated = false;
 
   if (*argv)
     badusage(_("--%s takes no arguments"), cipaction->olong);
@@ -163,6 +166,7 @@ setselections(const char *const *argv)
 
     if (!pkg_is_informative(pkg, &pkg->installed) &&
         !pkg_is_informative(pkg, &pkg->available)) {
+      db_possibly_outdated = true;
       warning(_("package not in database at line %d: %.250s"), lno, namevb.buf);
       continue;
     }
@@ -179,6 +183,10 @@ setselections(const char *const *argv)
   modstatdb_shutdown();
   varbuf_destroy(&namevb);
   varbuf_destroy(&selvb);
+
+  if (db_possibly_outdated)
+    warning(_("found unknown packages; this might mean the available database\n"
+              "is outdated, and needs to be updated through a frontend method"));
 
   return 0;
 }
@@ -198,7 +206,7 @@ clearselections(const char *const *argv)
   it = pkg_db_iter_new();
   while ((pkg = pkg_db_iter_next_pkg(it))) {
     if (!pkg->installed.essential)
-      pkg_set_want(pkg, want_deinstall);
+      pkg_set_want(pkg, PKG_WANT_DEINSTALL);
   }
   pkg_db_iter_free(it);
 

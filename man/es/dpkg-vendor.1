@@ -13,7 +13,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -39,9 +39,9 @@ Finaliza con \fB0\fP si el \fIproveedor\fP es el proveedor actual. De no ser así
 finaliza con un valor distinto de 0.
 .TP 
 \fB\-\-derives\-from\fP\fI proveedor\fP
-Finaliza con \fB0\fP si el proveedor de la distribución actual deriva del
-\fIproveedor\fP. De no ser así, finaliza con un valor distinto de 0. Use el
-campo «Parent» para explorar los proveedores anteriores al actual.
+Exits with \fB0\fP if the current vendor distribution is a derivative of
+\fIvendor\fP, otherwise exits with non\-zero. It uses the \fBParent\fP field to
+browse all ancestors of the current vendor.
 .TP 
 \fB\-\-query\fP\fI campo\fP
 Muestra por la salida estándar el valor específico de proveedor \fIcampo\fP en
@@ -67,7 +67,7 @@ se define leyendo \fB/etc/dpkg/origins/default\fP.
 .
 .SH "VÉASE TAMBIÉN"
 \fBdeb\-origin\fP(5).
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -106,12 +106,8 @@ path_make_temp_template(const char *suffix)
 	char *template;
 
 	tmpdir = getenv("TMPDIR");
-#ifdef P_tmpdir
 	if (!tmpdir)
 		tmpdir = P_tmpdir;
-#endif
-	if (!tmpdir)
-		tmpdir = "/tmp";
 
 	m_asprintf(&template, "%s/%s.XXXXXX", tmpdir, suffix);
 

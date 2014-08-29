@@ -4,6 +4,7 @@
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman <wichert@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -89,7 +90,6 @@ static void cleanupdates(void) {
     for (i=0; i<cdn; i++) {
       strcpy(updatefnrest, cdlist[i]->d_name);
       parsedb(updatefnbuf, pdb_parse_update, NULL);
-      if (cstatus < msdbrw_write) free(cdlist[i]);
     }
 
     if (cstatus >= msdbrw_write) {
@@ -99,11 +99,13 @@ static void cleanupdates(void) {
         strcpy(updatefnrest, cdlist[i]->d_name);
         if (unlink(updatefnbuf))
           ohshite(_("failed to remove incorporated update file %.255s"),updatefnbuf);
-        free(cdlist[i]);
       }
 
       dir_sync_path(updatesdir);
     }
+
+    for (i = 0; i < cdn; i++)
+      free(cdlist[i]);
   }
   free(cdlist);
 
@@ -397,21 +399,21 @@ void modstatdb_note(struct pkginfo *pkg) {
 
   /* Clear pending triggers here so that only code that sets the status
    * to interesting (for triggers) values has to care about triggers. */
-  if (pkg->status != stat_triggerspending &&
-      pkg->status != stat_triggersawaited)
+  if (pkg->status != PKG_STAT_TRIGGERSPENDING &&
+      pkg->status != PKG_STAT_TRIGGERSAWAITED)
     pkg->trigpend_head = NULL;
 
-  if (pkg->status <= stat_configfiles) {
+  if (pkg->status <= PKG_STAT_CONFIGFILES) {
     for (ta = pkg->trigaw.head; ta; ta = ta->sameaw.next)
       ta->aw = NULL;
     pkg->trigaw.head = pkg->trigaw.tail = NULL;
   }
 
-  log_message("status %s %s %s", statusinfos[pkg->status].name,
+  log_message("status %s %s %s", pkg_status_name(pkg),
               pkg_name(pkg, pnaw_always),
 	      versiondescribe(&pkg->installed.version, vdew_nonambig));
   statusfd_send("status: %s: %s", pkg_name(pkg, pnaw_nonambig),
-                statusinfos[pkg->status].name);
+                pkg_status_name(pkg));
 
   if (cstatus >= msdbrw_write)
     modstatdb_note_core(pkg);

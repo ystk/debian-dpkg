@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 2012\-05\-27 "Debian Project" "dpkg suite"
+.TH dpkg\-deb 1 2013\-03\-27 "Debian Project" "dpkg suite"
 .SH 名前
 dpkg\-deb \- Debian パッケージアーカイブ (.deb) 操作ツール
 .
@@ -139,20 +139,37 @@ dpkg\-deb \- Debian パッケージアーカイブ (.deb) 操作ツール
 とみなされる。dpkg 1.16.2 より前では、すべての圧縮プログラムにおいて、レベル 0 は非圧縮と等価となる。
 .TP 
 \fB\-S\fP\fIcompress\-strategy\fP
-パッケージのビルドの際に、圧縮を行うバックエンドのプログラムに引き渡す圧縮ストラテジーを指定する (dpkg 1.16.2
-以降)。指定可能な値は、\fInone\fP (dpkg 1.16.4 以降) と、xz 用の \fIextreme\fP である。
+Specify which compression strategy to use on the compressor backend, when
+building a package (since dpkg 1.16.2). Allowed values are \fInone\fP (since
+dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrle\fP and \fIfixed\fP for gzip (since
+dpkg 1.17.0) and \fIextreme\fP for xz.
 .TP 
 \fB\-Z\fP\fIcompress\-type\fP
-パッケージのビルドの際に使用する圧縮タイプを指定する。指定可能な値は \fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP,
-\fInone\fP (デフォルトは \fIgzip\fP) である。
+Specify which compression type to use when building a package. Allowed
+values are \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecated), \fIlzma\fP (deprecated), and
+\fInone\fP (default is \fIxz\fP).
+.TP 
+\fB\-\-uniform\-compression\fP
+Specify that the same compression parameters should be used for all archive
+members (i.e. \fBcontrol.tar\fP and \fBdata.tar\fP). Otherwise only the
+\fBdata.tar\fP member will use those parameters. The only supported compression
+types allowed to be uniformly used are \fInone\fP, \fIgzip\fP and \fIxz\fP.
+.TP 
+\fB\-\-deb\-format=\fP\fIformat\fP
+Set the archive format version used when building (since dpkg 1.17.0).
+Allowed values are \fI2.0\fP for the new format, and \fI0.939000\fP for the old
+one (default is \fI2.0\fP).
+
+The old archive format is less easily parsed by non\-Debian tools and is now
+obsolete; its only use is when building packages to be parsed by versions of
+dpkg older than 0.93.76 (September 1995), which was released as i386 a.out
+only.
 .TP 
 \fB\-\-new\fP
-\fBdpkg\-deb\fP に `新しい' 形式のアーカイブを構築させる。これはデフォルトの動作である。
+This is a legacy alias for \fB\-\-deb\-format=2.0\fP.
 .TP 
 \fB\-\-old\fP
-\fBdpkg\-deb\fP に `古い' 形式のアーカイブを構築させる。この古いアーカイブ形式は、新しい形式よりも Debian
-以外のツールで処理することが難しく、現在は廃止されている。このオプションは、i386 の a.out 形式のみを対象としてリリースされた、バージョン
-0.93.76 (1995 年 9 月) 以前の dpkg で処理するためのパッケージをビルドする時のみ使用すること。
+This is a legacy alias for \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 \fBdpkg\-deb \-\-build\fP
@@ -169,6 +186,11 @@ dpkg\-deb \- Debian パッケージアーカイブ (.deb) 操作ツール
 \fBTMPDIR\fP
 \fBTMPDIR\fP が設定されている場合、\fBdpkg\-deb\fP は、一時的なファイルやディレクトリを作成するディレクトリとして使用する。
 .
+.SH 参考
+\fBdpkg\-deb\fP
+でソフトウェアをインストールしようとしてはいけない!すべてのファイルの適切なパスへインストール、パッケージのスクリプトの実行、ステータスや内容の記録を確実に実行するために、必ず
+\fBdpkg\fP を使うこと。
+.
 .SH バグ
 \fBdpkg\-deb \-I\fP \fIpackage1\fP\fB.deb\fP \fIpackage2\fP\fB.deb\fP は適切に動作しない。
 
@@ -176,10 +198,6 @@ dpkg\-deb \- Debian パッケージアーカイブ (.deb) 操作ツール
 のような高レイヤのツールは、指定されたリポジトリから情報を収集することで \fB.deb\fP
 パッケージの認証をサポートしている。また大半のパッケージは近年debian/rules によって生成される md5sum
 制御ファイルを提供している。しかし、これらは低レイヤのツールが直接的にサポートしているものではない。
-
-\fBdpkg\-deb\fP
-でソフトウェアをインストールしようとしてはいけない!すべてのファイルの適切なパスへインストール、パッケージのスクリプトの実行、ステータスや内容の記録を確実に実行するために、必ず
-\fBdpkg\fP を使うこと。
 .
 .SH 関連項目
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).

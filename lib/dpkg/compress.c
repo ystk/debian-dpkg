@@ -4,7 +4,7 @@
  *
  * Copyright © 2000 Wichert Akkerman <wakkerma@debian.org>
  * Copyright © 2004 Scott James Remnant <scott@netsplit.com>
- * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -51,11 +51,13 @@
 #include <dpkg/subproc.h>
 
 static void DPKG_ATTR_SENTINEL
-fd_fd_filter(int fd_in, int fd_out, const char *desc, const char *file, ...)
+fd_fd_filter(int fd_in, int fd_out, const char *desc, const char *delenv[],
+             const char *file, ...)
 {
 	va_list args;
 	struct command cmd;
 	pid_t pid;
+	int i;
 
 	pid = subproc_fork();
 	if (pid == 0) {
@@ -67,6 +69,9 @@ fd_fd_filter(int fd_in, int fd_out, const char *desc, const char *file, ...)
 			m_dup2(fd_out, 1);
 			close(fd_out);
 		}
+
+		for (i = 0; delenv[i]; i++)
+			unsetenv(delenv[i]);
 
 		command_init(&cmd, file, desc);
 		command_add_arg(&cmd, file);
@@ -137,7 +142,7 @@ fixup_gzip_params(struct compress_params *params)
 {
 	/* Normalize compression level. */
 	if (params->level == 0)
-		params->type = compressor_type_none;
+		params->type = COMPRESSOR_TYPE_NONE;
 }
 
 #ifdef WITH_ZLIB
@@ -180,10 +185,22 @@ compress_gzip(int fd_in, int fd_out, struct compress_params *params, const char 
 {
 	char buffer[DPKG_BUFFER_SIZE];
 	char combuf[6];
+	int strategy;
 	int z_errnum;
 	gzFile gzfile;
 
-	snprintf(combuf, sizeof(combuf), "w%d", params->level);
+	if (params->strategy == COMPRESSOR_STRATEGY_FILTERED)
+		strategy = 'f';
+	else if (params->strategy == COMPRESSOR_STRATEGY_HUFFMAN)
+		strategy = 'h';
+	else if (params->strategy == COMPRESSOR_STRATEGY_RLE)
+		strategy = 'R';
+	else if (params->strategy == COMPRESSOR_STRATEGY_FIXED)
+		strategy = 'F';
+	else
+		strategy = ' ';
+
+	snprintf(combuf, sizeof(combuf), "w%d%c", params->level, strategy);
 	gzfile = gzdopen(fd_out, combuf);
 	if (gzfile == NULL)
 		ohshit(_("%s: error binding output to gzip stream"), desc);
@@ -220,10 +237,12 @@ compress_gzip(int fd_in, int fd_out, struct compress_params *params, const char 
 	}
 }
 #else
+static const char *env_gzip[] = { "GZIP", NULL };
+
 static void
 decompress_gzip(int fd_in, int fd_out, const char *desc)
 {
-	fd_fd_filter(fd_in, fd_out, desc, GZIP, "-dc", NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_gzip, GZIP, "-dc", NULL);
 }
 
 static void
@@ -232,7 +251,7 @@ compress_gzip(int fd_in, int fd_out, struct compress_params *params, const char 
 	char combuf[6];
 
 	snprintf(combuf, sizeof(combuf), "-c%d", params->level);
-	fd_fd_filter(fd_in, fd_out, desc, GZIP, combuf, NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_gzip, GZIP, "-n", combuf, NULL);
 }
 #endif
 
@@ -344,10 +363,12 @@ compress_bzip2(int fd_in, int fd_out, struct compress_params *params, const char
 		ohshite(_("%s: internal bzip2 write error"), desc);
 }
 #else
+static const char *env_bzip2[] = { "BZIP", "BZIP2", NULL };
+
 static void
 decompress_bzip2(int fd_in, int fd_out, const char *desc)
 {
-	fd_fd_filter(fd_in, fd_out, desc, BZIP2, "-dc", NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_bzip2, BZIP2, "-dc", NULL);
 }
 
 static void
@@ -356,7 +377,7 @@ compress_bzip2(int fd_in, int fd_out, struct compress_params *params, const char
 	char combuf[6];
 
 	snprintf(combuf, sizeof(combuf), "-c%d", params->level);
-	fd_fd_filter(fd_in, fd_out, desc, BZIP2, combuf, NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_bzip2, BZIP2, combuf, NULL);
 }
 #endif
 
@@ -511,7 +532,7 @@ filter_xz_init(struct io_lzma *io, lzma_stream *s)
 	io->status |= DPKG_STREAM_COMPRESS;
 
 	preset = io->params->level;
-	if (io->params->strategy == compressor_strategy_extreme)
+	if (io->params->strategy == COMPRESSOR_STRATEGY_EXTREME)
 		preset |= LZMA_PRESET_EXTREME;
 	ret = lzma_easy_encoder(s, preset, LZMA_CHECK_CRC32);
 	if (ret != LZMA_OK)
@@ -563,10 +584,12 @@ compress_xz(int fd_in, int fd_out, struct compress_params *params, const char *d
 	filter_lzma(&io, fd_in, fd_out);
 }
 #else
+static const char *env_xz[] = { "XZ_DEFAULTS", "XZ_OPT", NULL };
+
 static void
 decompress_xz(int fd_in, int fd_out, const char *desc)
 {
-	fd_fd_filter(fd_in, fd_out, desc, XZ, "-dc", NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_xz, XZ, "-dc", NULL);
 }
 
 static void
@@ -575,13 +598,13 @@ compress_xz(int fd_in, int fd_out, struct compress_params *params, const char *d
 	char combuf[6];
 	const char *strategy;
 
-	if (params->strategy == compressor_strategy_extreme)
+	if (params->strategy == COMPRESSOR_STRATEGY_EXTREME)
 		strategy = "-e";
 	else
 		strategy = NULL;
 
 	snprintf(combuf, sizeof(combuf), "-c%d", params->level);
-	fd_fd_filter(fd_in, fd_out, desc, XZ, combuf, strategy, NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_xz, XZ, combuf, strategy, NULL);
 }
 #endif
 
@@ -622,7 +645,7 @@ filter_lzma_init(struct io_lzma *io, lzma_stream *s)
 	io->status |= DPKG_STREAM_COMPRESS;
 
 	preset = io->params->level;
-	if (io->params->strategy == compressor_strategy_extreme)
+	if (io->params->strategy == COMPRESSOR_STRATEGY_EXTREME)
 		preset |= LZMA_PRESET_EXTREME;
 	if (lzma_lzma_preset(&options, preset))
 		filter_lzma_error(io, LZMA_OPTIONS_ERROR);
@@ -662,7 +685,7 @@ compress_lzma(int fd_in, int fd_out, struct compress_params *params, const char 
 static void
 decompress_lzma(int fd_in, int fd_out, const char *desc)
 {
-	fd_fd_filter(fd_in, fd_out, desc, XZ, "-dc", "--format=lzma", NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_xz, XZ, "-dc", "--format=lzma", NULL);
 }
 
 static void
@@ -671,7 +694,7 @@ compress_lzma(int fd_in, int fd_out, struct compress_params *params, const char 
 	char combuf[6];
 
 	snprintf(combuf, sizeof(combuf), "-c%d", params->level);
-	fd_fd_filter(fd_in, fd_out, desc, XZ, combuf, "--format=lzma", NULL);
+	fd_fd_filter(fd_in, fd_out, desc, env_xz, XZ, combuf, "--format=lzma", NULL);
 }
 #endif
 
@@ -689,11 +712,11 @@ static const struct compressor compressor_lzma = {
  */
 
 static const struct compressor *compressor_array[] = {
-	[compressor_type_none] = &compressor_none,
-	[compressor_type_gzip] = &compressor_gzip,
-	[compressor_type_xz] = &compressor_xz,
-	[compressor_type_bzip2] = &compressor_bzip2,
-	[compressor_type_lzma] = &compressor_lzma,
+	[COMPRESSOR_TYPE_NONE] = &compressor_none,
+	[COMPRESSOR_TYPE_GZIP] = &compressor_gzip,
+	[COMPRESSOR_TYPE_XZ] = &compressor_xz,
+	[COMPRESSOR_TYPE_BZIP2] = &compressor_bzip2,
+	[COMPRESSOR_TYPE_LZMA] = &compressor_lzma,
 };
 
 static const struct compressor *
@@ -705,6 +728,12 @@ compressor(enum compressor_type type)
 		internerr("compressor_type %d is out of range", type);
 
 	return compressor_array[type];
+}
+
+const char *
+compressor_get_name(enum compressor_type type)
+{
+	return compressor(type)->name;
 }
 
 const char *
@@ -722,7 +751,7 @@ compressor_find_by_name(const char *name)
 		if (strcmp(compressor_array[i]->name, name) == 0)
 			return i;
 
-	return compressor_type_unknown;
+	return COMPRESSOR_TYPE_UNKNOWN;
 }
 
 enum compressor_type
@@ -734,38 +763,58 @@ compressor_find_by_extension(const char *extension)
 		if (strcmp(compressor_array[i]->extension, extension) == 0)
 			return i;
 
-	return compressor_type_unknown;
+	return COMPRESSOR_TYPE_UNKNOWN;
 }
 
 enum compressor_strategy
 compressor_get_strategy(const char *name)
 {
 	if (strcmp(name, "none") == 0)
-		return compressor_strategy_none;
+		return COMPRESSOR_STRATEGY_NONE;
+	if (strcmp(name, "filtered") == 0)
+		return COMPRESSOR_STRATEGY_FILTERED;
+	if (strcmp(name, "huffman") == 0)
+		return COMPRESSOR_STRATEGY_HUFFMAN;
+	if (strcmp(name, "rle") == 0)
+		return COMPRESSOR_STRATEGY_RLE;
+	if (strcmp(name, "fixed") == 0)
+		return COMPRESSOR_STRATEGY_FIXED;
 	if (strcmp(name, "extreme") == 0)
-		return compressor_strategy_extreme;
+		return COMPRESSOR_STRATEGY_EXTREME;
 
-	return compressor_strategy_unknown;
-}
-
-bool
-compressor_check_params(struct compress_params *params, struct dpkg_error *err)
-{
-	if (params->strategy == compressor_strategy_none)
-		return true;
-
-	if (params->type == compressor_type_xz &&
-	    params->strategy == compressor_strategy_extreme)
-		return true;
-
-	dpkg_put_error(err, _("unknown compression strategy"));
-	return false;
+	return COMPRESSOR_STRATEGY_UNKNOWN;
 }
 
 static void
 compressor_fixup_params(struct compress_params *params)
 {
 	compressor(params->type)->fixup_params(params);
+
+	if (params->level < 0)
+		params->level = compressor(params->type)->default_level;
+}
+
+bool
+compressor_check_params(struct compress_params *params, struct dpkg_error *err)
+{
+	compressor_fixup_params(params);
+
+	if (params->strategy == COMPRESSOR_STRATEGY_NONE)
+		return true;
+
+	if (params->type == COMPRESSOR_TYPE_GZIP &&
+	    (params->strategy == COMPRESSOR_STRATEGY_FILTERED ||
+	     params->strategy == COMPRESSOR_STRATEGY_HUFFMAN ||
+	     params->strategy == COMPRESSOR_STRATEGY_RLE ||
+	     params->strategy == COMPRESSOR_STRATEGY_FIXED))
+		return true;
+
+	if (params->type == COMPRESSOR_TYPE_XZ &&
+	    params->strategy == COMPRESSOR_STRATEGY_EXTREME)
+		return true;
+
+	dpkg_put_error(err, _("unknown compression strategy"));
+	return false;
 }
 
 void
@@ -792,11 +841,6 @@ compress_filter(struct compress_params *params, int fd_in, int fd_out,
 	va_start(args, desc_fmt);
 	varbuf_vprintf(&desc, desc_fmt, args);
 	va_end(args);
-
-	compressor_fixup_params(params);
-
-	if (params->level < 0)
-		params->level = compressor(params->type)->default_level;
 
 	compressor(params->type)->compress(fd_in, fd_out, params, desc.buf);
 }

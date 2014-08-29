@@ -17,29 +17,29 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use strict;
 use warnings;
 
 use Getopt::Long qw(:config posix_default bundling no_ignorecase);
 
-use Dpkg;
+use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Changelog::Debian;
 
-textdomain("dpkg-dev");
+textdomain('dpkg-dev');
 
-$progname = "parsechangelog/$progname";
+$Dpkg::PROGNAME = "parsechangelog/$Dpkg::PROGNAME";
 
 sub version {
-    printf _g("Debian %s version %s.\n"), $progname, $version;
+    printf _g("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
 
-    printf _g("
+    printf _g('
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
-");
+');
 }
 
 sub usage {
@@ -68,7 +68,7 @@ Options:
                                 counted from the top (or the tail if
                                 <number> is lower than 0)
     --all                       include all changes
-"), $progname;
+"), $Dpkg::PROGNAME;
 }
 
 my ( $since, $until, $from, $to, $all, $count, $offset, $file, $label );
@@ -89,20 +89,25 @@ sub set_format {
     $format = $val;
 }
 
-GetOptions( "file=s" => \$file,
-	    "label|l=s" => \$label,
-	    "since|v=s" => \$since,
-	    "until|u=s" => \$until,
-	    "from|f=s" => \$from,
-	    "to|t=s" => \$to,
-	    "count|c|n=i" => \$count,
-	    "offset|o=i" => \$offset,
-	    "help|?" => sub{ usage(); exit(0) },
-	    "version|V" => sub{version();exit(0)},
-	    "format=s" => \&set_format,
-	    "all|a" => \$all,
-	    )
-    or do { usage(); exit(2) };
+my @options_spec = (
+    'file=s' => \$file,
+    'label|l=s' => \$label,
+    'since|v=s' => \$since,
+    'until|u=s' => \$until,
+    'from|f=s' => \$from,
+    'to|t=s' => \$to,
+    'count|c|n=i' => \$count,
+    'offset|o=i' => \$offset,
+    'help|?' => sub{ usage(); exit(0) },
+    'version|V' => sub{version();exit(0)},
+    'format=s' => \&set_format,
+    'all|a' => \$all,
+);
+
+{
+    local $SIG{__WARN__} = sub { usageerr($_[0]) };
+    GetOptions(@options_spec);
+}
 
 usageerr('too many arguments') if @ARGV > 1;
 
@@ -114,8 +119,8 @@ if (@ARGV) {
     $file = $ARGV[0];
 }
 
-$file ||= $default_file;
-$label ||= $file;
+$file //= $default_file;
+$label //= $file;
 unless (defined($since) or defined($until) or defined($from) or
         defined($to) or defined($offset) or defined($count) or
         defined($all))
@@ -131,18 +136,13 @@ my $range = {
 
 my $changes = Dpkg::Changelog::Debian->new(reportfile => $label, range => $range);
 
-if ($file eq '-') {
-    $changes->parse(\*STDIN, _g("<standard input>"))
-	or error(_g('fatal error occurred while parsing input'));
-} else {
-    $changes->load($file)
-	or error(_g('fatal error occurred while parsing %s'), $file);
-}
+$changes->load($file)
+    or error(_g('fatal error occurred while parsing %s'), $file);
 
 eval qq{
     my \$output = \$changes->$format(\$range);
     print \$output if defined \$output;
 };
 if ($@) {
-    error("%s", $@);
+    error('%s', $@);
 }

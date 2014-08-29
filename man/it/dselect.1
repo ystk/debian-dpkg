@@ -4,7 +4,7 @@
 .\" Copyright Â© 2000 Josip Rodin
 .\" Copyright Â© 2001 Joost Kooij
 .\" Copyright Â© 2001 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2010-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2010-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dselect 1 "7 aprile 2012" "Progetto Debian" Debian
+.TH dselect 1 2014\-08\-11 "Progetto Debian" Debian
 .SH NOME
 dselect \- frontend per la gestione dei pacchetti Debian
 .
@@ -128,12 +128,12 @@ Usato per visualizzare le righe di interrogazione.
 \fBhelpscreen\fP
 Colore delle schermate di aiuto.
 .RE
-.P
+.IP
 La parte dello schermo è seguita da due punti («:») e dall'indicazione del
 colore. Si può specificare il colore di primo piano, il colore di sfondo o
 entrambi, scavalcando le impostazioni dei colori usate in fase di
 compilazione. Usare i nomi dei colori standard di curses.
-.P
+.IP
 Opzionalmente, dopo aver specificato il colore, possono essere presenti
 altri due punti e una specifica degli attributi. Questa è una lista di uno o
 più attributi, separata da caratteri più («+»). Gli attributi disponibili
@@ -213,7 +213,7 @@ casi i problemi spariranno o verranno risolti. Se i problemi persistono o
 l'installazione effettuata non era corretta, investigare le cause e le
 circostanze e inviare una segnalazione di bug nel sistema di tracciamento
 dei bug di Debian. Le istruzioni su come farlo possono essere trovate su
-http://bugs.debian.org/ o lette nella documentazione per \fBbug\fP(1) o
+https://bugs.debian.org/ o lette nella documentazione per \fBbug\fP(1) o
 \fBreportbug\fP(1), se sono installati.
 .sp
 I dettagli sull'azione di installazione dipendono dall'implementazione del
@@ -237,7 +237,7 @@ Esce da \fBdselect\fP.
 Esce dal programma con il codice di errore zero (successo).
 .sp
 .
-.SH "Gestione delle selezioni dei pacchetti"
+.SH "GESTIONE DELLE SELEZIONI DEI PACCHETTI"
 .sp
 .SS Introduzione
 .sp
@@ -294,13 +294,14 @@ pacchetti di cui il sistema di gestione dei pacchetti di Debian è al
 corrente. Questo include i pacchetti installati sul sistema e i pacchetti
 noti al database dei pacchetti disponibili.
 .sp
-Per ciascun pacchetto, l'elenco mostra lo stato, la priorità, la sezione, le
-versioni installata e disponibile, il nome di pacchetto e la sua descrizione
-breve, il tutto in una riga. Premendo il tasto \fB«V»\fP, si può abilitare e
-disabilitare la visualizzazione della versione installata e
-disponibile. Premendo il tasto \fB«v»\fP, la visualizzazione dello stato del
-pacchetto passa da prolissa a concisa e viceversa. La visualizzazione
-concisa è quella predefinita.
+For every package, the list shows the package's status, priority, section,
+installed and available architecture, installed and available versions, the
+package name and its short description, all in one line.  By pressing the
+\&\fB'A'\fP key, the display of the installed and available architecture can be
+toggled between on an off.  By pressing the \fB'V'\fP key, the display of the
+installed and available version can be toggled between on an off.  By
+pressing the \fB'v'\fP key, the package status display is toggled between
+verbose and shorthand.  Shorthand display is the default.
 .sp
 L'indicazione di stato concisa è composta da quattro parti: un contrassegno
 di errore che normalmente dovrebbe essere vuoto, lo stato attuale, l'ultimo

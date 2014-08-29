@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -26,9 +26,11 @@
 dpkg.conf \- dpkg の設定ファイル
 .
 .SH 説明
-本ファイルには、dpkg オプションのデフォルトが設定される。各行には、行頭のダッシュを削除することを覗き、dpkg
-のコマンドラインオプションとまったく同一のオプションが記述する。オプションの値を囲むように付けられたクオート記号は無視される。ハッシュ記号 "\fB#\fP"
-からはじまる行は、コメント行である。
+This file contains default options for dpkg. Each line contains a single
+option which is exactly the same as a normal command line option for dpkg
+except for the leading hyphens which are not used here. Quotes surrounding
+option values are stripped. Comments are allowed by starting a line with a
+hash sign ("\fB#\fP").
 .
 .SH ファイル
 \fI/etc/dpkg/dpkg.cfg.d/[0\-9a\-zA\-Z_\-]*\fP

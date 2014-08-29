@@ -2,7 +2,7 @@
 .\"
 .\" Copyright 息 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright 息 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright 息 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright 息 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright 息 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright 息 2009 Rapha谷l Hertzog <hertzog@debian.org>
 .\"
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 2012\-05\-04 "Debian Project" "dpkg ユーティリティ"
+.TH dpkg\-parsechangelog 1 2013\-07\-06 "Debian Project" "dpkg ユーティリティ"
 .SH 名前
 dpkg\-parsechangelog \- Debian changelog ファイルの解析
 .
@@ -38,7 +38,8 @@ dpkg\-parsechangelog \- Debian changelog ファイルの解析
 .SH オプション
 .TP 
 \fB\-l\fP\fIchangelog\-file\fP
-情報の読み取り元となる changelog ファイルを指定する。デフォルトは \fBdebian/changelog\fP。
+Specifies the changelog file to read information from. A '\-' can be used to
+specify reading from standard input. The default is \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIchangelog\-format\fP
 changelog ファイルの形式を指定する。デフォルトでは、changelog の末尾の近辺にある特別な行から読み取られるか、もしくは
@@ -49,14 +50,26 @@ changelog ファイルの形式を指定する。デフォルトでは、changelog の末尾の近辺にある
 \fB/usr/local/lib/dpkg/parsechangelog\fP および \fB/usr/lib/dpkg/parsechangelog\fP
 である。
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIfield\fP
+Specifies the name of the field to show (since dpkg 1.17.0).  The field name
+is not printed, only its value.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 利用方法を表示して終了する。
 .TP 
 \fB\-\-version\fP
 バージョン情報を表示して終了する。
 .SS パーサ用オプション
-以下のオプションは、解析対象の範囲や出力形式といった、changelog
-パーサの出力を制御するために使われる。これらは、解析スクリプトによってサポートされる必要がある。\fB警告\fP も参照のこと。
+The following options can be used to influence the output of the changelog
+parser, e.g. the range of entries or the format of the output. They need to
+be supported by the parser script in question. See also \fBNOTES\fP.
+.TP 
+\fB\-\-file\fP\fI file\fP
+Set the changelog filename to parse. Default is '\-' (standard input).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIfile\fP
+Set the name of the changelog file to use in error messages, instead of
+using the name from the \fB\-\-file\fP option, or its default value.
 .TP 
 \fB\-\-format\fP\fI output\-format\fP
 出力形式を指定する。現在サポートされている値は \fIdpkg\fP および \fIrfc822\fP である。\fIdpkg\fP は従来からの
@@ -111,8 +124,8 @@ changelog の形式に依存する。
 先頭から \fInumber\fP 分のエントリを含める (\fInumber\fP が 0 未満の場合は、最後から \fInumber\fP エントリの意味となる。
 .TP 
 \fB\-\-offset\fP \fInumber\fP, \fB\-o\fP\fInumber\fP
-\-\-count の開始地点を先頭から \fInumber\fP エントリに変更する (\fInumber\fP が0 未満の場合は、最後から \fInumber\fP
-エントリの意味となる)。
+change the starting point for \fB\-\-count\fP, counted from the top (or the tail
+if \fInumber\fP is lower than 0).
 .TP 
 \fB\-\-all\fP
 すべての変更を含める。このオプションが設定された場合、他のオプションは無効となる。
@@ -149,9 +162,10 @@ changelog がパーサの期待するフォーマットになっていなかった場合、パーサは、実行を
 
 changelog パーサは、ユーザと対話を行わなくともよい。
 .
-.SH 警告
-\-v 以外の \fBパーサ用オプション\fP は \fBdpkg\fP 1.14.16 以降のバージョンでのみサポートされる。\fIdebian\fP 以外の
-changelog 形式を解析するサードパーティのパーサは、すべてのオプションをサポートしないかもしれない。
+.SH 参考
+All \fBParser Options\fP except for \fB\-v\fP are only supported since dpkg
+1.14.16. Third party parsers for changelog formats other than \fIdebian\fP
+might not support all options.
 .
 .SH ファイル
 .TP 

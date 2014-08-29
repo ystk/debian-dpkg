@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 "27 de mayo del 2012" "Proyecto Debian" "Herramientas de dpkg"
+.TH dpkg\-deb 1 2013\-03\-27 "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 dpkg\-deb \- Herramienta de manipulación de archivos de paquete («.deb») de
 Debian
@@ -176,27 +176,37 @@ la versión 1.16.2 de dpkg, el nivel cero equivalía a no comprimir para todos
 los sistemas de compresión.
 .TP 
 \fB\-Z\fP\fIsistema\-de\-compresión\fP
-Define la estrategia de compresión que utilizar con el sistema de compresión
-al construir un paquete (a partir de la versión 1.16.2 de dpkg). Los valores
-permitidos son \fInone\fP (a partir de la versión 1.16.4 de dpkg) y \fIextreme\fP
-para xz.
+Specify which compression strategy to use on the compressor backend, when
+building a package (since dpkg 1.16.2). Allowed values are \fInone\fP (since
+dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrle\fP and \fIfixed\fP for gzip (since
+dpkg 1.17.0) and \fIextreme\fP for xz.
 .TP 
 \fB\-Z\fP\fItipo\-de\-compresión\fP
-Especifica el tipo de compresión a utilizar al construir un paquete. Los
-valores aceptados son \fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP, y \fInone\fP
-(ninguno). El valor predefinido es \fIgzip\fP.
+Specify which compression type to use when building a package. Allowed
+values are \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecated), \fIlzma\fP (deprecated), and
+\fInone\fP (default is \fIxz\fP).
+.TP 
+\fB\-\-uniform\-compression\fP
+Specify that the same compression parameters should be used for all archive
+members (i.e. \fBcontrol.tar\fP and \fBdata.tar\fP). Otherwise only the
+\fBdata.tar\fP member will use those parameters. The only supported compression
+types allowed to be uniformly used are \fInone\fP, \fIgzip\fP and \fIxz\fP.
+.TP 
+\fB\-\-deb\-format=\fP\fIformat\fP
+Set the archive format version used when building (since dpkg 1.17.0).
+Allowed values are \fI2.0\fP for the new format, and \fI0.939000\fP for the old
+one (default is \fI2.0\fP).
+
+The old archive format is less easily parsed by non\-Debian tools and is now
+obsolete; its only use is when building packages to be parsed by versions of
+dpkg older than 0.93.76 (September 1995), which was released as i386 a.out
+only.
 .TP 
 \fB\-\-new\fP
-Asegura que \fBdpkg\-deb\fP construya un archivo con el «nuevo» formato. Éste es
-el comportamiento por omisión.
+This is a legacy alias for \fB\-\-deb\-format=2.0\fP.
 .TP 
 \fB\-\-old\fP
-Fuerza que \fBdpkg\-deb\fP construya un archivo con el formato antiguo
-(«old»). Este formato antiguo de archivo es más difícil de analizar por las
-herramientas que no forman parte de Debian, y a día de hoy está
-obsoleto. Sólo se utiliza al construir paquetes que versiones de dpkg
-anteriores a 0.93.76 (septiembre 1995) analizarán, la cual se distribuyó
-sólo para sistemas i386 en formato «a.out».
+This is a legacy alias for \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 Impide las comprobaciones habituales de \fBdpkg\-deb \-\-build\fP sobre los
@@ -216,6 +226,12 @@ Activa los mensajes de depuración. No son muy interesantes.
 Si se define, \fBdpkg\-deb\fP lo usará como el directorio en el que crear
 ficheros temporales y directorios.
 .
+.SH NOTAS
+¡No use \fBdpkg\-deb\fP para instalar software! Debe utilizar \fBdpkg\fP para
+asegurar que todos los ficheros se instalan en el sitio correcto, los
+scripts del paquete se ejecuten y que se registren los contenidos y estado
+el de éste.
+.
 .SH FALLOS
 \fBdpkg\-deb \-I\fP \fIpaquete1\fP\fB.deb\fP \fIpaquete2\fP\fB.deb\fP no funciona como
 debería.
@@ -226,15 +242,10 @@ APT son capaces de autenticar paquetes obtenidos desde el repositorio dado,
 y la mayoría de estos ofrecen a día de hoy un fichero de sumas de control
 md5 generado por «debian/rules». Las herramientas de bajo nivel no tienen
 una compatibilidad directa con estos procesos.
-
-¡No use \fBdpkg\-deb\fP para instalar software! Debe utilizar \fBdpkg\fP para
-asegurar que todos los ficheros se instalan en el sitio correcto, los
-scripts del paquete se ejecuten y que se registren los contenidos y estado
-el de éste.
 .
 .SH "VÉASE TAMBIÉN"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

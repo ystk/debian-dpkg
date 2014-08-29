@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -55,8 +55,7 @@ test_fdio_hash(void)
 	char *test_file;
 	int fd;
 
-	test_file = strdup("test.XXXXXX");
-	test_pass(test_file != NULL);
+	test_file = test_alloc(strdup("test.XXXXXX"));
 	fd = mkstemp(test_file);
 	test_pass(fd >= 0);
 
@@ -75,6 +74,8 @@ test_fdio_hash(void)
 static void
 test(void)
 {
+	test_plan(10);
+
 	test_buffer_hash();
 	test_fdio_hash();
 }

@@ -3,9 +3,16 @@ global:
 	# Error reporting
 	dpkg_error_destroy;
 
+	# Charset and string functions
+	dpkg_locales_init;
+
 	# Program name
 	dpkg_set_progname;
 	dpkg_get_progname;
+
+	# Program setup/teardown
+	dpkg_program_init;
+	dpkg_program_done;
 
 	# Ar support
 	dpkg_ar_normalize_name;
@@ -31,9 +38,12 @@ LIBDPKG_PRIVATE {
 	ohshite;
 	ohshit;
 	do_internerr;
+	dpkg_set_report_piped_mode;
+	dpkg_set_report_buffer;
 	warning_get_count;
 	warningv;
 	warning;
+	notice;
 
 	debug_set_output;
 	debug_set_mask;
@@ -45,6 +55,7 @@ LIBDPKG_PRIVATE {
 	cu_closestream;
 	cu_closedir;
 	cu_closefd;
+	cu_filename;
 
 	# ‘Must do’ functions
 	m_malloc;
@@ -61,9 +72,12 @@ LIBDPKG_PRIVATE {
 	# Charset and string functions
 	cisdigit;
 
+	str_match_end;
 	str_escape_fmt;
 	str_strip_quotes;
 	str_quote_meta;
+	str_width;
+	str_gen_crop;
 
 	# Variable buffer support
 	varbuf_init;
@@ -111,7 +125,8 @@ LIBDPKG_PRIVATE {
 	# Buffer I/O functions
 	fd_read;
 	fd_write;
-	buffer_hash;
+	fd_allocate_size;
+	buffer_filter;
 	buffer_skip_*;
 	buffer_copy_*;
 
@@ -138,6 +153,7 @@ LIBDPKG_PRIVATE {
 	# Compression support
 	compressor_find_by_name;
 	compressor_find_by_extension;
+	compressor_get_name;
 	compressor_get_extension;
 	compressor_get_strategy;
 	compressor_check_params;
@@ -155,8 +171,10 @@ LIBDPKG_PRIVATE {
 	deb_version_parse;
 
 	# Configuration and command line handling
-	loadcfgfile;
-	myopt;
+	dpkg_options_load;
+	dpkg_options_parse;
+	dpkg_options_parse_arg_int;
+	dpkg_options_parse_pkgname;
 	badusage;
 	cipaction;		# XXX variable, do not export
 	setaction;
@@ -194,6 +212,7 @@ LIBDPKG_PRIVATE {
 
 	# Architecture database
 	dpkg_arch_name_is_illegal;
+	dpkg_arch_describe;
 	dpkg_arch_find;
 	dpkg_arch_get;
 	dpkg_arch_get_list;
@@ -204,6 +223,8 @@ LIBDPKG_PRIVATE {
 	dpkg_arch_save_list;
 
 	# Package struct handling
+	pkgset_blank;
+	pkgset_link_pkg;
 	pkgset_installed_instances;
 	pkg_blank;
 	pkgbin_blank;
@@ -225,6 +246,10 @@ LIBDPKG_PRIVATE {
 	pkg_abbrev_want;
 	pkg_abbrev_status;
 	pkg_abbrev_eflag;
+	pkg_want_name;
+	pkg_eflag_name;
+	pkg_status_name;
+	pkg_priority_name;
 
 	# Package list handling
 	pkg_list_new;
@@ -233,6 +258,7 @@ LIBDPKG_PRIVATE {
 
 	# Package array handling
 	pkg_array_init_from_db;
+	pkg_array_init_from_names;
 	pkg_array_sort;
 	pkg_array_destroy;
 
@@ -279,8 +305,7 @@ LIBDPKG_PRIVATE {
 	versionsatisfied;
 
 	# Package on-disk database functions
-	statusinfos;		# XXX variable, do not export
-	wantinfos;		# XXX variable, do not export
+	varbuf_add_arbfield;
 	varbufdependency;
 	varbufrecord;
 	writerecord;

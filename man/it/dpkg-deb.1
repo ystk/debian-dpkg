@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 "27 maggio 2012" "Progetto Debian" "suite dpkg"
+.TH dpkg\-deb 1 "27 marzo 2013" "Progetto Debian" "suite dpkg"
 .SH NOME
 dpkg\-deb \- strumento per la manipolazione di archivi di pacchetto Debian
 (.deb)
@@ -148,10 +148,10 @@ Se necessario verrà creata la directory di destinazione (ma non le directory
 sovrastanti).
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Show the usage message and exit.
+Mostra il messaggio sull'uso ed esce.
 .TP 
 \fB\-\-version\fP
-Show the version and exit.
+Mostra la versione ed esce.
 .
 .SH OPZIONI
 .TP 
@@ -179,24 +179,38 @@ compressori.
 .TP 
 \fB\-S\fP\fIstrategia\-di\-compressione\fP
 Specifica quale strategia di compressione usare nel backend di compressione
-quando si crea un pacchetto (a partire dalla versione 1.16.2 di dpkg). I
-valori permessi sono \fInone\fP (a partire da dpkg 1.16.4) e \fIextreme\fPper xz.
+quando si crea un pacchetto (a partire da dpkg 1.16.2). I valori permessi
+sono \fInone\fP (a partire da dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrle\fP e
+\fIfixed\fP per gzip (a partire da dpkg 1.17.0) e \fIextreme\fP per xz.
 .TP 
 \fB\-Z\fP\fItipo\-di\-compressione\fP
-Specifica quale tipo di compressione usare quando si crea un pacchetto. I
-valori permessi sono \fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP e \fInone\fP (il valore
-predefinito è \fIgzip\fP).
+Specify which compression type to use when building a package. Allowed
+values are \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecated), \fIlzma\fP (deprecated), and
+\fInone\fP (default is \fIxz\fP).
+.TP 
+\fB\-\-uniform\-compression\fP
+Specifica che devono essere usati gli stessi parametri di compressione per
+tutti i membri di un archivio (cioè \fBcontrol.tar\fP e
+\fBdata.tar\fP). Altrimenti solo l'elemento \fBdata.tar\fP userà tali
+parametri. Gli unici tipi di compressione supportati che è permesso di usare
+in modo uniforme sono \fInone\fP, \fIgzip\fP e \fIxz\fP.
+.TP 
+\fB\-\-deb\-format=\fP\fIformat\fP
+Imposta la versione del formato dell'archivio usata nella creazione (a
+partire da dpkg 1.17.0). I valori permessi sono \fI2.0\fP per il formato nuovo
+e \fI0.939000\fP per quello vecchio (il predefinito è \fI2.0\fP).
+
+Il vecchio formato degli archivi viene analizzato con più difficoltà dagli
+strumenti non Debian e ora è obsoleto; il suo unico utilizzo è quello di
+creare pacchetti che devono essere manipolati da versioni di dpkg precedenti
+alla 0.93.76 (settembre 1995) che è stata rilasciata solo come a.out per
+i386.
 .TP 
 \fB\-\-new\fP
-Assicura che \fBdpkg\-deb\fP crei un archivio nel «nuovo» formato. Questo è il
-comportamento predefinito.
+Questo è un alias obsoleto per \fB\-\-deb\-format=2.0\fP.
 .TP 
 \fB\-\-old\fP
-Forza \fBdpkg\-deb\fP a creare un archivio nel «vecchio» formato. Questo vecchio
-formato degli archivi viene analizzato con più difficoltà dagli strumenti
-non Debian e ora è obsoleto; il suo unico utilizzo è quello di creare
-pacchetti che devono essere manipolati da versioni di dpkg precedenti alla
-0.93.76 (settembre 1995) che è stata rilasciata solo come a.out per i386.
+Questo è un alias obsoleto per \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 Impedisce i consueti controlli di \fBdpkg\-deb \-\-build\fP sui contenuti proposti
@@ -216,6 +230,12 @@ Abilita l'output di debug. Non è molto interessante.
 Se impostata, \fBdpkg\-deb\fP la userà come directory nella quale creare i file
 e le directory temporanei.
 .
+.SH NOTE
+Non tentare di usare solamente \fBdpkg\-deb\fP per installare software! Si deve
+usare \fBdpkg\fP stesso per assicurare che tutti i file siano messi nella
+posizione corretta, che siano eseguiti gli script del pacchetto e che
+vengano registrati il suo stato e i suoi contenuti.
+.
 .SH BUG
 \fBdpkg\-deb \-I\fP \fIpacchetto1\fP\fB.deb\fP \fIpacchetto2\fP\fB.deb\fP fa la cosa
 sbagliata.
@@ -226,11 +246,6 @@ come APT permettono di autenticare i pacchetti \fB.deb\fP recuperati da un dato
 repository, e la maggior parte dei pacchetti al giorno d'oggi fornisce un
 file di controllo md5sum generato da debian/rules; questo però non è
 direttamente supportato dagli strumenti di più basso livello.)
-
-Non tentare di usare solamente \fBdpkg\-deb\fP per installare software! Si deve
-usare \fBdpkg\fP stesso per assicurare che tutti i file siano messi nella
-posizione corretta, che siano eseguiti gli script del pacchetto e che
-vengano registrati il suo stato e i suoi contenuti.
 .
 .SH "VEDERE ANCHE"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).

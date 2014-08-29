@@ -4,7 +4,7 @@
  *
  * Copyright © 2007 Canonical Ltd
  * written by Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
-#include <sys/fcntl.h>
 #include <sys/stat.h>
 
 #include <assert.h>
+#include <fcntl.h>
 #include <stdlib.h>
 
 #include <dpkg/i18n.h>
@@ -67,7 +67,7 @@
  *
  *
  * For --triggers-only and --configure, we go through each thing in the
- * argument queue (the add_to_queue queue) and check what its state is
+ * argument queue (the enqueue_package queue) and check what its state is
  * and if appropriate we trigproc it. If we didn't have a queue (or had
  * just --pending) we search all triggers-pending packages and add them
  * to the deferred trigproc list.
@@ -168,6 +168,48 @@ trigproc_reset_cycle(void)
 	tortoise = hare = NULL;
 }
 
+static bool
+tortoise_not_in_hare(struct pkginfo *processing_now,
+                     struct trigcycleperpkg *tortoise_pkg)
+{
+	const char *processing_now_name, *tortoise_name;
+	struct trigpend *hare_trig, *tortoise_trig;
+
+	processing_now_name = pkg_name(processing_now, pnaw_nonambig);
+	tortoise_name = pkg_name(tortoise_pkg->pkg, pnaw_nonambig);
+
+	debug(dbg_triggersdetail, "%s pnow=%s tortoise=%s", __func__,
+	      processing_now_name, tortoise_name);
+	for (tortoise_trig = tortoise_pkg->then_trigs;
+	     tortoise_trig;
+	     tortoise_trig = tortoise_trig->next) {
+		debug(dbg_triggersdetail,
+		      "%s pnow=%s tortoise=%s tortoisetrig=%s", __func__,
+		      processing_now_name, tortoise_name, tortoise_trig->name);
+
+		/* hare is now so we can just look up in the actual data. */
+		for (hare_trig = tortoise_pkg->pkg->trigpend_head;
+		     hare_trig;
+		     hare_trig = hare_trig->next) {
+			debug(dbg_triggersstupid, "%s pnow=%s tortoise=%s"
+			      " tortoisetrig=%s haretrig=%s", __func__,
+			      processing_now_name, tortoise_name,
+			      tortoise_trig->name, hare_trig->name);
+			if (strcmp(hare_trig->name, tortoise_trig->name) == 0)
+				break;
+		}
+
+		if (hare_trig == NULL) {
+			/* Not found in hare, yay! */
+			debug(dbg_triggersdetail, "%s pnow=%s tortoise=%s OK",
+			      __func__, processing_now_name, tortoise_name);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /*
  * Returns package we're to give up on.
  */
@@ -176,7 +218,7 @@ check_trigger_cycle(struct pkginfo *processing_now)
 {
 	struct trigcyclenode *tcn;
 	struct trigcycleperpkg *tcpp, *tortoise_pkg;
-	struct trigpend *hare_trig, *tortoise_trig;
+	struct trigpend *tortoise_trig;
 	struct pkgiterator *it;
 	struct pkginfo *pkg, *giveup;
 	const char *sep;
@@ -221,41 +263,8 @@ check_trigger_cycle(struct pkginfo *processing_now)
 	for (tortoise_pkg = tortoise->pkgs;
 	     tortoise_pkg;
 	     tortoise_pkg = tortoise_pkg->next) {
-		const char *processing_now_name, *tortoise_name;
-
-		processing_now_name = pkg_name(processing_now, pnaw_nonambig);
-		tortoise_name = pkg_name(tortoise_pkg->pkg, pnaw_nonambig);
-
-		debug(dbg_triggersdetail, "check_triggers_cycle pnow=%s tortoise=%s",
-		      processing_now_name, tortoise_name);
-		for (tortoise_trig = tortoise_pkg->then_trigs;
-		     tortoise_trig;
-		     tortoise_trig = tortoise_trig->next) {
-			debug(dbg_triggersdetail,
-			      "check_triggers_cycle pnow=%s tortoise=%s"
-			      " tortoisetrig=%s",
-			      processing_now_name, tortoise_name,
-			      tortoise_trig->name);
-			/* hare is now so we can just look up in the actual
-			 * data. */
-			for (hare_trig = tortoise_pkg->pkg->trigpend_head;
-			     hare_trig;
-			     hare_trig = hare_trig->next) {
-				debug(dbg_triggersstupid,
-				      "check_triggers_cycle pnow=%s tortoise=%s"
-				      " tortoisetrig=%s haretrig=%s",
-				      processing_now_name, tortoise_name,
-				      tortoise_trig->name, hare_trig->name);
-				if (strcmp(hare_trig->name, tortoise_trig->name) == 0)
-					goto found_in_hare;
-			}
-			/* Not found in hare, yay! */
-			debug(dbg_triggersdetail,
-			      "check_triggers_cycle pnow=%s tortoise=%s OK",
-			      processing_now_name, tortoise_name);
+		if (tortoise_not_in_hare(processing_now, tortoise_pkg))
 			return NULL;
-			found_in_hare:;
-		}
 	}
 	/* Oh dear. hare is a superset of tortoise. We are making no
 	 * progress. */
@@ -288,9 +297,9 @@ check_trigger_cycle(struct pkginfo *processing_now)
 	debug(dbg_triggers, "check_triggers_cycle pnow=%s giveup=%p",
 	      pkg_name(processing_now, pnaw_always),
 	      pkg_name(giveup, pnaw_always));
-	assert(giveup->status == stat_triggersawaited ||
-	       giveup->status == stat_triggerspending);
-	pkg_set_status(giveup, stat_halfconfigured);
+	assert(giveup->status == PKG_STAT_TRIGGERSAWAITED ||
+	       giveup->status == PKG_STAT_TRIGGERSPENDING);
+	pkg_set_status(giveup, PKG_STAT_HALFCONFIGURED);
 	modstatdb_note(giveup);
 	print_error_perpackage(_("triggers looping, abandoned"),
 	                       pkg_name(giveup, pnaw_nonambig));
@@ -317,15 +326,16 @@ trigproc(struct pkginfo *pkg)
 	pkg->clientdata->trigprocdeferred = NULL;
 
 	if (pkg->trigpend_head) {
-		assert(pkg->status == stat_triggerspending ||
-		       pkg->status == stat_triggersawaited);
+		assert(pkg->status == PKG_STAT_TRIGGERSPENDING ||
+		       pkg->status == PKG_STAT_TRIGGERSAWAITED);
 
 		gaveup = check_trigger_cycle(pkg);
 		if (gaveup == pkg)
 			return;
 
-		printf(_("Processing triggers for %s ...\n"),
-		       pkg_name(pkg, pnaw_nonambig));
+		printf(_("Processing triggers for %s (%s) ...\n"),
+		       pkg_name(pkg, pnaw_nonambig),
+		       versiondescribe(&pkg->installed.version, vdew_nonambig));
 		log_action("trigproc", pkg, &pkg->installed);
 
 		varbuf_reset(&namesarg);
@@ -337,26 +347,19 @@ trigproc(struct pkginfo *pkg)
 
 		/* Setting the status to half-configured
 		 * causes modstatdb_note to clear pending triggers. */
-		pkg_set_status(pkg, stat_halfconfigured);
+		pkg_set_status(pkg, PKG_STAT_HALFCONFIGURED);
 		modstatdb_note(pkg);
 
 		if (!f_noact) {
 			sincenothing = 0;
-			maintainer_script_postinst(pkg, "triggered",
-			                           namesarg.buf + 1, NULL);
+			maintscript_postinst(pkg, "triggered",
+			                     namesarg.buf + 1, NULL);
 		}
 
-		/* This is to cope if the package triggers itself: */
-		if (pkg->trigaw.head)
-			pkg_set_status(pkg, stat_triggersawaited);
-		else if (pkg->trigpend_head)
-			pkg_set_status(pkg, stat_triggerspending);
-		else
-			pkg_set_status(pkg, stat_installed);
-
-		post_postinst_tasks_core(pkg);
+		post_postinst_tasks(pkg, PKG_STAT_INSTALLED);
 	} else {
-		/* In other branch is done by modstatdb_note. */
+		/* In other branch is done by modstatdb_note(), from inside
+		 * post_postinst_tasks(). */
 		trig_clear_awaiters(pkg);
 	}
 }
@@ -373,7 +376,7 @@ transitional_interest_callback_ro(const char *trig, struct pkginfo *pkg,
 	debug(dbg_triggersdetail,
 	      "trig_transitional_interest_callback trig=%s pend=%s",
 	      trig, pkgbin_name(pend, pendbin, pnaw_always));
-	if (pend->status >= stat_triggersawaited)
+	if (pend->status >= PKG_STAT_TRIGGERSAWAITED)
 		trig_note_pend(pend, nfstrsave(trig));
 }
 
@@ -401,11 +404,11 @@ trig_transitional_activate(enum modstatdb_rw cstatus)
 
 	it = pkg_db_iter_new();
 	while ((pkg = pkg_db_iter_next_pkg(it))) {
-		if (pkg->status <= stat_halfinstalled)
+		if (pkg->status <= PKG_STAT_HALFINSTALLED)
 			continue;
 		debug(dbg_triggersdetail, "trig_transitional_activate %s %s",
 		      pkg_name(pkg, pnaw_always),
-		      statusinfos[pkg->status].name);
+		      pkg_status_name(pkg));
 		pkg->trigpend_head = NULL;
 		trig_parse_ci(pkg_infodb_get_file(pkg, &pkg->installed,
 		                                  TRIGGERSCIFILE),
@@ -417,15 +420,15 @@ trig_transitional_activate(enum modstatdb_rw cstatus)
 		 * be written down. This should never happen in theory but
 		 * can happen if you restore an old status file that is
 		 * not in sync with the infodb files. */
-		if (pkg->status < stat_triggersawaited)
+		if (pkg->status < PKG_STAT_TRIGGERSAWAITED)
 			continue;
 
 		if (pkg->trigaw.head)
-			pkg_set_status(pkg, stat_triggersawaited);
+			pkg_set_status(pkg, PKG_STAT_TRIGGERSAWAITED);
 		else if (pkg->trigpend_head)
-			pkg_set_status(pkg, stat_triggerspending);
+			pkg_set_status(pkg, PKG_STAT_TRIGGERSPENDING);
 		else
-			pkg_set_status(pkg, stat_installed);
+			pkg_set_status(pkg, PKG_STAT_INSTALLED);
 	}
 	pkg_db_iter_free(it);
 

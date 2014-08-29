@@ -2,7 +2,7 @@
 .\"
 .\" Copyright © 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright © 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright © 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright © 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright © 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright © 2009 Raphaël Hertzog <hertzog@debian.org>
 .\"
@@ -17,9 +17,9 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
-.TH dpkg\-parsechangelog 1 "2012-05-04" "Debian Project" "dpkg utilities"
+.TH dpkg\-parsechangelog 1 "2013-07-06" "Debian Project" "dpkg utilities"
 .SH NAME
 dpkg\-parsechangelog \- parse Debian changelog files
 .
@@ -36,7 +36,8 @@ form.
 .SH OPTIONS
 .TP
 .BI \-l changelog-file
-Specifies the changelog file to read information from. The
+Specifies the changelog file to read information from. A '\-' can be
+used to specify reading from standard input. The
 default is
 .BR debian/changelog .
 .TP
@@ -53,6 +54,10 @@ which are currently
 .BR /usr/local/lib/dpkg/parsechangelog " and "
 .BR /usr/lib/dpkg/parsechangelog .
 .TP
+.BR \-S ", " \-\-show\-field " \fIfield\fP"
+Specifies the name of the field to show (since dpkg 1.17.0).
+The field name is not printed, only its value.
+.TP
 .BR \-? ", " \-\-help
 Show the usage message and exit.
 .TP
@@ -62,7 +67,14 @@ Show the version and exit.
 The following options can be used to influence the output of
 the changelog parser, e.g. the range of entries or the format
 of the output. They need to be supported by the parser script
-in question. See also \fBCAVEATS\fP.
+in question. See also \fBNOTES\fP.
+.TP
+.BI \-\-file " file"
+Set the changelog filename to parse. Default is '-' (standard input).
+.TP
+.BR \-l ", " \-\-label " \fIfile\fP"
+Set the name of the changelog file to use in error messages, instead
+of using the name from the \fB\-\-file\fP option, or its default value.
 .TP
 .BI \-\-format " output-format"
 Set the output format. Currently supported values are
@@ -125,7 +137,7 @@ include \fInumber\fP entries from the top (or the tail
 if \fInumber\fP is lower than 0).
 .TP
 .BR \-\-offset " \fInumber\fP, " \-o \fInumber\fP
-change the starting point for \-\-count, counted from the top
+change the starting point for \fB\-\-count\fP, counted from the top
 (or the tail if \fInumber\fP is lower than 0).
 .TP
 .B \-\-all
@@ -172,9 +184,9 @@ possibly generating incorrect output.
 
 A changelog parser may not interact with the user at all.
 .
-.SH CAVEATS
-All \fBParser Options\fP except for \-v are only supported in
-\fBdpkg\fP, version 1.14.16 and later. Third party parsers for
+.SH NOTES
+All \fBParser Options\fP except for \fB\-v\fP are only supported
+since dpkg 1.14.16. Third party parsers for
 changelog formats other than \fIdebian\fP might not support
 all options.
 .

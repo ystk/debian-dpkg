@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * t-test.c - test suite self tests
  *
- * Copyright © 2009 Guillem Jover <guillem@debian.org>
+ * Copyright © 2009, 2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,8 +26,24 @@
 static void
 test(void)
 {
+	test_plan(20);
+
 	test_pass(1);
 	test_fail(0);
+
+	test_skip("ignore test");
+
+	test_skip_block(1) {
+		test_pass(0);
+		test_pass(1);
+	}
+
+	test_todo(0, "unimplemented test", "failing test");
+
+	test_todo_block("unimplemented block") {
+		test_pass(0);
+		test_fail(1);
+	}
 
 	test_str("aaa", ==, "aaa");
 	test_str("aaa", <, "bbb");

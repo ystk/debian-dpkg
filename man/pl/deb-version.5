@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-version 5 2011\-08\-14 "Projekt Debian" Debian
+.TH deb\-version 5 2013\-04\-02 "Projekt Debian" Debian
 .SH NAZWA
 deb\-version \- format numerów wersji pakietów Debiana
 .
@@ -79,7 +79,7 @@ Dpkg dzieli numer wersji na czê¶ci wzglêdem ostatniego my¶lnika w ³añcuchu
 \fIrewizjê\-debiana\fP. Przy porównywaniu, brakuj±ca \fIrewizja\-debiana\fP
 poprzedza ka¿de jej wyst±pienie (jednak warto pamiêtaæ, ¿e jest to najmniej
 znacz±ca czê¶æ numeru wersji).
-.SS "Algorytm sortowania"
+.SS "Sorting algorithm"
 System zarz±dzania pakietami porównuje \fIwersjê\-macierzyst±\fP oraz
 \fIrewizjê\-debiana\fP u¿ywaj±c tego samego algorytmu:
 .PP
@@ -110,13 +110,13 @@ numerowania wersji. \fBNie\fP s± one natomiast przeznaczone do radzenia sobie z
 numerami wersji zawieraj±cych ci±gi znaków, których system zarz±dzania
 pakietami nie mo¿e zinterpretowaæ (jak np. "ALPHA" lub "pre\-"), czy z inn±
 dziwn± kolejno¶ci±.
-.SH OSTRZE¯ENIA
-Znak tyldy oraz jego specyficzny sposób sortowania zosta³y wprowadzone w
-wersji 1.10 dpkg, za¶ niektóre inne elementy dpkg\-dev uzyska³y odpowiednie
-wsparcie dopiero pó¼niej w serii 1.10.x.
+.SH UWAGI
+The tilde character and its special sorting properties were introduced in
+dpkg 1.10 and some parts of the dpkg build scripts only gained support for
+it later in the 1.10.x series.
 .SH "ZOBACZ TAK¯E"
 \fBdeb\-control\fP(5), \fBdeb\fP(5), \fBdpkg\fP(1)
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

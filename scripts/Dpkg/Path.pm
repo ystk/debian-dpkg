@@ -12,16 +12,16 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package Dpkg::Path;
 
 use strict;
 use warnings;
 
-our $VERSION = "1.02";
+our $VERSION = '1.04';
 
-use base qw(Exporter);
+use Exporter qw(import);
 use File::Spec;
 use Cwd qw(realpath);
 
@@ -66,7 +66,7 @@ sub get_pkg_root_dir($) {
 	last if $file !~ m{/};
 	$file =~ s{/+[^/]+$}{};
     }
-    return undef;
+    return;
 }
 
 =item relative_to_pkg_root($file)
@@ -79,10 +79,10 @@ sub relative_to_pkg_root($) {
     my $file = shift;
     my $pkg_root = get_pkg_root_dir($file);
     if (defined $pkg_root) {
-	$pkg_root .= "/";
+	$pkg_root .= '/';
 	return $file if ($file =~ s/^\Q$pkg_root\E//);
     }
-    return undef;
+    return;
 }
 
 =item guess_pkg_root_dir($file)
@@ -108,11 +108,11 @@ sub guess_pkg_root_dir($) {
     while ($file) {
 	$parent =~ s{/+[^/]+$}{};
 	last if not -d $parent;
-	return $file if check_files_are_the_same("debian", $parent);
+	return $file if check_files_are_the_same('debian', $parent);
 	$file = $parent;
 	last if $file !~ m{/};
     }
-    return undef;
+    return;
 }
 
 =item check_files_are_the_same($file1, $file2, $resolve_symlink)
@@ -156,8 +156,8 @@ sub canonpath($) {
     my @new;
     foreach my $d (@dirs) {
 	if ($d eq '..') {
-	    if (scalar(@new) > 0 and $new[-1] ne "..") {
-		next if $new[-1] eq ""; # Root directory has no parent
+	    if (scalar(@new) > 0 and $new[-1] ne '..') {
+		next if $new[-1] eq ''; # Root directory has no parent
 		my $parent = File::Spec->catpath($v,
 			File::Spec->catdir(@new), '');
 		if (not -l $parent) {
@@ -185,13 +185,13 @@ canonicalized by canonpath().
 sub resolve_symlink($) {
     my $symlink = shift;
     my $content = readlink($symlink);
-    return undef unless defined $content;
+    return unless defined $content;
     if (File::Spec->file_name_is_absolute($content)) {
 	return canonpath($content);
     } else {
 	my ($link_v, $link_d, $link_f) = File::Spec->splitpath($symlink);
 	my ($cont_v, $cont_d, $cont_f) = File::Spec->splitpath($content);
-	my $new = File::Spec->catpath($link_v, $link_d . "/" . $cont_d, $cont_f);
+	my $new = File::Spec->catpath($link_v, $link_d . '/' . $cont_d, $cont_f);
 	return canonpath($new);
     }
 }
@@ -199,22 +199,23 @@ sub resolve_symlink($) {
 
 =item my $cmdpath = find_command($command)
 
-Return the path of the command if available on an absolute or relative
-path or on the $PATH, undef otherwise.
+Return the path of the command if defined and available on an absolute or
+relative path or on the $PATH, undef otherwise.
 
 =cut
 
 sub find_command($) {
     my $cmd = shift;
 
+    return if not $cmd;
     if ($cmd =~ m{/}) {
 	return "$cmd" if -x "$cmd";
     } else {
-	foreach my $dir (split(/:/, $ENV{'PATH'})) {
+	foreach my $dir (split(/:/, $ENV{PATH})) {
 	    return "$dir/$cmd" if -x "$dir/$cmd";
 	}
     }
-    return undef;
+    return;
 }
 
 =item my $control_file = get_control_path($pkg, $filetype)
@@ -231,15 +232,15 @@ Return the path of all available control files for the given package.
 sub get_control_path($;$) {
     my ($pkg, $filetype) = @_;
     my $control_file;
-    my @exec = ("dpkg-query", "--control-path", $pkg);
+    my @exec = ('dpkg-query', '--control-path', $pkg);
     push @exec, $filetype if defined $filetype;
     spawn(exec => \@exec, wait_child => 1, to_string => \$control_file);
     chomp($control_file);
     if (defined $filetype) {
-	return undef if $control_file eq "";
+	return if $control_file eq '';
 	return $control_file;
     }
-    return () if $control_file eq "";
+    return () if $control_file eq '';
     return split(/\n/, $control_file);
 }
 
@@ -267,12 +268,16 @@ sub find_build_file($) {
     }
     return @files if wantarray;
     return $files[0] if scalar @files;
-    return undef;
+    return;
 }
 
 =back
 
 =head1 CHANGES
+
+=head2 Version 1.04
+
+Update semantics: find_command() now handles an empty or undef argument.
 
 =head2 Version 1.03
 

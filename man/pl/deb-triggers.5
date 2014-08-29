@@ -1,6 +1,6 @@
 .\" dpkg manual page - deb-triggers(5)
 .\"
-.\" Copyright Â© 2008 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008, 2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -14,14 +14,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-triggers 5 2011\-08\-14 "Projekt Debian" "programy pomocnicze dpkg"
+.TH deb\-triggers 5 2013\-04\-02 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 deb\-triggers \- wyzwalacze dla pakietów
 .
@@ -76,14 +76,14 @@ wyzwalacze wymienione zarówno w starej jak i w nowej wersji pakietu.
 .PP
 Nieznane dyrektywy s± b³êdami uniemo¿liwiaj±cymi instalacjê pakietu.
 .PP
-Warianty "\-noawait" s± obs³ugiwane wy³±cznie przez dpkg w wersji 1.16.1 lub
-nowszej i bêd± przyczyn± b³êdów w starszych dpkg. W zwi±zku z tym zaleca siê
-ustawienie "Pre\-Depends: dpkg (>= 1.16.1)" do pakietów, które chc±
-u¿ywaæ tych dyrektyw.
+The "\-noawait" variants are only supported since dpkg 1.16.1, and will lead
+to errors if used with an older dpkg. It is thus recommended to add a
+"Pre\-Depends: dpkg (>= 1.16.1)" to any package that wish to use those
+directives.
 .
 .SH "ZOBACZ TAK¯E"
 \fBdpkg\-trigger\fP(1), \fBdpkg\fP(1), \fB/usr/share/doc/dpkg\-dev/triggers.txt.gz\fP.
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

@@ -3,7 +3,7 @@
  * main.c - main program
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2010 Canonical Ltd.
  *   written by Martin Pitt <martin.pitt@canonical.com>
  *
@@ -18,14 +18,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <errno.h>
@@ -49,7 +48,6 @@
 #include <dpkg/arch.h>
 #include <dpkg/subproc.h>
 #include <dpkg/command.h>
-#include <dpkg/pkg-spec.h>
 #include <dpkg/options.h>
 
 #include "main.h"
@@ -92,11 +90,12 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --triggers-only    <package> ... | -a|--pending\n"
 "  -r|--remove        <package> ... | -a|--pending\n"
 "  -P|--purge         <package> ... | -a|--pending\n"
+"  -V|--verify <package> ...        Verify the integrity of package(s).\n"
 "  --get-selections [<pattern> ...] Get list of selections to stdout.\n"
 "  --set-selections                 Set package selections from stdin.\n"
 "  --clear-selections               Deselect every non-essential package.\n"
-"  --update-avail <Packages-file>   Replace available packages info.\n"
-"  --merge-avail <Packages-file>    Merge with info from file.\n"
+"  --update-avail [<Packages-file>] Replace available packages info.\n"
+"  --merge-avail [<Packages-file>]  Merge with info from file.\n"
 "  --clear-avail                    Erase existing available info.\n"
 "  --forget-old-unavail             Forget uninstalled unavailable pkgs.\n"
 "  -s|--status <package> ...        Display package status details.\n"
@@ -127,7 +126,7 @@ usage(const struct cmdinfo *ci, const char *value)
   printf(_(
 "For internal use: dpkg --assert-support-predepends | --predep-package |\n"
 "  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep |\n"
-"  --assert-multi-arch.\n"
+"  --assert-multi-arch | --assert-versioned-provides.\n"
 "\n"));
 
   printf(_(
@@ -142,6 +141,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "  -G|--refuse-downgrade      Skip packages with earlier version than installed.\n"
 "  -B|--auto-deconfigure      Install even if it would break some other package.\n"
 "  --[no-]triggers            Skip or force consequential trigger processing.\n"
+"  --verify-format=<format>   Verify output format (supported: 'rpm').\n"
 "  --no-debsig                Do not try to verify package signatures.\n"
 "  --no-act|--dry-run|--simulate\n"
 "                             Just say what we would do - don't do it.\n"
@@ -165,7 +165,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "\n"));
 
   printf(_(
-"Use `dselect' or `aptitude' for user-friendly package management.\n"));
+"Use 'apt' or 'aptitude' for user-friendly package management.\n"));
 
   m_output(stdout, _("<standard output>"));
 
@@ -174,12 +174,12 @@ usage(const struct cmdinfo *ci, const char *value)
 
 static const char printforhelp[] = N_(
 "Type dpkg --help for help about installing and deinstalling packages [*];\n"
-"Use `dselect' or `aptitude' for user-friendly package management;\n"
+"Use 'apt' or 'aptitude' for user-friendly package management;\n"
 "Type dpkg -Dhelp for a list of dpkg debug flag values;\n"
 "Type dpkg --force-help for a list of forcing options;\n"
 "Type dpkg-deb --help for help about manipulating *.deb files;\n"
 "\n"
-"Options marked [*] produce a lot of output - pipe it through `less' or `more' !");
+"Options marked [*] produce a lot of output - pipe it through 'less' or 'more' !");
 
 int f_pending=0, f_recursive=0, f_alsoselect=1, f_skipsame=0, f_noact=0;
 int f_autodeconf=0, f_nodebsig=0;
@@ -249,12 +249,11 @@ static const struct forceinfo {
     '!', N_("Always use the new config files, don't prompt") },
   { "confold",             &fc_conff_old,
     '!', N_("Always use the old config files, don't prompt") },
-  /* XXX: Handle automatically line wrappings. */
   { "confdef",             &fc_conff_def,
     '!', N_("Use the default option for new config files if one\n"
-"                         is available, don't prompt. If no default can be found,\n"
-"                         you will be prompted unless one of the confold or\n"
-"                         confnew options is also given") },
+            "is available, don't prompt. If no default can be found,\n"
+            "you will be prompted unless one of the confold or\n"
+            "confnew options is also given") },
   { "confmiss",            &fc_conff_miss,
     '!', N_("Always install missing config files") },
   { "confask",             &fc_conff_ask,
@@ -300,7 +299,9 @@ static const struct debuginfo {
   { 0, NULL, NULL }
 };
 
-static void setdebug(const struct cmdinfo *cpi, const char *value) {
+static void
+set_debug(const struct cmdinfo *cpi, const char *value)
+{
   char *endp;
   long mask;
   const struct debuginfo *dip;
@@ -330,19 +331,30 @@ static void setdebug(const struct cmdinfo *cpi, const char *value) {
 }
 
 static void
-setfilter(const struct cmdinfo *cip, const char *value)
+set_filter(const struct cmdinfo *cip, const char *value)
 {
   filter_add(value, cip->arg_int);
 }
 
-static void setroot(const struct cmdinfo *cip, const char *value) {
+static void
+set_verify_format(const struct cmdinfo *cip, const char *value)
+{
+  if (!verify_set_output(value))
+    badusage(_("unknown verify output format '%s'"), value);
+}
+
+static void
+set_root(const struct cmdinfo *cip, const char *value)
+{
   char *p;
   instdir= value;
   m_asprintf(&p, "%s%s", value, ADMINDIR);
   admindir= p;
 }
 
-static void ignoredepends(const struct cmdinfo *cip, const char *value) {
+static void
+set_ignore_depends(const struct cmdinfo *cip, const char *value)
+{
   char *copy, *p;
 
   copy= m_malloc(strlen(value)+2);
@@ -357,14 +369,9 @@ static void ignoredepends(const struct cmdinfo *cip, const char *value) {
   }
   p= copy;
   while (*p) {
-    struct dpkg_error err;
     struct pkginfo *pkg;
 
-    pkg = pkg_spec_parse_pkg(p, &err);
-    if (pkg == NULL)
-      ohshit(_("--%s needs a valid package name but '%.250s' is not: %s"),
-              cip->olong, p, err.str);
-
+    pkg = dpkg_options_parse_pkgname(cip, p);
     pkg_list_prepend(&ignoredependss, pkg);
 
     p+= strlen(p)+1;
@@ -373,25 +380,18 @@ static void ignoredepends(const struct cmdinfo *cip, const char *value) {
   free(copy);
 }
 
-static void setinteger(const struct cmdinfo *cip, const char *value) {
-  long v;
-  char *ep;
-
-  errno = 0;
-  v = strtol(value, &ep, 0);
-  if (value == ep || *ep || v < 0 || v > INT_MAX || errno != 0)
-    badusage(_("invalid integer for --%s: `%.250s'"),cip->olong,value);
-  *cip->iassignto= v;
+static void
+set_integer(const struct cmdinfo *cip, const char *value)
+{
+  *cip->iassignto = dpkg_options_parse_arg_int(cip, value);
 }
 
-static void setpipe(const struct cmdinfo *cip, const char *value) {
+static void
+set_pipe(const struct cmdinfo *cip, const char *value)
+{
   long v;
-  char *ep;
 
-  errno = 0;
-  v = strtol(value, &ep, 0);
-  if (value == ep || *ep || v < 0 || v > INT_MAX || errno != 0)
-    badusage(_("invalid integer for --%s: `%.250s'"),cip->olong,value);
+  v = dpkg_options_parse_arg_int(cip, value);
 
   statusfd_add(v);
 }
@@ -455,31 +455,40 @@ run_invoke_hooks(const char *action, struct invoke_hook *hook_head)
   unsetenv("DPKG_HOOK_ACTION");
 }
 
+static int
+run_logger(struct invoke_hook *hook, const char *name)
+{
+  pid_t pid;
+  int p[2];
+
+  m_pipe(p);
+
+  pid = subproc_fork();
+  if (pid == 0) {
+    /* Setup stdin and stdout. */
+    m_dup2(p[0], 0);
+    close(1);
+
+    close(p[0]);
+    close(p[1]);
+
+    command_shell(hook->command, name);
+  }
+  close(p[0]);
+
+  return p[1];
+}
+
 static void
 run_status_loggers(struct invoke_hook *hook_head)
 {
   struct invoke_hook *hook;
 
   for (hook = hook_head; hook; hook = hook->next) {
-    pid_t pid;
-    int p[2];
+    int fd;
 
-    m_pipe(p);
-
-    pid = subproc_fork();
-    if (pid == 0) {
-      /* Setup stdin and stdout. */
-      m_dup2(p[0], 0);
-      close(1);
-
-      close(p[0]);
-      close(p[1]);
-
-      command_shell(hook->command, _("status logger"));
-    }
-    close(p[0]);
-
-    statusfd_add(p[1]);
+    fd = run_logger(hook, _("status logger"));
+    statusfd_add(fd);
   }
 }
 
@@ -489,17 +498,17 @@ arch_add(const char *const *argv)
   struct dpkg_arch *arch;
   const char *archname = *argv++;
 
-  if (archname == NULL)
-    badusage(_("--%s takes one argument"), cipaction->olong);
+  if (archname == NULL || *argv)
+    badusage(_("--%s takes exactly one argument"), cipaction->olong);
 
   dpkg_arch_load_list();
 
   arch = dpkg_arch_add(archname);
   switch (arch->type) {
-  case arch_native:
-  case arch_foreign:
+  case DPKG_ARCH_NATIVE:
+  case DPKG_ARCH_FOREIGN:
     break;
-  case arch_illegal:
+  case DPKG_ARCH_ILLEGAL:
     ohshit(_("architecture '%s' is illegal: %s"), archname,
            dpkg_arch_name_is_illegal(archname));
   default:
@@ -519,13 +528,13 @@ arch_remove(const char *const *argv)
   struct pkgiterator *iter;
   struct pkginfo *pkg;
 
-  if (archname == NULL)
-    badusage(_("--%s takes one argument"), cipaction->olong);
+  if (archname == NULL || *argv)
+    badusage(_("--%s takes exactly one argument"), cipaction->olong);
 
   modstatdb_open(msdbrw_readonly);
 
   arch = dpkg_arch_find(archname);
-  if (arch->type != arch_foreign) {
+  if (arch->type != DPKG_ARCH_FOREIGN) {
     warning(_("cannot remove non-foreign architecture '%s'"), arch->name);
     return 0;
   }
@@ -533,7 +542,7 @@ arch_remove(const char *const *argv)
   /* Check if it's safe to remove the architecture from the db. */
   iter = pkg_db_iter_new();
   while ((pkg = pkg_db_iter_next_pkg(iter))) {
-    if (pkg->status < stat_halfinstalled)
+    if (pkg->status < PKG_STAT_HALFINSTALLED)
       continue;
     if (pkg->installed.arch == arch) {
       if (fc_architecture)
@@ -555,7 +564,30 @@ arch_remove(const char *const *argv)
   return 0;
 }
 
-static void setforce(const struct cmdinfo *cip, const char *value) {
+static inline void
+print_forceinfo_line(int type, const char *name, const char *desc)
+{
+  printf("  %s %-18s %s\n", forcetype_str(type), name, desc);
+}
+
+static void
+print_forceinfo(const struct forceinfo *fi)
+{
+  char *desc, *line;
+
+  desc = m_strdup(gettext(fi->desc));
+
+  line = strtok(desc, "\n");
+  print_forceinfo_line(fi->type, fi->name, line);
+  while ((line = strtok(NULL, "\n")))
+    print_forceinfo_line(' ', "", line);
+
+  free(desc);
+}
+
+static void
+set_force(const struct cmdinfo *cip, const char *value)
+{
   const char *comma;
   size_t l;
   const struct forceinfo *fip;
@@ -568,8 +600,7 @@ static void setforce(const struct cmdinfo *cip, const char *value) {
 " Forcing things:\n"), DPKG);
 
     for (fip = forceinfos; fip->name; fip++)
-      printf("  %s %-18s %s\n", forcetype_str(fip->type), fip->name,
-             gettext(fip->desc));
+      print_forceinfo(fip);
 
     printf(_(
 "\n"
@@ -621,6 +652,7 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION( "remove",                         'r', act_remove,               packages        ),
   ACTION( "purge",                          'P', act_purge,                packages        ),
   ACTION( "triggers-only",                   0,  act_triggers,             packages        ),
+  ACTION( "verify",                         'V', act_verify,               verify          ),
   ACTIONBACKEND( "listfiles",               'L', DPKGQUERY),
   ACTIONBACKEND( "status",                  's', DPKGQUERY),
   ACTION( "get-selections",                  0,  act_getselections,        getselections   ),
@@ -640,6 +672,7 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION( "assert-long-filenames",           0,  act_assertlongfilenames,  assertlongfilenames ),
   ACTION( "assert-multi-conrep",             0,  act_assertmulticonrep,    assertmulticonrep ),
   ACTION( "assert-multi-arch",               0,  act_assertmultiarch,      assertmultiarch ),
+  ACTION( "assert-versioned-provides",       0,  act_assertverprovides,    assertverprovides ),
   ACTION( "add-architecture",                0,  act_arch_add,             arch_add        ),
   ACTION( "remove-architecture",             0,  act_arch_remove,          arch_remove     ),
   ACTION( "print-architecture",              0,  act_printarch,            printarch   ),
@@ -653,10 +686,11 @@ static const struct cmdinfo cmdinfos[]= {
 
   { "pre-invoke",        0,   1, NULL,          NULL,      set_invoke_hook, 0, &pre_invoke_hooks_tail },
   { "post-invoke",       0,   1, NULL,          NULL,      set_invoke_hook, 0, &post_invoke_hooks_tail },
-  { "path-exclude",      0,   1, NULL,          NULL,      setfilter,     0 },
-  { "path-include",      0,   1, NULL,          NULL,      setfilter,     1 },
+  { "path-exclude",      0,   1, NULL,          NULL,      set_filter,     0 },
+  { "path-include",      0,   1, NULL,          NULL,      set_filter,     1 },
+  { "verify-format",     0,   1, NULL,          NULL,      set_verify_format },
   { "status-logger",     0,   1, NULL,          NULL,      set_invoke_hook, 0, &status_loggers_tail },
-  { "status-fd",         0,   1, NULL,          NULL,      setpipe, 0 },
+  { "status-fd",         0,   1, NULL,          NULL,      set_pipe, 0 },
   { "log",               0,   1, NULL,          &log_file, NULL,    0 },
   { "pending",           'a', 0, &f_pending,    NULL,      NULL,    1 },
   { "recursive",         'R', 0, &f_recursive,  NULL,      NULL,    1 },
@@ -673,15 +707,15 @@ static const struct cmdinfo cmdinfos[]= {
   { "no-also-select",    'N', 0, &f_alsoselect, NULL,      NULL,    0 },
   { "skip-same-version", 'E', 0, &f_skipsame,   NULL,      NULL,    1 },
   { "auto-deconfigure",  'B', 0, &f_autodeconf, NULL,      NULL,    1 },
-  { "root",              0,   1, NULL,          NULL,      setroot,       0 },
-  { "abort-after",       0,   1, &errabort,     NULL,      setinteger,    0 },
+  { "root",              0,   1, NULL,          NULL,      set_root,      0 },
+  { "abort-after",       0,   1, &errabort,     NULL,      set_integer,   0 },
   { "admindir",          0,   1, NULL,          &admindir, NULL,          0 },
   { "instdir",           0,   1, NULL,          &instdir,  NULL,          0 },
-  { "ignore-depends",    0,   1, NULL,          NULL,      ignoredepends, 0 },
-  { "force",             0,   2, NULL,          NULL,      setforce,      1 },
-  { "refuse",            0,   2, NULL,          NULL,      setforce,      0 },
-  { "no-force",          0,   2, NULL,          NULL,      setforce,      0 },
-  { "debug",             'D', 1, NULL,          NULL,      setdebug,      0 },
+  { "ignore-depends",    0,   1, NULL,          NULL,      set_ignore_depends, 0 },
+  { "force",             0,   2, NULL,          NULL,      set_force,     1 },
+  { "refuse",            0,   2, NULL,          NULL,      set_force,     0 },
+  { "no-force",          0,   2, NULL,          NULL,      set_force,     0 },
+  { "debug",             'D', 1, NULL,          NULL,      set_debug,     0 },
   { "help",              '?', 0, NULL,          NULL,      usage,         0 },
   { "version",           0,   0, NULL,          NULL,      printversion,  0 },
   ACTIONBACKEND( "build",		'b', BACKEND),
@@ -731,11 +765,10 @@ commandfd(const char *const *argv)
   pipein = *argv++;
   if (pipein == NULL || *argv)
     badusage(_("--%s takes exactly one argument"), cipaction->olong);
-  errno = 0;
-  infd = strtol(pipein, &endptr, 10);
-  if (pipein == endptr || *endptr || infd < 0 || infd > INT_MAX || errno != 0)
-    ohshit(_("invalid integer for --%s: `%.250s'"), cipaction->olong, pipein);
-  if ((in= fdopen(infd, "r")) == NULL)
+
+  infd = dpkg_options_parse_arg_int(cipaction, pipein);
+  in = fdopen(infd, "r");
+  if (in == NULL)
     ohshite(_("couldn't open `%i' for stream"), (int) infd);
 
   for (;;) {
@@ -803,7 +836,7 @@ commandfd(const char *const *argv)
         newargs[i] = m_strdup(newargs[i]);
 
     setaction(NULL, NULL);
-    myopt((const char *const **)&newargs, cmdinfos, printforhelp);
+    dpkg_options_parse((const char *const **)&newargs, cmdinfos, printforhelp);
     if (!cipaction) badusage(_("need an action option"));
 
     ret |= cipaction->action(newargs);
@@ -817,14 +850,10 @@ commandfd(const char *const *argv)
 int main(int argc, const char *const *argv) {
   int ret;
 
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-
-  dpkg_set_progname("dpkg");
-  standard_startup();
-  loadcfgfile(DPKG, cmdinfos);
-  myopt(&argv, cmdinfos, printforhelp);
+  dpkg_locales_init(PACKAGE);
+  dpkg_program_init("dpkg");
+  dpkg_options_load(DPKG, cmdinfos);
+  dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
   if (!cipaction) badusage(_("need an action option"));
 
@@ -836,8 +865,6 @@ int main(int argc, const char *const *argv) {
 
   if (!f_triggers)
     f_triggers = (cipaction->arg_int == act_triggers && *argv) ? -1 : 1;
-
-  setvbuf(stdout, NULL, _IONBF, 0);
 
   if (is_invoke_action(cipaction->arg_int)) {
     run_invoke_hooks(cipaction->olong, pre_invoke_hooks);
@@ -851,7 +878,7 @@ int main(int argc, const char *const *argv) {
   if (is_invoke_action(cipaction->arg_int))
     run_invoke_hooks(cipaction->olong, post_invoke_hooks);
 
-  standard_shutdown();
+  dpkg_program_done();
 
   return reportbroken_retexitstatus(ret);
 }

@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 "4 de mayo del 2012" "Proyecto Debian" "Herramientas de dpkg"
+.TH dpkg\-parsechangelog 1 2013\-07\-06 "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 dpkg\-parsechangelog \- Análisis de ficheros de registro de cambios de Debian
 .
@@ -39,8 +39,8 @@ través de la salida estándar en un formato legible por el sistema.
 .SH OPCIONES
 .TP 
 \fB\-l\fP\fIfichero\-de\-cambios\fP
-Define el fichero de registro de cambios del que leer la información. Por
-omisión es \fBdebian/changelog\fP.
+Specifies the changelog file to read information from. A '\-' can be used to
+specify reading from standard input. The default is \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIformato\-fichero\-de\-cambios\fP
 Define el formato del registro de cambios. Por omisión, el formato se lee de
@@ -53,16 +53,26 @@ Define un directorio adicional en el que buscar scripts de análisis. Este
 directorio se analiza antes que los directorios predefinidos,
 \fB/usr/local/lib/dpkg/parsechangelog\fP y \fB/usr/lib/dpkg/parsechangelog\fP.
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIfield\fP
+Specifies the name of the field to show (since dpkg 1.17.0).  The field name
+is not printed, only its value.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Muestra el modo de uso y termina.
 .TP 
 \fB\-\-version\fP
 Muestra la versión y termina.
 .SS "Opciones de análisis"
-Las siguientes opciones permiten modificar la salida del analizador de
-registros de cambio, por ejemplo, el rango de las entradas o el formato de
-la salida. Deben ser compatibles con el script analizador en cuestión. Véase
-también \fBADVERTENCIAS\fP.
+The following options can be used to influence the output of the changelog
+parser, e.g. the range of entries or the format of the output. They need to
+be supported by the parser script in question. See also \fBNOTES\fP.
+.TP 
+\fB\-\-file\fP\fI file\fP
+Set the changelog filename to parse. Default is '\-' (standard input).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIfile\fP
+Set the name of the changelog file to use in error messages, instead of
+using the name from the \fB\-\-file\fP option, or its default value.
 .TP 
 \fB\-\-format\fP\fI formato\-salida\fP
 Define el formato de la salidA. Los valores compatibles son \fIdpkg\fP y
@@ -125,8 +135,8 @@ Incluye un \fInúmero\fP de entradas desde el inicio (o el final en caso de que
 el \fInúmero\fP sea menor que 0).
 .TP 
 \fB\-\-offset\fP \fInúmero\fP, \fB\-o\fP\fInúmero\fP
-Modifica el punto de inicio para «\-\-count» (cuenta), empezando por el
-principio (o el final si el \fInúmero\fP es menor que 0).
+change the starting point for \fB\-\-count\fP, counted from the top (or the tail
+if \fInumber\fP is lower than 0).
 .TP 
 \fB\-\-all\fP
 Incluye todos los cambios. Nota: otras opciones no tendrán efecto cuando
@@ -175,11 +185,10 @@ improvisar y posiblemente generar una salida incorrecta.
 Puede que un analizador de fichero «changelog» no interactúe en absoluto con
 el usuario.
 .
-.SH ADVERTENCIAS
-Todas las \fBOpciones de análisis\fP, a excepción de «\-v», son compatibles a
-partir de la versión 1.14.16 y posteriores de \fBdpkg\fP. Puede que los
-analizadores de formatos de registro de cambios además de \fIdebian\fP y
-procedentes de otras fuentes no acepten todas las opciones.
+.SH NOTAS
+All \fBParser Options\fP except for \fB\-v\fP are only supported since dpkg
+1.14.16. Third party parsers for changelog formats other than \fIdebian\fP
+might not support all options.
 .
 .SH FICHEROS
 .TP 
@@ -188,7 +197,7 @@ El fichero de registro de cambios se usa para obtener información
 dependiente de la versión acerca del paquete fuente, así como la urgencia y
 la distribución de una subida, los cambios realizados desde una versión en
 concreto y el propio número de versión de la fuente.
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

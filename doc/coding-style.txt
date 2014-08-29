@@ -6,7 +6,8 @@ C language extensions
 
 The code base assumes C89 plus the following C99 extensions:
 
- * Named initializers.
+ * Designated initializers.
+ * Compound literals.
  * Trailing comma in enum.
  * Variadic macros.
  * Working bool type in <stdbool.h>.
@@ -23,8 +24,8 @@ The coding style is a mix of parts from KNF [K] and the Linux CodingStyle [L].
 If in doubt or missing from this file please ask, although files using the
 tab based indentation can be considered canon.
 
-  [K] <http://www.freebsd.org/cgi/man.cgi?query=style>
-  [L] <http://www.kernel.org/doc/Documentation/CodingStyle>
+  [K] <https://www.freebsd.org/cgi/man.cgi?query=style>
+  [L] <https://www.kernel.org/doc/Documentation/CodingStyle>
 
 The code has a mix of an old coding style being phased out and the new
 style. New files should use the new style, changes to files with the old
@@ -46,7 +47,7 @@ On strings in code use simple or double quotes «''» «""». Not the unpaired
 ones «`'». Strings marked for translation, should only be fixed if there's
 other changes to be done on them, otherwise we get unneeded fuzzies.
 
-  <http://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html>
+  <https://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html>
 
 Code documentation
 ~~~~~~~~~~~~~~~~~~
@@ -72,9 +73,9 @@ Examples:
  */
 enum value_list {
 	/** Value doing foo. */
-	value_a,
+	VALUE_A,
 	/** Value doing bar. */
-	value_b,
+	VALUE_B,
 };
 
 /**
@@ -206,7 +207,7 @@ see what operation is being done:
 		foo();
 
 
-Dpkg Perl coding style 2010-05-10
+Dpkg Perl coding style 2013-01-04
 ======================
 
 General
@@ -243,7 +244,7 @@ Perl version
 
 We don't want to impose a too-recent Perl version, so only use features
 supported by the Perl version that is currently in Debian oldstable when
-possible. Currently that means Perl 5.8.8.
+possible. Currently that means Perl 5.10.0.
 
 Object methods
 ~~~~~~~~~~~~~~

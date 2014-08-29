@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -44,17 +44,21 @@ must_alloc(void *ptr)
 
 void *m_malloc(size_t amount) {
 #ifdef MDEBUG
-  unsigned short *r2, x;
+  unsigned short *ptr_canary, canary;
 #endif
-  void *r;
+  void *ptr;
 
-  r = must_alloc(malloc(amount));
+  ptr = must_alloc(malloc(amount));
 
 #ifdef MDEBUG
-  r2= r; x= (unsigned short)amount ^ 0xf000;
-  while (amount >= 2) { *r2++= x; amount -= 2; }
+  ptr_canary = ptr;
+  canary = (unsigned short)amount ^ 0xf000;
+  while (amount >= 2) {
+    *ptr_canary++ = canary;
+    amount -= 2;
+  }
 #endif
-  return r;
+  return ptr;
 }
 
 void *
@@ -126,7 +130,8 @@ setcloexec(int fd, const char *fn)
 {
   int f;
 
-  if ((f=fcntl(fd, F_GETFD))==-1)
+  f = fcntl(fd, F_GETFD);
+  if (f == -1)
     ohshite(_("unable to read filedescriptor flags for %.250s"),fn);
   if (fcntl(fd, F_SETFD, (f|FD_CLOEXEC))==-1)
     ohshite(_("unable to set close-on-exec flag for %.250s"),fn);

@@ -22,7 +22,7 @@ Mailing List
 
 The subscription interface and web archives can be found at:
 
-  <http://lists.debian.org/debian-dpkg/>
+  <https://lists.debian.org/debian-dpkg/>
 
 The mailing list address is (no subscription required to post):
 
@@ -32,7 +32,7 @@ The mailing list address is (no subscription required to post):
 Source Repository
 -----------------
 
-  <http://anonscm.debian.org/gitweb/?p=dpkg/dpkg.git>
+  <https://anonscm.debian.org/cgit/dpkg/dpkg.git>
   <git://anonscm.debian.org/dpkg/dpkg.git>
 
 
@@ -43,8 +43,9 @@ To prepare the dpkg source tree from git before starting the build process
 some required software needs to be installed:
 
   GNU autoconf >= 2.60
-  GNU automake >= 1.8
-  GNU gettext >= 0.18 (or just autopoint if using --disable-nls)
+  GNU automake >= 1.11
+  GNU libtool >= 2.0
+  GNU gettext >= 0.18.2 (or just autopoint if using --disable-nls)
   flex
 
 After installing the needed software, and running the following command on
@@ -77,6 +78,13 @@ To run the test suite («make check»):
 
   TimeDate perl module
   IO-String perl module
+  Test::Pod perl module (optional)
+  Test::Perl::Critic perl module (optional)
+  Perl::Critic::Utils perl module (optional)
+
+  Define the environment variable DPKG_DEVEL_MODE to run the test suite
+  in development mode, to include tests that might not be pertinent during
+  normal release builds.
 
 To enable additional developer's documentation («make doc») this software
 will be needed:
@@ -103,7 +111,6 @@ programs:
   --disable-dselect
   --disable-start-stop-daemon
   --disable-update-alternatives
-  --disable-install-info
 
 And the following to disable modifications to the build flags:
 

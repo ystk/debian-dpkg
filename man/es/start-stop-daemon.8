@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 "17 de junio del 2012" "Proyecto Debian" "Herramientas de dpkg"
+.TH start\-stop\-daemon 8 2014\-03\-26 "Proyecto Debian" "Herramientas de dpkg"
 .SH NOMBRE
 start\-stop\-daemon \- Detiene y arranca demonios del sistema
 .
@@ -77,7 +77,16 @@ Muestra la información de uso y termina.
 \fB\-V\fP, \fB\-\-version\fP
 Muestra la versión y termina.
 .
-.SH "OPCIONES DE BÚSQUEDA"
+.SH OPCIONES
+.SS "Matching options"
+.TP 
+\fB\-\-pid\fP \fIpid\fP
+Check for a process with the specified \fIpid\fP. The \fIpid\fP must be a number
+greater than 0.
+.TP 
+\fB\-\-ppid\fP \fIppid\fP
+Check for a process with the specified \fIppid\fP (parent pid).  The \fIppid\fP
+must be a number greater than 0.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIfichero\-pid\fP
 Comprueba si un proceso ha creado el \fIfichero\-pid\fP. Nota: utilizar solo
@@ -105,7 +114,7 @@ Busca procesos cuyo propietario es el usuario definido con \fInombre\-usuario\fP
 o \fIuid\fP. Nota: tenga en cuenta que utilizar solo esta opción de búsqueda
 provoca actuar sobre todos los procesos que coinciden con el usuario.
 .
-.SH OPCIONES
+.SS "Generic options"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIgrupo\fP|\fIgid\fP
 Pasa a \fIgrupo\fP o \fIgid\fP cuando comienza el proceso.
@@ -165,10 +174,10 @@ proceso. Tenga en cuenta que el fichero pid también se escribe después de la
 jaula de chroot.
 .TP 
 \fB\-d\fP, \fB\-\-chdir\fP \fIruta\fP
-Ejecuta un «chdir» a \fIruta\fP antes de empezar el proceso. Esto se hace de la
-jaula de chroot, si se define la opción \fB\-r\fP|\fB\-\-chroot\fP. Si no se define,
-start\-stop\-daemon ejecutará un «chdir» al directorio raíz antes de empezar
-el proceso.
+Chdir to \fIpath\fP before starting the process. This is done after the chroot
+if the \fB\-r\fP|\fB\-\-chroot\fP option is set. When not specified,
+\fBstart\-stop\-daemon\fP will chdir to the root directory before starting the
+process.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
 Usado habitualmente con programas que no se separan por sí mismos. Esta
@@ -274,7 +283,7 @@ Un ejemplo de una acción programada personalizada para detener \fBfood\fP:
 start\-stop\-daemon \-\-stop \-\-oknodo \-\-user food \-\-name food \e
 	\-\-pidfile /run/food.pid \-\-retry=TERM/30/KILL/5
 .fi
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

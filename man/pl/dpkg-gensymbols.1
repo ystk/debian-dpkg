@@ -2,6 +2,7 @@
 .\"
 .\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\" Copyright Â© 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gensymbols 1 2012\-04\-22 "Projekt Debian" "programy pomocnicze dpkg"
+.TH dpkg\-gensymbols 1 2013\-09\-06 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 dpkg\-gensymbols \- generuje pliki symboli (informacje o zale¿no¶ciach
 bibliotek wspó³dzielonych)
@@ -48,30 +49,33 @@ debian/\fIpakiet\fP.symbols
 .IP \(bu 4
 debian/symbols
 .P
-G³ównym zastosowaniem tych plików jest udostêpnienie najmniejszej wersji
-zwi±zanej z ka¿dym symbolem zapewnianym przez biblioteki. Najczê¶ciej
-koresponduje to z pierwsz± wersj± pakietu, która udostêpnia dany symbol, ale
-mo¿e zostaæ równie¿ zwiêkszona rêcznie przez opiekuna, je¶li ABI symbolu
-zosta³o rozszerzone bez naruszenia kompatybilno¶ci
-wstecznej. Odpowiedzialno¶ci± opiekuna jest utrzymywanie tych plików w
-aktualno¶ci i dok³adno¶ci, \fBdpkg\-gensymbols\fP s³u¿y tu pomoc±.
+The main interest of those files is to provide the minimal version
+associated to each symbol provided by the libraries. Usually it corresponds
+to the first version of that package that provided the symbol, but it can be
+manually incremented by the maintainer if the ABI of the symbol is extended
+without breaking backwards compatibility. It's the responsibility of the
+maintainer to keep those files up\-to\-date and accurate, but
+\fBdpkg\-gensymbols\fP helps with that.
 .P
 Gdy wygenerowane pliki symboli ró¿ni± siê od dostarczonych przez opiekuna,
 \fBdpkg\-gensymbols\fP wypisze ró¿nicê pomiêdzy dwoma wersjami. Co wiêcej, je¶li
 ró¿nica jest zbyt du¿a, zakoñczy siê niepowodzeniem (mo¿na dostosowaæ
 wielko¶æ tolerowanej ró¿nicy, patrz opcja \fB\-c\fP).
 .SH "ZARZ¡DZANIE PLIKAMI SYMBOLI"
-Pliki symboli s± bardzo przydatne jedynie, gdy odpowiadaj± ewolucji pakietu
-przez kilka wydañ. Opiekun musi zaktualizowaæ je za ka¿dym razem, gdy dodany
-jest nowy symbol, dziêki czemu powi±zana najmniejsza wersja jest zgodna z
-rzeczywisto¶ci±. Aby zrealizowaæ to poprawnie, mo¿na u¿yæ ró¿nic zawartych w
-logach budowania. W wiêkszo¶ci przypadków, diff pasuje bezpo¶rednio do pliku
-debian/\fIpakiet\fP.symbols. Niemniej, potrzebne s± z regu³y dalsze zmiany:
-zaleca siê np. porzucaæ rewizjê Debiana z tej najmniejszej wersji, aby
-backport z mniejsz± wersj± lecz z t± sam± wersj± projektu macierzystego móg³
-spe³niæ wygenerowane zale¿no¶ci. Je¶li rewizja Debiana nie mo¿e zostaæ
-porzucona, poniewa¿ symbol zosta³ dodany przez zmianê w samym Debianie,
-nale¿y u¿yæ przyrostka wersji "~".
+The symbols files are really useful only if they reflect the evolution of
+the package through several releases. Thus the maintainer has to update them
+every time that a new symbol is added so that its associated minimal version
+matches reality.  The diffs contained in the build logs can be used as a
+starting point, but the maintainer, additionally, has to make sure that the
+behaviour of those symbols has not changed in a way that would make anything
+using those symbols and linking against the new version, stop working with
+the old version.  In most cases, the diff applies directly to the
+debian/\fIpackage\fP.symbols file. That said, further tweaks are usually
+needed: it's recommended for example to drop the Debian revision from the
+minimal version so that backports with a lower version number but the same
+upstream version still satisfy the generated dependencies.  If the Debian
+revision can't be dropped because the symbol really got added by the Debian
+specific change, then one should suffix the version with "~".
 .P
 Przed dodaniem jakiejkolwiek ³atki do pliku symboli, opiekun powinien dwa
 razy sprawdziæ, czy jest ona poprawna. Publiczne symbole nie mog± znikaæ,
@@ -82,6 +86,13 @@ wiersz zaczynaj±cy siê od "#", z wyj±tkiem "#include" (patrz rozdzia³
 \fBU¿ywanie include (do³±czeñ)\fP), jest komentarzem. Wiersze zaczynaj±ce siê
 od "#MISSING:" s± specjalnymi komentarzami dokumentuj±cymi symbole które
 zniknê³y.
+.P
+Do not forget to check if old symbol versions need to be increased.  There
+is no way \fBdpkg\-gensymbols\fP can warn about this. Blindly applying the diff
+or assuming there is nothing to change if there is no diff, without checking
+for such changes, can lead to packages with loose dependencies that claim
+they can work with older packages they cannot work with. This will introduce
+hard to find bugs with (partial)  upgrades.
 .SS "U¿ywanie podstawieñ #PACKAGE#"
 .P
 W niektórych rzadkich przypadkach, nazwa biblioteki ró¿ni siê miêdzy
@@ -92,12 +103,11 @@ markera \fI#MINVER#\fP, \fI#PACKAGE#\fP nigdy nie pojawi siê w pliku symboli
 wewn±trz pakietu binarnego.
 .SS "U¿ywanie znaczników symboli"
 .P
-Tagowanie symboli jest przydatne do oznaczania symboli, które s± w jaki¶
-sposób specjalne. Ka¿dy symbol mo¿e mieæ dowoln± liczbê znaczników z nim
-powi±zanych. Podczas gdy wszystkie znaczniki s± przetwarzane i
-przechowywane, jedynie niektóre z nich s± rozumiane przez \fBdpkg\-gensymbols\fP
-i wyzwalaj± specjaln± obs³ugê tych symboli. Patrz podsekcja \fBStandardowe
-znaczniki symboli\fP, aby siê z nimi zapoznaæ.
+Symbol tagging is useful for marking symbols that are special in some way.
+Any symbol can have an arbitrary number of tags associated with it. While
+all tags are parsed and stored, only some of them are understood by
+\fBdpkg\-gensymbols\fP and trigger special handling of the symbols. See
+subsection \fBStandard symbol tags\fP for reference of these tags.
 .P
 Okre¶lenie znacznika powinno znale¼æ siê zaraz przed nazw± symbolu (nie ma
 pomiêdzy nimi spacji). Zawsze rozpoczyna siê nawiasem otwieraj±cym \fB(\fP,
@@ -120,16 +130,16 @@ który nie posiada warto¶ci. Drugi symbol ma nazwê \fItagged_unquoted_symbol\fP
 jest jego jedynym znacznikiem jest \fIoptional\fP. Ostatni symbol jest
 przyk³adem zwyk³ego symbolu bez znacznika.
 .P
-Poniewa¿ znaczniki symboli s± rozszerzeniem formatu \fIdeb\-symbols(5)\fP, mog±
-byæ jedynie czê¶ci± plików symboli u¿ytych w pakietach ¼ród³owych (pliki te
-powinny byæ nastêpnie widziane jako szablony u¿ywane do zbudowania plików
-symboli osadzonych w pakietach binarnych. Gdy \fBdkpg\-gensymbols\fP zostanie
-wywo³ane bez opcji \fI\-t\fP, to wy¶wietli pliki symboli kompatybilne z formatem
-\fIdeb\-symbols(5)\fP: w pe³ni przetworzy symbole zgodnie z wymaganiami ich
-znaczników standardowych i wytnie wszystkie znaczniki z
-wyniku. Przeciwieñstwem jest tryb szablonu (\fI\-t\fP), gdzie wszystkie symbole
-i ich znaczniki (zarówno standardowe jak i nieznane) s± zachowane w wyniku i
-wypisywane w takiej oryginalnej postaci, jak by³y za³adowane.
+Since symbol tags are an extension of the \fBdeb\-symbols\fP(5) format, they can
+only be part of the symbols files used in source packages (those files
+should then be seen as templates used to build the symbols files that are
+embedded in binary packages). When \fBdpkg\-gensymbols\fP is called without the
+\fB\-t\fP option, it will output symbols files compatible to the
+\fBdeb\-symbols\fP(5) format: it fully processes symbols according to the
+requirements of their standard tags and strips all tags from the output. On
+the contrary, in template mode (\fB\-t\fP) all symbols and their tags (both
+standard and unknown ones)  are kept in the output and are written in their
+original form as they were loaded.
 .SS "Standardowe znaczniki symboli"
 .TP 
 \fBoptional\fP
@@ -169,11 +179,11 @@ bie¿±cego komputera s± zapisywane do pliku symboli. Odwrotnie jest w trybie
 szablonu: wszystkie symbole specyficzne dla architektury (³±cznie z tymi,
 nale¿±cymi do obcych architektur) s± zawsze zapisywane do pliku symboli.
 
-Format \fIlisty\-architektur\fP jest taki sam, jak ten u¿ywany w polu
-\fIBuild\-Depends\fP pliku \fIdebian/control\fP (z wyj±tkiem otaczaj±cych nawiasów
-kwadratowych []). Na przyk³ad, pierwszy symbol z poni¿szej listy bêdzie
-brany pod uwagê jedynie na architekturach alpha, any\-amd64 i ia64, drugi
-jedynie na architekturach linux, a trzeci wszêdzie, poza architektur± armel.
+The format of \fIarchitecture list\fP is the same as the one used in the
+\fBBuild\-Depends\fP field of \fIdebian/control\fP (except the enclosing square
+brackets []). For example, the first symbol from the list below will be
+considered only on alpha, any\-amd64 and ia64 architectures, the second only
+on linux architectures, while the third one anywhere except on armel.
 
  (arch=alpha any\-amd64 ia64)a_64bit_specific_symbol@Base 1.0
  (arch=linux\-any)linux_specific_symbol@Base 1.0
@@ -209,21 +219,21 @@ wszystkie jego znaczniki i w³a¶ciwo¶ci bêd± u¿ywane jako podstawa okre¶lenia
 symbolu. Je¶li ¿aden ze wzorców nie zostanie dopasowany, to symbol zostanie
 uznany za nowy.
 
-Wzorzec jest uwa¿any za porzucony, je¶li nie pasuje do ¿adnego symbolu w
-bibliotece. Domy¶lnie, spowoduje to b³±d \fBdpkg\-gensymbols\fP na poziomie
-\fI\-c1\fP lub wy¿szym. Je¶li jednak chce siê unikn±æ tego b³êdu, mo¿na oznaczyæ
-wzorzec znacznikiem \fIoptional\fP. Wówczas, je¶li wzorzec do niczego nie
-pasuje, pojawia siê jedynie w diffie jako MISSING. Co wiêcej, podobnie jak
-ka¿dy symbol, wzorzec mo¿e byæ ograniczony do okre¶lonych architektur, za
-pomoc± znacznika \fIarch\fP. Proszê zapoznaæ siê ze znajduj±c± siê wy¿ej
-podsekcj± \fIStandardowe znaczniki symboli\fP, aby dowiedzieæ siê wiêcej.
+A pattern is considered lost if it does not match any symbol in the
+library. By default this will trigger a \fBdpkg\-gensymbols\fP failure under
+\fB\-c1\fP or higher level. However, if the failure is undesired, the pattern
+may be marked with the \fIoptional\fP tag. Then if the pattern does not match
+anything, it will only appear in the diff as MISSING. Moreover, like any
+symbol, the pattern may be limited to the specific architectures with the
+\fIarch\fP tag. Please refer to \fBStandard symbol tags\fP subsection above for
+more information.
 
-Wzorce s± rozszerzeniem formatu \fIdeb\-symbols(5)\fP, poniewa¿ s± one
-prawid³owe jedynie w szablonach pliku symboli. Sk³adnia wzorców nie ró¿ni
-siê od tej symboli. Jednak czê¶æ nazwy symbolu specyfikacji s³u¿y jako
-wyra¿enie, które ma byæ dopasowane do \fInazwa@wersja\fP w symbolu
-rzeczywistym. Aby dokonaæ rozró¿nienia miêdzy ró¿nymi typami wzorców,
-wzorzec jest z regu³y tagowany specjalnym znacznikiem.
+Patterns are an extension of the \fBdeb\-symbols\fP(5) format hence they are
+only valid in symbol file templates. Pattern specification syntax is not any
+different from the one of a specific symbol. However, symbol name part of
+the specification serves as an expression to be matched against
+\fIname@version\fP of the real symbol. In order to distinguish among different
+pattern types, a pattern will typically be tagged with a special tag.
 
 Obecnie \fBdpkg\-gensymbols\fP obs³uguje trzy proste typy symboli:
 .TP  3
@@ -419,36 +429,32 @@ debian/changelog. Wymagane, je¶li wywo³anie ma miejsce spoza drzewa pakietu
 ¼ród³owego.
 .TP 
 \fB\-e\fP\fIplik\-biblioteki\fP
-Analizuje jedynie biblioteki wypisane jawnie, zamiast znajdowaæ wszystkie
-biblioteki publiczne. Mo¿na u¿ywaæ wzorców pow³oki u¿ywanych do rozwijania
-nazw ¶cie¿kowych (patrz strona podrêcznika File::Glob, aby dowiedzieæ siê
-wiêcej) w \fIpliku\-biblioteki\fP, aby dopasowaæ wiele bibiotek za pomoc±
-pojedynczego argumentu (w przeciwnym wypadku potrzebne bêdzie wiele \fB\-e\fP).
+Only analyze libraries explicitly listed instead of finding all public
+libraries. You can use shell patterns used for pathname expansions (see the
+\fBFile::Glob\fP(3perl) manual page for details) in \fIlibrary\-file\fP to match
+multiple libraries with a single argument (otherwise you need multiple
+\fB\-e\fP).
 .TP 
 \fB\-I\fP\fInazwa\-pliku\fP
 U¿ywa \fInazwy\-pliku\fP jako pliku odniesienia do generowania pliku symboli,
 który jest integrowany w samym pakiecie.
 .TP 
-\fB\-O\fP
-Wypisuje plik wygenerowanych symboli na standardowe wyj¶cie, zamiast
-przechowywaæ go w drzewie budowania pakietu.
-.TP  
-\fB\-O\fP\fInazwa\-pliku\fP
-Przechowuje wygenerowany plik symboli jako \fInazwa\-pliku\fP. Je¶li
-\fInazwa\-pliku\fP ju¿ istnieje, to jej zawarto¶æ jest u¿ywana jako podstawa do
-wygenerowanych plików symboli. Mo¿na u¿yæ tej funkcji aby zaktualizowaæ plik
-symboli, dziêki czemy pasuje on do nowszej wersji projektu macierzystego w
-bibliotece.
+\fB\-O\fP[\fIfilename\fP]
+Print the generated symbols file to standard output or to \fIfilename\fP if
+specified, rather than to \fBdebian/tmp/DEBIAN/symbols\fP (or
+\fIpackage\-build\-dir\fP\fB/DEBIAN/symbols\fP if \fB\-P\fP was used). If \fIfilename\fP is
+pre\-existing, its contents are used as basis for the generated symbols
+file.  You can use this feature to update a symbols file so that it matches
+a newer upstream version of your library.
 .TP 
 \fB\-t\fP
-Zapisuje plik symboli w trybie szablonu, zamiast w formacie kompatybilnym z
-\fIdeb\-symbols(5)\fP. G³ówn± ró¿nic± jest to, ¿e nazwy symboli i znaczniki w
-trybie szablonu s± zapisywane w ich oryginalnej formie, zamiast w
-przetworzonych nazwach symboli, z wyciêtymi znacznikami w trybie
-kompatybilno¶ci. Co wiêcej, czê¶æ symboli mo¿e byæ pominiêta, przy zapisie
-standardowego pliku \fIdeb\-symbols(5)\fP (zgodnie z regu³ami przetwarzania
-znaczników), podczas gdy wszystkie symbole s± zawsze zapisywane do szablonu
-pliku symboli.
+Write the symbol file in template mode rather than the format compatible
+with \fBdeb\-symbols\fP(5). The main difference is that in the template mode
+symbol names and tags are written in their original form contrary to the
+post\-processed symbol names with tags stripped in the compatibility mode.
+Moreover, some symbols might be omitted when writing a standard
+\fBdeb\-symbols\fP(5) file (according to the tag processing rules) while all
+symbols are always written to the symbol file template.
 .TP 
 \fB\-c\fP\fI[0\-4]\fP
 Definiuje sprawdzenia do wykonania podczas porównywania wygenerowanego pliku
@@ -459,15 +465,14 @@ sprawdzenia z ni¿szego poziomu. Poziom 0 nigdy nie koñczy siê b³êdem. Poziom
 wprowadzono jakie¶ nowe symbole. Poziom 3 zwraca b³±d, gdy zniknê³y jakie¶
 biblioteki. Poziom 4 \- gdy wprowadzono biblioteki.
 
-Warto¶æ ta mo¿e zostaæ przes³oniêta przez zmienn± ¶rodowiskow±
-DPKG_GENSYMBOLS_CHECK_LEVEL.
+This value can be overridden by the environment variable
+\fBDPKG_GENSYMBOLS_CHECK_LEVEL\fP.
 .TP 
 \fB\-q\fP
-Wycisza siê i nigdy nie tworzy ró¿nicy miêdzy generowanym plikiem symboli a
-plikiem szablonu u¿ywanym na pocz±tku, ani nie pokazuje ¿adnych ostrze¿eñ na
-temat nowych/porzuconych bibliotek czy nowych/porzuconych symboli. Opcja
-wy³±cza jedynie wy¶wietlanie informacji, ale nie same sprawdzenia (patrz
-opcja \fI\-c\fP).
+Keep quiet and never generate a diff between generated symbols file and the
+template file used as starting point or show any warnings about new/lost
+libraries or new/lost symbols. This option only disables informational
+output but not the checks themselves (see \fB\-c\fP option).
 .TP 
 \fB\-a\fP\fIarchitektura\fP
 Zak³ada \fIarchitekturê\fP jako architekturê hosta w czasie przetwarzania
@@ -491,14 +496,14 @@ Wy¶wietla informacjê o u¿ytkowaniu i koñczy dzia³anie.
 Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
 .
 .SH "ZOBACZ TAK¯E"
-\fBhttp://people.redhat.com/drepper/symbol\-versioning\fP
+\fBhttps://people.redhat.com/drepper/symbol\-versioning\fP
 .br
-\fBhttp://people.redhat.com/drepper/goodpractice.pdf\fP
+\fBhttps://people.redhat.com/drepper/goodpractice.pdf\fP
 .br
-\fBhttp://people.redhat.com/drepper/dsohowto.pdf\fP
+\fBhttps://people.redhat.com/drepper/dsohowto.pdf\fP
 .br
 \fBdeb\-symbols\fP(5), \fBdpkg\-shlibdeps\fP(1).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

@@ -3,7 +3,7 @@
  * help.c - various helper routines
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2007-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,14 +41,14 @@
 #include "main.h"
 
 const char *const statusstrings[]= {
-  [stat_notinstalled]    = N_("not installed"),
-  [stat_configfiles]     = N_("not installed but configs remain"),
-  [stat_halfinstalled]   = N_("broken due to failed removal or installation"),
-  [stat_unpacked]        = N_("unpacked but not configured"),
-  [stat_halfconfigured]  = N_("broken due to postinst failure"),
-  [stat_triggersawaited] = N_("awaiting trigger processing by another package"),
-  [stat_triggerspending] = N_("triggered"),
-  [stat_installed]       = N_("installed")
+  [PKG_STAT_NOTINSTALLED]    = N_("not installed"),
+  [PKG_STAT_CONFIGFILES]     = N_("not installed but configs remain"),
+  [PKG_STAT_HALFINSTALLED]   = N_("broken due to failed removal or installation"),
+  [PKG_STAT_UNPACKED]        = N_("unpacked but not configured"),
+  [PKG_STAT_HALFCONFIGURED]  = N_("broken due to postinst failure"),
+  [PKG_STAT_TRIGGERSAWAITED] = N_("awaiting trigger processing by another package"),
+  [PKG_STAT_TRIGGERSPENDING] = N_("triggered"),
+  [PKG_STAT_INSTALLED]       = N_("installed")
 };
 
 struct filenamenode *
@@ -89,7 +89,13 @@ void checkpath(void) {
     TAR,
     FIND,
     BACKEND,
+    /* Mac OS X uses dyld (Mach-O) instead of ld.so (ELF), and does not have
+     * an ldconfig. */
+#if defined(__APPLE__) && defined(__MACH__)
+    "update_dyld_shared_cache",
+#else
     "ldconfig",
+#endif
 #if BUILD_START_STOP_DAEMON
     "start-stop-daemon",
 #endif
@@ -198,7 +204,7 @@ void clear_istobes(void) {
   it = pkg_db_iter_new();
   while ((pkg = pkg_db_iter_next_pkg(it)) != NULL) {
     ensure_package_clientdata(pkg);
-    pkg->clientdata->istobe= itb_normal;
+    pkg->clientdata->istobe = PKG_ISTOBE_NORMAL;
     pkg->clientdata->replacingfilesandsaid= 0;
   }
   pkg_db_iter_free(it);
@@ -251,6 +257,7 @@ dir_is_used_by_others(struct filenamenode *file, struct pkginfo *pkg)
     if (other_pkg == pkg)
       continue;
 
+    filepackages_iter_free(iter);
     debug(dbg_veryverbose, "dir_is_used_by_others yes");
     return true;
   }

@@ -10,8 +10,7 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
 LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
+	../lib/dpkg/libdpkg.la \
 	$(LIBINTL)
 
 
@@ -48,12 +47,14 @@ dpkg_SOURCES = \
 	help.c \
 	main.c main.h \
 	packages.c \
-	processarc.c \
 	remove.c \
 	script.c \
 	select.c \
 	trigproc.c \
-	update.c
+	unpack.c \
+	update.c \
+	verify.c \
+	$(nil)
 
 dpkg_LDADD = \
 	$(LDADD) \
@@ -86,13 +87,11 @@ install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(admindir)/info
 	$(MKDIR_P) $(DESTDIR)$(admindir)/updates
 
-TEST_VERBOSE = 0
-
 test_tmpdir = t.tmp
 
 test_cases = \
-	t/100_dpkg_divert.t
+	t/dpkg_divert.t
 
-include $(top_srcdir)/Makecheck.am
+include $(top_srcdir)/check.am
 
 clean-local: check-clean

@@ -16,15 +16,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 2012\-05\-27 Debian\-Projekt dpkg\-Programmsammlung
-.SH NAME
+.TH dpkg\-deb 1 2013\-03\-27 Debian\-Projekt dpkg\-Programmsammlung
+.SH BEZEICHNUNG
 dpkg\-deb \- Debian\-Paketarchiv (.deb) Manipulationswerkzeug
 .
 .SH ÜBERSICHT
@@ -178,23 +178,37 @@ Komprimierer »none« für alle Komprimierer.
 \fB\-S\fP\fIKomprimierstrategie\fP
 Gibt die zu verwendende Komprimierstrategie an, die für den
 Komprimierer\-Backend beim Bau eines Pakets verwandt werden soll (seit Dpkg
-1.16.2). Erlaubte Werte sind \fInone\fP (seit Dpkg 1.16.4) und \fIextreme\fP für
-Xz.
+1.16.2). Erlaubte Werte sind \fInone\fP (seit Dpkg 1.16.4), \fIfiltered\fP,
+\fIhuffman\fP, \fIrle\fP und \fIfixed\fP für Gzip (seit Dpkg 1.17.0) und \fIextreme\fP
+für Xz.
 .TP 
 \fB\-Z\fP\fIKomprimierart\fP
 Gibt die Art der Komprimierung beim Bau eines Pakets an. Erlaubte Werte sind
-\fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP und \fInone\fP (voreingestellt ist \fIgzip\fP).
+\fIgzip\fP, \fIxz\fP, \fIbzip2\fP (veraltet), \fIlzma\fP (veraltet) und \fInone\fP
+(voreingestellt ist \fIxz\fP).
 .TP 
-\fB\-\-new\fP
-Stellt sicher, dass \fBdpkg\-deb\fP ein Archiv im »neuen« Format baut. Dies ist
-die Voreinstellung.
+\fB\-\-uniform\-compression\fP
+Gibt an, dass die gleichen Komprimierungsparameter für alle Archivteile
+(d.h. \fBcontrol.tar\fP und \fBdata.tar\fP) verwandt werden sollen. Andernfalls
+wird nur der Teil \fBdata.tar\fP diese Parameter verwenden. Die einzigen
+unterstützten Kompressionstypen, die übergreifend benutzt werden dürfen,
+sind \fInone\fP, \fIgzip\fP und \fIxz\fP.
 .TP 
-\fB\-\-old\fP
-Zwingt \fBdpkg\-deb\fP dazu, ein Archiv im »alten« Format zu bauen. Dieses alte
-Format wird nicht so leicht von nicht\-Debian\-Werkzeugen eingelesen und ist
-jetzt veraltet; der einzige Zweck ist zum Bau von Paketen, die von
+\fB\-\-deb\-format=\fP\fIFormat\fP
+Setzt das beim Bau verwandte Archivformat (seit Dpkg 1.17.0). Erlaubte Werte
+sind \fI2.0\fP für das neue Format und \fI0.939000\fP für das alte Format (Vorgabe
+ist \fI2.0\fP).
+
+Das alte Format wird nicht so leicht von nicht\-Debian\-Werkzeugen eingelesen
+und ist jetzt veraltet; der einzige Zweck ist zum Bau von Paketen, die von
 Dpkg\-Versionen kleiner 0.93.76 (September 1995) eingelesen werden
 sollen. Diese Dpkg\-Version wurde nur als i386 a.out\-Programm veröffentlicht.
+.TP 
+\fB\-\-new\fP
+Dies ist ein historischer Alias für \fB\-\-deb\-format=2.0\fP.
+.TP 
+\fB\-\-old\fP
+Dies ist ein historischer Alias für \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 Unterdrückt die normalen Überprüfungen von \fBdpkg\-deb \-\-build\fP über die
@@ -215,6 +229,12 @@ interessant.
 Falls gesetzt wird \fBdpkg\-deb\fP es als das Verzeichnis verwenden, in dem
 temporäre Dateien und Verzeichnisse erstellt werden.
 .
+.SH BEMERKUNGEN
+Versuchen Sie nicht, nur mit \fBdpkg\-deb\fP Software zu installieren! Sie
+müssen \fBdpkg\fP selber verwenden, um sicherzustellen, dass alle Dateien an
+den richtigen Ort platziert werden, die Paketskripte ausgeführt werden und
+sein Status und Inhalt aufgezeichnet wird.
+.
 .SH FEHLER
 \fBdpkg\-deb \-I\fP \fIPaket1\fP\fB.deb\fP \fIPaket2\fP\fB.deb\fP macht das Falsche.
 
@@ -225,14 +245,9 @@ geholt wurden und die meisten Pakete stellen heutzutage eine
 md5sum\-Steuerdatei bereit, die mittels debian/rules erstellt
 wurde. Allerdings wird dies von den Werkzeugen auf niedrigerer Ebene nicht
 direkt unterstützt.)
-
-Versuchen Sie nicht, nur mit \fBdpkg\-deb\fP Software zu installieren! Sie
-müssen \fBdpkg\fP selber verwenden, um sicherzustellen, dass alle Dateien an
-den richtigen Ort platziert werden, die Paketskripte ausgeführt werden und
-sein Status und Inhalt aufgezeichnet wird.
 .
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

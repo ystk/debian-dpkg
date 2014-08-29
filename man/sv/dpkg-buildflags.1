@@ -2,6 +2,7 @@
 .\"
 .\" Copyright Â© 2010-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2011 Kees Cook <kees@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-buildflags 1 2012\-04\-03 Debianprojektet Dpkg\-sviten
+.TH dpkg\-buildflags 1 2013\-10\-20 Debianprojektet Dpkg\-sviten
 .SH NAMN
 dpkg\-buildflags \- returnerar byggflaggor att använda för att bygga paket
 .
@@ -88,12 +89,30 @@ ett tydligt spår över de använda byggflaggorna. Det kan vara användbart för
 att diagnostisera problem rörande dessa.
 .TP 
 \fB\-\-export=\fP\fIformat\fP
-Skriv skal\- (om \fIformat\fP är \fBsh\fP) eller make\-kommandon (om \fIformat\fP är
-\fBmake\fP) som kan användas för att exportera alla kompileringsflaggor i
-miljön till standard ut. Om \fIformat\fP är \fBconfigure\fP kan utdata användas på
-en \fB./configure\fP\-kommandorad. Om \fIformat\fP inte anges antas \fBsh\fP. Endast
+Skriv kommandon som kan användas för att exportera alla kompileringsflaggor
+för något specifikt verktyg. Om \fIformat\fP inte anges antas \fBsh\fP. Endast
 kompileringsflaggor som börjar med en stor bokstav tas med, andra antas att
-inte vara lämpliga för miljön.
+inte vara lämpliga för miljön. Format som stöds:
+.RS
+.TP 
+\fBsh\fP
+Skalkommandon för att sätta och exportera alla kompileringsflaggor i
+miljön. Flaggvärdena citeras så att utdata är redo att utvärderas av ett
+skal.
+.TP 
+\fBcmdline\fP
+Argument att sända till byggprogrammets kommandorad för att använda alla
+kompileringsflaggor (sedan dpkg 1.17.0). Flaggornas värde citeras enligt
+skalsyntax.
+.TP 
+\fBconfigure\fP
+Detta är ett gammalt alias för \fBcmdline\fP.
+.TP 
+\fBmake\fP
+Make\-direktiv för att sätta och exportera alla kompileringsflaggor i
+miljön. Utdata kan skrivas till ett makefil\-fragment och utvärderas med ett
+\fBinclude\fP\-direktiv.
+.RE
 .TP 
 \fB\-\-get\fP\fI flagga\fP
 Skriv ut värdet på flaggan på standard ut. Avslutar med 0 om flaggan är
@@ -119,12 +138,11 @@ flaggan är satt/modifierad av en miljöspecifik konfiguration.
 .RE
 .TP 
 \fB\-\-query\-features\fP \fIarea\fP
-Visa funktioner aktiverade för en given area. Den enda kända arean är för
-närvarande \fBhardening\fP. Avslutar med 0 om arean är okänd, avslutar annars
-med 1.
+Visa funktioner aktiverade för ett given område. Det enda kända området är
+för närvarande \fBhardening\fP, se avsnittet \fBFUNKTIONSOMRÅDEN\fP för fler
+detaljer. Avslutar med 0 om området är okänt, avslutar annars med 1.
 .IP
-Utdataformatet är på RFC822\-headerformat, med en sektion per funktion. Till
-exempel:
+Utdata är på RFC822\-headerformat, med en sektion per funktion. Till exempel:
 .IP
 .nf
   Feature: pie
@@ -144,8 +162,8 @@ Visar version och avslutar.
 .TP 
 \fBCFLAGS\fP
 Flaggor för C\-kompilatorn. Standardvärdet som satts av leverantören
-innehåller \fI\-g\fP och den förvalda optimeringsnivån (vanligtvis \fI\-O2\fP, eller
-\fI\-O0\fP om miljövariabeln \fBDEB_BUILD_OPTIONS\fP definierar \fInoopt\fP).
+innehåller \fB\-g\fP och den förvalda optimeringsnivån (vanligtvis \fB\-O2\fP, eller
+\fB\-O0\fP om miljövariabeln \fBDEB_BUILD_OPTIONS\fP definierar \fInoopt\fP).
 .TP 
 \fBCPPFLAGS\fP
 Flaggor för C\-förprocesseraren. Förvalt värde: tomt.
@@ -153,21 +171,142 @@ Flaggor för C\-förprocesseraren. Förvalt värde: tomt.
 \fBCXXFLAGS\fP
 Flaggor för C++\-kompilatorn. Samma som \fBCFLAGS\fP.
 .TP 
+\fBOBJCFLAGS\fP
+Flaggor för Objective C\-kompilatorn. Samma som \fBCFLAGS\fP.
+.TP 
+\fBOBJCXXFLAGS\fP
+Flaggor för Objective C++\-kompilatorn. Samma som \fBCFLAGS\fP.
+.TP 
+\fBGCJFLAGS\fP
+Flaggor för GNU Java\-kompilatorn (gcj). En delmängd av \fBCFLAGS\fP.
+.TP 
 \fBFFLAGS\fP
-Flaggor för Fortrankompilatorn. Samma som \fBCFLAGS\fP.
+Flaggor för Fortran 7\-kompilatorn. En delmängd av \fBCFLAGS\fP.
+.TP 
+\fBFCFLAGS\fP
+Flaggor för Fortran 9x\-kompilatorn. Samma som \fBCFLAGS\fP.
 .TP 
 \fBLDFLAGS\fP
 Flaggor som sänds till kompilatorn vid länkning av binärer eller delade
 objekt (om länkaren anropas direkt måste \fB\-Wl\fP och \fB,\fP tas bort från dessa
 flaggor). Standardvärde: tomt.
+.PP
+Nya flaggor kan komma att läggas till i framtiden om behovet uppstår (till
+exempel för att stöda andra språk).
 .
-.SH FILER
+.SH FUNKTIONSOMRÅDEN
+.SS Härdning
+Du kan använda flera kompileringsflaggor (se detaljer nedan) för att härda
+den färdiga binären mot minnesfördärvningsangrepp, eller för att ge
+ytterligare varningsmeddelanden under kompileringen. Förutom det som anges
+nedan aktiveras dessa som standard för arkitekturer som stöder dem.
+.P
+Varje härdningsfunktion kan aktiveras och inaktiveras i miljövariabeln
+\fBDEB_BUILD_MAINT_OPTIONS\fP värde \fBhardening\fP med modifierarna "+" och
+"\-". Du kan till exempel aktivera och funktionen "pie" och inaktivera
+funktionen "fortify" genom att ange detta i \fBdebian/rules\fP:
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
+.P
+Den speciella funktionen \fBall\fP kan användas för att aktivera eller
+inaktivera alla härdningsfunktioner samtidigt. Du kan till exempel
+inaktivera allt och endast aktivera "format" och "fortify" med:
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
+.
 .TP 
-\fB/etc/dpkg/buildflags.conf\fP
-Konfigurationsfil för hela systemet.
+\fBformat\fP
+Inställningen (aktiverad som standard) lägger till \fB\-Wformat
+\-Werror=format\-security\fP till \fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP och
+\fBOBJCXXFLAGS\fP. Detta kommer att varna om olämplig användning av
+formatsträngar, och att misslyckas när formatfunktionerna används på ett
+sätt som representerar möjliga säkerhetsproblem. För närvarande varnar detta
+om anrop till funktionerna \fBprintf\fP och \fBscanf\fP där formatsträngen inte är
+en fast sträng och när det inte finns några formatargument, som i
+\fBprintf(foo);\fP istället för \fBprintf("%s", foo);\fP Detta kan vara ett
+säkerhetshål om formatsträngen kommer från en obetrodd källa och innehåller
+"%n".
+.
 .TP 
-\fB$XDG_CONFIG_HOME/dpkg/buildflags.conf\fP eller \fB$HOME/.config/dpkg/buildflags.conf\fP
-Användarens konfigurationsfil.
+\fBfortify\fP
+Inställningen (aktiverad som standard) lägger till  \fB\-D_FORTIFY_SOURCE=2\fP
+till \fBCPPFLAGS\fP. Kompilatorn har under kodgenereringen kännedom om en hel
+del information om buffertstorlekar (där tillämpligt) och försöker ersätta
+osäkra funktionsanrop med obegränsade buffertlängder med längdbegränsade
+dito. Det här är speciellt användbart för gammal, skräpig kod. Dessutom
+blockeras formatsträngar i skrivbart minne som innehåller "%n". Om ett
+program är beroende av en sådan formatsträng måste det gås runt i kod.
+
+Observera att för att den här flaggan ska ha någon funktion måste källkoden
+också kompileras med \fB\-O1\fP eller högre. Om miljövariabeln
+\fBDEB_BUILD_OPTIONS\fP innehåller \fInoopt\fP kommer stödet för \fBfortify\fP att
+inaktiverats, på grund av nya varningar som ges av glibc 2.16 och senare.
+.TP 
+\fBstackprotector\fP
+This setting (enabled by default if stackprotectorstrong is not in use) adds
+\fB\-fstack\-protector \-\-param=ssp\-buffer\-size=4\fP to \fBCFLAGS\fP, \fBCXXFLAGS\fP,
+\fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP and \fBFCFLAGS\fP.  This
+adds safety checks against stack overwrites. This renders many potential
+code injection attacks into aborting situations. In the best case this turns
+code injection vulnerabilities into denial of service or into non\-issues
+(depending on the application).
+
+Den här funktionen kräver länkning mot glibc (eller ett annat bibliotek som
+tillhandahåller \fB__stack_chk_fail\fP), så det måste inaktiveras när du bygger
+med \fB\-nostdlib\fP eller \fB\-ffreestanding\fP eller liknande.
+.
+.TP 
+\fBstackprotectorstrong\fP
+This setting (enabled by default) adds \fB\-fstack\-protector\-strong\fP to
+\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP
+and \fBFCFLAGS\fP.  This is a stronger variant of \fBstackprotector\fP, but
+without significant performance penalties.
+
+Disabling \fBstackprotector\fP will also disable this setting.
+
+This feature has the same requirements as \fBstackprotector\fP, and in addition
+also requires gcc 4.9 and later.
+.
+.TP 
+\fBrelro\fP
+Inställningen (aktiverad som standard) lägger till \fB\-Wl,\-z,relro\fP till
+\fBLDFLAGS\fP. Vid inläsning av programmet måste länkaren skriva till flera
+ELF\-minnessektioner. Den här inställningen flaggar till inläsaren att dessa
+sektioner skall göras skrivskyddade innan programmet får kontroll. Detta
+skyddar huvudsaklingen mot GOT\-överskrivningsangrepp. Om inställningen
+inaktiveras kommer även \fBbindnow\fP att inaktiveras.
+.
+.TP 
+\fBbindnow\fP
+Inställningen (inaktiverad som standard) lägger till \fB\-Wl,\-z,bindnow\fP till
+\fBLDFLAGS\fP. Vid inläsning av programmet löses alla dynamiska symboler,
+vilket gör att hela PLT kan markeras som skrivskyddad (på grund av \fBrelro\fP
+ovan). Inställningen kan inte aktiveras om \fBrelro\fP inte är aktiverad.
+.
+.TP 
+\fBpie\fP
+Inställningen (inaktiverad som standard) lägger till \fB\-fPIE\fP till
+\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP
+och \fBFCFLAGS\fP, samt \fB\-fPIE \-pie\fP till \fBLDFLAGS\fP. Positionsoberoende
+exekverbara program (PIE) behövs för att dra fördel av slumpmässig
+adressrymd (ASLR), vilket stöds av vissa versioner av kärnan. Medan ASLR
+redan kan användas för datautrymmen i stacken och heap:en (brk och mmap),
+måste kodområden först kompileras som positionsoberoende. Delade bibliotek
+gör redan detta (\-fPI C), så de drar automatiskt fördel av ASLR medan binära
+\&.text\-regioner måste byggas med PIE för att uppnå ASLR. När detta sker är
+ROP\-angrepp (Return Oriented Programming) mycket svårare eftersom det inte
+finns några statiska platser att studsa från i ett
+minnesfördärvningsangrepp.
+
+Detta är inte kompatibelt med \fB\-fPIC\fP så man måste vara försiktig när man
+bygger delade objekt.
+
+Eftersom PIE i tillägg implementeras med ett generellt register kan vissa
+arkitekturer (huvudsakligen i386) se prestandaförluster upp till 15% i
+väldigt textsegment\-tunga programs körning; de flesta körningar ser mindre
+än 1%. Arkitekturer med många generella register (t.ex amd64) ser inte en
+lika stor värsta falls\-förlust.
+.
 .SH MILJÖVARIABLER
 Det finns två uppsättningar miljövariabler som utför samma operationer, den
 första (DEB_\fIflagga\fP_\fIop\fP) bör aldrig användas inuti \fBdebian/rules\fP). Den
@@ -203,102 +342,96 @@ värdet som returneras för given \fIflagga\fP.
 .TP 
 \fBDEB_BUILD_MAINT_OPTIONS\fP
 Den här variabeln kan användas för att slå av/på olika härdningsbyggflaggor
-genom alternativet \fBhardening\fP. Se avsnittet \fBHÄRDNING\fP för mer
+genom alternativet \fBhardening\fP. Se avsnittet \fBFUNKTIONSOMRÅDEN\fP för mer
 information.
 .
-.SH HÄRDNING
-Du kan använda flera kompileringsflaggor (se detaljer nedan) för att härda
-den färdiga binären mot minnesfördärvningsangrepp, eller för att ge
-ytterligare varningsmeddelanden under kompileringen. Förutom det som anges
-nedan aktiveras dessa som standard för arkitekturer som stöder dem.
-.P
-Varje härdningsfunktion kan aktiveras och inaktiveras i miljövariabeln
-\fBDEB_BUILD_MAINT_OPTIONS\fP värde \fBhardening\fP med modifierarna "+" och
-"\-". Du kan till exempel aktivera och funktionen "pie" och inaktivera
-funktionen "fortify" genom att ange detta i \fBdebian/rules\fP:
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
-.P
-Den speciella funktionen \fBall\fP kan användas för att aktivera eller
-inaktivera alla härdningsfunktioner samtidigt. Du kan till exempel
-inaktivera allt och endast aktivera "format" och "fortify" med:
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
-.
+.SH FILER
+.SS Konfigurationsfiler
 .TP 
-\fBformat\fP
-Inställningen (aktiverad som standard) lägger till \fB\-Wformat
-\-Werror=format\-security\fP till \fBCFLAGS\fP och \fBCXXFLAGS\fP. Detta kommer att
-varna om olämplig användning av formatsträngar, och att misslyckas när
-formatfunktionerna används på ett sätt som representerar möjliga
-säkerhetsproblem. För närvarande varnar detta om anrop till funktionerna
-\fBprintf\fP och \fBscanf\fP där formatsträngen inte är en fast sträng och när det
-inte finns några formatargument, som i \fBprintf(foo);\fP istället för
-\fBprintf("%s", foo);\fP Detta kan vara ett säkerhetshål om formatsträngen
-kommer från en obetrodd källa och innehåller "%n".
-.
+\fB/etc/dpkg/buildflags.conf\fP
+Konfigurationsfil för hela systemet.
 .TP 
-\fBfortify\fP
-Inställningen (aktiverad som standard) lägger till  \fB\-D_FORTIFY_SOURCE=2\fP
-till \fBCPPFLAGS\fP. Kompilatorn har under kodgenereringen kännedom om en hel
-del information om buffertstorlekar (där tillämpligt) och försöker ersätta
-osäkra funktionsanrop med obegränsade buffertlängder med längdbegränsade
-dito. Det här är speciellt användbart för gammal, skräpig kod. Dessutom
-blockeras formatsträngar i skrivbart minne som innehåller "%n". Om ett
-program är beroende av en sådan formatsträng måste det gås runt i kod.
+\fB$XDG_CONFIG_HOME/dpkg/buildflags.conf\fP eller \fB$HOME/.config/dpkg/buildflags.conf\fP
+Användarens konfigurationsfil.
+.SS Paketeringsstöd
+.TP 
+\fB/usr/share/dpkg/buildflags.mk\fP
+Makefile\-klipp som läser in (och eventuellt exporterar) alla flaggor som
+stöd av \fBdpkg\-buildflags\fP till variabler (sedan dpkg 1.16.1).
+.
+.SH EXEMPEL
+För att sända byggflaggor till en byggkommandorad i en makefil:
+.PP
+.RS 4
+.nf
+$(MAKE) $(shell dpkg\-buildflags \-\-export=cmdline)
 
-Observera att, för att den här flaggan skall ha någon effekt, måste
-källkoden också kompileras med \fB\-O1\fP eller högre.
-.TP 
-\fBstackprotector\fP
-Inställningen (aktiverad som standard) lägger till \fB\-fstack\-protector
-\-\-param=ssp\-buffer\-size=4\fP till \fBCFLAGS\fP och \fBCXXFLAGS\fP. Detta lägger till
-säkerhetskontroller mot stacköverskrivningar, vilket gör att många möjliga
-kodinjiceringsangrepp istället avbryter programmet. I det bästa fallet gör
-det kodinjiceringsangrepp till överbelastnignsangrepp eller icke\-problem
-(beroende på programmet).
-
-Den här funktionen kräver länkning mot glibc (eller ett annat bibliotek som
-tillhandahåller \fB__stack_chk_fail\fP), så det måste inaktiveras när du bygger
-med \fB\-nostdlib\fP eller \fB\-ffreestanding\fP eller liknande.
+\&./configure $(shell dpkg\-buildflags \-\-export=cmdline)
+.fi
+.RE
+.PP
+För att sätta byggflaggor i ett skalskript eller skalfragment kan "eval"
+användas för att tolka utdata och exportera flaggorna i miljön:
+.PP
+.RS 4
+.nf
+eval "$(dpkg\-buildflags \-\-export=sh)" && make
+.fi
+.RE
+.PP
+eller för att sätta positionsparametrarna för att sända till ett kommando:
+.PP
+.RS 4
+.nf
+eval "set \-\- $(dpkg\-buildflags \-\-export=cmdline)"
+for dir in a b c; do (cd $dir && ./configure "$@" && make); done
+.fi
+.RE
 .
-.TP 
-\fBrelro\fP
-Inställningen (aktiverad som standard) lägger till \fB\-Wl,\-z,relro\fP till
-\fBLDFLAGS\fP. Vid inläsning av programmet måste länkaren skriva till flera
-ELF\-minnessektioner. Den här inställningen flaggar till inläsaren att dessa
-sektioner skall göras skrivskyddade innan programmet får kontroll. Detta
-skyddar huvudsaklingen mot GOT\-överskrivningsangrepp. Om inställningen
-inaktiveras kommer även \fBbindnow\fP att inaktiveras.
-.
-.TP 
-\fBbindnow\fP
-Inställningen (inaktiverad som standard) lägger till \fB\-Wl,\-z,bindnow\fP till
-\fBLDFLAGS\fP. Vid inläsning av programmet löses alla dynamiska symboler,
-vilket gör att hela PLT kan markeras som skrivskyddad (på grund av \fBrelro\fP
-ovan). Inställningen kan inte aktiveras om \fBrelro\fP inte är aktiverad.
-.
-.TP 
-\fBpie\fP
-Inställningen (inaktiverad som standard) lägger till \fB\-fPIE\fP till \fBCFLAGS\fP
-och \fBCXXFLAGS\fP, samt \fB\-fPIE \-pie\fP till \fBLDFLAGS\fP. Positionsoberoende
-exekverbara program (PIE) behövs för att dra fördel av slumpmässig
-adressrymd (ASLR), vilket stöds av vissa versioner av kärnan. Medan ASLR
-redan kan användas för datautrymmen i stacken och heap:en (brk och mmap),
-måste kodområden först kompileras som positionsoberoende. Delade bibliotek
-gör redan detta (\-fPI C), så de drar automatiskt fördel av ASLR medan binära
-\&.text\-regioner måste byggas med PIE för att uppnå ASLR. När detta sker är
-ROP\-angrepp (Return Oriented Programming) mycket svårare eftersom det inte
-finns några statiska platser att studsa från i ett
-minnesfördärvningsangrepp.
-
-Detta är inte kompatibelt med \fB\-fPIC\fP så man måste vara försiktig när man
-bygger delade objekt.
-
-Eftersom PIE i tillägg implementeras med ett generellt register kan vissa
-arkitekturer (huvudsakligen i386) se prestandaförluster upp till 15% i
-väldigt textsegment\-tunga programs körning; de flesta körningar ser mindre
-än 1%. Arkitekturer med många generella register (t.ex amd64) ser inte en
-lika stor värsta falls\-förlust.
-.SH "ÖVERSÄTTNING"
+.SS "Använda i debian/rules"
+Du bör anropa \fBdpkg\-buildflags\fP eller inkludera \fBbuildflags.mk\fP från filen
+\fBdebian/rules\fP för att hämta de byggflaggor det är nödvändigt att sända
+till byggsystemet. Observera att äldre versioner av \fBdpkg\-buildpackages\fP
+(före dpkg 1.16.1) exporterade dessa flaggor automatiskt. Du bör dock inte
+bero på detta, eftersom detta förhindrar körning av \fBdebian/rules\fP
+manuellt.
+.PP
+För paket med autoconf\-liknande byggsystem kan du sända relevanta flaggor
+direkt till configure eller \fBmake\fP(1), som visas ovan.
+.PP
+I andra byggsystem, eller om du vill ha mer finkorning styrning av vilka
+flaggor som sänds vart, kan du använda \fB\-\-get\fP. Eller så kan du istället
+inkludera \fBbuildflags.mk\fP, som tar hand om anropet till \fBdpkg\-buildflags\fP
+och lagringen av byggflaggorna i make\-variabler.
+.PP
+Om du vill exportera alla byggflaggor till miljön (där de kan fångas upp av
+ditt byggsystem):
+.PP
+.RS 4
+.nf
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+.fi
+.RE
+.PP
+För extra styrning av vad som expoteras kan du manuellt exportera
+variablerna (eftersom inga av dem exporteras som standard):
+.PP
+.RS 4
+.nf
+include /usr/share/dpkg/buildflags.mk
+export CPPFLAGS CFLAGS LDFLAGS
+.fi
+.RE
+.PP
+Du kan naturligtvis dessutom manuellt sända flaggorna till kommandon:
+.PP
+.RS 4
+.nf
+include /usr/share/dpkg/buildflags.mk
+build\-arch:
+\&	$(CC) \-o hello hello.c $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
+.fi
+.RE
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

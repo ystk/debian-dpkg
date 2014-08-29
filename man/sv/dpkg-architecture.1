@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2005 Marcus Brinkmann <brinkmd@debian.org>
 .\" Copyright Â© 2005 Scott James Remnant <scott@netsplit.com>
-.\" Copyright Â© 2006-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2009-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-architecture 1 2012\-01\-20 Debianprojektet dpkg\-verktygen
+.TH dpkg\-architecture 1 2013\-03\-28 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-architecture \- ställ in och bestäm arkitektur för paket som byggs
 .
@@ -32,7 +32,7 @@ dpkg\-architecture \- ställ in och bestäm arkitektur för paket som byggs
 .PP
 .
 .SH BESKRIVNING
-dpkg\-architecture innehåller en funktion för att bestämma och ställa in
+\fBdpkg\-architecture\fP innehåller en funktion för att bestämma och ställa in
 bygg\- och värdarkitekturerna för att bygga paket.
 .PP
 Byggarkitekturen bestäms alltid av ett externt anrop till \fBdpkg\fP(1) och kan
@@ -40,11 +40,11 @@ inte ställas in på kommandoraden.
 .PP
 Du kan ange värdarkitektur genom att ange en av, eller båda, flaggorna \fB\-a\fP
 och \fB\-t\fP. Förvalet bestäms av ett externt anrop till \fBgcc\fP(1), eller är
-detsamma som byggarkitekturen varken \s-1CC\s0 eller gcc är
-tillgängliga. Det räcker att ange en av \fB\-a\fP och \fB\-t\fP, värdet på den andra
-kommer ställas in till ett fungerande förval. Det är faktiskt oftast bättre
-att bara ange den ena eftersom \fBdpkg\-architecture\fP kommer varna dig om ditt
-val inte överensstämmer med förvalet.
+detsamma som byggarkitekturen varken \fBCC\fP eller gcc är tillgängliga. Det
+räcker att ange en av \fB\-a\fP och \fB\-t\fP, värdet på den andra kommer ställas in
+till ett fungerande förval. Det är faktiskt oftast bättre att bara ange den
+ena eftersom \fBdpkg\-architecture\fP kommer varna dig om ditt val inte
+överensstämmer med förvalet.
 .
 .SH KOMMANDON
 .TP 
@@ -53,16 +53,17 @@ Skriv miljövariabler, en per rad, på formatet \fIVARIABEL=värde\fP. Detta är
 förvald åtgärd.
 .TP 
 \fB\-e\fP\fIdebianarkitektur\fP
-Kontrollera arkitektur för likhet. Som standard jämförs \fIdebianarkitektur\fP
-mot den aktuella Debianarkitekturen, som är värd. Åtgärden expanderar inte
-jokertecken i arkitekturer. Kommandet avslutar med status 0 om det är en
-träff, 1 om det inte är en träff.
+Kontrollera arkitektur för likhet (sedan dpkg 1.13.13). Som standard jämförs
+\fIdebianarkitektur\fP mot den aktuella Debianarkitekturen, som är
+värd. Åtgärden expanderar inte jokertecken i arkitekturer. Kommandet
+avslutar med status 0 om det är en träff, 1 om det inte är en träff.
+
 .TP 
 \fB\-i\fP\fIarkitektursökmönster\fP
 Kontrollera identitet på arkitekturen genom att expandera
 \fIarkitektursökmönster\fP som ett arkitektursökmönster med jokertecken, och
-jämföra med den aktuella Debianarkitekturen. Kommandot avslutas med status 0
-vid träff, 1 om inte träff.
+jämföra med den aktuella Debianarkitekturen (sedan dpkg 1.13.13). Kommandot
+avslutas med status 0 vid träff, 1 om inte träff.
 .TP 
 \fB\-q\fP\fIvariabelnamn\fP
 Skriv värdet på en enkel variabel.
@@ -108,117 +109,78 @@ Maskinen paketet byggs på.
 .IP värdmaskin 4
 Maskinen paketet byggs för.
 .IP Debianarkitektur 4
-Debianarkitektursträngen, vilken anger binärträdet i
-\-s1FT\s0\-arkivet. Exempel: i386, sparc, hurd\-i386.
+Debianarkitektursträngen, vilken anger binärträdet i FTP\-arkivet. Exempel:
+i386, sparc, hurd\-i386.
 .IP arkitektursökmönster 4
 Ett arkitektursökmönster är en speciell arkitektursträng som matchar alla
 äkta arkitekturer som finns i den. Den genella formen är
 <kärna>\-<cpu>. Exempel: linux\-any, any\-i386, hurd\-any.
-.IP \s-1GNU\s0\-systemtyp 4
+.IP GNU\-systemtyp 4
 En arkitekturspecificeringssträng består av två delar, avdelade med
 bindestreck: processor och system. Exempel: i386\-linux\-gnu, sparc\-linux\-gnu,
 i386\-gnu, x86_64\-netbsd.
 .
 .SH VARIABLER
 Följande variabler sätts av \fBdpkg\-architecture\fP:
-.IP \s-1DEB_BUILD_ARCH\s0 4
+.IP \fBDEB_BUILD_ARCH\fP 4
 Debianarkitekturen för byggmaskinen.
-.IP \s-1DEB_BUILD_ARCH_OS\s0 4
-Debiansystemnamnet för byggmaskinen.
-.IP \s-1DEB_BUILD_ARCH_CPU\s0 4
-Debian\-processornamnet för byggmaskinen.
-.IP \s-1DEB_BUILD_ARCH_BITS\s0 4
-Pekarstorleken för byggmaskinen (i bitar).
-.IP \s-1DEB_BUILD_ARCH_ENDIAN\s0 4
-Endian för byggmaskinen (little / big).
-.IP \s-1DEB_BUILD_GNU_CPU\s0 4
-\s-1CPU\s0\-delen av \s-1DEB_BUILD_GNU_TYPE\s0.
-.IP \s-1DEB_BUILD_GNU_SYSTEM\s0 4
-Systemdelen av \s-1DEB_BUILD_GNU_TYPE\s0.
-.IP \s-1DEB_BUILD_GNU_TYPE\s0 4
-\s-1GNU\s0\-systemtypen för byggmaskinen.
-.IP \s-1DEB_BUILD_MULTIARCH\s0 4
-Den förtydligade \s-1GNU\s0\-systemtypen för byggmaskinen, används för
-sökvägar i filsystemet.
-.IP \s-1DEB_HOST_ARCH\s0 4
+.IP \fBDEB_BUILD_ARCH_OS\fP 4
+Debiansystemnamnet på byggmaskinen (sedan dpkg 1.13.2).
+.IP \fBDEB_BUILD_ARCH_CPU\fP 4
+Debian\-processornamnet för byggmaskinen (sedan dpkg 1.13.).
+.IP \fBDEB_BUILD_ARCH_BITS\fP 4
+Pekarstorleken för byggmaskinen (i bitar; sedan dpkg 1.15.4).
+.IP \fBDEB_BUILD_ARCH_ENDIAN\fP 4
+Endian för byggmaskinen (little / big; sedan dpkg 1.15.4).
+.IP \fBDEB_BUILD_GNU_CPU\fP 4
+CPU\-delen av \fBDEB_BUILD_GNU_TYPE\fP.
+.IP \fBDEB_BUILD_GNU_SYSTEM\fP 4
+Systemdelen av \fBDEB_BUILD_GNU_TYPE\fP.
+.IP \fBDEB_BUILD_GNU_TYPE\fP 4
+GNU\-systemtypen för byggmaskinen.
+.IP \fBDEB_BUILD_MULTIARCH\fP 4
+Den förtydligade GNU\-systemtypen för byggmaskinen, används för sökvägar i
+filsystemet.
+.IP \fBDEB_HOST_ARCH\fP 4
 Debianarkitekturen för värdmaskinen.
-.IP \s-1DEB_HOST_ARCH_OS\s0 4
-Debiansystemnamnet för värdmaskinen.
-.IP \s-1DEB_HOST_ARCH_CPU\s0 4
-Debian\-processornamnet för värdmaskinen.
-.IP \s-1DEB_HOST_ARCH_BITS\s0 4
-Pekarstorleken för värdmaskinen (i bitar).
-.IP \s-1DEB_HOST_ARCH_ENDIAN\s0 4
-Endian för värdmaskinen (little / big).
-.IP \s-1DEB_HOST_GNU_CPU\s0 4
-\s-1CPU\s0\-delen av \s-1DEB_HOST_GNU_TYPE\s0.
-.IP \s-1DEB_HOST_GNU_SYSTEM\s0 4
-Systemdelen av \s-1DEB_HOST_GNU_TYPE\s0.
-.IP \s-1DEB_HOST_GNU_TYPE\s0 4
-\s-1GNU\s0\-systemtypen för värdmaskinen.
-.IP \s-1DEB_HOST_MULTIARCH\s0 4
-Den förtydligade \s-1GNU\s0\-systemtypen för värdmaskinen, används för
-sökvägar i filsystemet.
+.IP \fBDEB_HOST_ARCH_OS\fP 4
+Debiansystemnamnet för värdmaskinen (sedan dpkg 1.13.2).
+.IP \fBDEB_HOST_ARCH_CPU\fP 4
+Debian\-processornamnet för värdmaskinen (sedan dpkg 1.13.2).
+.IP \fBDEB_HOST_ARCH_BITS\fP 4
+Pekarstorleken för värdmaskinen (i bitar; sedan dpkg 1.15.4).
+.IP \fBDEB_HOST_ARCH_ENDIAN\fP 4
+Endian för värdmaskinen (little / big; sedan dpkg 1.15.4).
+.IP \fBDEB_HOST_GNU_CPU\fP 4
+\s-1CPU\s0\-delen av \fBDEB_HOST_GNU_TYPE\fP.
+.IP \fBDEB_HOST_GNU_SYSTEM\fP 4
+Systemdelen av \fBDEB_HOST_GNU_TYPE\fP.
+.IP \fBDEB_HOST_GNU_TYPE\fP 4
+GNU\-systemtypen för värdmaskinen.
+.IP \fBDEB_HOST_MULTIARCH\fP 4
+Den förtydligade GNU\-systemtypen för värdmaskinen, används för sökvägar i
+filsystemet.
 .
-.SH DEBIAN/RULES
-Miljövariablerna som sätts av \fBdpkg\-architecture\fP sänds till
-\fIdebian/rules\fP som make\-variabler (se dokumentationen för make). Du bör
-dock inte bero på dem eftersom detta förhindrar manuella anrop till
-skriptet. Du bör istället alltid initiera dem med \fBdpkg\-architecture\fP med
-\-q\-flaggan. Här är några exempel, vilka även visar hur du kan förbättra
-stödet för korskompilering i ditt paket:
-.PP
-
-Hämta GNU\-systemtypen och vidaresänd den till ./configure:
-.IP
-.nf
-\&\s-1DEB_BUILD_GNU_TYPE\s0 := $(shell dpkg\-architecture \-qDEB_BUILD_GNU_TYPE)
-\&\s-1DEB_HOST_GNU_TYPE\s0 := $(shell dpkg\-architecture \-qDEB_HOST_GNU_TYPE)
-[...]
-configure \-\-build=$(\s-1DEB_BUILD_GNU_TYPE\s0) \-\-host=$(\s-1DEB_HOST_GNU_TYPE\s0)
-.fi
-.PP
-
-Gör något endast för en specifik arkitektur:
-.IP
-.nf
-\&\s-1DEB_HOST_ARCH\s0 := $(shell dpkg\-architecture \-qDEB_HOST_ARCH)
-
-ifeq ($(\s-1DEB_HOST_ARCH\s0),alpha)
-  [...]
-endif
-.fi
-.PP
-eller, om du bara vill testa på processor\- eller OS\-typ, använd variablerna
-DEB_HOST_ARCH_CPU eller DEB_HOST_ARCH_OS.
-.PP
-Observera att du även kan bero på att ett externt Makefile\-utklipp sätter
-alla variabler \fBdpkg\-architecture\fP kan tillhandahålla:
-.IP
-.nf
-include /usr/share/dpkg/architecture.mk
-
-ifeq ($(\s-1DEB_HOST_ARCH\s0),alpha)
-  [...]
-endif
-.fi
-.PP
-Oavsett bör du aldrig använda \fBdpkg \-\-print\-architecture\fP för att hämta
-arkitekturinformation när paketet byggs.
-.
-.SH BAKÅTKOMPATIBILITET
-Makefile\-utklippet /usr/share/dpkg/architecture.mk tillhandahålls av
-dpkg\-dev från version 1.16.1.
-.PP
-Variablerna DEB_*_ARCH_BITS och DEB_*_ARCH_ENDIAN introducerades i dpkg\-dev
-1.15.4. Om de används i \fIdebian/rules\fP måste därför ett byggberoende
-deklareras på dpkg\-dev (>= 1.15.4).
-.PP
-Variablerna DEB_HOST_ARCH_CPU och DEB_HOST_ARCH_OS introducerades i dpkg\-dev
-1.13.2.
-.PP
-Flaggorna \fB\-e\fP och \fB\-i\fP introducerades i \fBdpkg\-architecture\fP relativt
-nyligen (sedan dpkg 1.13.13).
+.SH FILER
+.SS Arkitekturtabeller
+Alla dessa filer måste finnas för att \fBdpkg\-architecture\fP måste
+finnas. Deras placering kan överstyras vid körning med miljövariabeln
+\fBDPKG_DATADIR\fP.
+.TP 
+\fI/usr/share/dpkg/cputable\fP
+Tabell över kända processornamn och deras motsvarande GNU\-namn.
+.TP 
+\fI/usr/share/dpkg/ostable\fP
+Tabell över kända operativsystemsnamn och deras motsvarande GNU\-namn.
+.TP 
+\fI/usr/share/dpkg/triplettable\fP
+Tabell över Debianarkitekturtripplar och deras motsvarande
+Debianarkitekturnamn.
+.SS Paketeringsstöd
+.TP 
+\fI/usr/share/dpkg/architecture.mk\fP
+Makefile\-utklipp som sätter alla variabler \fBdpkg\-architecture\fP skriver
+(sedan dpkg 1.16.1):
 .
 .SH EXEMPEL
 \fBdpkg\-architecture\fP godtar flaggan \fB\-a\fP och sänder den vidare till
@@ -234,29 +196,71 @@ dpkg\-architecture \-elinux\-alpha
 .IP
 dpkg\-architecture \-amips \-elinux\-mips
 .PP
-Se om den aktuella arkitekturen eller en arkitektur som anges med \-a är ett
-Linuxsystem:
+Se om den aktuella arkitekturen eller en arkitektur som anges med \fB\-a\fP är
+ett Linuxsystem:
 .IP
 dpkg\-architecture \-ilinux\-any
 .IP
 dpkg\-architecture \-ai386 \-ilinux\-any
 .
-.SH FILER
-Alla dessa filer måste finnas för att \fBdpkg\-architecture\fP måste
-finnas. Deras placering kan överstyras vid körning med miljövariabeln
-\fBDPKG_DATADIR\fP.
-.TP 
-\fI/usr/share/dpkg/cputable\fP
-Tabell över kända processornamn och deras motsvarande GNU\-namn.
-.TP 
-\fI/usr/share/dpkg/ostable\fP
-Tabell över kända operativsystemsnamn och deras motsvarande GNU\-namn.
-.TP 
-\fI/usr/share/dpkg/triplettable\fP
-Tabell över Debianarkitekturtripplar och deras motsvarande
-Debianarkitekturnamn.
+.SS "Använda i debian/rules"
+Miljövariablerna som sätts av \fBdpkg\-architecture\fP sänds till
+\fIdebian/rules\fP som make\-variabler (se dokumentationen för make). Du bör
+dock inte bero på dem eftersom detta förhindrar manuella anrop till
+skriptet. Du bör istället alltid initiera dem med \fBdpkg\-architecture\fP med
+\fB\-q\fP\-flaggan. Här är några exempel, vilka även visar hur du kan förbättra
+stödet för korskompilering i ditt paket:
+.PP
+Hämta GNU\-systemtypen och vidaresänd den till ./configure:
+.PP
+.RS 4
+.nf
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg\-architecture \-qDEB_BUILD_GNU_TYPE)
+DEB_HOST_GNU_TYPE ?= $(shell dpkg\-architecture \-qDEB_HOST_GNU_TYPE)
+[...]
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+  confflags += \-\-build=$(DEB_HOST_GNU_TYPE)
+else
+  confflags += \-\-build=$(DEB_BUILD_GNU_TYPE) \e
+               \-\-host=$(DEB_HOST_GNU_TYPE)
+endif
+[...]
+\&./configure $(confflags)
+.fi
+.RE
+.PP
+Gör något endast för en specifik arkitektur:
+.PP
+.RS 4
+.nf
+DEB_HOST_ARCH ?= $(shell dpkg\-architecture \-qDEB_HOST_ARCH)
+
+ifeq ($(DEB_HOST_ARCH),alpha)
+  [...]
+endif
+.fi
+.RE
+.PP
+eller, om du bara vill testa på processor\- eller OS\-typ, använd variablerna
+\fBDEB_HOST_ARCH_CPU\fP eller \fBDEB_HOST_ARCH_OS\fP.
+.PP
+Observera att du även kan bero på att ett externt Makefile\-utklipp sätter
+alla variabler \fBdpkg\-architecture\fP kan tillhandahålla:
+.PP
+.RS 4
+.nf
+include /usr/share/dpkg/architecture.mk
+
+ifeq ($(DEB_HOST_ARCH),alpha)
+  [...]
+endif
+.fi
+.RE
+.PP
+Oavsett bör du aldrig använda \fBdpkg \-\-print\-architecture\fP för att hämta
+arkitekturinformation när paketet byggs.
 .
 .SH "SE ÄVEN"
 \fBdpkg\-buildpackage\fP(1), \fBdpkg\-cross\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -73,7 +73,7 @@ subproc_signals_cleanup(int argc, void **argv)
 }
 
 static void
-print_subproc_error(const char *emsg, const char *contextstring)
+print_subproc_error(const char *emsg, const void *data)
 {
 	fprintf(stderr, _("%s (subprocess): %s\n"), dpkg_get_progname(), emsg);
 }
@@ -141,12 +141,12 @@ subproc_check(int status, const char *desc, int flags)
 int
 subproc_wait(pid_t pid, const char *desc)
 {
-	pid_t r;
+	pid_t dead_pid;
 	int status;
 
-	while ((r = waitpid(pid, &status, 0)) == -1 && errno == EINTR) ;
+	while ((dead_pid = waitpid(pid, &status, 0)) == -1 && errno == EINTR) ;
 
-	if (r != pid) {
+	if (dead_pid != pid) {
 		onerr_abort++;
 		ohshite(_("wait for subprocess %s failed"), desc);
 	}

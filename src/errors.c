@@ -3,6 +3,7 @@
  * errors.c - per package error handling
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -54,12 +55,10 @@ static struct error_report *reports = NULL;
 static struct error_report **lastreport= &reports;
 static struct error_report emergency;
 
-void print_error_perpackage(const char *emsg, const char *arg) {
+static void
+enqueue_error_report(const char *arg)
+{
   struct error_report *nr;
-
-  notice(_("error processing %s (--%s):\n %s"), arg, cipaction->olong, emsg);
-
-  statusfd_send("status: %s : %s : %s", arg, "error", emsg);
 
   nr= malloc(sizeof(struct error_report));
   if (!nr) {
@@ -76,6 +75,32 @@ void print_error_perpackage(const char *emsg, const char *arg) {
   if (nerrs++ < errabort) return;
   notice(_("too many errors, stopping"));
   abort_processing = true;
+}
+
+void
+print_error_perpackage(const char *emsg, const void *data)
+{
+  const char *pkgname = data;
+
+  notice(_("error processing package %s (--%s):\n %s"),
+         pkgname, cipaction->olong, emsg);
+
+  statusfd_send("status: %s : %s : %s", pkgname, "error", emsg);
+
+  enqueue_error_report(pkgname);
+}
+
+void
+print_error_perarchive(const char *emsg, const void *data)
+{
+  const char *filename = data;
+
+  notice(_("error processing archive %s (--%s):\n %s"),
+         filename, cipaction->olong, emsg);
+
+  statusfd_send("status: %s : %s : %s", filename, "error", emsg);
+
+  enqueue_error_report(filename);
 }
 
 int
@@ -97,7 +122,7 @@ reportbroken_retexitstatus(int ret)
 bool
 skip_due_to_hold(struct pkginfo *pkg)
 {
-  if (pkg->want != want_hold)
+  if (pkg->want != PKG_WANT_HOLD)
     return false;
   if (fc_hold) {
     notice(_("package %s was on hold, processing it anyway as you requested"),
@@ -115,9 +140,7 @@ void forcibleerr(int forceflag, const char *fmt, ...) {
   va_start(args, fmt);
   if (forceflag) {
     warning(_("overriding problem because --force enabled:"));
-    fputc(' ', stderr);
-    vfprintf(stderr, fmt, args);
-    fputc('\n',stderr);
+    warningv(fmt, args);
   } else {
     ohshitv(fmt, args);
   }

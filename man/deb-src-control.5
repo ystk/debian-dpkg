@@ -2,7 +2,7 @@
 .\"
 .\" Copyright © 2010 Oxan van Leeuwen <oxan@oxanvanleeuwen.nl>
 .\" Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
-.\" Copyright © 2011-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright © 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
-.TH deb\-src\-control 5 "2012-06-16" "Debian Project" "Debian"
+.TH deb\-src\-control 5 "2013-12-20" "Debian Project" "Debian"
 .SH NAME
 deb\-src\-control \- Debian source packages' master control file format
 .
@@ -72,11 +72,6 @@ Debian Policy Manual and referenced texts from the
 package) this package complies to.
 
 .TP
-.BR DM\-Upload\-Allowed: " \fByes\fP|\fBno\fP"
-This field indicates whether the package can be uploaded by Debian Maintainers
-appearing in the Maintainer or Uploaders field. The default value is "no".
-
-.TP
 .BI Homepage: " url"
 The upstream project home page URL.
 
@@ -87,7 +82,21 @@ used format is \fIbts-type\fP\fB://\fP\fIbts-address\fP, like
 \fBdebbugs://bugs.debian.org\fP. This field is usually not needed.
 
 .TP
-.BI Vcs\-*: " url"
+.BI Vcs\-Arch: " url"
+.TQ
+.BI Vcs\-Bzr: " url"
+.TQ
+.BI Vcs\-Cvs: " url"
+.TQ
+.BI Vcs\-Darcs: " url"
+.TQ
+.BI Vcs\-Git: " url"
+.TQ
+.BI Vcs\-Hg: " url"
+.TQ
+.BI Vcs\-Mtn: " url"
+.TQ
+.BI Vcs\-Svn: " url"
 The \fIurl\fP of the Version Control System repository used to maintain this
 package. Currently supported are \fBArch\fP, \fBBzr\fP (Bazaar), \fBCvs\fP,
 \fBDarcs\fP, \fBGit\fP, \fBHg\fP (Mercurial), \fBMtn\fP (Monotone) and
@@ -136,8 +145,8 @@ for source-only builds.
 .BI Build\-Depends\-Arch: " package list"
 Same as \fBBuild\-Depends\fP, but they are only needed when building the
 architecture dependent packages. The \fBBuild\-Depends\fP are also
-installed in this case. This field was introduced in dpkg version
-1.16.4; in order to build with older dpkg versions, \fBBuild\-Depends\fP
+installed in this case. This field is supported since dpkg 1.16.4; in
+order to build with older dpkg versions, \fBBuild\-Depends\fP
 should be used instead.
 
 .TP
@@ -158,7 +167,7 @@ used for source-only builds.
 .TP
 .BI Build\-Conflicts\-Arch: " package list"
 Same as \fBBuild\-Conflicts\fP, but only when building the architecture
-dependent packages. This field was introduced in dpkg version 1.16.4; in
+dependent packages. This field is supported since dpkg 1.16.4; in
 order to build with older dpkg versions, \fBBuild\-Conflicts\fP should
 be used instead.
 
@@ -177,8 +186,9 @@ fields is a list of groups of alternative packages. Each group is a list
 of packages separated by vertical bar (or "pipe") symbols, "|". The
 groups are separated by commas. Commas are to be read as "AND", and pipes
 as "OR", with pipes binding more tightly. Each package name is
-optionally followed by a version number specification in parentheses and an
-architecture specification in square brackets.
+optionally followed by a version number specification in parentheses, an
+architecture specification in square brackets, and a profile specification
+in angle brackets.
 
 The syntax of the
 .BR Build\-Conflicts ,
@@ -188,7 +198,8 @@ and
 fields is a list of comma-separated package names, where the comma is read
 as an "AND". Specifying alternative packages using a "pipe" is not supported.
 Each package name is optionally followed by a version number specification in
-parentheses and an architecture specification in square brackets.
+parentheses, an architecture specification in square brackets, and a profile
+specification in angle brackets.
 
 A version number may start with a ">>", in which case any later version
 will match, and may specify or omit the Debian packaging revision (separated
@@ -196,9 +207,13 @@ by a hyphen). Accepted version relationships are ">>" for greater than,
 "<<" for less than, ">=" for greater than or equal to, "<=" for less than
 or equal to, and "=" for equal to.
 
-A architecture specification consists of one or more architecture names,
+An architecture specification consists of one or more architecture names,
 separated by whitespace. Exclamation marks may be prepended to each of the
 names, meaning "NOT".
+
+A profile specification consists of one or more profile names, prefixed
+with the "\fBprofile.\fP" namespace, separated by whitespace. Exclamation
+marks may be prepended to each of the names, meaning "NOT".
 
 Note that dependencies on packages in the
 .B build\-essential
@@ -242,13 +257,10 @@ packages used by the debian installer. "deb" is the default value, it's
 assumed if the field is absent. More types might be added in the future.
 
 .TP
-.PD 0
 .BI Subarchitecture: " value"
-.TP
-.PD 0
+.TQ
 .BI Kernel\-Version: " value"
-.TP
-.PD 0
+.TQ
 .BI Installer\-Menu\-Item: " value"
 These fields are used by the debian\-installer and are usually not needed.
 See /usr/share/doc/debian\-installer/devel/modules.txt from the
@@ -256,16 +268,12 @@ See /usr/share/doc/debian\-installer/devel/modules.txt from the
 package for more details about them.
 
 .TP
-.PD 0
 .BR Essential: " \fByes\fP|\fBno\fP"
-.TP
-.PD 0
-.BR Multi\-Arch: " \fBsame\fP|\fBforeign\fP|\fBallowed\fP"
-.TP
-.PD 0
+.TQ
+.BR Multi\-Arch: " \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP"
+.TQ
 .BI Tag: " tag-list"
-.TP
-.PD 0
+.TQ
 .BR Description: " \fIshort-description\fP (required)"
 These fields are described in the
 .BR deb\-control (5)
@@ -273,36 +281,25 @@ manual page, as they are copied literally to the control file of the binary
 package.
 
 .TP
-.PD 0
 .BI Depends: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Pre\-Depends: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Recommends: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Suggests: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Breaks: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Enhances: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Replaces: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Conflicts: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Provides: " package-list"
-.TP
-.PD 0
+.TQ
 .BI Built\-Using: " package-list"
-.br
 These fields declare relationships between packages. They are discussed in
 the
 .BR deb\-control (5)
@@ -342,9 +339,9 @@ Priority: required
 Maintainer: Dpkg Developers <debian\-dpkg@lists.debian.org>
 # this field is copied to the binary and source packages
 XBS\-Upstream\-Release\-Status: stable
-Homepage: http://wiki.debian.org/Teams/Dpkg
-Vcs\-Browser: http://git.debian.org/?p=dpkg/dpkg.git
-Vcs\-Git: git://git.debian.org/git/dpkg/dpkg.git
+Homepage: https://wiki.debian.org/Teams/Dpkg
+Vcs\-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
+Vcs\-Git: git://anonscm.debian.org/dpkg/dpkg.git
 Standards\-Version: 3.7.3
 Build\-Depends: pkg\-config, debhelper (>= 4.1.81),
  libselinux1\-dev (>= 1.28\-4) [!linux\-any]

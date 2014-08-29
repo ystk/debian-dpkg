@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -26,9 +26,11 @@
 dselect.cfg \- dselect の設定ファイル
 .
 .SH 説明
-このファイルには、dselect のデフォルトのオプションが格納される。各行には、先頭のダッシュが不要なことを除き、dselect
-の通常のコマンドラインオプションとまったく同一のオプションを 1 つ記述する。オプションの値を囲むクオートも削除される。ハッシュ記号 ("\fB#\fP")
-からはじまる行はコメント行と見なされる。
+This file contains default options for dselect. Each line contains a single
+option which is exactly the same as a normal command line option for dselect
+except for the leading hyphens which are not used here. Quotes surrounding
+option values are stripped. Comments are allowed by starting a line with a
+hash sign ("\fB#\fP").
 .
 .SH ファイル
 \fI/etc/dpkg/dselect.cfg.d/[0\-9a\-zA\-Z_\-]*\fP

@@ -13,7 +13,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -39,10 +39,9 @@ Koñczy siê zwracaj±c \fB0\fP je¶li aktualny twórca to \fItwórca\fP. W przeciwnym
 wypadku koñczy siê zwracaj±c warto¶æ ró¿n± od zera.
 .TP 
 \fB\-\-derives\-from\fP\fI twórca\fP
-Koñczy siê zwracaj±c \fB0\fP je¶li aktualna dystrybucja twórcy jest pochodn±
-podanego \fItwórcy\fP, w przeciwnym wypadku koñczy siê zwracaj±c warto¶æ ró¿n±
-od zera. U¿ywa pola "Parent" aby zbadaæ wszystkich przodków bie¿±cego
-twórcy.
+Exits with \fB0\fP if the current vendor distribution is a derivative of
+\fIvendor\fP, otherwise exits with non\-zero. It uses the \fBParent\fP field to
+browse all ancestors of the current vendor.
 .TP 
 \fB\-\-query\fP\fI pole\fP
 Wy¶wietla na standardowym wyj¶ciu warto¶æ okre¶lonego \fIpola\fP odczytanego z
@@ -68,7 +67,7 @@ twórca zostanie okre¶lony poprzez odczytanie z \fB/etc/dpkg/origins/default\fP.
 .
 .SH "ZOBACZ TAK¯E"
 \fBdeb\-origin\fP(5).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

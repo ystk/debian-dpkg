@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 2012\-05\-04 "Projekt Debian" "programy pomocnicze dpkg"
+.TH dpkg\-parsechangelog 1 2013\-07\-06 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 dpkg\-parsechangelog \- przetwarza pliki dzienników zmian Debiana
 .
@@ -39,8 +39,8 @@ wyj¶ciu w postaci czytelnej dla maszyny.
 .SH OPCJE
 .TP 
 \fB\-l\fP\fIplik\-dziennika\-zmian\fP
-Okre¶la dziennik zmian, z którego bêd± czytane informacje. Domy¶lnym plikiem
-jest \fBdebian/changelog\fP.
+Specifies the changelog file to read information from. A '\-' can be used to
+specify reading from standard input. The default is \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIformat\-dziennika\-zmian\fP
 Okre¶la format dziennika zmian. Domy¶lnie format jest czytany ze specjalnej
@@ -54,15 +54,26 @@ parsera. Katalog ten jest przeszukiwany przed domy¶lnymi katalogami, którymi
 obecnie s± \fB/usr/local/lib/dpkg/parsechangelog\fP oraz
 \fB/usr/lib/dpkg/parsechangelog\fP.
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIfield\fP
+Specifies the name of the field to show (since dpkg 1.17.0).  The field name
+is not printed, only its value.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Wy¶wietla informacjê o u¿ytkowaniu i koñczy dzia³anie.
 .TP 
 \fB\-\-version\fP
 Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
 .SS "Opcje parsera"
-Poni¿sze opcje mog± byæ u¿yte do wp³ywania na parser dziennika zmian, np. na
-zakres wpisów lub format wyj¶cia. Powinny byæ obs³ugiwane przez skrypty
-parsera. Patrz tak¿e \fBOSTRZE¯ENIA\fP.
+The following options can be used to influence the output of the changelog
+parser, e.g. the range of entries or the format of the output. They need to
+be supported by the parser script in question. See also \fBNOTES\fP.
+.TP 
+\fB\-\-file\fP\fI file\fP
+Set the changelog filename to parse. Default is '\-' (standard input).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIfile\fP
+Set the name of the changelog file to use in error messages, instead of
+using the name from the \fB\-\-file\fP option, or its default value.
 .TP 
 \fB\-\-format\fP\fI format\-wyj¶ciowy\fP
 Ustawia format wyj¶cia. Obecnie wspieranymi warto¶ciami s± \fIdpkg\fP oraz
@@ -125,8 +136,8 @@ do³±cza \fIliczba\fP wpisów z pocz±tku pliku (lub z jego koñca, gdy \fIliczba\fP
 jest mniejsza od zera).
 .TP 
 \fB\-\-offset\fP \fIliczba\fP, \fB\-o\fP\fIliczba\fP
-zmienia punkt pocz±tkowy dla opcji \-\-count, licz±c od pocz±tku pliku (lub od
-jego koñca, je¶li \fIliczba\fP jest mniejsza od zera).
+change the starting point for \fB\-\-count\fP, counted from the top (or the tail
+if \fInumber\fP is lower than 0).
 .TP 
 \fB\-\-all\fP
 uwzglêdnia wszystkie zmiany. Uwaga: inne opcje nie odnosz± skutku, gdy ta
@@ -173,10 +184,10 @@ prawdopodobnie niepoprawne wyniki.
 
 Parser dziennika zmian mo¿e nie prowadziæ z u¿ytkownikiem ¿adnej interakcji.
 .
-.SH OSTRZE¯ENIA
-Wszystkie \fBopcje parsera\fP, z wyj±tkiem \-v, s± obs³ugiwane przez \fBdpkg\fP od
-wersji 1.14.16. Zewnêtrzne parsery dzienników zmian w formatach innych ni¿
-\fIdebian\fP mog± nie obs³ugiwaæ wszystkich opcji.
+.SH UWAGI
+All \fBParser Options\fP except for \fB\-v\fP are only supported since dpkg
+1.14.16. Third party parsers for changelog formats other than \fIdebian\fP
+might not support all options.
 .
 .SH PLIKI
 .TP 
@@ -184,7 +195,7 @@ wersji 1.14.16. Zewnêtrzne parsery dzienników zmian w formatach innych ni¿
 Dziennik zmian jest u¿ywany do pozyskania informacji o pakiecie ¼ród³owym
 zale¿nych od jego wersji, takich jak wa¿no¶æ i dystrybucja wydania, zmiany
 dokonane po okre¶lonym wydaniu, oraz numer wersji pakietu.
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

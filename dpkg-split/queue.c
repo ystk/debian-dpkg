@@ -3,7 +3,7 @@
  * queue.c - queue management
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -83,11 +83,13 @@ decompose_filename(const char *filename, struct partqueue *pq)
   return true;
 }
 
-void scandepot(void) {
+static struct partqueue *
+scandepot(void)
+{
   DIR *depot;
   struct dirent *de;
+  struct partqueue *queue = NULL;
 
-  assert(!queue);
   depot = opendir(opt_depotdir);
   if (!depot)
     ohshite(_("unable to read depot directory `%.250s'"), opt_depotdir);
@@ -115,6 +117,8 @@ void scandepot(void) {
     queue= pq;
   }
   closedir(depot);
+
+  return queue;
 }
 
 static bool
@@ -131,6 +135,7 @@ do_auto(const char *const *argv)
 {
   const char *partfile;
   struct partinfo *refi, **partlist, *otherthispart;
+  struct partqueue *queue;
   struct partqueue *pq;
   unsigned int i;
   int j;
@@ -138,7 +143,8 @@ do_auto(const char *const *argv)
 
   if (!opt_outputfile)
     badusage(_("--auto requires the use of the --output option"));
-  if (!(partfile= *argv++) || *argv)
+  partfile = *argv++;
+  if (partfile == NULL || *argv)
     badusage(_("--auto requires exactly one part file argument"));
 
   refi= nfmalloc(sizeof(struct partqueue));
@@ -151,7 +157,8 @@ do_auto(const char *const *argv)
     return 1;
   }
   fclose(part);
-  scandepot();
+
+  queue = scandepot();
   partlist= nfmalloc(sizeof(struct partinfo*)*refi->maxpartn);
   for (i = 0; i < refi->maxpartn; i++)
     partlist[i] = NULL;
@@ -232,6 +239,7 @@ do_auto(const char *const *argv)
 int
 do_queue(const char *const *argv)
 {
+  struct partqueue *queue;
   struct partqueue *pq;
   const char *head;
   struct stat stab;
@@ -239,7 +247,8 @@ do_queue(const char *const *argv)
 
   if (*argv)
     badusage(_("--%s takes no arguments"), cipaction->olong);
-  scandepot();
+
+  queue = scandepot();
 
   head= N_("Junk files left around in the depot directory:\n");
   for (pq= queue; pq; pq= pq->nextinqueue) {
@@ -291,23 +300,30 @@ do_queue(const char *const *argv)
   return 0;
 }
 
-enum discardwhich { ds_junk, ds_package, ds_all };
+enum discard_which {
+  DISCARD_PART_JUNK,
+  DISCARD_PART_PACKAGE,
+  DISCARD_PART_ALL,
+};
 
-static void discardsome(enum discardwhich which, const char *package) {
+static void
+discard_parts(struct partqueue *queue, enum discard_which which,
+              const char *package)
+{
   struct partqueue *pq;
 
   for (pq= queue; pq; pq= pq->nextinqueue) {
     switch (which) {
-    case ds_junk:
+    case DISCARD_PART_JUNK:
       if (pq->info.md5sum) continue;
       break;
-    case ds_package:
+    case DISCARD_PART_PACKAGE:
       if (!pq->info.md5sum || strcasecmp(pq->info.package,package)) continue;
       break;
-    case ds_all:
+    case DISCARD_PART_ALL:
       break;
     default:
-      internerr("unknown discardwhich '%d'", which);
+      internerr("unknown discard_which '%d'", which);
     }
     if (unlink(pq->info.filename))
       ohshite(_("unable to discard `%.250s'"),pq->info.filename);
@@ -319,17 +335,19 @@ int
 do_discard(const char *const *argv)
 {
   const char *thisarg;
+  struct partqueue *queue;
   struct partqueue *pq;
 
-  scandepot();
+  queue = scandepot();
   if (*argv) {
     for (pq= queue; pq; pq= pq->nextinqueue)
       if (pq->info.md5sum)
         mustgetpartinfo(pq->info.filename,&pq->info);
-    discardsome(ds_junk,NULL);
-    while ((thisarg= *argv++)) discardsome(ds_package,thisarg);
+    discard_parts(queue, DISCARD_PART_JUNK, NULL);
+    while ((thisarg = *argv++))
+      discard_parts(queue, DISCARD_PART_PACKAGE, thisarg);
   } else {
-    discardsome(ds_all,NULL);
+    discard_parts(queue, DISCARD_PART_ALL, NULL);
   }
 
   return 0;

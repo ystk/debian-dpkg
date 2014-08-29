@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -274,6 +274,15 @@ Visa fler kommentarer om vad \fBupdate\-alternatives\fP gör.
 \fB\-\-quiet\fP
 Skriv inte några kommentarer såvida det inte uppstår ett fel.
 .
+.SH RETURVÄRDE
+.TP 
+\fB0\fP
+Den önskade funktionen utfördes utan fel.
+.TP 
+\fB2\fP
+Problem uppstod vid tolkning av kommandoraden eller när funktionen skulle
+utföras.
+.
 .SH MILJÖVARIABLER
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -288,15 +297,6 @@ Den förvalda alternativkatalogen. Kan överstyras med flaggan \fB\-\-altdir\fP.
 \fI/var/lib/dpkg/alternatives/\fP
 Den förvalda administrativa katalogen. Kan överstyras med flaggan
 \fB\-\-admindir\fP.
-.
-.SH RETURVÄRDE
-.TP 
-\fB0\fP
-Den önskade funktionen utfördes utan fel.
-.TP 
-\fB2\fP
-Problem uppstod vid tolkning av kommandoraden eller när funktionen skulle
-utföras.
 .
 .SH FRÅGEFORMAT
 Formatet för \fBupdate\-alternatives \-\-query\fP använder ett RFC822\-liknande
@@ -338,10 +338,10 @@ Sökväg till alternativet som beskrivs i blocket.
 Värdet för prioriteten på alternativet.
 .TP 
 \fBSlaves:\fP\fI lista\-över\-slavar\fP
-När denna rubrik är tillgänglig innehåller \fBnext\fP\-raderna alla
-slavalternativ som kopplas till huvudlänken för alternativet. Varje rad
-beskriver en slav. Varje rad innehåller ett blanksteg, det generiska namnet
-på slavalternativet, ytterligare ett blanksteg, och sökvägen till
+När detta fält anges innehåller \fBnext\fP\-raderna alla slavalternativ som
+kopplas till huvudlänken för alternativet. Varje rad beskriver en
+slav. Varje rad innehåller ett blanksteg, det generiska namnet på
+slavalternativet, ytterligare ett blanksteg, och sökvägen till
 slavalternativet.
 .
 .TP 
@@ -409,15 +409,7 @@ detta som root:
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
-.SH PROGRAMFEL
-Om du hittar ett fel ber vi dig rapportera det via Debians
-felrapporteringssystem.
-.PP
-Om du hittar några diskrepanser mellan vad \fBupdate\-alternatives\fP gör och
-vad som står i manualsidan så är detta ett fel, antingen i implementationen
-eller i dokumentationen; rapportera det.
-.
 .SH "SE ÄVEN"
 \fBln\fP(1), FHS, Filesystem Hierarchy Standard.
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -91,15 +91,15 @@ paquet.
 La \fIpartie\fP déclarée est examinée et comparée avec les autres parties du
 même paquet qui se trouvent (si elles existent) dans la file.
 
-Quand toutes les parties d'un fichier (auquel appartient la partie \fIpart\fP)
-sont présentes, le fichier est recomposé et créé en tant que
+Quand toutes les parties d'un fichier (auquel appartient la partie
+\fIpartie\fP) sont présentes, le fichier est recomposé et créé en tant que
 \fIfichier\-complet\fP (ce fichier ne devrait pas déjà exister, mais ce n'est
 pas une erreur).
 
-Quand ce n'est pas le cas, la partie \fIpart\fP est mise dans la file et le
+Quand ce n'est pas le cas, la partie \fIpartie\fP est mise dans la file et le
 fichier \fIfichier\-complet\fP n'est pas créé.
 
-Quand la partie \fIpart\fP n'appartient pas à un paquet binaire décomposé,
+Quand la \fIpartie\fP n'appartient pas à un paquet binaire décomposé,
 \fBdpkg\-split\fP se termine avec un code de sortie égal à \fB1\fP\ ; s'il y a une
 autre erreur, c'est un code de sortie égal à \fB2\fP.
 
@@ -161,7 +161,7 @@ soit celui donné comme argument\ : les caractères alphanumériques sont en
 minuscules, les signes plus sont remplacés par des \fBx\fP et tous les autres
 caractères sont abandonnés.
 
-le résultat est alors tronqué autant que nécessaire et des fichiers de la
+Le résultat est alors tronqué autant que nécessaire et des fichiers de la
 forme\ : \fIprefixN\fP\fBof\fP\fIM\fP\fB.deb\fP sont créés.
 .
 .SH "CODE DE SORTIE"
@@ -180,13 +180,6 @@ Signale des problèmes, comme l'échec d'un appel système, ou un fichier qui,
 bien que ressemblant à une partie de fichier, est défectueux, ou bien une
 erreur d'utilisation, etc.
 .
-.SH BOGUES
-On ne peut pas obtenir tous les détails voulus sur les paquets présents dans
-la file à moins d'aller voir soi\-même dans le répertoire de la file.
-
-On ne peut pas facilement savoir si un fichier est vraiment la partie d'un
-paquet binaire ou non.
-.
 .SH FICHIERS
 .TP 
 \fI/var/lib/dpkg/parts\fP
@@ -197,6 +190,13 @@ Les noms de fichiers utilisés dans ce répertoire sont dans un format
 particulier à \fBdpkg\-split\fP et ne sont sans doute pas utiles pour d'autres
 programmes\ ; en tous cas on ne peut pas compter sur ce format de nom de
 fichier.
+.
+.SH BOGUES
+On ne peut pas obtenir tous les détails voulus sur les paquets présents dans
+la file à moins d'aller voir soi\-même dans le répertoire de la file.
+
+On ne peut pas facilement savoir si un fichier est vraiment la partie d'un
+paquet binaire ou non.
 .
 .SH "VOIR AUSSI"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).

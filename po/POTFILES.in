@@ -15,11 +15,12 @@ lib/dpkg/ehandle.c
 lib/dpkg/fields.c
 lib/dpkg/file.c
 lib/dpkg/glob.c
+lib/dpkg/i18n.c
 lib/dpkg/log.c
-lib/dpkg/md5.c
 lib/dpkg/mlib.c
 lib/dpkg/nfmalloc.c
 lib/dpkg/options.c
+lib/dpkg/options-parsers.c
 lib/dpkg/parse.c
 lib/dpkg/parsehelp.c
 lib/dpkg/path.c
@@ -34,6 +35,7 @@ lib/dpkg/pkg-spec.c
 lib/dpkg/progress.c
 lib/dpkg/report.c
 lib/dpkg/string.c
+lib/dpkg/strwide.c
 lib/dpkg/subproc.c
 lib/dpkg/tarfn.c
 lib/dpkg/trigdeferred.l
@@ -52,13 +54,13 @@ src/divertdb.c
 src/enquiry.c
 src/errors.c
 src/filesdb.c
+src/filesdb-hash.c
 src/help.c
 src/infodb-access.c
 src/infodb-format.c
 src/infodb-upgrade.c
 src/main.c
 src/packages.c
-src/processarc.c
 src/querycmd.c
 src/remove.c
 src/script.c
@@ -67,6 +69,7 @@ src/statcmd.c
 src/statdb.c
 src/trigcmd.c
 src/trigproc.c
+src/unpack.c
 src/update.c
 
 dpkg-deb/build.c

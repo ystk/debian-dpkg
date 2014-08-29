@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -218,6 +218,14 @@ automatic モードで適切に設定されている選択肢について、設定の確認を行わない。この
 \fB\-\-quiet\fP
 エラー以外のコメントを出力しない。
 .
+.SH 終了ステータス
+.TP 
+\fB0\fP
+指定したアクションが正しく実行された。
+.TP 
+\fB2\fP
+コマンドラインの解釈か、アクションの実行時に問題が発生した。
+.
 .SH 環境変数
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -231,14 +239,6 @@ automatic モードで適切に設定されている選択肢について、設定の確認を行わない。この
 .TP 
 \fI/var/lib/dpkg/alternatives/\fP
 デフォルトの administration ディレクトリ。 \fB\-\-admindir\fP オプションによって変更できる。
-.
-.SH 終了ステータス
-.TP 
-\fB0\fP
-指定したアクションが正しく実行された。
-.TP 
-\fB2\fP
-コマンドラインの解釈か、アクションの実行時に問題が発生した。
 .
 .SH "QUERY FORMAT"
 \fBupdate\-alternatives \-\-query\fP の形式としては、RFC822 に似たフラットなものが使用されている。これは \fIn\fP +
@@ -275,7 +275,7 @@ alternative ディレクトリに存在する選択肢の名前
 この選択肢の priority の値。
 .TP 
 \fBSlaves:\fP\fI list\-of\-slaves\fP
-When this header is present, the \fBnext\fP lines hold all slave alternatives
+When this field is present, the \fBnext\fP lines hold all slave alternatives
 associated to the master link of the alternative. There is one slave per
 line. Each line contains one space, the generic name of the slave
 alternative, another space, and the path to the slave alternative.
@@ -338,12 +338,6 @@ Slaves:
 .PP
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
-.
-.SH バグ
-バグを見つけた場合、 Debian バグ追跡システムを使って報告してほしい。
-.PP
-\fBupdate\-alternatives\fP
-の動作とこのマニュアルページの記述に矛盾があれば、実装かドキュメントどちらかのバグである。報告をお願いしたい。
 .
 .SH 関連項目
 \fBln\fP(1), FHS, the Filesystem Hierarchy Standard.

@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -66,15 +66,21 @@ por lo que muchos paquetes aparecerán como parte de «no\-section» (sin
 sección). Utilice esta opción con cuidado, es algo delicada.
 .TP 
 \fB\-c\fP, \fB\-\-create\-dir\fP
-Esta opción se puede utilizar junto con la opción «\-s». Si no se encuentra
-ningún directorio de destino, se creará automáticamente. \fBUse esta opción
-con cuidado.\fP
+This option can used together with the \fB\-s\fP option. If a target directory
+isn't found it will be created automatically.  \fBUse this option with care.\fP
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Muestra el modo de uso y termina.
 .TP 
 \fB\-v\fP, \fB\-\-version\fP
 Muestra la versión y termina.
+.
+.SH FALLOS
+Some packages don't follow the name structure
+\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.deb\fP.  Packages renamed by
+\fBdpkg\-name\fP will follow this structure. Generally this will have no impact
+on how packages are installed by \fBdselect\fP(1)/\fBdpkg\fP(1), but other
+installation tools might depend on this naming structure.
 .
 .SH EJEMPLOS
 .TP 
@@ -84,9 +90,9 @@ El fichero «bar\-foo.deb» se renombrará a «bar\-foo_1.0\-2_i386.deb» o similar
 «bar\-foo.deb»).
 .TP 
 \fBfind /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a\fPç
-dpkg\-name renombrará todos los ficheros con la extensión «.deb» dentro del
-directorio «/root/debian» y sus subdirectorios, en caso de ser necesario, a
-nombres sin información de arquitectura.
+All files with the extension `deb' in the directory /root/debian and its
+subdirectory's will be renamed by \fBdpkg\-name\fP if required into names with
+no architecture information.
 .TP 
 \fBfind \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c\fP
 \fBNo haga esto.\fP Su archivo se corromperá completamente debido a que una
@@ -96,18 +102,10 @@ esto.\fP
 \fBdpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb\fP
 Puede utilizar esto al construir paquetes nuevos.
 .
-.SH FALLOS
-Algunos paquetes no siguen la misma estructura nombre
-\fIpaquete\fP\fB_\fP\fIversión\fP\fB_\fP\fIarquitectura\fP\fB.deb\fP. Los paquetes que
-dpkg\-name renombre seguirán esta estructura. Generalmente esto no tendrá
-ningún efecto en la instalación de paquetes por \fBdselect\fP(1)/ \fBdpkg\fP(1),
-aunque otras herramientas de instalación podrían depender de esta
-estructura.
-.
 .SH "VÉASE TAMBIÉN"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1), \fBfind\fP(1),
 \fBxargs\fP(1).
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

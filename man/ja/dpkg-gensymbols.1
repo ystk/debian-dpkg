@@ -2,6 +2,7 @@
 .\"
 .\" Copyright 息 2007-2011 Rapha谷l Hertzog <hertzog@debian.org>
 .\" Copyright 息 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\" Copyright 息 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gensymbols 1 2012\-04\-22 "Debian Project" "dpkg ユーティリティ"
+.TH dpkg\-gensymbols 1 2013\-09\-06 "Debian Project" "dpkg ユーティリティ"
 .SH 名前
 dpkg\-gensymbols \- シンボルファイル (共有ライブラリの依存情報) の生成
 .
@@ -44,25 +45,44 @@ debian/\fIpackage\fP.symbols
 .IP \(bu 4
 debian/symbols
 .P
-これらのファイルの主要な目的は、ライブラリが提供する各シンボルに対応づけられた最小バージョンの情報を提供することである。通常、これはシンボルを提供するパッケージの最初のバージョンに一致するが、シンボルの
-ABI
-が後方互換性を損なわずに拡張可能であれば、メンテナによって手動で増加させることも可能である。これらのファイルを更新して維持するのはメンテナの責任であるが、\fBdpkg\-gensymbols\fP
-も役に立つ。
+The main interest of those files is to provide the minimal version
+associated to each symbol provided by the libraries. Usually it corresponds
+to the first version of that package that provided the symbol, but it can be
+manually incremented by the maintainer if the ABI of the symbol is extended
+without breaking backwards compatibility. It's the responsibility of the
+maintainer to keep those files up\-to\-date and accurate, but
+\fBdpkg\-gensymbols\fP helps with that.
 .P
 生成されたシンボルファイルがメンテナが提供するものと異なっていた場合、\fBdpkg\-gensymbols\fP
 は双方の差分を表示する。相違点が大量の場合は、処理を失敗させる (どの程度の量を大量と見なすかについては調整可能である。\fB\-c\fP
 オプションを参照のこと)。
 .SH シンボルファイルのメンテナンス
-シンボルファイルは、リリースを重ねることによるパッケージの進化に追従してこそ、はじめて有益なものとなる。つまり、メンテナは新しいシンボルが追加される度にファイルを更新し、これにより関連付けられた最小のバージョンを実態に即したものとする必要がある。この作業を適切に行うために、ビルドのログに含まれる差分情報を使用することができる。大半の場合、差分情報は直接
-debian/\fIpackage\fP.symbols
-ファイルに適用することができる。しかしながら、通常は更に細かい調整が必要となる。例えば最小バージョンから Debian
-リビジョンを削除することにより、アップストリームのバージョンが同一だが、バックポートにはより小さいバージョン番号が付与されているケースでも、生成された依存関係を満たすことができる。シンボルが
-Debian 固有の変更により追加されたものであり、Debian リビジョンを削除することができない場合は、バージョンに続く "~" の後に記載する。
+The symbols files are really useful only if they reflect the evolution of
+the package through several releases. Thus the maintainer has to update them
+every time that a new symbol is added so that its associated minimal version
+matches reality.  The diffs contained in the build logs can be used as a
+starting point, but the maintainer, additionally, has to make sure that the
+behaviour of those symbols has not changed in a way that would make anything
+using those symbols and linking against the new version, stop working with
+the old version.  In most cases, the diff applies directly to the
+debian/\fIpackage\fP.symbols file. That said, further tweaks are usually
+needed: it's recommended for example to drop the Debian revision from the
+minimal version so that backports with a lower version number but the same
+upstream version still satisfy the generated dependencies.  If the Debian
+revision can't be dropped because the symbol really got added by the Debian
+specific change, then one should suffix the version with "~".
 .P
 シンボルファイルに何らかのパッチを適用する前に、メンテナは本当にそれが必要かどうかを再度確認すること。公開シンボルが削除されることは想定されていないため、パッチは新しい行を追加するだけに留めるのが理想である。
 .P
 シンボルファイルにコメントを記載することもできる。'#' から始まる行は'#include' (\fBUsing includes\fP セクションを参照)
 から始まる場合をのぞき、コメントと見なされる。'#MISSING:' から始まる行は、なくなったシンボルについて記載された特別なコメントを意味する。
+.P
+Do not forget to check if old symbol versions need to be increased.  There
+is no way \fBdpkg\-gensymbols\fP can warn about this. Blindly applying the diff
+or assuming there is nothing to change if there is no diff, without checking
+for such changes, can lead to packages with loose dependencies that claim
+they can work with older packages they cannot work with. This will introduce
+hard to find bugs with (partial)  upgrades.
 .SS "#PACKAGE# 置換の使用"
 .P
 稀ではあるが、アーキテクチャによってライブラリ名が異なる場合がある。シンボルファイルにパッケージ名をハードコードすることを避けるため、\fI#PACKAGE#\fP
@@ -70,8 +90,11 @@ Debian 固有の変更により追加されたものであり、Debian リビジョンを削除することがで
 マークと異なり、\fI#PACKAGE#\fP がバイナリパッケージ内のシンボルファイルに現れることは決してない。
 .SS シンボルタグの使用
 .P
-シンボルタグは何らかの意味で特別なシンボルを識別する際に有用である。シンボルには任意の数のタグを関連付けることができる。すべてのタグが解析されて保存されるが、\fBdpkg\-gensymbols\fP
-が認識し、シンボルに対して特殊な扱いを行うものは、その一部のみである。これらのタグについての詳細は、\fB標準シンボルタグ\fP サブセクションを参照のこと。
+Symbol tagging is useful for marking symbols that are special in some way.
+Any symbol can have an arbitrary number of tags associated with it. While
+all tags are parsed and stored, only some of them are understood by
+\fBdpkg\-gensymbols\fP and trigger special handling of the symbols. See
+subsection \fBStandard symbol tags\fP for reference of these tags.
 .P
 タグはシンボル名の前に設置され (空白文字を間にいれることはできない)、\fB(\fP から始まり\fB)\fP で終わり、間に最低 1
 つのタグを記載する必要がある。複数のタグは \fB|\fP 文字で区切る。各タグには、タグ名との間を \fB=\fP
@@ -88,12 +111,16 @@ Debian 固有の変更により追加されたものであり、Debian リビジョンを削除することがで
 \fItagged_unquoted_symbol\fP という名前で \fIoptional\fP
 という名前のタグが設定されている。最後のシンボルは一般的なタグのないシンボルの例である。
 .P
-シンボルタグは \fIdeb\-symbols(5)\fP
-形式の拡張であるため、これらは、ソースパッケージで用いられるシンボルファイルの一部分として扱う必要がある
-(これらのファイルはバイナリパッケージに埋め込まれるシンボルファイルをビルドするために使われるテンプレートとして扱われる)。\fBdpkg\-gensymbols\fP
-が \fI\-t\fP オプションなしで呼び出された場合は、\fIdeb\-symbols(5)\fP
-形式と互換性のあるシンボルファイルを出力する。標準タグの制約に則ってシンボルの処理を完全に行い、出力からすべてのタグを削除する。一方、テンプレートモード
-(\fI\-t\fP) の場合、シンボルのすべてとタグ (標準のものもそれ以外のものも) が出力でも保持され、読み取られた時の元々の形式で書き込まれる。
+Since symbol tags are an extension of the \fBdeb\-symbols\fP(5) format, they can
+only be part of the symbols files used in source packages (those files
+should then be seen as templates used to build the symbols files that are
+embedded in binary packages). When \fBdpkg\-gensymbols\fP is called without the
+\fB\-t\fP option, it will output symbols files compatible to the
+\fBdeb\-symbols\fP(5) format: it fully processes symbols according to the
+requirements of their standard tags and strips all tags from the output. On
+the contrary, in template mode (\fB\-t\fP) all symbols and their tags (both
+standard and unknown ones)  are kept in the output and are written in their
+original form as they were loaded.
 .SS 標準シンボルタグ
 .TP 
 \fBoptional\fP
@@ -116,9 +143,11 @@ MISSING として宣言していた optional シンボルが突然次のリビジョンで復活した場合は
 デフォルトの非テンプレートモードで動作する際には、アーキテクチャ固有のシンボルの中で、現在のホストのアーキテクチャに合致するもののみがシンボルファイルに書き込まれる。一方、テンプレートモードで動作している場合は、アーキテクチャ固有のシンボルのすべて
 (異なるアーキテクチャのものも含む) がシンボルファイルに書き込まれる。
 
-\fIarchitecture list\fP の形式は、(ブラケット [] を除き) \fIdebian/control\fP における
-\fIBuild\-Depends\fP フィールドと同じ書式である。下の例における、最初のシンボルは、alpha, any\-amd64, ia64
-アーキテクチャのいずれかであることを示し、2 番目は Linux アーキテクチャを、3 番目は armel 以外のすべてを示す。
+The format of \fIarchitecture list\fP is the same as the one used in the
+\fBBuild\-Depends\fP field of \fIdebian/control\fP (except the enclosing square
+brackets []). For example, the first symbol from the list below will be
+considered only on alpha, any\-amd64 and ia64 architectures, the second only
+on linux architectures, while the third one anywhere except on armel.
 
  (arch=alpha any\-amd64 ia64)a_64bit_specific_symbol@Base 1.0
  (arch=linux\-any)linux_specific_symbol@Base 1.0
@@ -142,15 +171,21 @@ dpkg\-gensymbols
 標準シンボルと異なり、パターンにはライブラリがエクスポートする複数の実シンボルが含まれうる。\fBdpkg\-gensymbols\fP
 は、シンボルファイルによって特定のシンボルと関連付けられて\fIいない\fP各実シンボルについて、パターンとのマッチングを行う。最初にパターンにマッチした時点で、シンボルの基本的な機能として、パターンのタグおよび属性が用いられる。パターンにマッチしなかった場合、そのシンボルは新しいシンボルと見なされる。
 
-ライブラリ内のシンボルと一切マッチしなかったパターンは、消失したと見なされる。これは、\fI\-c1\fP 以上のレベルを指定していた場合、デフォルトで
-\fBdpkg\-gensymbols\fP の停止を引き起こす。停止させたくない場合は、パターンに\fIoptional\fP
-タグを付加することもできる。その場合、パターンが一切マッチしなかった場合でも、差分情報で MISSING
-扱いとなるだけになる。また、他のシンボルと同様、パターンに対しても \fIarch\fP
-タグにより対象のアーキテクチャを限定することが可能である。これに関する詳細な情報は、前述の \fB標準シンボルタグ\fP サブセクションを参照のこと。
+A pattern is considered lost if it does not match any symbol in the
+library. By default this will trigger a \fBdpkg\-gensymbols\fP failure under
+\fB\-c1\fP or higher level. However, if the failure is undesired, the pattern
+may be marked with the \fIoptional\fP tag. Then if the pattern does not match
+anything, it will only appear in the diff as MISSING. Moreover, like any
+symbol, the pattern may be limited to the specific architectures with the
+\fIarch\fP tag. Please refer to \fBStandard symbol tags\fP subsection above for
+more information.
 
-パターンは \fIdeb\-symbols(5)\fP
-を拡張した形式であるため、シンボルファイルのテンプレートでのみ有効である。パターン定義の文法はシンボル定義のものとまったく変わらない。ただし、シンボル名の部分は、実シンボルの\fIname@version\fP
-部分にマッチするような表現になっている。パターンのタイプを判別するために、通常パターンには特別なタグが付けられている。
+Patterns are an extension of the \fBdeb\-symbols\fP(5) format hence they are
+only valid in symbol file templates. Pattern specification syntax is not any
+different from the one of a specific symbol. However, symbol name part of
+the specification serves as an expression to be matched against
+\fIname@version\fP of the real symbol. In order to distinguish among different
+pattern types, a pattern will typically be tagged with a special tag.
 
 現在のところ、\fBdpkg\-gensymbols\fP は 3 つの基本的なパターンタイプをサポートしている:
 .TP  3
@@ -300,24 +335,31 @@ debian/tmp の代わりに \fIpackage\-build\-dir\fP 内を確認する。
 から取得されたバージョンが用いられる。ソースパッケージツリー以外で呼び出された際は必須である。
 .TP 
 \fB\-e\fP\fIlibrary\-file\fP
-すべての公開されているライブラリを探索する代わりに、明示的に指定されたライブラリのみを探索する。\fIlibrary\-file\fP
-に、パス名の展開に使用されるシェルのパターンマッチングを指定することで (詳細は File::Glob マニュアルページを参照のこと)
-、単一の設定で複数のライブラリをマッチさせることもできる (さもなくば \fB\-e\fP を複数回指定する必要がある)。
+Only analyze libraries explicitly listed instead of finding all public
+libraries. You can use shell patterns used for pathname expansions (see the
+\fBFile::Glob\fP(3perl) manual page for details) in \fIlibrary\-file\fP to match
+multiple libraries with a single argument (otherwise you need multiple
+\fB\-e\fP).
 .TP 
 \fB\-I\fP\fIfilename\fP
 \fIfilename\fP を、パッケージに同梱するシンボルファイルを生成する際のリファレンスファイルとして使用する。
 .TP 
-\fB\-O\fP
-生成されたシンボルファイルをパッケージビルドツリーに保存する代わりに標準出力に出力する。
-.TP  
-\fB\-O\fP\fIfilename\fP
-生成されたシンボルファイルを \fIfilename\fP として保存する。\fIfilename\fP
-があらかじめ存在している場合、その内容は生成されるシンボルファイルの元として使われる。この機能を用いてシンボルファイルを更新することで、ライブラリを新しいアップストリームのバージョンに対応させることができる。
+\fB\-O\fP[\fIfilename\fP]
+Print the generated symbols file to standard output or to \fIfilename\fP if
+specified, rather than to \fBdebian/tmp/DEBIAN/symbols\fP (or
+\fIpackage\-build\-dir\fP\fB/DEBIAN/symbols\fP if \fB\-P\fP was used). If \fIfilename\fP is
+pre\-existing, its contents are used as basis for the generated symbols
+file.  You can use this feature to update a symbols file so that it matches
+a newer upstream version of your library.
 .TP 
 \fB\-t\fP
-シンボルファイルを \fIdeb\-symbols(5)\fP
-と互換性のある形式ではなく、テンプレートモードで保存する。両者の主な違いは、テンプレートモードではシンボル名とタグの両方がオリジナルの形式のまま書き出されるのに対し、互換モードでは、処理済みのシンボル名のみが書き出され、タグは削除される点である。さらに、テンプレートモードでは、すべてのシンボルが常にシンボルファイルのテンプレートに書き込まれるのに対し、互換モードでは、シンボルの一部が標準の
-\fIdeb\-symbols(5)\fP ファイルに書き出される際に削除される場合がある (タグの処理ルールによる)。
+Write the symbol file in template mode rather than the format compatible
+with \fBdeb\-symbols\fP(5). The main difference is that in the template mode
+symbol names and tags are written in their original form contrary to the
+post\-processed symbol names with tags stripped in the compatibility mode.
+Moreover, some symbols might be omitted when writing a standard
+\fBdeb\-symbols\fP(5) file (according to the tag processing rules) while all
+symbols are always written to the symbol file template.
 .TP 
 \fB\-c\fP\fI[0\-4]\fP
 生成されたシンボルファイルをベースとして用いたテンプレートファイルと比較する際のチェック項目を定義する。デフォルトのレベルは 1
@@ -325,11 +367,14 @@ debian/tmp の代わりに \fIpackage\-build\-dir\fP 内を確認する。
 は、幾つかのシンボルが消失した場合に失敗となる。レベル 2 は新しいシンボルが出現しても失敗となる。レベル 3
 はライブラリが消失すると失敗となる。レベル 4 はライブラリが出現した場合にも失敗となる。
 
-この値は、環境変数 DPKG_GENSYMBOLS_CHECK_LEVEL により上書きすることができる。
+This value can be overridden by the environment variable
+\fBDPKG_GENSYMBOLS_CHECK_LEVEL\fP.
 .TP 
 \fB\-q\fP
-出力を抑止し、生成されたシンボルファイルとベースとなったテンプレートファイルとの差分を生成せず、新規の、もしくは消失したライブラリや、新規の、もしくは消失したシンボルに関する警告も表示しない。このオプションは情報の出力を抑止するのみであり、チェック自体は行われる
-(\fI\-c\fP オプションも参照のこと)。
+Keep quiet and never generate a diff between generated symbols file and the
+template file used as starting point or show any warnings about new/lost
+libraries or new/lost symbols. This option only disables informational
+output but not the checks themselves (see \fB\-c\fP option).
 .TP 
 \fB\-a\fP\fIarch\fP
 シンボルファイルの処理の際に、\fIarch\fP
@@ -348,11 +393,11 @@ debian/tmp の代わりに \fIpackage\-build\-dir\fP 内を確認する。
 バージョン情報を表示して終了する。
 .
 .SH 関連項目
-\fBhttp://people.redhat.com/drepper/symbol\-versioning\fP
+\fBhttps://people.redhat.com/drepper/symbol\-versioning\fP
 .br
-\fBhttp://people.redhat.com/drepper/goodpractice.pdf\fP
+\fBhttps://people.redhat.com/drepper/goodpractice.pdf\fP
 .br
-\fBhttp://people.redhat.com/drepper/dsohowto.pdf\fP
+\fBhttps://people.redhat.com/drepper/dsohowto.pdf\fP
 .br
 \fBdeb\-symbols\fP(5), \fBdpkg\-shlibdeps\fP(1).
 .SH 翻訳者

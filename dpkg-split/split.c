@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,6 +41,7 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/path.h>
+#include <dpkg/string.h>
 #include <dpkg/subproc.h>
 #include <dpkg/buffer.h>
 #include <dpkg/ar.h>
@@ -154,8 +155,6 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 		last_partsize = partsize;
 	nparts = (st.st_size + partsize - 1) / partsize;
 
-	setvbuf(stdout, NULL, _IONBF, 0);
-
 	printf(P_("Splitting package %s into %d part: ",
 	          "Splitting package %s into %d parts: ", nparts),
 	       package, nparts);
@@ -235,6 +234,10 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 	varbuf_destroy(&partname);
 	varbuf_destroy(&partmagic);
 
+	free(package);
+	free(version);
+	free(arch);
+
 	free(prefixdir);
 	free(msdos_prefix);
 
@@ -257,17 +260,12 @@ do_split(const char *const *argv)
 	if (prefix && *argv)
 		badusage(_("--split takes at most a source filename and destination prefix"));
 	if (!prefix) {
-		char *palloc;
-		int l;
+		size_t sourcefile_len = strlen(sourcefile);
 
-		l = strlen(sourcefile);
-		palloc = nfmalloc(l + 1);
-		strcpy(palloc, sourcefile);
-		if (strcmp(palloc + l - (sizeof(DEBEXT) - 1), DEBEXT) == 0) {
-			l -= (sizeof(DEBEXT) - 1);
-			palloc[l] = '\0';
-		}
-		prefix = palloc;
+		if (str_match_end(sourcefile, DEBEXT))
+			sourcefile_len -= strlen(DEBEXT);
+
+		prefix = nfstrnsave(sourcefile, sourcefile_len);
 	}
 
 	mksplit(sourcefile, prefix, opt_maxpartsize, opt_msdos);

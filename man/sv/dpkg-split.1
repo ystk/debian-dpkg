@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -167,13 +167,6 @@ ett binärpaket.
 Något har gått fel, till exempel ett systemanrop, att en fil såg ut som en
 paketdel men var trasig, ett användningsfel, eller något annat problem.
 .
-.SH PROGRAMFEL
-Kompletta detaljer för paket i kön kan inte fås utan att själv gräva i
-kö\-katalogen.
-
-Det finns inget lätt sätta att testa om en fil som kan vara en del av ett
-binärpaket faktiskt är det.
-.
 .SH FILER
 .TP 
 \fB/var/lib/dpkg/parts\fP
@@ -183,7 +176,14 @@ Filnamnen som används i katalogen är i ett internt format för \fBdpkg\-split\fP
 och är knappast användbara för andra program, och hur som helst kan inte
 formatet på filnamnen litas på.
 .
+.SH PROGRAMFEL
+Kompletta detaljer för paket i kön kan inte fås utan att själv gräva i
+kö\-katalogen.
+
+Det finns inget lätt sätta att testa om en fil som kan vara en del av ett
+binärpaket faktiskt är det.
+.
 .SH "SE ÄVEN"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

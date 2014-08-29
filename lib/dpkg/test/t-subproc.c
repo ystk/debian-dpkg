@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -81,10 +81,12 @@ test(void)
 {
 	int fd;
 
-	/* XXX: Shut up output, we just want the error code. */
+	test_plan(6);
+
+	/* XXX: Shut up stderr, we don't want the error output. */
 	fd = open("/dev/null", O_RDWR);
-	test_pass(fd >= 0);
-	dup2(fd, 1);
+	if (fd < 0)
+		test_bail("cannot open /dev/null");
 	dup2(fd, 2);
 
 	test_subproc_fork();

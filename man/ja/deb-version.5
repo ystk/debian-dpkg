@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-version 5 2011\-08\-14 "Debian Project" Debian
+.TH deb\-version 5 2013\-04\-02 "Debian Project" Debian
 .SH 名前
 deb\-version \- Debian パッケージのバージョン番号の形式
 .
@@ -63,7 +63,7 @@ Debian バイナリおよびソースパッケージで用いられているバージョン番号は、以下の 3 
 dpkg はバージョン番号文字列を、最後のハイフンの前後で \fIupstream\-version\fP と\fIdebian\-revision\fP とに分割する
 (ハイフンがある場合)。\fIdebian\-revision\fP が存在しない場合は、存在する場合よりも小さいとみなされる
 (ただし、debian\-revisionは、バージョン番号を構成する要素のうち、もっとも右の部分であることに留意)。
-.SS ソートアルゴリズム
+.SS "Sorting algorithm"
 パッケージ管理システムは、同じアルゴリズムを用いて \fIupstream\-version\fP や \fIdebian\-revision\fP 同士を比較する。
 .PP
 文字列は左から右に順に比較される。
@@ -81,9 +81,10 @@ dpkg はバージョン番号文字列を、最後のハイフンの前後で \fIupstream\-version\fP と
 epoch
 は、バージョン番号の設定ミスや、バージョン番号の付与体系の変更にうまく対応できるようにする目的で存在する。パッケージ管理システムが解釈できない文字列
 (例えば 'ALPHA' や 'pre\-'など) が含まれているバージョン番号や、明らかにおかしい番号づけに対応することを意図したものでは\fBない\fP。
-.SH 警告
-チルダ文字及びその特殊な意味づけは、dpkg 1.10 から導入されたが、dpkg\-dev の一部機能では、1.10.x
-系列の後期になって、ようやくサポートされた。
+.SH 参考
+The tilde character and its special sorting properties were introduced in
+dpkg 1.10 and some parts of the dpkg build scripts only gained support for
+it later in the 1.10.x series.
 .SH 関連項目
 \fBdeb\-control\fP(5), \fBdeb\fP(5), \fBdpkg\fP(1)
 .SH 翻訳者

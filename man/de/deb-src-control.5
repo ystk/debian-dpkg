@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2010 Oxan van Leeuwen <oxan@oxanvanleeuwen.nl>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2011-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -15,15 +15,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-src\-control 5 2012\-06\-16 Debian\-Projekt Debian
-.SH NAME
+.TH deb\-src\-control 5 2013\-12\-20 Debian\-Projekt Debian
+.SH BEZEICHNUNG
 deb\-src\-control \- Dateiformat der Hauptsteuerdatei von Debian\-Quellpaketen
 .
 .SH ÜBERSICHT
@@ -73,12 +73,6 @@ Debian\-Richtlinienhandbuch und den aus dem Paket \fBdebian\-policy\fP
 referenzierten Texten besteht), an den sich das Paket hält.
 
 .TP 
-\fBDM\-Upload\-Allowed:\fP \fByes\fP|\fBno\fP
-Dieses Feld gibt an, ob das Paket von einem Debian\-Betreuer, der im Feld
-»Maintainer« oder »Uploader« auftaucht, hochgeladen werden kann. Der
-Standardwert ist »no« (nein).
-
-.TP 
 \fBHomepage:\fP\fI URL\fP
 Die URL des Original\- (Upstream\-)Projekts.
 
@@ -89,7 +83,21 @@ Format ist \fIBTS\-Art\fP\fB://\fP\fIBTS\-Adresse\fP wie in
 \fBdebbugs://bugs.debian.org\fP. Dieses Feld wird normalerweise nicht benötigt.
 
 .TP 
-\fBVcs\-*:\fP \fI URL\fP
+\fBVcs\-Arch*:\fP\fI URL\fP
+.TQ
+\fBVcs\-Bzr:\fP\fI URL\fP
+.TQ
+\fBVcs\-Cvs:\fP\fI URL\fP
+.TQ
+\fBVcs\-Darcs:\fP\fI URL\fP
+.TQ
+\fBVcs\-Git:\fP\fI URL\fP
+.TQ
+\fBVcs\-Hg:\fP\fI URL\fP
+.TQ
+\fBVcs\-Mtn:\fP\fI URL\fP
+.TQ
+\fBVcs\-Svn:\fP\fI URL\fP
 Die \fIURL\fP des Versionskontrollsystem\-Depots, das für die Betreuung des
 Pakets verwandt wird. Derzeit werden \fBArch\fP, \fBBzr\fP (Bazaar), \fBCvs\fP,
 \fBDarcs\fP, \fBGit\fP, \fBHg\fP (Mercurial), \fBMtn\fP (Monotone) und \fBSvn\fP
@@ -97,7 +105,7 @@ Pakets verwandt wird. Derzeit werden \fBArch\fP, \fBBzr\fP (Bazaar), \fBCvs\fP,
 Version des Pakets, wie den Hauptzweig oder den Trunk.
 
 .TP 
-\fBVcs\-Browser:\fP \fI URL\fP
+\fBVcs\-Browser:\fP\fI URL\fP
 Die \fIURL\fP der Webschnittstelle, um das Versionskontrollsystem\-Depot
 anzuschauen.
 
@@ -134,8 +142,8 @@ Quellen\-Bauten verwandt wird.
 \fBBuild\-Depends\-Arch:\fP\fI Paketliste\fP
 Identisch zu \fBBuild\-Depends\fP, wird aber nur zum Bau der
 architekturabhängigen Pakete benötigt. In diesem Fall sind die
-\fBBuild\-Depends\fP auch installiert. Dieses Feld wurde in Dpkg Version 1.16.4
-eingeführt; um mit älteren Dpkg\-Versionen zu bauen, sollte stattdessen
+\fBBuild\-Depends\fP auch installiert. Dieses Feld wurde seit Dpkg 1.16.4
+unterstützt; um mit älteren Dpkg\-Versionen zu bauen, sollte stattdessen
 \fBBuild\-Depends\fP verwandt werden.
 
 .TP 
@@ -156,7 +164,7 @@ Quellen\-Bauten verwandt wird.
 .TP 
 \fBBuild\-Conflicts\-Arch:\fP\fI Paketliste\fP
 Identisch zu \fBBuild\-Conflicts\fP, aber nur beim Bau der architekturabhängigen
-Pakete. Dieses Feld wurde in Dpkg Version 1.16.4 eingeführt; um mit älteren
+Pakete. Dieses Feld wird seit Dpkg 1.16.4 unterstützt; um mit älteren
 Dpkg\-Versionen zu bauen, sollte stattdessen \fBBuild\-Conflicts\fP verwandt
 werden.
 
@@ -172,15 +180,17 @@ Paketen. Jede Gruppe ist eine Liste von durch vertikale Striche (oder
 »Pipe«\-Symbole) »|« getrennten Paketen. Die Gruppen werden durch Kommata
 getrennt. Kommata müssen als »UND«, vertikale Striche als »ODER« gelesen
 werden, wobei die vertikalen Striche stärker binden. Jeder Paketname wird
-optional gefolgt von einer Versionsnummer\-Spezifikation in Klammern und
-einer Architekturspezifikation in eckigen Klammern.
+optional gefolgt von einer Versionsnummer\-Spezifikation in Klammern, einer
+Architekturspezifikation in eckigen Klammern und einer Profilspezifikation
+in spitzen Klammern.
 
 Syntaxtisch werden die Felder \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP
 und \fBBuild\-Conflicts\-Indep\fP durch eine Komma\-separierte Liste von
 Paketnamen dargestellt, wobei das Komma als »UND« verstanden wird. Die
 Angabe alternativer Pakete mit dem »Pipe«\-Symbol wird nicht
 unterstützt. Jedem Paketnamen folgt optional eine Versionnummerangabe in
-Klammern und eine Architekturspezifikation in eckigen Klammern.
+Klammern, eine Architekturspezifikation in eckigen Klammern und ein
+Profilspezifikation in spitzen Klammern.
 
 Eine Versionsnummer kann mit »>>« beginnen, in diesem Falle passen
 alle neueren Versionen, und kann die Debian\-Paketrevision (getrennt durch
@@ -192,6 +202,11 @@ als oder identisch zu und »=« für identisch zu.
 Eine Architekturspezifikation besteht aus einer oder mehreren durch
 Leerzeichen getrennten Architekturnamen. Jedem Namen darf ein Ausrufezeichen
 vorangestellt werden, das »NICHT« bedeutet.
+
+Eine Profilspezifikation besteht aus einer oder mehreren durch Leerzeichen
+getrennten Profilnamen, denen der Namensraum »\fBprofile.\fP« vorangestellt
+wird. Jedem Namen darf ein Ausrufezeichen vorangestellt werden, das »NICHT«
+bedeutet.
 
 Beachten Sie, dass die Abhängigkeiten von Paketen aus der Menge der
 \fBbuild\-essential\fP entfallen kann und die Angabe von Baukonflikten gegen sie
@@ -230,64 +245,46 @@ Standardwert, er wird angenommen, falls das Feld fehlt. Weitere Typen
 könnten in der Zukunft hinzugefügt werden.
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP \fI Wert\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP \fI Wert\fP
-.TP 
-.PD 0
+.TQ
 \fBInstaller\-Menu\-Item:\fP \fI Wert\fP
 Diese Felder werden im Debian\-Installer verwandt und werden normalerweise
 nicht benötigt. Lesen Sie /usr/share/doc/debian\-installer/devel/modules.txt
 aus dem Paket \fBdebian\-installer\fP für weitere Informationen über sie.
 
 .TP 
-.PD 0
 \fBEssential:\fP \fByes\fP|\fBno\fP
-.TP 
-.PD 0
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
-.TP 
-.PD 0
+.TQ
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
+.TQ
 \fBTag:\fP \fI Liste\-von\-Markierungen\fP
-.TP 
-.PD 0
+.TQ
 \fBDescription:\fP \fIKurzbeschreibung\fP (verpflichtend)
 Diese Felder sind in der Handbuchseite \fBdeb\-control\fP(5) beschrieben, da sie
 wörtlich in die Steuerdatei des Binärpakets kopiert werden.
 
 .TP 
-.PD 0
 \fBDepends:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBPre\-Depends:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBRecommends:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBSuggests:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBBreaks:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBEnhances:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBReplaces:\fP \fIPaketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBConflicts:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBProvides:\fP \fI Paketliste\fP
-.TP 
-.PD 0
+.TQ
 \fBBuilt\-Using:\fP \fI Paketliste\fP
-.br
 Diese Felder deklarieren die Beziehungen zwischen Paketen. Sie werden in der
 Handbuchseite \fBdeb\-control\fP(5) und im Paket \fBdebian\-policy\fP beschrieben.
 
@@ -323,9 +320,9 @@ Priority: required
 Maintainer: Dpkg Developers <debian\-dpkg@lists.debian.org>
 # dieses Feld wird in das Binär\- und Quellpaket kopiert
 XBS\-Upstream\-Release\-Status: stable
-Homepage: http://wiki.debian.org/Teams/Dpkg
-Vcs\-Browser: http://git.debian.org/?p=dpkg/dpkg.git
-Vcs\-Git: git://git.debian.org/git/dpkg/dpkg.git
+Homepage: https://wiki.debian.org/Teams/Dpkg
+Vcs\-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
+Vcs\-Git: git://anonscm.debian.org/dpkg/dpkg.git
 Standards\-Version: 3.7.3
 Build\-Depends: pkg\-config, debhelper (>= 4.1.81),
  libselinux1\-dev (>= 1.28\-4) [!linux\-any]
@@ -353,7 +350,7 @@ Description: Debian package development tools
 
 .\" .RE
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

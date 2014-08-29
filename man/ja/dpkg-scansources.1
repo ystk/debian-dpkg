@@ -15,7 +15,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -34,14 +34,15 @@ dpkg\-scansources \- ソースインデックスファイルの作成
 \fBdpkg\-scansources\fP は、\fI.dsc\fP ファイルのために、指定された \fIbinary\-dir\fP を検索する。これは Debian
 ソースインデックスを生成し、標準出力に出力するために用いられる。
 .PP
-\fIoverride\-file\fP が指定された場合、結果として生成されるインデックスレコードのpriority
-を設定するために用いられると共に、\fI.dsc\fP
-ファイルのメンテナフィールドを上書きする。ファイルは圧縮されていてもよい。このファイルの形式については、\fBdeb\-override\fP(5)
-を参照のこと。\s-1注意:\s0 override
-ファイルはソースパッケージではなく、バイナリパッケージによってインデックス化されるため、若干の問題が発生する。現在の実装では、ソースパッケージの
-priority を指定するために、\fI.dsc\fP ファイルによって生成されたすべてのバイナリパッケージの中でもっとも高い priority
-が用いられ、メンテナ情報を変更する際に、\fI.dsc\fP ファイルに最初に現れるバイナリパッケージの override
-エントリが用いられる。この実装は変更されるかもしれない。
+The \fIoverride\-file\fP, if given, is used to set priorities in the resulting
+index records and to override the maintainer field given in the \fI.dsc\fP
+files. The file can be compressed. See \fBdeb\-override\fP(5)  for the format of
+this file. Note: Since the override file is indexed by binary, not source
+packages, there's a bit of a problem here. The current implementation uses
+the highest priority of all the binary packages produced by a \fI.dsc\fP file
+for the priority of the source package, and the override entry for the first
+binary package listed in the \fI.dsc\fP file to modify maintainer
+information. This might change.
 .PP
 \fIpath\-prefix\fP が指定された場合、生成されたソースインデックスにおける directory フィールドの先頭に挿入される。これは通常
 directory フィールドにDebian アーカイブ階層トップからのパスを含めたい場合に使用する。

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -67,7 +67,7 @@ pkg_format_node_new(void)
 }
 
 static bool
-parsefield(struct pkg_format_node *cur, const char *fmt, const char *fmtend,
+parsefield(struct pkg_format_node *node, const char *fmt, const char *fmtend,
            struct dpkg_error *err)
 {
 	int len;
@@ -94,24 +94,24 @@ parsefield(struct pkg_format_node *cur, const char *fmt, const char *fmtend,
 		}
 
 		if (w < 0) {
-			cur->pad = 1;
-			cur->width = (size_t)-w;
+			node->pad = 1;
+			node->width = (size_t)-w;
 		} else
-			cur->width = (size_t)w;
+			node->width = (size_t)w;
 
 		len = ws - fmt;
 	}
 
-	cur->type = PKG_FORMAT_FIELD;
-	cur->data = m_malloc(len + 1);
-	memcpy(cur->data, fmt, len);
-	cur->data[len] = '\0';
+	node->type = PKG_FORMAT_FIELD;
+	node->data = m_malloc(len + 1);
+	memcpy(node->data, fmt, len);
+	node->data[len] = '\0';
 
 	return true;
 }
 
 static bool
-parsestring(struct pkg_format_node *cur, const char *fmt, const char *fmtend,
+parsestring(struct pkg_format_node *node, const char *fmt, const char *fmtend,
             struct dpkg_error *err)
 {
 	int len;
@@ -119,8 +119,8 @@ parsestring(struct pkg_format_node *cur, const char *fmt, const char *fmtend,
 
 	len = fmtend - fmt + 1;
 
-	cur->type = PKG_FORMAT_STRING;
-	write = cur->data = m_malloc(len + 1);
+	node->type = PKG_FORMAT_STRING;
+	node->data = write = m_malloc(len + 1);
 	while (fmt <= fmtend) {
 		if (*fmt == '\\') {
 			fmt++;
@@ -152,30 +152,30 @@ parsestring(struct pkg_format_node *cur, const char *fmt, const char *fmtend,
 void
 pkg_format_free(struct pkg_format_node *head)
 {
-	struct pkg_format_node *next;
+	struct pkg_format_node *node;
 
 	while (head) {
-		next = head->next;
-		free(head->data);
-		free(head);
-		head = next;
+		node = head;
+		head = node->next;
+
+		free(node->data);
+		free(node);
 	}
 }
 
 struct pkg_format_node *
 pkg_format_parse(const char *fmt, struct dpkg_error *err)
 {
-	struct pkg_format_node *head;
-	struct pkg_format_node *cur;
+	struct pkg_format_node *head, *node;
 	const char *fmtend;
 
-	head = cur = NULL;
+	head = node = NULL;
 
 	while (*fmt) {
-		if (cur)
-			cur = cur->next = pkg_format_node_new();
+		if (node)
+			node = node->next = pkg_format_node_new();
 		else
-			head = cur = pkg_format_node_new();
+			head = node = pkg_format_node_new();
 
 		if (fmt[0] == '$' && fmt[1] == '{') {
 			fmtend = strchr(fmt, '}');
@@ -185,7 +185,7 @@ pkg_format_parse(const char *fmt, struct dpkg_error *err)
 				return NULL;
 			}
 
-			if (!parsefield(cur, fmt + 2, fmtend - 1, err)) {
+			if (!parsefield(node, fmt + 2, fmtend - 1, err)) {
 				pkg_format_free(head);
 				return NULL;
 			}
@@ -200,7 +200,7 @@ pkg_format_parse(const char *fmt, struct dpkg_error *err)
 			if (!fmtend)
 				fmtend = fmt + strlen(fmt);
 
-			if (!parsestring(cur, fmt, fmtend - 1, err)) {
+			if (!parsestring(node, fmt, fmtend - 1, err)) {
 				pkg_format_free(head);
 				return NULL;
 			}
@@ -233,6 +233,39 @@ virt_status_abbrev(struct varbuf *vb,
 	varbuf_add_char(vb, pkg_abbrev_want(pkg));
 	varbuf_add_char(vb, pkg_abbrev_status(pkg));
 	varbuf_add_char(vb, pkg_abbrev_eflag(pkg));
+}
+
+static void
+virt_status_want(struct varbuf *vb,
+                 const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+                 enum fwriteflags flags, const struct fieldinfo *fip)
+{
+	if (pkgbin != &pkg->installed)
+		return;
+
+	varbuf_add_str(vb, pkg_want_name(pkg));
+}
+
+static void
+virt_status_status(struct varbuf *vb,
+                   const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+                   enum fwriteflags flags, const struct fieldinfo *fip)
+{
+	if (pkgbin != &pkg->installed)
+		return;
+
+	varbuf_add_str(vb, pkg_status_name(pkg));
+}
+
+static void
+virt_status_eflag(struct varbuf *vb,
+                  const struct pkginfo *pkg, const struct pkgbin *pkgbin,
+                  enum fwriteflags flags, const struct fieldinfo *fip)
+{
+	if (pkgbin != &pkg->installed)
+		return;
+
+	varbuf_add_str(vb, pkg_eflag_name(pkg));
 }
 
 static void
@@ -297,54 +330,44 @@ const struct fieldinfo virtinfos[] = {
 	{ "binary:Package", NULL, virt_package },
 	{ "binary:Summary", NULL, virt_summary },
 	{ "db:Status-Abbrev", NULL, virt_status_abbrev },
+	{ "db:Status-Want", NULL, virt_status_want },
+	{ "db:Status-Status", NULL, virt_status_status },
+	{ "db:Status-Eflag", NULL, virt_status_eflag },
 	{ "source:Package", NULL, virt_source_package },
 	{ "source:Version", NULL, virt_source_version },
 	{ NULL },
 };
 
-static const struct fieldinfo *
-find_field_info(const struct fieldinfo *fields_head,
-                const struct pkg_format_node *fmt_node)
-{
-	const struct fieldinfo *fip;
-
-	for (fip = fields_head; fip->name; fip++)
-		if (strcasecmp(fmt_node->data, fip->name) == 0)
-			break;
-
-	return fip;
-}
-
 void
 pkg_format_show(const struct pkg_format_node *head,
                 struct pkginfo *pkg, struct pkgbin *pkgbin)
 {
+	const struct pkg_format_node *node;
 	struct varbuf vb = VARBUF_INIT, fb = VARBUF_INIT, wb = VARBUF_INIT;
 
-	while (head) {
+	for (node = head; node; node = node->next) {
 		bool ok;
 		char fmt[16];
 
 		ok = false;
 
-		if (head->width > 0)
+		if (node->width > 0)
 			snprintf(fmt, 16, "%%%s%zus",
-			         ((head->pad) ? "-" : ""), head->width);
+			         ((node->pad) ? "-" : ""), node->width);
 		else
 			strcpy(fmt, "%s");
 
-		if (head->type == PKG_FORMAT_STRING) {
-			varbuf_printf(&fb, fmt, head->data);
+		if (node->type == PKG_FORMAT_STRING) {
+			varbuf_printf(&fb, fmt, node->data);
 			ok = true;
-		} else if (head->type == PKG_FORMAT_FIELD) {
+		} else if (node->type == PKG_FORMAT_FIELD) {
 			const struct fieldinfo *fip;
 
-			fip = find_field_info(fieldinfos, head);
+			fip = find_field_info(fieldinfos, node->data);
+			if (fip == NULL)
+				fip = find_field_info(virtinfos, node->data);
 
-			if (fip->name == NULL)
-				fip = find_field_info(virtinfos, head);
-
-			if (fip->name) {
+			if (fip) {
 				fip->wcall(&wb, pkg, pkgbin, 0, fip);
 
 				varbuf_end_str(&wb);
@@ -354,24 +377,22 @@ pkg_format_show(const struct pkg_format_node *head,
 			} else {
 				const struct arbitraryfield *afp;
 
-				for (afp = pkgbin->arbs; afp; afp = afp->next)
-					if (strcasecmp(head->data, afp->name) == 0) {
-						varbuf_printf(&fb, fmt, afp->value);
-						ok = true;
-						break;
-					}
+				afp = find_arbfield_info(pkgbin->arbs, node->data);
+				if (afp) {
+					varbuf_printf(&fb, fmt, afp->value);
+					ok = true;
+				}
 			}
 		}
 
 		if (ok) {
-			size_t len = strlen(fb.buf);
-			if ((head->width > 0) && (len > head->width))
-				len = head->width;
+			size_t len = fb.used;
+			if ((node->width > 0) && (len > node->width))
+				len = node->width;
 			varbuf_add_buf(&vb, fb.buf, len);
 		}
 
 		varbuf_reset(&fb);
-		head = head->next;
 	}
 
 	if (vb.buf) {

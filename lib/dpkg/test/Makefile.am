@@ -6,15 +6,16 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
 LDADD = \
-	$(top_builddir)/lib/dpkg/libdpkg.a \
-	$(top_builddir)/lib/compat/libcompat.a \
+	$(top_builddir)/lib/dpkg/libdpkg.la \
 	$(LIBINTL)
 
 
 # The tests are sorted in order of increasing complexity.
 check_PROGRAMS = \
 	t-test \
+	t-test-skip \
 	t-macros \
+	t-error \
 	t-string \
 	t-buffer \
 	t-path \
@@ -32,4 +33,8 @@ check_PROGRAMS = \
 	t-trigger \
 	t-mod-db
 
-TESTS = $(check_PROGRAMS)
+TEST_PREFIX = $(builddir)
+
+test_cases = $(check_PROGRAMS)
+
+include $(top_srcdir)/check.am

@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -22,7 +22,7 @@
 .\"
 .\"*******************************************************************
 .TH dpkg\-name 1 2012\-04\-15 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.SH BEZEICHNUNG
 dpkg\-name \- Debian\-Pakete zu vollen Paketnamen umbenennen
 .
 .SH ÜBERSICHT
@@ -66,7 +66,7 @@ Weg in das »no\-section«\-Gebiet finden. Verwenden Sie diese Option mit
 Vorsicht, sie ist unordentlich.
 .TP 
 \fB\-c\fP, \fB\-\-create\-dir\fP
-Diese Option kann zusammen mit der Option \-s verwendet werden. Falls das
+Diese Option kann zusammen mit der Option \fB\-s\fP verwendet werden. Falls das
 Zielverzeichnis nicht gefunden werden kann, wird es automatisch
 angelegt. \fBVerwenden Sie diese Option mit Vorsicht.\fP
 .TP 
@@ -75,6 +75,14 @@ Zeige den Bedienungshinweis und beende.
 .TP 
 \fB\-v\fP, \fB\-\-version\fP
 Gebe die Version aus und beende sich.
+.
+.SH FEHLER
+Einige Pakete folgen nicht der Namensstruktur
+\fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArchitektur\fP\fB.deb\fP. Pakete, die von
+\fBdpkg\-name\fP umbenannt wurden, folgen dieser Struktur. Im Allgemeinen hat
+diese keinen Einfluss darauf, wie Pakete von \fBdselect\fP(1)/\fBdpkg\fP(1)
+installiert werden, aber andere Installationswerkzeuge können von dieser
+Benennungsstruktur abhängen.
 .
 .SH BEISPIELE
 .TP 
@@ -85,7 +93,7 @@ umbenannt.
 .TP 
 \fBfind /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a\fP
 Alle Dateien mit der Endung »deb« im Verzeichnis /root/debian und seiner
-Unterverzeichnisse werden von dpkg\-name \- falls notwendig \- ohne
+Unterverzeichnisse werden von \fBdpkg\-name\fP \- falls notwendig \- ohne
 Architekturinformation umbenannt.
 .TP 
 \fBfind \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c\fP
@@ -96,16 +104,8 @@ nicht.\fP
 \fBdpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb\fP
 Dies kann beim Bau neuer Pakete verwendet werden.
 .
-.SH FEHLER
-Einige Pakete folgen nicht der Namensstruktur
-\fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArchitektur\fP\fB.deb\fP. Pakete, die von dpkg\-name
-umbenannt wurden, folgen dieser Struktur. Im Allgemeinen hat diese keinen
-Einfluss darauf, wie Pakete von \fBdselect\fP(1)/\fBdpkg\fP(1) installiert werden,
-aber andere Installationswerkzeuge können von dieser Benennungsstruktur
-abhängen.
-.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

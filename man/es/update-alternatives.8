@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -288,6 +288,15 @@ Genera una salida con más información acerca de lo que
 \fB\-\-quiet\fP
 No genera ningún comentario a menos que ocurra algún error.
 .
+.SH "ESTADOS DE SALIDA"
+.TP 
+\fB0\fP
+La acción requerida finalizó con éxito.
+.TP 
+\fB2\fP
+Se encontraron problemas analizando la línea de órdenes o realizando la
+acción requerida.
+.
 .SH ENTORNO
 .TP 
 \fBDPKG_ADMINDIR\fP
@@ -303,15 +312,6 @@ El directorio de alternativas por omisión. Se puede cambiar con la opción
 \fI/var/lib/dpkg/alternatives/\fP
 El directorio de administración por omisión. Se puede modificar con la
 opción \fB\-\-admindir\fP.
-.
-.SH "ESTADOS DE SALIDA"
-.TP 
-\fB0\fP
-La acción requerida finalizó con éxito.
-.TP 
-\fB2\fP
-Se encontraron problemas analizando la línea de órdenes o realizando la
-acción requerida.
 .
 .SH "FORMATO DE CONSULTA"
 El formato de consulta de \fBupdate\-alternatives \-\-query\fP utiliza un formato
@@ -352,10 +352,10 @@ Ruta a la alternativa de este bloque.
 Valor de la prioridad de esta alternativa.
 .TP 
 \fBSlaves:\fP\fI lista de esclavos\fP
-Cuando esta cabecera está presente, las líneas \fBnext\fP contienen todas las
-alternativas esclavas asociadas al enlace maestro de la alternativa. Hay un
-esclavo por línea. Cada línea contiene un espacio, el nombre genérico de la
-alternativa esclava, otro espacio, y la ruta a la alternativa esclava.
+When this field is present, the \fBnext\fP lines hold all slave alternatives
+associated to the master link of the alternative. There is one slave per
+line. Each line contains one space, the generic name of the slave
+alternative, another space, and the path to the slave alternative.
 .
 .TP 
 \fBEjemplo\fP
@@ -422,17 +422,9 @@ haga como administrador:
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
-.SH FALLOS
-Si encuentra algún fallo informe de ello usando el sistema de seguimiento de
-fallos de Debian.
-.PP
-Si encuentra alguna discrepancia entre el modo de operar de
-\fBupdate\-alternatives\fP y esta página del manual, es un fallo, bien en la
-implementación o bien en la documentación. Le rogamos que informe de ello.
-.
 .SH "VÉASE TAMBIÉN"
 \fBln\fP(1), FHS, el estándar de la jerarquía del sistema de ficheros.
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

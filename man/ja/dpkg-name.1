@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -56,14 +56,21 @@ dpkg\-name \- Debian パッケージを完全パッケージ名にリネーム
 `no\-section' になってしまうだろう。このオプションは注意して使用すること。この機能は完成度が低いので、使う時は注意すること。
 .TP 
 \fB\-c\fP, \fB\-\-create\-dir\fP
-このオプションは \-s
-オプションとともに使うことができる。ターゲットディレクトリがなければ、自動的に作成される。\fBこのオプションは注意して使用すること。\fP
+This option can used together with the \fB\-s\fP option. If a target directory
+isn't found it will be created automatically.  \fBUse this option with care.\fP
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 利用方法を表示して終了する。
 .TP 
 \fB\-v\fP, \fB\-\-version\fP
 バージョン情報を表示して終了する。
+.
+.SH バグ
+Some packages don't follow the name structure
+\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.deb\fP.  Packages renamed by
+\fBdpkg\-name\fP will follow this structure. Generally this will have no impact
+on how packages are installed by \fBdselect\fP(1)/\fBdpkg\fP(1), but other
+installation tools might depend on this naming structure.
 .
 .SH 例
 .TP 
@@ -72,20 +79,15 @@ dpkg\-name \- Debian パッケージを完全パッケージ名にリネーム
 `bar\-foo.deb' の制御情報に依存する)。
 .TP 
 \fBfind /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a\fP
-ディレクトリ /root/debian 以下に存在する拡張子が `deb' のファイルすべてを、dpkg\-name
-によりアーキテクチャ情報のない名前にリネームする。
+All files with the extension `deb' in the directory /root/debian and its
+subdirectory's will be renamed by \fBdpkg\-name\fP if required into names with
+no architecture information.
 .TP 
 \fBfind \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c\fP
 \fBやってはいけない!\fP 多くのパッケージはセクション情報をもっていないので、アーカイブがぐちゃぐちゃになってしまうだろう。\fBやってはいけない!\fP
 .TP 
 \fBdpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb\fP
 これは新しいパッケージを作る時に使うことができる。
-.
-.SH バグ
-dpkg\-name によってリネームされたパッケージは、
-\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.deb\fP
-という構造の名前になっているが、これに則っていないパッケージもある。\fBdselect\fP(1)/\fBdpkg\fP(1)
-がパッケージをインストールする際に、この構造が影響を及ぼすことは通常ないが、インストールを行うツールによっては、これに起因する影響があるかもしれない。
 .
 .SH 関連項目
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1), \fBfind\fP(1),

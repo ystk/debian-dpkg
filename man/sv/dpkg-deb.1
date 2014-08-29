@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 2012\-05\-27 Debianprojektet Dpkg\-sviten
+.TH dpkg\-deb 1 2013\-03\-27 Debianprojektet Dpkg\-sviten
 .SH NAMN
 dpkg\-deb \- Debians manipuleringsverktyg för paketarkiv (.deb)
 .
@@ -166,23 +166,35 @@ alla komprimerare.
 \fB\-S\fP\fIkomprimeringsstrategi\fP
 Anger vilken komprimeringsstrategi som skall användas i
 komprimeringsfunktionen när paketet byggs (sedan dpkg 1.16.2). Tillåtet
-värde är \fInone\fP (sedan dpkg 1.16.4) och \fIextreme\fP för xz.
+värde är \fInone\fP (sedan dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrle\fP och
+\fIfixed\fP för gzip (sedan dpkg 1.17.0) och \fIextreme\fP för xz.
 .TP 
 \fB\-Z\fP\fIkomprimeringstyp\fP
 Ange vilken komprimeringstyp som skall användas när ett paket
-byggs. Tillåtna värden är \fIgzip\fP, \fIxz\fP, \fIbzip2\fP, \fIlzma\fP och \fInone\fP
-(förval är \fIgzip\fP).
+byggs. Tillåtna värden är \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (avråds), \fIlzma\fP
+(avråds) och \fInone\fP (förval är \fIxz\fP).
+.TP 
+\fB\-\-uniform\-compression\fP
+Ange att samma komprimeringsparametrar skall användas för alla
+arkivmedlemmar (dvs. \fBcontrol.tar\fP och \fBdata.tar\fP). I annat fall kommer
+endast medlemmen \fBdata.tar\fP att använda parametrarna. De enda
+komprimeringstyper som kan användas enhetligt är \fInone\fP, \fIgzip\fP och \fIxz\fP.
+.TP 
+\fB\-\-deb\-format=\fP\fIformat\fP
+Väljer vilket arkivformat som skal användas i bygget (sedan dpkg
+1.17.0). Tillåtna värden är \fI2.0\fP för det nya formatet och \fI0.939000\fP för
+det gamla (förval är \fI2.0\fP).
+
+Det gamla arkivformatet är mer svårtolkat av icke\-Debianverktyg och är nu
+utgånget; dess enda användningsområde är för att bygga paket som skall
+tolkas av versioner av dpkg äldre än 0.93.76 (september 1995), vilka endast
+släpptes som i386\-a.out.
 .TP 
 \fB\-\-new\fP
-Försäkrar att \fBdpkg\-deb\fP bygger ett arkiv i "nytt" format.  Detta är
-förval.
+Detta är ett gammalt alias för \fB\-\-deb\-format=2.0\fP.
 .TP 
 \fB\-\-old\fP
-Tvingar \fBdpkg\-deb\fP att bygga ett arkiv i "gammalt" format. Det gamla
-arkivformatet är mer svårtolkat av icke\-Debianverktyg och är nu utgånget;
-dess enda användningsområde är för att bygga paket som skall tolkas av
-versioner av dpkg äldre än 0.93.76 (september 1995), vilka endast släpptes
-som i386\-a.out.
+Detta är ett gammalt alias för \fB\-\-deb\-format=0.939000\fP.
 .TP 
 \fB\-\-nocheck\fP
 Förhindrar \fBdpkg\-deb \-\-build s\fP normala tester på det föreslagna innehållet
@@ -202,6 +214,12 @@ Aktiverar felsökningsutdata. Denna är inte speciellt intressant.
 Om satt så kommer \fBdpkg\-deb\fP att använda det som katalogen där temporära
 filer och kataloger skapas.
 .
+.SH ANTECKNINGAR
+Försök inte använda bara \fBdpkg\-deb\fP för att installera programvara! Du
+måste använda normala \fBdpkg\fP för att se till att alla filer läggs på
+korrekt plats och att paketets skript körs och dess status och innehåll
+sparas.
+.
 .SH PROGRAMFEL
 \fBdpkg\-deb \-I\fP \fIpaket1\fP\fB.deb\fP \fIpaket2\fP\fB.deb\fP gör fel.
 
@@ -210,13 +228,8 @@ ens någon enkel kontrollsumma. (Verktyg som arbetar på en högre nivå, som
 APT, stöder autentisering av \fB.deb\fP\-paket som hämtas från ett givet arkiv,
 och de flesta paket har nu för tiden en md5sum\-kontrollfil som skapas av
 debian/rules. Filen stöds dock inte direkt av lågnivåverktygen.)
-
-Försök inte använda bara \fBdpkg\-deb\fP för att installera programvara! Du
-måste använda normala \fBdpkg\fP för att se till att alla filer läggs på
-korrekt plats och att paketets skript körs och dess status och innehåll
-sparas.
 .
 .SH "SE ÄVEN"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

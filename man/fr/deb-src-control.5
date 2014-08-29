@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2010 Oxan van Leeuwen <oxan@oxanvanleeuwen.nl>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
-.\" Copyright Â© 2011-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-src\-control 5 16\-06\-2012 "Projet Debian" Debian
+.TH deb\-src\-control 5 20\-12\-2013 "Projet Debian" Debian
 .SH NOM
 deb\-src\-control \- Format du fichier principal de contrôle dans les paquets
 Debian
@@ -40,16 +40,16 @@ le nom du champ, par exemple \fBPackage\fP ou \fBSection\fP (la casse n'est pas
 significative), suivi d'un caractère «\ deux\-points\ », du contenu du champ et
 d'un retour à la ligne. Les champs multi\-lignes sont aussi possibles, mais
 chaque ligne supplémentaire, qui ne comporte pas de nom de champ, doit
-commencer par au moins un espace. Le contenu des champs multi\-lignes est en
+commencer par au moins une espace. Le contenu des champs multi\-lignes est en
 général réassemblé en une ligne unique par les outils (sauf pour le champ
 \fBDescription\fP, voir ci\-dessous). Pour inclure des lignes vides dans un
 champ multi\-lignes, il est nécessaire de mettre un point après l'espace
-initial. Les lignes commençant pas \fB«\ #\ »\fP sont traitées comme des
+initiale. Les lignes commençant par \fB«\ #\ »\fP sont traitées comme des
 commentaires.
 .
 .SH "LES CHAMPS SOURCE"
 .TP 
-\fBSource:\fP \fInom du paquet source\fP (requis)
+\fBSource:\fP \fInom\-du\-paquet\-source\fP (requis)
 La valeur de ce champ est le nom du paquet source et doit correspondre au
 nom du paquet source dans le fichier debian/changelog. Un nom de paquet doit
 être constitué uniquement de lettres minuscules (a\-z), de chiffres (0\-9),
@@ -59,7 +59,7 @@ caractère alphanumérique.
 
 .TP 
 \fBMaintainer:\fP \fInom complet et adresse électronique\fP (requis)
-Le format de ce champ sera «\ Jean Dupont <jdupont@foo.com>\ »\ ; et
+Le format de ce champ sera «\ Jean Dupont <jdupont@foo.com>\ »\ ; il
 indique le créateur du paquet, par opposition à l'auteur du programme mis en
 paquet.
 
@@ -76,23 +76,31 @@ Charte Debian et les textes indiqués dans le paquet \fBdebian\-policy\fP)
 auxquelles ce paquet se conforme.
 
 .TP 
-\fBDM\-Upload\-Allowed:\fP \fByes\fP|\fBno\fP
-Ce champ indique si un paquet peut être envoyé par les responsables Debian
-qui sont indiqués dans le champ Maintainer ou le champ Uploaders. La valeur
-par défaut est «\ no\ ».
-
-.TP 
 \fBHomepage:\fP\fI URL\fP
 URL de la page d'accueil du projet amont.
 
 .TP 
 \fBBugs:\fP\fI URL\fP
-Indique l'\fIURL\fP du système de suivi de bogues (BTS) de ce paquet. Le format
-utilisé est \fItype_de_bts\fP\fB://\fP\fIadresse_du_btsE\fP, par exemple
+L'\fIURL\fP du système de suivi de bogues (BTS) de ce paquet. Le format utilisé
+est \fItype_de_bts\fP\fB://\fP\fIadresse_du_btsE\fP, par exemple
 \fBdebbugs://bugs.debian.org\fP. Ce champ est en général inutile.
 
 .TP 
-\fBVcs\-*:\fP\fI URL\fP
+\fBVcs\-Arch:\fP\fI URL\fP
+.TQ
+\fBVcs\-Bzr:\fP\fI URL\fP
+.TQ
+\fBVcs\-Cvs:\fP\fI URL\fP
+.TQ
+\fBVcs\-Darcs:\fP\fI URL\fP
+.TQ
+\fBVcs\-Git:\fP\fI URL\fP
+.TQ
+\fBVcs\-Hg:\fP\fI URL\fP
+.TQ
+\fBVcs\-Mtn:\fP\fI URL\fP
+.TQ
+\fBVcs\-Svn:\fP\fI URL\fP
 Ce champ indique l'\fIURL\fP du système de gestion de version utilisé pour la
 gestion du paquet. Les systèmes gérés sont \fBArch\fP, \fBBzr\fP (Bazaar), \fBCvs\fP,
 \fBDarcs\fP, \fBGit\fP, \fBHg\fP (Mercurial), \fBMtn\fP (Monotone) et \fBSvn\fP
@@ -101,24 +109,24 @@ paquet, c'est\-à\-dire la branche principale ou le «\ trunk\ ».
 
 .TP 
 \fBVcs\-Browser:\fP\fI URL\fP
-indique l'\fIURL\fP de l'interface web permettant de parcourir le dépôt du
+Indique l'\fIURL\fP de l'interface web permettant de parcourir le dépôt du
 système de gestion de version.
 
 .TP 
 \fBOrigin:\fP\fI nom\fP
-indique le nom de la distribution dont le paquet provient. Ce champ n'est
+Indique le nom de la distribution dont le paquet provient. Ce champ n'est
 souvent pas nécessaire.
 
 .TP 
 \fBSection:\fP \fI section\fP
-champ général qui indique la catégorie d'un paquet\ ; cette catégorie est
-fondée sur les programmes que ce paquet installe. «\ Utils\ », «\ net\ »,
+Champ général qui indique la catégorie d'un paquet\ ; cette catégorie est
+fondée sur le programme que ce paquet installe. «\ Utils\ », «\ net\ »,
 «\ mail\ », «\ text\ », «\ x11\ », etc. représentent quelques catégories
 habituelles.
 
 .TP 
 \fBPriority:\fP\fI priorité\fP
-définit l'importance du paquet à l'intérieur du système
+Définit l'importance du paquet à l'intérieur du système
 général. «\ Required\ », «\ standard\ », «\ optional\ », «\ extra\ »,
 etc. représentent des priorités habituelles.
 
@@ -136,16 +144,16 @@ les constructions de paquets source uniquement (« source\-only builds »).
 
 .TP 
 \fBBuild\-Depends\-Arch:\fP\fIliste\-de\-paquets\fP
-liste analogue à \fBBuild\-Depends\fP, mais restreinte aux paquets nécessaires
+Liste analogue à \fBBuild\-Depends\fP, mais restreinte aux paquets nécessaires
 pour construire les paquets dépendants de l'architecture. Les paquets
-indiqués dans \fBBuild\-Depends\fP sont alors aussi installés. Ce champ a été
-ajouté dans la version 1.16.4 de dpkg\ ;\ pour pouvoir construire des paquets
-avec des versions plus anciennes de dpkg, il est préférable d'utiliser
+indiqués dans \fBBuild\-Depends\fP sont alors aussi installés. Ce champ est géré
+depuis la version 1.16.4 de dpkg\ ;\ pour pouvoir construire des paquets avec
+des versions plus anciennes de dpkg, il est préférable d'utiliser
 \fBBuild\-Depends\fP.
 
 .TP 
 \fBBuild\-Depends\-Indep:\fP\fI liste\-de\-paquets\fP
-liste analogue à \fBBuild\-Depends\fP, mais restreinte aux paquets nécessaires
+Liste analogue à \fBBuild\-Depends\fP, mais restreinte aux paquets nécessaires
 pour construire les paquets indépendants de l'architecture. Les paquets
 indiqués dans \fBBuild\-Depends\fP sont alors aussi installés.
 
@@ -162,8 +170,8 @@ builds\ »).
 .TP 
 \fBBuild\-Conflicts\-Arch:\fP\fI liste de paquets\fP
 Identique à \fBBuild\-Conflicts\fP, mais n'est prise en compte que pour les
-paquets dépendants de l'architecture. Ce champ a été ajouté dans la version
-1.16.4 de dpkg ; pour pouvoir construire des paquets avec des versions plus
+paquets dépendants de l'architecture. Ce champ est géré depuis la version
+1.16.4 de dpkg\ ; pour pouvoir construire des paquets avec des versions plus
 anciennes de dpkg, il est préférable d'utiliser \fBBuild\-Conflicts\fP.
 
 .TP 
@@ -179,15 +187,16 @@ verticale (le symbole du tube) «\ |\ ». Les groupes sont séparés par des
 virgules. Une virgule représente un «\ ET\ » logique et une barre verticale
 représente un «\ OU\ » logique\ ; le tube représente un lien plus fort. Chaque
 élément est le nom d'un paquet suivi de façon optionnelle par un numéro de
-version entre parenthèses et une indication d'architecture entre accolades.
+version entre parenthèses, une indication d'architecture entre accolades et
+une indication de profil entre chevrons.
 
 La syntaxe des champs \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP et
 \fBBuild\-Conflicts\-Indep\fP est une liste de paquets séparés par des virgules
 qui représentent le «\ ET\ » logique. L'indication de paquets alternatifs avec
 une barre verticale (le symbole du tube) «\ |\ » n'est pas prise en
-charge. Chaque om de paquet peut être suivi de façon optionnelle par un
-numéro de version entre parenthèses et une indication d'architecture entre
-accolades.
+charge. Chaque nom de paquet peut être suivi de façon optionnelle par un
+numéro de version entre parenthèses, une indication d'architecture entre
+accolades et une indication de profil entre chevrons.
 
 Un numéro de version peut commencer par «\ >>\ », et dans ce cas toute
 version supérieure correspondra, et il peut indiquer (ou pas) le numéro de
@@ -200,7 +209,12 @@ Une indication d'architecture consiste en un ou plusieurs noms
 d'architectures, séparés par des espaces. Un nom d'architecture peut être
 précédé d'un point d'exclamation qui correspond alors au «\ NON\ » logique.
 
-Veuillez noter que les dépendance des paquets du jeu \fBbuild\-essential\fP
+Une indication de profil consiste en un ou plusieurs noms de profil préfixés
+par l'espace de nommage du \fBprofile.\fP, séparés par des espaces. Un nom de
+profil peut être précédé d'un point d'exclamation qui correspond alors au
+«\ NON\ » logique.
+
+Veuillez noter que les dépendances des paquets du jeu \fBbuild\-essential\fP
 peuvent être omises et qu'il n'est pas possible de déclarer des conflits
 avec ces paquets. La liste des paquets concernés est fournie par le paquet
 build\-essential.
@@ -214,7 +228,7 @@ Veuillez noter que les champs \fBPriority\fP, \fBSection\fP et \fBHomepage\fP pe
 alors celle du paquet source.
 
 .TP 
-\fBPackage:\fP \fInom du paquet binaire\fP (requis)
+\fBPackage:\fP \fInom\-du\-paquet\-binaire\fP (requis)
 Ce champ sert à indiquer le nom du paquet binaire. Les restrictions sont les
 mêmes que celles des paquets source.
 
@@ -238,13 +252,10 @@ les paquets à taille contrôlée utilisés par l'installateur Debian. La valeur
 présent. De nouveaux types pourraient être ajoutés au fil du temps.
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP\fI valeur\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP\fI valeur\fP
-.TP 
-.PD 0
+.TQ
 \fBInstaller\-Menu\-Item:\fP\fI valeur\fP
 Ces champs sont utilisés par l'installateur et ne sont en général pas
 nécessaires. Veuillez consulter
@@ -252,51 +263,36 @@ nécessaires. Veuillez consulter
 \fBdebian\-installer\fP pour plus de détails.
 
 .TP 
-.PD 0
 \fBEssential:\fP \fByes\fP|\fBno\fP
-.TP 
-.PD 0
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
-.TP 
-.PD 0
+.TQ
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
+.TQ
 \fBTag:\fP\fI liste\-d'étiquettes\fP
-.TP 
-.PD 0
+.TQ
 \fBDescription:\fP \fIdescription courte\fP (requis)
 Ces champs sont décrits dans la page de manuel de \fBdeb\-control\fP(5), car ils
 sont copiés littéralement dans le fichier «\ control\ » du paquet binaire.
 
 .TP 
-.PD 0
 \fBDepends:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBPre\-Depends:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBRecommends:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBSuggests:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBBreaks:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBEnhances:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBReplaces:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBConflicts:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBProvides:\fP\fI liste\-de\-paquets\fP
-.TP 
-.PD 0
+.TQ
 \fBBuilt\-Using:\fP\fI liste\-de\-paquets\fP
-.br
 Ces champs indiquent les relations entre les paquets. Ils sont détaillés
 dans la page de manuel \fBdeb\-control\fP(5) et dans le paquet \fBdebian\-policy\fP.
 
@@ -304,7 +300,7 @@ dans la page de manuel \fBdeb\-control\fP(5) et dans le paquet \fBdebian\-policy
 Il est possible d'ajouter des champs définis par l'utilisateur au fichier
 «\ control\ ». Les outils les ignoreront. Si ces champs doivent être copiés
 vers les fichiers créés, par exemple les paquets binaires, il est
-indispensable d'utiliser un schéma de nommage personnalisé\ :\ les champs
+indispensable d'utiliser un schéma de nommage personnalisé\ : les champs
 doivent commencer par la lettre X suivie de l'une des lettres B, C ou S et
 d'un tiret. Si la lettre B est utilisée, le champ sera copié dans le fichier
 «\ control\ » du paquet binaire, voir \fBdeb\-control\fP(5). Avec la lettre S, le
@@ -318,9 +314,9 @@ fichier «\ control\ » du paquet binaire ni dans celui du paquet source.
 Il est conseillé de tenir compte que ces champs définis par l'utilisateur se
 serviront de l'espace de nommage global et peuvent ainsi, dans le futur,
 entrer en collision avec des champs gérés globalement. Pour éviter de telles
-situations, il est conseillé de les préfixer avec \fBPrivate\-\fP
-(exemple\ :\ \fBXB\-Private\-New\-Field\fP) ce qui aura pour effet de bord de ne pas
-provoquer d'avertissement de la part de \fBdpkg\-deb\fP.
+situations, il est conseillé de les préfixer avec \fBPrivate\-\fP (exemple\ :
+\fBXB\-Private\-New\-Field\fP) ce qui aura pour effet de bord de ne pas provoquer
+d'avertissement de la part de \fBdpkg\-deb\fP.
 
 .SH EXEMPLE
 .\" .RS
@@ -332,9 +328,9 @@ Priority: required
 Maintainer: Dpkg Developers <debian\-dpkg@lists.debian.org>
 # ce champ est copié dans les paquets source et binaires
 XBS\-Upstream\-Release\-Status: stable
-Homepage: http://wiki.debian.org/Teams/Dpkg
-Vcs\-Browser: http://git.debian.org/?p=dpkg/dpkg.git
-Vcs\-Git: git://git.debian.org/git/dpkg/dpkg.git
+Homepage: https://wiki.debian.org/Teams/Dpkg
+Vcs\-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
+Vcs\-Git: git://anonscm.debian.org/dpkg/dpkg.git
 Standards\-Version: 3.7.3
 Build\-Depends: pkg\-config, debhelper (>= 4.1.81),
  libselinux1\-dev (>= 1.28\-4) [!linux\-any]

@@ -14,7 +14,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -166,13 +166,6 @@ czê¶ci± pakietu binarnego.
 Pojawi³ siê jaki¶ problem, np. b³±d wywo³ania systemowego; plik wygl±da³ na
 plik czê¶ci pakietu, lecz by³ uszkodzony; wyst±pi³ b³±d u¿ycia lub inny.
 .
-.SH B£ÊDY
-Pobranie pe³nej informacji o pakietach w kolejce jest niemo¿liwe, bez
-przeszukania katalogu kolejki.
-
-Nie ma prostego testu na sprawdzenie, czy dany plik jest na pewno czê¶ci±
-pakietu.
-.
 .SH PLIKI
 .TP 
 \fI/var/lib/dpkg/parts\fP
@@ -182,9 +175,16 @@ odtworzenie.
 Nazwy plików w tym katalogu s± wewnêtrznie utworzone przez \fBdpkg\-split\fP i
 nie s± u¿yteczne dla innych programów.
 .
+.SH B£ÊDY
+Pobranie pe³nej informacji o pakietach w kolejce jest niemo¿liwe, bez
+przeszukania katalogu kolejki.
+
+Nie ma prostego testu na sprawdzenie, czy dany plik jest na pewno czê¶ci±
+pakietu.
+.
 .SH "ZOBACZ TAK¯E"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

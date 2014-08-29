@@ -11,23 +11,26 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package Dpkg::Shlibs;
 
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = '0.02';
 
-use base qw(Exporter);
-our @EXPORT_OK = qw(@librarypaths find_library);
+use Exporter qw(import);
+our @EXPORT_OK = qw(add_library_dir get_library_paths reset_library_paths
+                    find_library);
+
 
 use File::Spec;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Shlibs::Objdump;
+use Dpkg::Util qw(:list);
 use Dpkg::Path qw(resolve_symlink canonpath);
 use Dpkg::Arch qw(debarch_to_gnutriplet get_build_arch get_host_arch
                   gnutriplet_to_multiarch debarch_to_multiarch);
@@ -64,23 +67,25 @@ if ($crossprefix) {
             "/$crossprefix/lib64", "/usr/$crossprefix/lib64";
 }
 
-our @librarypaths = (DEFAULT_LIBRARY_PATH, @crosslibrarypaths);
+my @librarypaths = (DEFAULT_LIBRARY_PATH, @crosslibrarypaths);
 
-# Update library paths with LD_LIBRARY_PATH
+# XXX: Deprecated. Update library paths with LD_LIBRARY_PATH
 if ($ENV{LD_LIBRARY_PATH}) {
     foreach my $path (reverse split( /:/, $ENV{LD_LIBRARY_PATH} )) {
 	$path =~ s{/+$}{};
-	unshift @librarypaths, $path;
+	add_library_dir($path);
     }
 }
 
 # Update library paths with ld.so config
-parse_ldso_conf("/etc/ld.so.conf") if -e "/etc/ld.so.conf";
+parse_ldso_conf('/etc/ld.so.conf') if -e '/etc/ld.so.conf';
 
 my %visited;
 sub parse_ldso_conf {
     my $file = shift;
-    open my $fh, "<", $file or syserr(_g("cannot open %s"), $file);
+    local $_;
+
+    open my $fh, '<', $file or syserr(_g('cannot open %s'), $file);
     $visited{$file}++;
     while (<$fh>) {
 	next if /^\s*$/;
@@ -94,7 +99,7 @@ sub parse_ldso_conf {
 	} elsif (m{^\s*/}) {
 	    s/^\s+//;
 	    my $libdir = $_;
-	    unless (scalar grep { $_ eq $libdir } @librarypaths) {
+	    if (none { $_ eq $libdir } @librarypaths) {
 		push @librarypaths, $libdir;
 	    }
 	}
@@ -102,10 +107,23 @@ sub parse_ldso_conf {
     close $fh;
 }
 
+sub add_library_dir {
+    my ($dir) = @_;
+    unshift @librarypaths, $dir;
+}
+
+sub get_library_paths {
+    return @librarypaths;
+}
+
+sub reset_library_paths {
+    @librarypaths = ();
+}
+
 # find_library ($soname, \@rpath, $format, $root)
 sub find_library {
     my ($lib, $rpath, $format, $root) = @_;
-    $root = "" if not defined($root);
+    $root //= '';
     $root =~ s{/+$}{};
     my @rpath = @{$rpath};
     foreach my $dir (@rpath, @librarypaths) {
@@ -116,7 +134,7 @@ sub find_library {
 	# is /usr/lib64 -> /usr/lib on amd64.
 	if (-l $checkdir) {
 	    my $newdir = resolve_symlink($checkdir);
-	    if (grep { "$root$_" eq "$newdir" } (@rpath, @librarypaths)) {
+	    if (any { "$root$_" eq "$newdir" } (@rpath, @librarypaths)) {
 		$checkdir = $newdir;
 	    }
 	}
@@ -127,7 +145,7 @@ sub find_library {
 	    }
 	}
     }
-    return undef;
+    return;
 }
 
 1;

@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,6 +27,8 @@
 static void
 test(void)
 {
+	test_plan(12);
+
 	test_pass(min(10, 30) == 10);
 	test_pass(min(30, 10) == 10);
 	test_pass(min(0, 10) == 0);

@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995 Raul Miller, Ian Jackson, Ian Murdock
 .\" Copyright Â© 1999 Ben Collins <bcollins@debian.org>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2007-2011 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2007-2011, 2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2008-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-control 5 "14 agosto 2011" "Progetto Debian" Debian
+.TH deb\-control 5 "20 dicembre 2013" "Progetto Debian" Debian
 .SH NOME
 deb\-control \- formato del file principale di controllo dei pacchetti Debian
 .
@@ -117,29 +117,28 @@ Elenco di etichette che descrivono le qualità del pacchetto. La descrizione
 e l'elenco delle etichette supportate possono essere trovati nel pacchetto
 \fBdebtags\fP.
 .TP 
-\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP
-Questo campo viene usato per indicare come questo pacchetto dovrebbe
-comportarsi nelle installazioni multi\-arch. Il valore \fBsame\fP significa che
-il pacchetto è co\-installabile insieme a sé stesso, ma non deve essere usato
-per soddisfare le dipendenze di un qualsiasi pacchetto di un'architettura
-diversa dalla propria. Il valore \fBforeign\fP significa che il pacchetto non è
-co\-installabile insieme a sé stesso, ma può soddisfare le dipendenze di un
-pacchetto di un'architettura diversa dalla propria. Il valore \fBallowed\fP
-permette alle dipendenze inverse di indicare nel loro campo Depends di
-accettare un pacchetto da un'architettura diversa, ma non ha altri effetti.
+\fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
+This field is used to indicate how this package should behave on a
+multi\-arch installations. The value \fBsame\fP means that the package is
+co\-installable with itself, but it must not be used to satisfy the
+dependency of any package of a different architecture from itself. The value
+\fBforeign\fP means that the package is not co\-installable with itself, but
+should be allowed to satisfy the dependency of a package of a different arch
+from itself. The value \fBallowed\fP allows reverse\-dependencies to indicate in
+their Depends field that they accept a package from a foreign architecture,
+but has no effect otherwise.  The value \fBno\fP is the default when the field
+is omitted, in which case adding the field with an explicit \fBno\fP value is
+generally not needed.
 .TP 
 \fBSource:\fP\fI nome\-sorgente\fP
 Il nome del pacchetto sorgente da cui deriva questo pacchetto binario, se è
 differente rispetto al nome del pacchetto stesso.
 
 .TP 
-.PD 0
 \fBSubarchitecture:\fP\fI valore\fP
-.TP 
-.PD 0
+.TQ
 \fBKernel\-Version:\fP\fI valore\fP
-.TP 
-.PD
+.TQ
 \fBInstaller\-Menu\-Item:\fP\fI valore\fP
 Questi campi sono usati dall'installatore Debian e non sono solitamente
 necessari. Per maggiori dettagli su di essi, guardare il file

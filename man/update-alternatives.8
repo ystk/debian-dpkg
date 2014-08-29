@@ -20,7 +20,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .TH update\-alternatives 8 "2012-07-31" "Debian Project" "dpkg utilities"
 .SH NAME
@@ -368,6 +368,15 @@ is doing.
 .B \-\-quiet
 Don't generate any comments unless errors occur.
 .
+.SH EXIT STATUS
+.TP
+.B 0
+The requested action was successfully performed.
+.TP
+.B 2
+Problems were encountered whilst parsing the command line
+or performing the action.
+.
 .SH ENVIRONMENT
 .TP
 .B DPKG_ADMINDIR
@@ -388,16 +397,7 @@ Can be overridden by the
 .B \-\-admindir
 option.
 .
-.SH "EXIT STATUS"
-.TP
-.B 0
-The requested action was successfully performed.
-.TP
-.B 2
-Problems were encountered whilst parsing the command line
-or performing the action.
-.
-.SH "QUERY FORMAT"
+.SH QUERY FORMAT
 The \fBupdate\-alternatives \-\-query\fP format is using an
 RFC822-like flat format. It's made of \fIn\fP + 1 blocks where \fIn\fP is
 the number of alternatives available in the queried link group. The first
@@ -436,7 +436,7 @@ Path to this block's alternative.
 Value of the priority of this alternative.
 .TP
 .BI Slaves: " list-of-slaves"
-When this header is present, the \fBnext\fR lines hold all slave alternatives
+When this field is present, the \fBnext\fR lines hold all slave alternatives
 associated to the master link of the alternative. There is one slave per
 line. Each line contains one space, the generic name of the slave
 alternative, another space, and the path to the slave alternative.
@@ -510,14 +510,6 @@ this as root:
 .B update\-alternatives \-\-auto vi
 .RE
 .
-.SH BUGS
-If you find a bug, please report it using the Debian bug-tracking system.
-.PP
-If you find any discrepancy between the operation of
-.B update\-alternatives
-and this manual page, it is a bug,
-either in the implementation or the documentation; please report it.
-.
-.SH "SEE ALSO"
+.SH SEE ALSO
 .BR ln (1),
 FHS, the Filesystem Hierarchy Standard.

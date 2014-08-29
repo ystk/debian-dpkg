@@ -17,11 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_PARSEDUMP_H
 #define LIBDPKG_PARSEDUMP_H
+
+#include <stdint.h>
 
 /**
  * @defgroup parsedump In-core package database parsing and reading
@@ -50,6 +52,7 @@ struct parsedb_state {
 	char *dataptr;
 	char *endptr;
 	const char *filename;
+	int fd;
 	int lno;
 };
 
@@ -66,9 +69,16 @@ struct field_state {
 	int *fieldencountered;
 };
 
-void parse_open(struct parsedb_state *ps, const char *filename,
-                enum parsedbflags flags);
-void parse_close(struct parsedb_state *ps);
+struct parsedb_state *
+parsedb_new(const char *filename, int fd, enum parsedbflags flags);
+struct parsedb_state *
+parsedb_open(const char *filename, enum parsedbflags flags);
+void
+parsedb_load(struct parsedb_state *ps);
+int
+parsedb_parse(struct parsedb_state *ps, struct pkginfo **pkgp);
+void
+parsedb_close(struct parsedb_state *ps);
 
 typedef void parse_field_func(struct parsedb_state *ps, struct field_state *fs,
                               void *parse_obj);
@@ -76,11 +86,10 @@ typedef void parse_field_func(struct parsedb_state *ps, struct field_state *fs,
 bool parse_stanza(struct parsedb_state *ps, struct field_state *fs,
                   parse_field_func *parse_field, void *parse_obj);
 
-#define PKGIFPOFF(f) (offsetof(struct pkgbin, f))
-#define PKGPFIELD(pkgbin, of, type) (*(type *)((char *)(pkgbin) + (of)))
+#define STRUCTFIELD(klass, off, type) (*(type *)((uintptr_t)(klass) + (off)))
 
+#define PKGIFPOFF(f) (offsetof(struct pkgbin, f))
 #define FILEFOFF(f) (offsetof(struct filedetails, f))
-#define FILEFFIELD(filedetail,of,type) (*(type*)((char*)(filedetail)+(of)))
 
 typedef void freadfunction(struct pkginfo *pkg, struct pkgbin *pkgbin,
                            struct parsedb_state *ps,
@@ -106,6 +115,10 @@ fwritefunction w_multiarch;
 fwritefunction w_architecture;
 fwritefunction w_filecharf;
 fwritefunction w_trigpend, w_trigaw;
+
+void
+varbuf_add_arbfield(struct varbuf *vb, const struct arbitraryfield *arbfield,
+                    enum fwriteflags flags);
 
 struct fieldinfo {
   const char *name;

@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
@@ -17,16 +17,16 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-parsechangelog 1 04\-05\-2012 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-parsechangelog 1 06\-07\-2013 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
-dpkg\-parsechangelog \- Analyser un fichier changelog Debian.
+dpkg\-parsechangelog \- Analyse un fichier changelog Debian.
 .
 .SH SYNOPSIS
 \fBdpkg\-parsechangelog\fP [\fIoption\fP...]
@@ -39,8 +39,9 @@ sur la sortie standard et sous une forme lisible par la machine.
 .SH OPTIONS
 .TP 
 \fB\-l\fP\fIfichier\-des\-changements\fP
-Indique le fichier des changements où trouver des renseignements. Par
-défaut, c'est le fichier \fBdebian/changelog\fP.
+Indique le fichier des changements où trouver des renseignements. Un «\ \-\ »
+peut être utilisé pour spécifier une lecture à partir de l'entrée
+standard. Par défaut, c'est le fichier \fBdebian/changelog\fP.
 .TP 
 \fB\-F\fP\fIformat\-du\-fichiers\-des\-changements\fP
 Indique le format du fichier changelog. Par défaut, c'est une ligne
@@ -54,6 +55,10 @@ d'analyse. Ce répertoire est examiné avant les répertoires par défaut qui
 sont \fB/usr/local/lib/dpkg/parsechangelog\fP et
 \fB/usr/lib/dpkg/parsechangelog\fP.
 .TP 
+\fB\-S\fP, \fB\-\-show\-field\fP \fIchamp\fP
+Indique le nom du champ à afficher (depuis dpkg 1.17.0). Le nom du champ
+n'est pas affiché, mais seulement sa valeur.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
@@ -63,7 +68,16 @@ Affiche le numéro de version puis quitte.
 Les options suivantes peuvent être utilisées pour influencer la sortie de
 l'analyseur du journal des modifications («\ changelog\ »), par exemple la
 gamme d'entrées ou le format de sortie. Ils doivent être gérés par le script
-d'analyse en question. Voir aussi \fBCAVEATS\fP.
+d'analyse en question. Voir aussi \fBNOTES\fP.
+.TP 
+\fB\-\-file\fP\fI fichier\fP
+Définit le nom de fichier changelog à analyser. Par défaut c'est «\ \-\ »
+(entrée standard).
+.TP 
+\fB\-l\fP, \fB\-\-label\fP \fIfichier\fP
+Définit le nom du fichier changelog à utiliser dans les messages d'erreur,
+plutôt que l'utilisation du nom de l'option \fB\-\-file\fP ou sa valeur par
+défaut.
 .TP 
 \fB\-\-format\fP\fI format\-de\-sortie\fP
 Règle le format de sortie. Actuellement les valeurs gérées sont \fIdpkg\fP et
@@ -81,9 +95,9 @@ plus récente, sauf si c'est indiqué autrement.
 \fBDistribution:\fP\fI distribution\-cible\fP
 .TP 
 \fBUrgency:\fP\fI priorité\fP
-L'urgence la plus élevée de toutes les entrées incluses est utilisée, suivie
-par les commentaires concaténés et séparés par une espace pour toutes les
-versions demandées.
+La priorité la plus élevée de toutes les entrées incluses est utilisée,
+suivie par les commentaires concaténés et séparés par une espace pour toutes
+les versions demandées.
 .TP 
 \fBMaintainer:\fP\fI auteur\fP
 .TP 
@@ -93,10 +107,10 @@ versions demandées.
 Les champs «\ Closes\ » de toutes les entrées incluses sont fusionnés.
 .TP 
 \fBChanges:\fP\fI entrées\-du\-fichier\-des\-changements\fP
-Le texte de toutes les entrées de changelog est concaténé. Pour faire de ce
-champ un champ de contrôle Debian valide, les lignes multiples qui sont
-vides sont remplacées par un point \fB"."\fP et toutes les lignes sont
-intentées par un seul espace. Le contenu exact dépend du format du
+Les textes de toutes les entrées de changelog sont concaténés. Pour faire de
+ce champ un champ de contrôle Debian valide, les lignes multiples qui sont
+vides sont remplacées par un point \fB«\ .\ »\fP et toutes les lignes sont
+indentées par une seule espace. Le contenu exact dépend du format du
 changelog.
 .RE
 .IP
@@ -126,8 +140,8 @@ inclut ce \fInombre\fP d'entrées depuis le début (ou la fin si le \fInombre\fP e
 inférieur à 0).
 .TP 
 \fB\-\-offset\fP \fInombre\fP, \fB\-o\fP\fInombre\fP
-modifie le point de départ pour «\ \-\-count\ », à compter du début (ou la fin
-si le \fInombre\fP est inférieure à 0).
+modifie le point de départ pour \fB\-\-count\fP, à compter du début (ou la fin si
+le \fInombre\fP est inférieur à 0).
 .TP 
 \fB\-\-all\fP
 inclut toutes les modifications. Note\ :\ d'autres options deviennent sans
@@ -176,11 +190,11 @@ s'en tirer comme il peut et produire une sortie incorrecte.
 Un analyseur de journal de modifications ne doit pas du tout interagir avec
 l'utilisateur.
 .
-.SH CAVEATS
-Toutes les \fBOptions d'analyse\fP sauf «\ \-v\ » sont gérées par \fBdpkg\fP avec la
-version 1.14.16 et suivantes. Les analyseurs tiers pour le format de
-journaux de modifications plus vieux que \fIdebian\fP ne gèrent peut\-être pas
-toutes les options.
+.SH NOTES
+Toutes les \fBoptions d'analyse\fP sauf \fB\-v\fP sont gérées par \fBdpkg\fP seulement
+depuis la version 1.14.16. Les analyseurs tiers pour les formats de journaux
+de modifications autres que \fIdebian\fP ne gèrent peut\-être pas toutes les
+options.
 .
 .SH FICHIERS
 .TP 

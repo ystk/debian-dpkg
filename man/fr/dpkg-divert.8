@@ -16,7 +16,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -40,31 +40,31 @@ créent des conflits. Les administrateurs s'en servent, lors de
 l'installation d'une version plus récente d'un paquet, pour remplacer les
 fichiers de configuration de certains paquets, ou bien à chaque fois que des
 fichiers (qui ne sont pas des «\ conffiles\ ») doivent être préservés par
-dpkg.
+\fBdpkg\fP.
 .sp
 .SH COMMANDES
 .TP 
 [\fB\-\-add\fP] \fIfichier\fP
-Ajouter un détournement pour le \fIfichier\fP.
+Ajoute un détournement pour le \fIfichier\fP.
 .TP 
 \fB\-\-remove\fP\fI fichier\fP
-Supprimer un détournement pour le \fIfichier\fP.
+Supprime un détournement pour le \fIfichier\fP.
 .TP 
-\fB\-\-list\fP \fIexp\-reg\fP
-Lister les détournements qui correspondent à \fIexp\-reg\fP.
+\fB\-\-list\fP \fImotif\-global\fP
+Liste les détournements qui correspondent à \fImotif\-global\fP.
 .TP 
 \fB\-\-listpackage\fP\fI fichier\fP
-Afficher le nom du paquet qui dérive («\ divert\ ») \fIfichier\fP. Affiche LOCAL
+Affiche le nom du paquet qui dérive («\ divert\ ») \fIfichier\fP. Affiche LOCAL
 si \fIfichier\fP est dérivé localement et n'affiche rien si \fIfichier\fP n'est
 pas dérivé.
 .TP 
 \fB\-\-truename\fP\fI fichier\fP
-Afficher le vrai nom d'un fichier détourné.
+Affiche le vrai nom d'un fichier détourné.
 .
 .SH OPTIONS
 .TP 
 \fB\-\-admindir\fP\fI répertoire\fP
-Définir le répertoire de données de Dpkg comme \fIrépertoire\fP (par défaut
+Définit le répertoire de données de \fBdpkg\fP comme \fIrépertoire\fP (par défaut
 c'est \fI/var/lib/dpkg\fP).
 .TP 
 \fB\-\-divert\fP\fI détourner\-dans\fP
@@ -90,13 +90,35 @@ Met en fait le fichier de côté. Quand le fichier de destination existe,
 \fBdpkg\-divert\fP interrompt l'opération.
 .TP 
 \fB\-\-test\fP
-Mode de test, ne rien modifier réellement, seulement montrer.
+Mode de test, ne modifie rien réellement, montre seulement.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
 Affiche le numéro de version puis quitte.
+.
+.SH ENVIRONNEMENT
+.TP 
+\fBDPKG_ADMINDIR\fP
+Si cette variable est positionnée et que l'option \fB\-\-admindir\fP n'est pas
+précisée, ce répertoire sera utilisé comme répertoire de données pour
+\fBdpkg\fP.
+.TP 
+\fBDPKG_MAINTSCRIPT_PACKAGE\fP
+Si cette variable est positionnée et que les options \fB\-\-local\fP et
+\fB\-\-package\fP ne le sont pas, \fBdpkg\-divert\fP en utilisera la valeur comme nom
+de paquet.
+.
+.SH FICHIERS
+.TP 
+\fI/var/lib/dpkg/diversions\fP
+Ce fichier contient la liste des détournements en ?uvre sur le système. Il
+se trouve dans le répertoire d'administration de \fBdpkg\fP, avec d'autres
+fichiers importants comme «\ status\ » ou «\ available\ ».
+.br
+Note\ : \fBdpkg\-divert\fP préserve l'ancienne copie de ce fichier, avec
+l'extension «\ \-old\ », avant de la remplacer par la nouvelle.
 .
 .SH NOTES
 Pour l'ajout, le défaut est \fB\-\-local\fP et \fB\-\-divert\fP
@@ -107,10 +129,10 @@ On ne peut pas détourner des répertoires avec \fBdpkg\-divert\fP.
 
 Il faut faire attention quand une bibliothèque partagée est
 détournée. \fBldconfig\fP(8) crée un lien symbolique à partir du champ
-DT_SONAME embarqué dans la bibliothèque. ldconfig ne connaît pas les
-détournements (seul dpkg le fait), et si une bibliothèque détournée possède
-le même SONAME que la bibliothèque non détournée, le lien symbolique peut
-pointer en fin de compte sur la bibliothèque détournée.
+DT_SONAME embarqué dans la bibliothèque. \fBldconfig\fP ne connaît pas les
+détournements (seul \fBdpkg\fP le fait), et si une bibliothèque détournée
+possède le même SONAME que la bibliothèque non détournée, le lien symbolique
+peut pointer en fin de compte sur la bibliothèque détournée.
 .
 .SH EXEMPLES
 Pour détourner toutes les copies de \fI/usr/bin/example\fP vers
@@ -125,8 +147,8 @@ Pour supprimer ce détournement\ :
 dpkg\-divert \-\-rename \-\-remove /usr/bin/example
 
 .PP
-Pour détourner un paquet qui veut installer \fI/usr/bin/example\fP dans
-\fI/usr/bin/example.foo\fP, sauf votre propre paquet \fIwibble\fP\ :
+Pour détourner n'importe quel paquet qui veut installer \fI/usr/bin/example\fP
+dans \fI/usr/bin/example.foo\fP, sauf votre propre paquet \fIwibble\fP\ :
 .HP
 dpkg\-divert \-\-package wibble \-\-divert /usr/bin/example.foo \-\-rename
 /usr/bin/example
@@ -134,27 +156,6 @@ dpkg\-divert \-\-package wibble \-\-divert /usr/bin/example.foo \-\-rename
 Pour supprimer ce détournement\ :
 .HP
 dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/example
-.
-.SH ENVIRONNEMENT
-.TP 
-\fBDPKG_ADMINDIR\fP
-Si cette variable est positionnée et que l'option \fB\-\-admindir\fP n'est pas
-précisée, ce répertoire sera utilisé comme répertoire de données pour dpkg.
-.TP 
-\fBDPKG_MAINTSCRIPT_PACKAGE\fP
-Si cette variable est positionnée et que les options \fB\-\-local\fP et
-\fB\-\-package\fP ne le sont pas, \fBdpkg\-divert\fP en utilisera la valeur comme nom
-de paquet.
-.
-.SH FICHIERS
-.TP 
-\fI/var/lib/dpkg/diversions\fP
-Ce fichier contient la liste des détournements en ?uvre sur le système. Il
-se trouve dans le répertoire d'administration de dpkg, avec d'autres
-fichiers importants comme «\ status\ » ou «\ available\ ».
-.br
-Note\ : \fBdpkg\-divert\fP préserve l'ancienne copie de ce fichier, avec
-l'extension «\ \-old\ », avant de la remplacer par la nouvelle.
 .
 .SH "VOIR AUSSI"
 \fBdpkg\fP(1).

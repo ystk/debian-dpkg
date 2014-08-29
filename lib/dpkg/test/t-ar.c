@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -39,7 +39,22 @@ test_ar_normalize_name(void)
 }
 
 static void
+test_ar_member_is_illegal(void)
+{
+	struct ar_hdr arh;
+
+	memset(&arh, ' ', sizeof(arh));
+	test_pass(dpkg_ar_member_is_illegal(&arh));
+
+	memcpy(arh.ar_fmag, ARFMAG, sizeof(arh.ar_fmag));
+	test_fail(dpkg_ar_member_is_illegal(&arh));
+}
+
+static void
 test(void)
 {
+	test_plan(4);
+
 	test_ar_normalize_name();
+	test_ar_member_is_illegal();
 }

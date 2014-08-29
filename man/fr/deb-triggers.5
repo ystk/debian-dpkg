@@ -1,6 +1,6 @@
 .\" dpkg manual page - deb-triggers(5)
 .\"
-.\" Copyright Â© 2008 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008, 2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -14,14 +14,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-triggers 5 14\-08\-2011 "Projet Debian" "Utilitaires de dpkg"
+.TH deb\-triggers 5 02\-04\-2013 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 deb\-triggers \- actions différées du paquet
 .
@@ -30,12 +30,12 @@ actions différées
 .
 .SH DESCRIPTION
 Un paquet déclare ses relations avec des actions différées en incluant un
-fichier \fItriggers\fP dans son archive de contrôle (c.\-à\-d. \fIDEBIAN/triggers\fP
-au moment de la création du paquet).
+fichier \fItriggers\fP dans son archive de contrôle (c'est\-à\-dire
+\fIDEBIAN/triggers\fP au moment de la création du paquet).
 .PP
 Ce fichier contient des directives, une par ligne. Les mises en page et
-autres espaces ainsi que ce qui suit le caractère \fB"#"\fP sont sautés, et les
-lignes vides seront ignorées.
+autres espaces ainsi que ce qui suit le caractère \fB«\ #\ »\fP sont sautés, et
+les lignes vides seront ignorées.
 .PP
 Les directives actuellement gérées sont\ :
 .PP

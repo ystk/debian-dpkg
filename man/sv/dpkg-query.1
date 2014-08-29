@@ -16,7 +16,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -93,7 +93,7 @@ Precis som flaggan \fB\-\-list\fP kommer att paket som matchar det givna mönstre
 att visas. Utdatat kan dock skräddarsys med flaggan
 \fB\-\-showformat\fP. Standardutdataformatet är en rad per paket som träffas, där
 varje rad innehåller namn (utökat med arkitektursbeskrivning för
-\fIMutli\-Arch\fP \fBsame\fP\-paket) och installerad version av paketet, avdelat med
+\fBMulti\-Arch\fP \fBsame\fP\-paket) och installerad version av paketet, avdelat med
 ett tabulatortecken.
 .TP 
 \fB\-s\fP, \fB\-\-status\fP \fIpaketnamn\fP ...
@@ -119,8 +119,15 @@ på standard ut.
 \fB\-c\fP, \fB\-\-control\-path\fP \fIpaketnamn\fP [\fIcontrol\-filnamn\fP]
 Visar sökvägarna till kontrollfilerna som installerats på ditt system för
 \fIpaketnamn\fP. Om \fIkontrollfil\fP anges visas endast sökvägen för den
-kontrollfilen, om den finns. \fBVarning\fP: kommandot är föråldrat, vi ber dig
-gå över till att istället använda \fB\-\-control\-list\fP och \fB\-\-control\-show\fP.
+kontrollfilen, om den finns.
+
+\fBVarning\fP: kommandot är föråldrat eftersom det ger direkt tillgång till den
+interna dpkg\-databasen, vi ber dig gå över till att istället använda
+\fB\-\-control\-list\fP och \fB\-\-control\-show\fP för alla tillfällen där dessa
+kommandon kan ge samma slutresultat. Så länge det finns åtminstone ett
+tillfälle där kommandot är nödvändigt (dvs. när man måste ta bort ett
+skadligt postrm\-utvecklarskript), och det inte finns någon bra lösning för
+det, kommer kommandot inte att tas bort.
 .TP 
 \fB\-S\fP, \fB\-\-search\fP \fIfilnamnssökmönster\fP ...
 Sök efter paket som äger filer som motsvarar det angivna mönstret. Alla
@@ -212,23 +219,47 @@ binärpaketet hamnar där):
 Följande är virtuella fält, genererade av \fBdpkg\-query\fP från värden från
 adnra fält (observera att dessa inte är giltiga namn för fält i
 kontrollfiler):
-
-.nf
-    \fBbinary:Package\fP
-    \fBbinary:Summary\fP
-    \fBdb:Status\-Abbrev\fP
-    \fBsource:Package\fP
-    \fBsource:Version\fP
-.fi
-
-Standardformatet är \(lq\fB${binary:Package}\et${Version}\en\fP\(rq. Alla andra
-fält som finns i statusfilen (även användardefinierade fält) kan faktiskt
-också hämtas. De visas dock som de är, ingen konvertering eller
-felkorrigering görs på dem. \fBbinary:Package\fP är ett specialfält som skriver
-ut paketnamnet med en arkitektursbeskrivning (som "libc6:amd64") om paketet
-har ett \fIMulti\-Arch\fP\-fält med värdet \fBsame\fP och dess namn som sådant kunde
-vara tvetydigt. För att hämta namnet på paketansvarig och installerad
-version av dpkg och kan du köra:
+.RS
+.TP 
+\fBbinary:Package\fP
+It contains the binary package name with a possible architecture qualifier
+like "libc6:amd64" (since dpkg 1.16.2). The architecture qualifier will only
+be present if the package has a \fBMulti\-Arch\fP field with a value of
+\fBsame\fP. This makes the package name unambiguous.
+.TP 
+\fBbinary:Summary\fP
+It contains the package short description (since dpkg 1.16.2).
+.TP 
+\fBdb:Status\-Abbrev\fP
+It contains the abbreviated package status, such as \(lqii\(rq (since dpkg
+1.16.2).
+.TP 
+\fBdb:Status\-Want\fP
+It contains the package wanted status, part of the Status field (since dpkg
+1.17.11).
+.TP 
+\fBdb:Status\-Status\fP
+It contains the package status word, part of the Status field (since dpkg
+1.17.11).
+.TP 
+\fBdb:Status\-Eflag\fP
+It contains the package status error flag, part of the Status field (since
+dpkg 1.17.11).
+.TP 
+\fBsource:Package\fP
+It contains the source package name for this binary package (since dpkg
+1.16.2).
+.TP 
+\fBsource:Version\fP
+It contains the source package version for this binary package (since dpkg
+1.16.2)
+.RE
+.IP
+The default format string is \(lq\fB${binary:Package}\et${Version}\en\fP\(rq.
+Actually, all other fields found in the status file (i.e. user defined
+fields) can be requested, too. They will be printed as\-is, though, no
+conversion nor error checking is done on them. To get the name of the
+\fBdpkg\fP maintainer and the installed version, you could run:
 
 .nf
   \fBdpkg\-query \-W \-f=\(aq${binary:Package} ${Version}\et${Maintainer}\en\(aq dpkg\fP
@@ -242,13 +273,13 @@ Den önskade frågan utfördes utan fel.
 \fB1\fP
 Problem uppstod vid tolkning av kommandoraden eller när frågan skulle
 utföras, till exempel att ingen fil eller paket hittades (förutom för
-\-\-control\-path).
+\fB\-\-control\-path\fP).
 .
 .SH MILJÖVARIABLER
 .TP 
 \fBDPKG_ADMINDIR\fP
 Om satt, och flaggan \fB\-\-admindir\fP inte har angivits, används värdet som
-datakatalog för dpkg.
+datakatalog för \fBdpkg\fP.
 .TP 
 \fBCOLUMNS\fP
 Inställningen påverkar utdata från kommandot \fB\-\-list\fP genom att ändra
@@ -257,5 +288,5 @@ bredden på dess utdata.
 .SH "SE ÄVEN"
 \fBdpkg\fP(1).
 
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

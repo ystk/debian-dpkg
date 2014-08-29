@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DCONFIGDIR=\"$(pkgconfdir)\" \
 	-DADMINDIR=\"$(admindir)\" \
+	-DDEFAULT_TEXT_DOMAIN=\"@PACKAGE@\" \
 	-idirafter $(top_srcdir)/lib/compat \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
@@ -20,9 +21,24 @@ EXTRA_DIST = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libdpkg.pc
 
-lib_LIBRARIES = libdpkg.a
+lib_LTLIBRARIES = libdpkg.la
 
-libdpkg_a_SOURCES = \
+if HAVE_LINKER_VERSION_SCRIPT
+libdpkg_la_LDFLAGS = \
+	-Wl,--version-script=$(srcdir)/libdpkg.map
+endif
+libdpkg_la_LIBADD = \
+	../compat/libcompat.la
+if BUILD_SHARED
+libdpkg_la_LIBADD += \
+	$(LIBINTL) \
+	$(ZLIB_LIBS) \
+	$(LIBLZMA_LIBS) \
+	$(BZ2_LIBS)
+endif
+libdpkg_la_DEPENDENCIES = \
+	libdpkg.map
+libdpkg_la_SOURCES = \
 	dlist.h \
 	ar.c \
 	arch.c \
@@ -44,13 +60,13 @@ libdpkg_a_SOURCES = \
 	file.c \
 	fields.c \
 	glob.c \
-	i18n.h \
+	i18n.c i18n.h \
 	log.c \
-	md5.c md5.h \
 	mlib.c \
 	namevalue.c \
 	nfmalloc.c \
 	options.c \
+	options-parsers.c \
 	parse.c \
 	parsehelp.c \
 	path.c \
@@ -59,13 +75,16 @@ libdpkg_a_SOURCES = \
 	pkg-array.c \
 	pkg-format.c \
 	pkg-list.c \
+	pkg-namevalue.c \
 	pkg-queue.c \
 	pkg-show.c \
 	pkg-spec.c \
 	progname.c \
+	program.c \
 	progress.c \
 	report.c \
 	string.c \
+	strwide.c \
 	subproc.c \
 	tarfn.c \
 	test.h \
@@ -107,6 +126,7 @@ pkginclude_HEADERS = \
 	pkg-show.h \
 	pkg-spec.h \
 	progname.h \
+	program.h \
 	progress.h \
 	report.h \
 	string.h \

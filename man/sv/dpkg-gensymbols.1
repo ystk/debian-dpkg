@@ -2,6 +2,7 @@
 .\"
 .\" Copyright Â© 2007-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2009-2010 Modestas Vainius <modestas@vainius.eu>
+.\" Copyright Â© 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,14 +15,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gensymbols 1 2012\-04\-22 Debianprojektet dpkg\-verktygen
+.TH dpkg\-gensymbols 1 2013\-09\-06 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-gensymbols \- generera symbolfiler (information om delade bibliotek)
 .
@@ -52,7 +53,8 @@ minimala version associerad med varje symbol i biblioteken. Detta motsvarar
 normalt den första version av paketet som tillhandahöll symbolen, men det
 kan manuellt inkrementeras av de ansvariga om symbolens ABI utökas med
 bibehållen bakåtkompatibilitet. Det är den ansvarigas ansvar att hålla dessa
-filer àjourförda och korrekta, men \fBdpkg\-gensymbols\fP kan hjälpa till.
+filer àjourförda och korrekta, men \fBdpkg\-gensymbols\fP kan hjälpa till med
+detta.
 .P
 När den genererade symbolfilen skiljer sig mot den version som
 tillhandahållits av de paketansvariga kommer \fBdpkg\-gensymbols\fP att skriva
@@ -63,8 +65,11 @@ kommer programmet dessutom att misslyckas (du kan justera hur stora
 Symbolfilerna är bara riktigt nyttiga om de motsvarar hur paketet har
 utvecklats över flera versioner. De paketansvariga måste därför uppdatera
 dem varje gång en ny symbol läggs till så att dess associerade minimala
-version motsvarar verkligheten. För att göra detta på ett riktigt sätt finns
-det differensfiler i byggloggarna. I de flesta fall kan differensfilen
+version motsvarar verkligheten. Diffarna som finns i byggloggarna kan
+användas som startpunkt, men paketansvariga måste dessutom se till att
+beteendet på dessa symboler inte på något sätt har ändrat sig på ett sådant
+sätt att något som använder symbolerna och länkar mot den nya versionen
+slutar fungera med den gamla versionen. I de flesta fall kan differensfilen
 appliceras direkt på filen debian/\fIpaket\fP. Med det i åtanke så behövs det
 oftast ytterligare justeringar: det rekommenderas att skippa
 Debianrevisionen från det minimala versionsnummer så att den
@@ -82,6 +87,14 @@ Obsevera att du kan skriva kommentarer i symbols\-filer: alla rader med "#"
 som första tecken är kommentarer, såvida inte det börjar med "#include" (se
 stycket \fBAnvända inkluderingar\fP). Rader som börjar med "#MISSING:" är
 speciella kommentarer som dokumenterar symboler som har försvunnit.
+.P
+Glöm inte att kontrollera om de gamla symbolversionerna måste ökas. Det
+finns inget sätt för \fBdpkg\-gensymbols\fP att varna om detta. Att blint
+applicera diffen eller utgå från att inget har ändrats om diffen är tom,
+utan att se efter sådana ändringar, kan leda till att paket med lösa
+beroenden kan deklarera att de fungerar med äldre paket de inte kan fungera
+tillsammans med. Detta kommer introducera svårfunna problem vid (delvisa)
+uppgraderingar.{
 .SS "Använda #PACKAGE#\-substituering"
 .P
 I några sällsynta fall skiljer sig namnet på biblioteket mellan
@@ -123,10 +136,10 @@ ett exempel på en normal, otaggad symbol.
 Eftersom symboltaggar er en utökning av formatet i \fIdeb\-symbols(5)\fP kan de
 bara användas i symbolfiler i källkodspaket (dessa filer är att anse som
 mallar som används för att bygga symbolfilerna som finns i
-binärpaketen). När \fBdpkg\-gensymbols\fP anropas utan flaggan \fI\-t\fP kommer det
-att mata ut symbolfiler kompatibla med \fIdeb\-symbols(5)\fP\-formatet: det
+binärpaketen). När \fBdpkg\-gensymbols\fP anropas utan flaggan \fB\-t\fP kommer det
+att mata ut symbolfiler kompatibla med \fBdeb\-symbols\fP(5)\-formatet: det
 hanterar symboler helt beroende på vad som beskrivs av standardtaggarna och
-tar bort alla taggar från utdata. I mall\-läge (\fI\-t\fP) kommer däremot alla
+tar bort alla taggar från utdata. I mall\-läge (\fB\-t\fP) kommer däremot alla
 symboler och deras taggar (både standard och okända) att behållas i utdata
 och skrivas i sin originalform så som de lästes in.
 .SS Standardsymboltaggar
@@ -167,7 +180,7 @@ skrivs alla arkitekturspecifika symboler (inklusive de från andra
 arkitekturer) till symbolfilen i mall\-läget.
 
 Formatet på \fIarkitekturlista\fP är detsamma som det som används i
-\fIBuild\-Depends\fP\-fältet i \fIdebian/control\fP (bortsett från de omslutande
+\fBBuild\-Depends\fP\-fältet i \fIdebian/control\fP (bortsett från de omslutande
 hakparenteserna []). Den första symbolen från listan nedan, till exempel,
 kommer endast att tas med på arkitekturerna alpha, valfri\-amd64, ia64, den
 andra bara på linux\-arkitekturer medan den tredje tas med överallt förutom
@@ -206,14 +219,14 @@ symbolen kommer den att tolkas som ny.
 
 Ett mönster anses som tappat om det inte motsvarar några symboler i
 biblioteket. Som standard kommer detta få \fBdpkg\-genchanges\fP att misslyckas
-om \fI\-c1\fP eller högre anges. Om ett sådant misslyckande inte är önskvärt kan
+om \fB\-c1\fP eller högre anges. Om ett sådant misslyckande inte är önskvärt kan
 mönstret dock märkas med taggen \fIoptional\fP. Om mönstret då inte motsvarar
 någonting kommer det bara dyka upp i differensen som saknas
 (MISSING). Mönstret kan dessutom, precis som andra symboler, begränsas till
 specifika arkitekturer med hjälp av \fIarch\fP\-taggen. Se stycket
 \fBStandardsymboltaggar\fP ovan för mer information.
 
-Mönster är en utökning av \fIdeb\-symbols(5)\fP\-formatet och är därför endast
+Mönster är en utökning av \fBdeb\-symbols(5)\fP\-formatet och är därför endast
 tillåtna i symbolfilmallar. Syntax för angivelse av mönster skiljer sig inte
 från den för en specifik symbol. Symbolnamnsdelen av specifikationen
 fungerar dock som ett uttryck som skall jämföras mot \fInamn@version\fP för den
@@ -409,30 +422,29 @@ debian/changelog. Krävs om programmet anropas utanför ett källkodspaketträd.
 \fB\-e\fP\fIbiblioteksfil\fP
 Analyserar endast bibliotek som listats explicit istället för att hitta alla
 publika bibliotek. Du kan använda ett jokertecken för filnamn (se
-manualsidan File::Glob) i \fIbiblioteksfil\fP för att träffa multipla bibliotek
-med ett enda argument (annars behöver du flera \fB\-e\fP).
+manualsidan \fBFile::Glob\fP(3perl) för detaljer) i \fIbiblioteksfil\fP för att
+träffa multipla bibliotek med ett enda argument (annars behöver du flera
+\fB\-e\fP).
 .TP 
 \fB\-I\fP\fIfilnamn\fP
 Använd \fIfilnamn\fP som referensfil för att generera symbolfilen som
 integreras i själva paketet.
 .TP 
-\fB\-O\fP
-Skriv den genererade symbolfilen på standard ut, i stället för att lagra den
-i paketets byggträd.
-.TP  
-\fB\-O\fP\fIfilnamn\fP
-Lagra den genererade symbolfilen som \fIfilnamn\fP. Om \fIfilnamn\fP redan
-existerar kommer dess innehåll att användas som bas för den genererade
+\fB\-O\fP[\fIfilnamn\fP]
+Visa den genererade symbolfilen på standard ut eller spara som \fIfilnamn\fP om
+det anges, istället för \fBdebian/tmp/DEBIAN/symbols\fP (eller
+\fIpaketbyggkatalog\fP\fB/DEBIAN/symbols\fP om \fB\-P\fP användes). Om \fIfilnamn\fP
+redan existerar kommer dess innehåll att användas som bas för den genererade
 symbolfilen. Du kan använda den här funktionen för att uppdatera en
 symbolfil så att den motsvarar en nyare uppströmsversion av ditt bibliotek.
 .TP 
 \fB\-t\fP
 Skriv symbolfilen i mall\-läge istället för i formatet kompatibelt med
-\fIdeb\-symbols(5)\fP. Huvudskillnaden är att symbolnamn och taggar skrivs i sin
+\fBdeb\-symbols\fP(5). Huvudskillnaden är att symbolnamn och taggar skrivs i sin
 originalform i mall\-läget, till skillnad från de efterbehandlade
 symbolnamnen med borttagna taggar som skrivs i det kompatibla
 läget. Dessutom kan vissa symboler uteslutas när en vanlig
-\fIdeb\-symbols(5)\fP\-fil skrivs (i enlighet med tagghanteringsreglerna) medan
+\fBdeb\-symbols\fP(5)\-fil skrivs (i enlighet med tagghanteringsreglerna) medan
 alla symboler alltid skrivs till symbolfilsmallen.
 .TP 
 \fB\-c\fP\fI[0\-4]\fP
@@ -443,13 +455,13 @@ lägre nivå. Nivå 2 misslyckas om nya symboler har introducerats. Nivå 3
 misslyckas om några bibliotek har försvunnit. Nivå 4 misslyckas om några
 bibliotek har introducerats.
 
-Värdet kan överstyras med miljövariabeln DPKG_GENSYMBOLS_CHECK_LEVEL.
+Värdet kan överstyras med miljövariabeln \fBDPKG_GENSYMBOLS_CHECK_LEVEL\fP.
 .TP 
 \fB\-q\fP
 Håll tyst och generera aldrig en differens mellan den genererade symbolfilen
 och mallfilen som användes som startpunkt eller visa varningar om
 nya/förlorade bibliotek eller nya/förlorade symboler. Den här flaggan tar
-endast bort informationsutdata, inte själva kontrolleran (se flaggan \fI\-c\fP).
+endast bort informationsutdata, inte själva kontrolleran (se flaggan \fB\-c\fP).
 .TP 
 \fB\-a\fP\fIarkitektur\fP
 Anta \fIarkitektur\fP som värdarkitektur vid hantering av symbolfiler. Använd
@@ -473,12 +485,12 @@ Visar hjälpskärm och avslutar.
 Visar version och avslutar.
 .
 .SH "SE ÄVEN"
-\fBhttp://people.redhat.com/drepper/symbol\-versioning\fP
+\fBhttps://people.redhat.com/drepper/symbol\-versioning\fP
 .br
-\fBhttp://people.redhat.com/drepper/goodpractice.pdf\fP
+\fBhttps://people.redhat.com/drepper/goodpractice.pdf\fP
 .br
-\fBhttp://people.redhat.com/drepper/dsohowto.pdf\fP
+\fBhttps://people.redhat.com/drepper/dsohowto.pdf\fP
 .br
 \fBdeb\-symbols\fP(5), \fBdpkg\-shlibdeps\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

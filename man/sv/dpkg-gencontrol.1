@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gencontrol 1 2012\-05\-04 Debianprojektet dpkg\-verktygen
+.TH dpkg\-gencontrol 1 2013\-09\-06 Debianprojektet dpkg\-verktygen
 .SH NAMN
 dpkg\-gencontrol \- skapa Debians kontrollfiler
 .
@@ -35,7 +35,7 @@ dpkg\-gencontrol \- skapa Debians kontrollfiler
 och genererar en binärpaketsstyrfil (som standard
 debian/tmp/DEBIAN/control). Relationsfälten kommer att förenklas.
 .sp
-Fälten \fIPre\-Depends\fP, \fIDepends\fP, \fIRecommends\fP och \fISuggests\fP förenklas
+Fälten \fBPre\-Depends\fP, \fBDepends\fP, \fBRecommends\fP och \fBSuggests\fP förenklas
 därmed, i den följden, genom att ta bort beroenden som programmet vet
 tillhandahålls av starkare beroenden som redan tolkats. Det kommer även ta
 bort eventuella egenberoenden (programmet tar bort alla beroenden som är
@@ -45,8 +45,8 @@ beroendena behålls så långt som möjligt: om ett beroende måste tas bort på
 grund av att ett beroende återkommer senare i fältet kommer det nya
 beroendet att ta platsen från det som ersattes.
 .sp
-Övriga relationsfält (\fIEnhances\fP, \fIConflicts\fP, \fIBreaks\fP, \fIReplaces\fP och
-\fIProvides\fP) förenklas även individuellt genom att beräkna unionen av de
+Övriga relationsfält (\fBEnhances\fP, \fBConflicts\fP, \fBBreaks\fP, \fBReplaces\fP och
+\fBProvides\fP) förenklas även individuellt genom att beräkna unionen av de
 olika beroendena när ett paket förekommer flera gånger i samma fält.
 .sp
 \fBdpkg\-gencontrol\fP lägger dessutom till en post för binärpaketet i
@@ -98,9 +98,9 @@ Anta att filnamnet för paketet skalla vara \fIfilnamn\fP istället för det
 normala paket_version_ark.deb\-filnamnet.
 .TP 
 \fB\-is\fP, \fB\-ip\fP, \fB\-isp\fP
-Dessa flaggor ignoreras för kompatibilitet med äldre versioner av dpkg\-dev
-men avråds numera ifrån. De användes tidigare för att tala om för
-dpkg\-gencontrol att inkludera Section\- och Priority\-fälten i
+Dessa flaggor ignoreras för kompatibilitet med äldre versioner av dpkg:s
+byggskript men avråds numera ifrån. De användes tidigare för att tala om för
+\fBdpkg\-gencontrol\fP att inkludera Section\- och Priority\-fälten i
 control\-filen. Detta är numera standardbeteendet. Om du vill återskapa det
 gamla beteendet kan du använda flaggan \fB\-U\fP för att ta bort fälten från
 control\-filen.
@@ -111,10 +111,10 @@ stället för \fBdebian/tmp\fP. Värdet används för att bestämma standardvärdet
 för substitueringsvariabeln och control\-filsfältet \fBInstalled\-Size\fP (med
 hjälp av \fBdu\fP), samt för att välja standardplacering av utdatafilen.
 .TP 
-\fB\-O\fP
-Skriv control\-filen på standard ut, i stället för till
-\fBdebian/tmp/DEBIAN/control\fP (eller \fIpaketbyggkatalog\fP\fB/DEBIAN/control\fP om
-\fB\-P\fP användes).
+\fB\-O\fP[\fIfilnamn\fP]
+Skriv control\-filen på standard ut (eller \fIfilnamn\fP, om angivet), i stället
+för till \fBdebian/tmp/DEBIAN/control\fP (eller
+\fIpaketbyggkatalog\fP\fB/DEBIAN/control\fP om \fB\-P\fP användes).
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
@@ -132,5 +132,5 @@ information om källkodspaketet och de binärpaket som kan skapas från det.
 Listan över genererade filer som ingår i insändningen som
 skapas. \fBdpkg\-gencontrol\fP lägger till de förutsatta filnamnen på
 binärpaketen vars control\-filer det genererar här.
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

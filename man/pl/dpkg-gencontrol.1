@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006, 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006, 2012-2013 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2007-2008 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -16,14 +16,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-gencontrol 1 2012\-05\-04 "Projekt Debian" "programy pomocnicze dpkg"
+.TH dpkg\-gencontrol 1 2013\-09\-06 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 dpkg\-gencontrol \- tworzy pliki kontrolne Debiana
 .
@@ -36,21 +36,20 @@ Debiana i generuje plik kontrolny pakietu binarnego (domy¶lnie jest to
 debian/tmp/DEBIAN/control), upraszczaj±c podczas tego procesu pola dotycz±ce
 zale¿no¶ci.
 .sp
-Pola \fIPre\-Depends\fP, \fIDepends\fP, \fIRecommends\fP oraz \fISuggests\fP s±
-upraszczane w tej w³a¶nie kolejno¶ci przez usuwanie zale¿no¶ci o których
-wiadomo, ¿e s± prawdziwe, poniewa¿ wynikaj± z innych, przetworzonych ju¿
-mocniejszych zale¿no¶ci. Usuniête tak¿e bêd± wszelkie zale¿no¶ci pakietu od
-samego siebie (dok³adniej: usuniête bêd± wszystkie zale¿no¶ci, które bêd±
-prawdziwe po zainstalowaniu bie¿±cej wersji pakietu). Mówi±c jêzykiem
-logiki, zachowana bêdzie czê¶æ wspólna ze zbioru wszystkich zale¿no¶ci
-dotycz±cych tego samego pakietu. Porz±dek zale¿no¶ci jest zachowywany w
-takim stopniu, w jakim jest to tylko mo¿liwe: je¿eli jaka¶ zale¿no¶æ musi
-byæ usuniêta z powodu innej zale¿no¶ci wystêpuj±cej dalej w danym polu,
-wypieraj±ca zale¿no¶æ zajmie miejsce tej usuwanej.
+Thus \fBPre\-Depends\fP, \fBDepends\fP, \fBRecommends\fP and \fBSuggests\fP are
+simplified in this order by removing dependencies which are known to be true
+according to the stronger dependencies already parsed. It will also remove
+any self\-dependency (in fact it will remove any dependency which evaluates
+to true given the current version of the package as installed). Logically it
+keeps the intersection of multiple dependencies on the same package. The
+order of dependencies is preserved as best as possible: if any dependency
+must be discarded due to another dependency appearing further in the field,
+the superseding dependency will take the place of the discarded one.
 .sp
-Pozosta³e pola relacyjne (\fIEnhances\fP, \fIConflicts\fP, \fIBreaks\fP, \fIReplaces\fP
-oraz \fIProvides\fP) tak¿e s± indywidualnie upraszczane przez wyliczanie sumy
-ró¿nych zale¿no¶ci, je¶li w danym polu pakiet jest wymieniony wiele razy.
+The other relation fields (\fBEnhances\fP, \fBConflicts\fP, \fBBreaks\fP, \fBReplaces\fP
+and \fBProvides\fP)  are also simplified individually by computing the union of
+the various dependencies when a package is listed multiple times in the
+field.
 .sp
 \fBdpkg\-gencontrol\fP dodaje ponadto wpis dotycz±cy pakietu binarnego do
 \fBdebian/files\fP.
@@ -102,12 +101,12 @@ Okre¶la, ¿e nazw± pliku pakietu bêdzie \fInazwa_pliku\fP zamiast normalnej
 nazwy pliku w postaci pakiet_wersja_architektura.deb
 .TP 
 \fB\-is\fP, \fB\-ip\fP, \fB\-isp\fP
-Te opcje s± ignorowane w celu zachowania kompatybilno¶ci ze starszymi
-wersjami dpkg\-dev, obecnie s± uznawane za przestarza³e. Poprzednio by³y
-u¿ywane do nakazania programowi dpkg\-gencontrol w³±czenia pól Section i
-Priority do pliku kontrolnego. Obecnie jest to domy¶lne zachowanie. Aby
-uzyskaæ poprzednie zachowanie, mo¿na u¿yæ opcji \fB\-U\fP, dziêki której mo¿na
-usun±æ powy¿sze pola z pliku kontrolnego.
+These options are ignored for compatibility with older versions of the dpkg
+build scripts but are now deprecated. Previously they were used to tell
+\fBdpkg\-gencontrol\fP to include the Section and Priority fields in the control
+file. This is now the default behaviour. If you want to get the old
+behaviour you can use the \fB\-U\fP option to delete the fields from the control
+file.
 .TP 
 \fB\-P\fP\fIkatalog\-budowania\-pakietu\fP
 Mówi programowi \fBdpkg\-source\fP, ¿e pakiet jest budowany w
@@ -116,10 +115,10 @@ u¿ywany do znalezienia domy¶lnych warto¶ci zmiennej podstawiania
 \fBInstalled\-Size\fP i pola w pliku kontrolnym o tej samej nazwie (przy u¿yciu
 \fBdu\fP) oraz domy¶lnej lokalizacji pliku wynikowego.
 .TP 
-\fB\-O\fP
-Wypisuje plik kontrolny na standardowe wyj¶cie, a nie do pliku
-\fBdebian/tmp/DEBIAN/control\fP (lub
-\fIkatalogu\-budowania\-pakietu\fP\fB/DEBIAN/control\fP, gdy u¿yto \fB\-P\fP).
+\fB\-O\fP[\fIfilename\fP]
+Print the control file to standard output (or \fIfilename\fP if specified),
+rather than to \fBdebian/tmp/DEBIAN/control\fP (or
+\fIpackage\-build\-dir\fP\fB/DEBIAN/control\fP if \fB\-P\fP was used).
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Wy¶wietla informacjê o u¿ytkowaniu i koñczy dzia³anie.
@@ -138,7 +137,7 @@ pakiecie ¼ród³owym, jak i o pakietach binarnych, które s± tworzone z pakietu
 Lista wygenerowanych plików, które s± czê¶ci± przygotowywanego
 wydania. \fBdpkg\-gencontrol\fP zapisuje tutaj przypuszczalne nazwy
 plików\-pakietów binarnych generowanych z pliku kontrolnego.
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

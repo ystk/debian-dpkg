@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 "17 giugno 2012" "Progetto Debian" "utilità dpkg"
+.TH start\-stop\-daemon 8 2014\-03\-26 "Progetto Debian" "utilità dpkg"
 .SH NOME
 start\-stop\-daemon \- avvia e ferma i programmi demone di sistema
 .
@@ -77,7 +77,16 @@ Visualizza informazioni sull'uso ed esce.
 \fB\-V\fP, \fB\-\-version\fP
 Visualizza la versione del programma ed esce.
 .
-.SH "OPZIONI PER LA CORRISPONDENZA"
+.SH OPZIONI
+.SS "Opzioni per corrispondenze"
+.TP 
+\fB\-\-pid\fP \fIpid\fP
+Controlla un processo con il \fIpid\fP specificato. Il \fIpid\fP deve essere un
+numero maggiore di 0.
+.TP 
+\fB\-\-ppid\fP \fIppid\fP
+Check for a process with the specified \fIppid\fP (parent pid).  The \fIppid\fP
+must be a number greater than 0.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIfile\-pid\fP
 Controlla se un processo ha creato il file \fIfile\-pid\fP. Nota: usare questa
@@ -106,7 +115,7 @@ Cerca i processi di proprietà dell'utente specificato da \fInomeutente\fP o
 \fIuid\fP. Nota: l'uso di questa opzione di corrispondenza da sola farà sì che
 l'azione abbia effetto su tutti i processi corrispondenti all'utente.
 .
-.SH OPZIONI
+.SS "Opzioni generiche"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIgruppo\fP|\fIgid\fP
 Modifica in \fIgroup\fP o \fIgid\fP quando avvia il processo.
@@ -172,8 +181,8 @@ processo. Notare che anche il filepid viene scritto dopo chroot.
 \fB\-d\fP, \fB\-\-chdir\fP \fIpercorso\fP
 Cambia la directory a \fIpercorso\fP prima di avviare il processo. Questo viene
 fatto dopo chroot, se viene usata l'opzione \fB\-r\fP|\fB\-\-chroot\fP. Quando non
-specificato, start\-stop\-daemon cambia la directory in quella root prima di
-avviare il processo.
+specificato, \fBstart\-stop\-daemon\fP cambia la directory in quella root prima
+di avviare il processo.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
 Usata tipicamente con i programmi che non si scollegano da soli. Questa

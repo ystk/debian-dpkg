@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_I18N_H
@@ -41,6 +41,8 @@ DPKG_BEGIN_DECLS
 #define P_(str, str_plural, n) ngettext(str, str_plural, n)
 #define N_(str) gettext_noop(str)
 #define C_(ctxt, str) pgettext(ctxt, str)
+
+void dpkg_locales_init(const char *package);
 
 /** @} */
 

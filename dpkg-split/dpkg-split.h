@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DPKG_SPLIT_H
@@ -57,8 +57,6 @@ struct partqueue {
   struct partinfo info;
 };
 
-extern struct partqueue *queue;
-
 extern off_t opt_maxpartsize;
 extern const char *opt_depotdir;
 extern const char *opt_outputfile;
@@ -69,7 +67,6 @@ void rerreof(FILE *f, const char *fn) DPKG_ATTR_NORET;
 void print_info(const struct partinfo *pi);
 struct partinfo *read_info(FILE *partfile, const char *fn, struct partinfo *ir);
 
-void scandepot(void);
 void reassemble(struct partinfo **partlist, const char *outputfile);
 void mustgetpartinfo(const char *filename, struct partinfo *ri);
 void addtopartlist(struct partinfo**, struct partinfo*, struct partinfo *refi);

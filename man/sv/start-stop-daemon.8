@@ -5,7 +5,7 @@
 .\" Copyright Â© 2000-2001 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2002-2003 Adam Heath <doogie@debian.org>
 .\" Copyright Â© 2004 Scott James Remnant <keybuk@debian.org>
-.\" Copyright Â© 2008-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH start\-stop\-daemon 8 2012\-06\-17 Debianprojektet dpkg\-verktygen
+.TH start\-stop\-daemon 8 2014\-03\-26 Debianprojektet dpkg\-verktygen
 .SH NAMN
 start\-stop\-daemon \- startar och stoppar bakgrundsprocesser
 .
@@ -73,7 +73,16 @@ Visa hjälpskärm och avsluta.
 \fB\-V\fP, \fB\-\-version\fP
 Visa programversion och avsluta.
 .
-.SH "FLAGGOR FÖR SÖKNING"
+.SH FLAGGOR
+.SS Matchingsflaggor
+.TP 
+\fB\-\-pid\fP \fIpid\fP
+Se efter en process med angiven \fIpid\fP. \fIpid\fP måste vara ett tal större än
+0.
+.TP 
+\fB\-\-ppid\fP \fIppid\fP
+Se efter en process med angiven \fIppid\fP (föräldra\-pid). \fIppid\fP måste vara
+ett tal större än 0.
 .TP 
 \fB\-p\fP, \fB\-\-pidfile\fP \fIpidfil\fP
 Kontrollera om en process har skapat filen \fIpidfil\fP. Observera: om flaggan
@@ -99,7 +108,7 @@ Se efter processer som ägs av användaren som anges av \fIanvändarnamn\fP eller
 \fIanvänder\-id\fP. Observera: om den här flaggan används på egen hand träffas
 alla processer som motsvarar användaren.
 .
-.SH FLAGGOR
+.SS "Generiska flaggor"
 .TP 
 \fB\-g\fP, \fB\-\-group\fP \fIgrupp\fP|\fIgrupp\-id\fP
 Byt till \fIgrupp\fP eller \fIgrupp\-id\fP när processen startas.
@@ -163,7 +172,7 @@ pidfilen skrivs efter chroot har utförts.
 \fB\-d\fP, \fB\-\-chdir\fP \fIsökväg\fP
 Byt katalog till \fIsökväg\fP innan processen startas. Detta görs efter byte av
 rot om \fB\-r\fP|\fB\-\-chroot\fP\-flaggan anges. Om flaggan inte anges kommer
-start\-stop\-daemon byta till rotkatalogen innan processen startas.
+\fBstart\-stop\-daemon\fP byta till rotkatalogen innan processen startas.
 .TP 
 \fB\-b\fP, \fB\-\-background\fP
 Används typiskt med program som inte kopplar loss sig av sig själva. Flagga
@@ -269,5 +278,5 @@ Demonstration av ett skräddarsytt schema för att avsluta \fBfood\fP:
 start\-stop\-daemon \-\-stop \-\-oknodo \-\-user food \-\-name food \e
 	\-\-pidfile /run/food.pid \-\-retry=TERM/30/KILL/5
 .fi
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

@@ -4,7 +4,7 @@
 .\" Copyright 息 2000 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright 息 2006 Frank Lichtenheld <djpig@debian.org>
 .\" Copyright 息 2007-2011 Rapha谷l Hertzog <hertzog@debian.org>
-.\" Copyright 息 2012 Guillem Jover <guillem@debian.org>
+.\" Copyright 息 2012-2013 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-shlibdeps 1 2012\-05\-04 "Debian Project" "dpkg ユーティリティ"
+.TH dpkg\-shlibdeps 1 2013\-09\-06 "Debian Project" "dpkg ユーティリティ"
 .SH 名前
 dpkg\-shlibdeps \- 共有ライブラリの substvar 依存関係を生成する
 .
@@ -57,16 +57,18 @@ dpkg\-shlibdeps \- 共有ライブラリの substvar 依存関係を生成する
 システム全体に上書き適用される共有ライブラリの依存関係情報。\fIarch\fP は現在のシステムのアーキテクチャを示す
 (\fBdpkg\-architecture \-qDEB_HOST_ARCH\fP により取得される)。
 .IP "\(lq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP symbols\(rq の出力"
-パッケージの提供する共有ライブラリの依存関係情報。\-\-admindir により上書きされない限り、これらのファイルは /var/lib/dpkg
-に存在する。
+Package\-provided shared library dependency information.  Unless overridden
+by \fB\-\-admindir\fP, those files are located in /var/lib/dpkg.
 .P
 バイナリが使用するシンボルをスキャンしている際、\fBdpkg\-shlibdeps\fP は、各ライブラリが必要としている (最大の)
 最小バージョンを記憶する。これにより、処理が完了した際に、使用する各ライブラリ毎に最小の依存関係を書き出すことが可能となる (\fIsymbols\fP
 ファイルの情報が適切である場合)。
 .P
-安全を確保するための手段として、シンボルファイルは \fIBuild\-Depends\-Package\fP
-というメタ情報フィールドを提供することができる。\fBdpkg\-shlibdeps\fP は、ここから Build\-Depends
-フィールドにあるパッケージが必要とする最小バージョンを取得する。この最小バージョンがシンボルを検索して算出された最小バージョンより大きい場合、シンボルファイルで指定したバージョンが使用される。
+As a safe\-guard measure, a symbols file can provide a
+\fBBuild\-Depends\-Package\fP meta\-information field and \fBdpkg\-shlibdeps\fP will
+extract the minimal version required by the corresponding package in the
+\fBBuild\-Depends\fP field and use this version if it's higher than the minimal
+version computed by scanning symbols.
 .SS "shlibs ファイル"
 shlibs ファイルは、ライブラリに直接 (シンボルを参照することなしに)
 依存関係を設定する。これは時として必要以上に強力な場合もあるが、非常に安全かつ簡単に扱うことができる。
@@ -81,8 +83,8 @@ shlibs ファイルは、ライブラリに直接 (シンボルを参照することなしに)
 を起動した現在のビルド処理によって生成された共有ライブラリの情報。これらはライブラリがパッケージのビルドツリー内で見つかった場合のみ使われる。ビルドツリー内の
 shlibs ファイルはその他のバイナリパッケージの shlibs ファイルに優先する。
 .IP "\(lq\fBdpkg\-query \-\-control\-path\fP \fIpackage\fP shlibs\(rq の出力"
-パッケージの提供する共有ライブラリの依存関係情報。\-\-admindir により上書きされない限り、これらのファイルは /var/lib/dpkg
-に存在する。
+Package\-provided shared library dependency information.  Unless overridden
+by \fB\-\-admindir\fP, those files are located in /var/lib/dpkg.
 .IP /etc/dpkg/shlibs.default
 システム全体に影響するデフォルトの共有ライブラリの依存関係情報
 .P
@@ -92,7 +94,17 @@ shlibs ファイルはその他のバイナリパッケージの shlibs ファイルに優先する。
 で指定された場合と同じく実行ファイル名として解釈する。
 .TP 
 \fB\-e\fP\fIexecutable\fP
-\fIexecutable\fP が必要とする共有ライブラリのための依存関係を含める。
+Include dependencies appropriate for the shared libraries required by
+\fIexecutable\fP.  This option can be used multiple times.
+.TP 
+\fB\-l\fP\fIdirectory\fP
+Add \fIdirectory\fP to the list of directories to search for private shared
+libraries (since dpkg 1.17.0). This option can be used multiple times.
+
+Note: Use this option instead of setting \fBLD_LIBRARY_PATH\fP, as that
+environment variable is used to control the run\-time linker and abusing it
+to set the shared library paths at build\-time can be problematic when
+cross\-compiling for example.
 .TP 
 \fB\-d\fP\fIdependency\-field\fP
 制御ファイルの依存関係のためのフィールド \fIdependency\-field\fP に依存関係を追加する (このフィールドに記載した依存関係は
@@ -110,8 +122,10 @@ shlibs ファイルはその他のバイナリパッケージの shlibs ファイルに優先する。
 変数名を \fBshlibs:\fP から始まる代わりに \fIvarname\-prefix\fP\fB:\fP から始める。同様に、(\fBshlibs:\fPではなく)
 \fIvarname\-prefix\fP\fB:\fP から始まる既存の変数が変数ファイルから削除される。
 .TP 
-\fB\-O\fP
-変数の設定を、変数ファイル (デフォルトは \fBdebian/substvars\fP) に追加する代わりに標準出力に出力する。
+\fB\-O\fP[\fIfilename\fP]
+Print substitution variable settings to standard output (or \fIfilename\fP if
+specified), rather than being added to the substitution variables file
+(\fBdebian/substvars\fP by default).
 .TP 
 \fB\-t\fP\fItype\fP
 指定されたパッケージ形式にタグ付けされた共有ライブラリの依存情報を優先的に用いる。タグ付けされた情報が利用できなかった場合はタグ付けされていない情報が用いられる。デフォルトのパッケージ形式は
@@ -156,7 +170,8 @@ shlibs ファイルはその他のバイナリパッケージの shlibs ファイルに優先する。
 \fB\-\-version\fP
 バージョン情報を表示して終了する。
 .
-.SH 警告
+.SH 診断メッセージ
+.SS Warnings
 \fBdpkg\-shlibdeps\fP
 が生成されたパッケージの各バイナリが使用する一連のシンボルを解析する際に、様々なケースで警告が発生する。これにより、パッケージの改良につながるヒントを得ることができる。多くの場合、こうした改良はアップストリームのソースに直接影響する。重要度の高いものから順に、発生しうる様々な警告を以下に示す:
 .TP 
@@ -182,23 +197,30 @@ RPATH を用いて、動的ローダにライブラリを発見させる。後者の場合、このライブラリは
 \fIbinary\fP\fB should not be linked against \fP\fIlibrary\fP\fB (it uses none of the library's symbols)\fP
 \fIbinary\fP
 は不要なライブラリにリンクされている。これは問題ではないが、このライブラリをバイナリにリンクしないことで、若干のパフォーマンス向上が見込まれる。この警告は前述したものと同じ情報を提示しているが、解析したバイナリ全体に対するチェックではなく、個別のライブラリに対するチェックとなっている。
-.SH エラー
+.SS Errors
 \fBdpkg\-shlibdeps\fP は、バイナリによって使用される公開ライブラリを発見できない場合や、ライブラリに依存関係の情報 (shlibs
 ファイルやシンボルファイル) が存在しない場合エラーとなる。公開ライブラリは SONAME があり、(libsomething.so.\fIX\fP
 という形態で) バージョン管理されている。(プラグインのような) 非公開ライブラリは SONAME を持つべきではなく、バージョン管理も不要である。
 .TP 
 \fBcouldn't find library \fP\fIlibrary\-soname\fP\fB needed by \fP\fIbinary\fP\fB (its RPATH is '\fP\fIrpath\fP\fB')\fP
-\fIbinary\fP が \fIlibrary\-soname\fP で呼び出されるライブラリを使用しているが、\fBdpkg\-shlibdeps\fP
-はライブラリを発見できない。\fBdpkg\-shlibdeps\fP は以下の順でライブラリを確認するディレクトリの一覧を作成する: バイナリの RPATH
-に設定されたディレクトリ、/etc/ld.so.conf に設定されたディレクトリ、LD_LIBRARY_PATH
-環境変数に設定されたディレクトリ、標準のディレクトリ (/lib, /usr/lib, /lib32, /usr/lib32, /lib64,
-/usr/lib64)。作成後、解析されているバイナリに関するパッケージのビルドツリー、\-S
-コマンドラインオプションで指定されたパッケージビルドツリー、同じく DEBIAN/shlibs もしくは DEBIAN/symbols
-ファイルに含まれるもの、最後にルートディレクトリ内にある、先ほどのディレクトリの一覧をチェックする。これらのディレクトリでライブラリが発見できない場合、エラーとなる。
+The \fIbinary\fP uses a library called \fIlibrary\-soname\fP but \fBdpkg\-shlibdeps\fP
+has been unable to find the library.  \fBdpkg\-shlibdeps\fP creates a list of
+directories to check as following: directories listed in the RPATH of the
+binary, directories listed in /etc/ld.so.conf, directories added by the
+\fB\-l\fP option, directories listed in the \fBLD_LIBRARY_PATH\fP environment
+variable, and standard public directories (/lib, /usr/lib, /lib32,
+/usr/lib32, /lib64, /usr/lib64). Then it checks those directories in the
+package's build tree of the binary being analyzed, in the packages' build
+trees indicated with the \fB\-S\fP command\-line option, in other packages' build
+trees that contains a DEBIAN/shlibs or DEBIAN/symbols file and finally in
+the root directory.  If the library is not found in any of those
+directories, then you get this error.
 
-発見できないライブラリが同じパッケージの非公開ディレクトリにある場合、ディレクトリを LD_LIBRARY_PATH
-に追加するとよい。ライブラリがビルドされる別のバイナリパッケージに存在している場合、このパッケージの shlibs/symbols
-ファイルをあらかじめ作成した上で、それが非公開ディレクトリに配置される場合は、LD_LIBRARY_PATH に適切なディレクトリを含めておけばよい。
+If the library not found is in a private directory of the same package, then
+you want to add the directory with \fB\-l\fP. If it's in another binary package
+being built, you want to make sure that the shlibs/symbols file of this
+package is already created and that \fB\-l\fP contains the appropriate directory
+if it also is in a private directory.
 .TP 
 \fBno dependency information found for \fP\fIlibrary\-file\fP\fB (used by \fP\fIbinary\fP\fB).\fP
 \fIbinary\fP が必要とするライブラリは、\fBdpkg\-shlibdeps\fP によって \fIlibrary\-file\fP
@@ -217,8 +239,9 @@ RPATH を用いて、動的ローダにライブラリを発見させる。後者の場合、このライブラリは
 (\fBrealpath\fP(3) を用いて) 正規名を確認するが、常に成功するとは限らない。問題を発生させないために、バイナリの RPATH
 を常に整理しておくことが推奨される。
 
-\fBdpkg\-shlibdeps\fP を冗長モード (\-v)
-で実行することで、依存関係情報を検索する際の試行に関して、より多くのメッセージを提供することができる。これは、エラーの原因が何か分からない場合に有用となるだろう。
+Calling \fBdpkg\-shlibdeps\fP in verbose mode (\fB\-v\fP) will provide much more
+information about where it tried to find the dependency information. This
+might be useful if you don't understand why it's giving you this error.
 .SH 関連項目
 \fBdeb\-shlibs\fP(5), \fBdeb\-symbols\fP(5), \fBdpkg\-gensymbols\fP(1)
 .SH 翻訳者

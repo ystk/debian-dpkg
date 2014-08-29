@@ -15,7 +15,7 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
@@ -35,15 +35,15 @@ dpkg\-scanpackages \- tworzy pliki indeksowe Sources
 \&\fI.dsc\fP, u¿ywanych do utworzenia indeksu ¼ród³owych pakietów Debiana, który
 nastêpnie jest wypisywany na standardowe wyj¶cie.
 .PP
-\fIPlik_nadpisañ\fP, je¶li zosta³ podany, jest u¿ywany do ustawienia
-priorytetów w wyj¶ciowym indeksie oraz do nadpisania pola Maintainer z pliku
-\&\fI.dsc\fP (plik mo¿e byæ skompresowany). Format tego pliku mo¿na znale¼æ w
-\fBdeb\-override\fP(5). \s-1Notabene:\s0 Wystêpuje tu ma³y problem, poniewa¿
-plik nadpisañ jest indeksowany pakietami binarnymi, a nie ¼ród³owymi. Obecna
-implementacja u¿ywa jako priorytetu pakietu ¼ród³owego najwiêkszego spo¶ród
-priorytetów wszystkich binarnych pakietów generowanych z pliku \fI.dsc\fP, a do
-zmodyfikowania informacji o opiekunie \- nadpisania opiekuna z pierwszego
-pakietu binarnego wymienionego w pliku \fI.dsc\fP. Mo¿e siê to zmieniæ.
+The \fIoverride\-file\fP, if given, is used to set priorities in the resulting
+index records and to override the maintainer field given in the \fI.dsc\fP
+files. The file can be compressed. See \fBdeb\-override\fP(5)  for the format of
+this file. Note: Since the override file is indexed by binary, not source
+packages, there's a bit of a problem here. The current implementation uses
+the highest priority of all the binary packages produced by a \fI.dsc\fP file
+for the priority of the source package, and the override entry for the first
+binary package listed in the \fI.dsc\fP file to modify maintainer
+information. This might change.
 .PP
 \fIPrefiks_¶cie¿ki\fP, je¶li podano, jest do³±czany na pocz±tek pola Directory
 w wygenerowanym indeksie ¼ród³owym. Ogólnie jest to u¿ywane, aby pola
@@ -84,7 +84,7 @@ Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
 .
 .SH "ZOBACZ TAK¯E"
 \fBdeb\-override\fP(5), \fBdeb\-extra\-override\fP(5), \fBdpkg\-scanpackages\fP(1).
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005

@@ -15,15 +15,15 @@
 .\" GNU General Public License for more details.
 .\"
 .\" You should have received a copy of the GNU General Public License
-.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-checkbuilddeps 1 2012\-05\-22 Debian\-Projekt dpkg\-Hilfsprogramme
-.SH NAME
+.TH dpkg\-checkbuilddeps 1 2013\-09\-17 Debian\-Projekt dpkg\-Hilfsprogramme
+.SH BEZEICHNUNG
 dpkg\-checkbuilddeps \- überprüfe Bauabhängigkeiten und \-konflikte
 .
 .SH ÜBERSICHT
@@ -45,14 +45,14 @@ Steuerdateiname kann auf der Kommandozeile angegeben werden.
 \fI/var/lib/dpkg\fP.
 .TP 
 \fB\-A\fP
-Ignoriere \fIBuild\-Depends\-Indep\fP und
-\fIBuild\-Conflicts\-Arch\fP\-Zeilen. Verwenden Sie dies, wenn nur
+Ignoriere \fBBuild\-Depends\-Indep\fP und
+\fBBuild\-Conflicts\-Arch\fP\-Zeilen. Verwenden Sie dies, wenn nur
 arch\-indep\-Pakete gebaut werden oder kombinieren Sie es mit \fB\-B\fP, wenn nur
 ein Quellpaket gebaut werden soll.
 .TP 
 \fB\-B\fP
-Ignoriere \fIBuild\-Depends\-Indep\fP und
-\fIBuild\-Conflicts\-Indep\fP\-Zeilen. Verwenden Sie dies, wenn nur
+Ignoriere \fBBuild\-Depends\-Indep\fP und
+\fBBuild\-Conflicts\-Indep\fP\-Zeilen. Verwenden Sie dies, wenn nur
 arch\-dep\-Pakete gebaut werden oder kombinieren Sie es mit \fB\-A\fP, wenn nur
 ein Quellpaket gebaut werden soll.
 .TP 
@@ -67,13 +67,27 @@ Verwende die angegebenen Bauabhängigkeiten/\-konflikte statt denen der Datei
 der Datei »control« für die angegebene Host\-Architektur statt für die
 Architektur des aktuellen Systems gebaut werden soll.
 .TP 
+\fB\-P \fP\fIProfil\fP[\fB,\fP?]
+Überprüfe Bauabhängigkeiten/\-konflikte unter der Annahme, dass das Paket in
+der Datei »control« für das/die angegebene(n) Bauprofile gebaut werden
+soll. Das Argument ist eine Kommata\-getrennte Liste von Profilnamen ohne den
+Namensraum\-Präfix »\fBprofile.\fP«.
+.TP 
 \fB\-?\fP, \fB\-\-help\fP
 Zeige den Bedienungshinweis und beende.
 .TP 
 \fB\-\-version\fP
 Gebe die Version aus und beende sich.
+.
+.SH UMGEBUNG
+.TP 
+\fBDEB_BUILD_PROFILES\fP
+Falls gesetzt, wird sie als aktive(s) Bau\-Profil(e) für das zu bauende Paket
+verwandt. Es ist eine durch Leerzeichen getrennte Liste von Profilnamen ohne
+den Namensraum\-Präfix »\fBprofile\fP«. Wird durch die Option \fB\-P\fP außer Kraft
+gesetzt.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2012 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

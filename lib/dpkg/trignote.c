@@ -4,7 +4,7 @@
  *
  * Copyright © 2007 Canonical Ltd
  * Written by Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
+
+#include <string.h>
 
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
@@ -65,9 +67,9 @@ trig_note_pend(struct pkginfo *pend, const char *trig)
 		return false;
 
 	if (pend->trigaw.head)
-		pkg_set_status(pend, stat_triggersawaited);
+		pkg_set_status(pend, PKG_STAT_TRIGGERSAWAITED);
 	else
-		pkg_set_status(pend, stat_triggerspending);
+		pkg_set_status(pend, PKG_STAT_TRIGGERSPENDING);
 
 	return true;
 }
