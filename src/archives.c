@@ -390,7 +390,6 @@ tarobject_extract(struct tarcontext *tc, struct tar_entry *te,
   case TAR_FILETYPE_HARDLINK:
     varbuf_reset(&hardlinkfn);
     varbuf_add_str(&hardlinkfn, instdir);
-    varbuf_add_char(&hardlinkfn, '/');
     linknode = findnamenode(te->linkname, 0);
     varbuf_add_str(&hardlinkfn,
                    namenodetouse(linknode, tc->pkg, &tc->pkg->available)->name);
@@ -790,6 +789,8 @@ tarobject(void *ctx, struct tar_entry *ti)
 
   ensureobstackinit();
 
+  tar_entry_update_from_system(ti);
+
   /* Append to list of files.
    * The trailing ‘/’ put on the end of names in tarfiles has already
    * been stripped by tar_extractor(). */
@@ -832,7 +833,7 @@ tarobject(void *ctx, struct tar_entry *ti)
     st = &ti->stat;
 
   usenode = namenodetouse(nifd->namenode, tc->pkg, &tc->pkg->available);
-  usename = usenode->name + 1; /* Skip the leading '/'. */
+  usename = usenode->name;
 
   trig_file_activate(usenode, tc->pkg);
 
@@ -1196,16 +1197,14 @@ tar_writeback_barrier(struct fileinlist *files, struct pkginfo *pkg)
 
   for (cfile = files; cfile; cfile = cfile->next) {
     struct filenamenode *usenode;
-    const char *usename;
     int fd;
 
     if (!(cfile->namenode->flags & fnnf_deferred_fsync))
       continue;
 
     usenode = namenodetouse(cfile->namenode, pkg, &pkg->available);
-    usename = usenode->name + 1; /* Skip the leading '/'. */
 
-    setupfnamevbs(usename);
+    setupfnamevbs(usenode->name);
 
     fd = open(fnamenewvb.buf, O_WRONLY);
     if (fd < 0)
@@ -1230,7 +1229,6 @@ tar_deferred_extract(struct fileinlist *files, struct pkginfo *pkg)
 {
   struct fileinlist *cfile;
   struct filenamenode *usenode;
-  const char *usename;
 
   tar_writeback_barrier(files, pkg);
 
@@ -1241,9 +1239,8 @@ tar_deferred_extract(struct fileinlist *files, struct pkginfo *pkg)
       continue;
 
     usenode = namenodetouse(cfile->namenode, pkg, &pkg->available);
-    usename = usenode->name + 1; /* Skip the leading '/'. */
 
-    setupfnamevbs(usename);
+    setupfnamevbs(usenode->name);
 
     if (cfile->namenode->flags & fnnf_deferred_fsync) {
       int fd;
@@ -1616,7 +1613,7 @@ archivefiles(const char *const *argv)
     }
     if (ferror(pf)) ohshite(_("error reading find's pipe"));
     if (fclose(pf)) ohshite(_("error closing find's pipe"));
-    rc = subproc_wait_check(pid, "find", PROCNOERR);
+    rc = subproc_reap(pid, "find", SUBPROC_RETERROR);
     if (rc != 0)
       ohshit(_("find for --recursive returned unhandled error %i"), rc);
 
@@ -1646,11 +1643,8 @@ archivefiles(const char *const *argv)
   varbuf_reset(&fnamenewvb);
 
   varbuf_add_str(&fnamevb, instdir);
-  varbuf_add_char(&fnamevb, '/');
   varbuf_add_str(&fnametmpvb, instdir);
-  varbuf_add_char(&fnametmpvb, '/');
   varbuf_add_str(&fnamenewvb, instdir);
-  varbuf_add_char(&fnamenewvb, '/');
   fnameidlu= fnamevb.used;
 
   ensure_diversions();
@@ -1758,14 +1752,18 @@ wanttoinstall(struct pkginfo *pkg)
   }
 }
 
-struct fileinlist *newconff_append(struct fileinlist ***newconffileslastp_io,
-				   struct filenamenode *namenode) {
-  struct fileinlist *newconff;
+struct fileinlist *
+filenamenode_queue_push(struct filenamenode_queue *queue,
+                        struct filenamenode *namenode)
+{
+  struct fileinlist *node;
 
-  newconff= m_malloc(sizeof(struct fileinlist));
-  newconff->next = NULL;
-  newconff->namenode= namenode;
-  **newconffileslastp_io= newconff;
-  *newconffileslastp_io= &newconff->next;
-  return newconff;
+  node = m_malloc(sizeof(*node));
+  node->next = NULL;
+  node->namenode = namenode;
+
+  *queue->tail = node;
+  queue->tail = &node->next;
+
+  return node;
 }

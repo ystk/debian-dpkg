@@ -16,12 +16,12 @@
 
 # Variables to be defined:
 #
-#  TEST_PREFIX - set to the path to prefix to each test case for execution
 #  TEST_VERBOSE - set to 0 (default) or 1 to control test suite verbosity
 #  TEST_ENV_VARS - environment variables to be set for the test suite
 #  TEST_COVERAGE - set to the perl module in charge of getting test coverage
 #  test_tmpdir - test suite temporary directory
-#  test_cases - list of test case files
+#  test_scripts - list of test case scripts
+#  test_programs - list of test case programs
 #  test_data - list of test data files
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
@@ -87,13 +87,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = t-test$(EXEEXT) t-test-skip$(EXEEXT) \
-	t-macros$(EXEEXT) t-error$(EXEEXT) t-string$(EXEEXT) \
-	t-buffer$(EXEEXT) t-path$(EXEEXT) t-progname$(EXEEXT) \
-	t-subproc$(EXEEXT) t-command$(EXEEXT) t-varbuf$(EXEEXT) \
-	t-ar$(EXEEXT) t-deb-version$(EXEEXT) t-arch$(EXEEXT) \
-	t-version$(EXEEXT) t-pkginfo$(EXEEXT) t-pkg-list$(EXEEXT) \
-	t-pkg-queue$(EXEEXT) t-trigger$(EXEEXT) t-mod-db$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1) t-tarextract$(EXEEXT)
 DIST_COMMON = $(top_srcdir)/check.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/build-aux/depcomp
 subdir = lib/dpkg/test
@@ -119,6 +113,13 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+am__EXEEXT_1 = t-test$(EXEEXT) t-test-skip$(EXEEXT) t-macros$(EXEEXT) \
+	t-error$(EXEEXT) t-string$(EXEEXT) t-buffer$(EXEEXT) \
+	t-path$(EXEEXT) t-progname$(EXEEXT) t-subproc$(EXEEXT) \
+	t-command$(EXEEXT) t-varbuf$(EXEEXT) t-ar$(EXEEXT) \
+	t-deb-version$(EXEEXT) t-arch$(EXEEXT) t-version$(EXEEXT) \
+	t-pkginfo$(EXEEXT) t-pkg-list$(EXEEXT) t-pkg-queue$(EXEEXT) \
+	t-trigger$(EXEEXT) t-mod-db$(EXEEXT)
 t_ar_SOURCES = t-ar.c
 t_ar_OBJECTS = t-ar.$(OBJEXT)
 t_ar_LDADD = $(LDADD)
@@ -199,6 +200,11 @@ t_subproc_OBJECTS = t-subproc.$(OBJEXT)
 t_subproc_LDADD = $(LDADD)
 t_subproc_DEPENDENCIES = $(top_builddir)/lib/dpkg/libdpkg.la \
 	$(am__DEPENDENCIES_1)
+t_tarextract_SOURCES = t-tarextract.c
+t_tarextract_OBJECTS = t-tarextract.$(OBJEXT)
+t_tarextract_LDADD = $(LDADD)
+t_tarextract_DEPENDENCIES = $(top_builddir)/lib/dpkg/libdpkg.la \
+	$(am__DEPENDENCIES_1)
 t_test_SOURCES = t-test.c
 t_test_OBJECTS = t-test.$(OBJEXT)
 t_test_LDADD = $(LDADD)
@@ -261,11 +267,13 @@ am__v_CCLD_1 =
 SOURCES = t-ar.c t-arch.c t-buffer.c t-command.c t-deb-version.c \
 	t-error.c t-macros.c t-mod-db.c t-path.c t-pkg-list.c \
 	t-pkg-queue.c t-pkginfo.c t-progname.c t-string.c t-subproc.c \
-	t-test.c t-test-skip.c t-trigger.c t-varbuf.c t-version.c
+	t-tarextract.c t-test.c t-test-skip.c t-trigger.c t-varbuf.c \
+	t-version.c
 DIST_SOURCES = t-ar.c t-arch.c t-buffer.c t-command.c t-deb-version.c \
 	t-error.c t-macros.c t-mod-db.c t-path.c t-pkg-list.c \
 	t-pkg-queue.c t-pkginfo.c t-progname.c t-string.c t-subproc.c \
-	t-test.c t-test-skip.c t-trigger.c t-varbuf.c t-version.c
+	t-tarextract.c t-test.c t-test-skip.c t-trigger.c t-varbuf.c \
+	t-version.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -368,6 +376,7 @@ OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+PACKAGE_COPYRIGHT_HOLDER = @PACKAGE_COPYRIGHT_HOLDER@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
@@ -466,8 +475,40 @@ LDADD = \
 	$(top_builddir)/lib/dpkg/libdpkg.la \
 	$(LIBINTL)
 
-TEST_PREFIX = $(builddir)
-test_cases = $(check_PROGRAMS)
+EXTRA_DIST = \
+	$(test_scripts) \
+	$(nil)
+
+
+# The tests are sorted in order of increasing complexity.
+test_programs = \
+	t-test \
+	t-test-skip \
+	t-macros \
+	t-error \
+	t-string \
+	t-buffer \
+	t-path \
+	t-progname \
+	t-subproc \
+	t-command \
+	t-varbuf \
+	t-ar \
+	t-deb-version \
+	t-arch \
+	t-version \
+	t-pkginfo \
+	t-pkg-list \
+	t-pkg-queue \
+	t-trigger \
+	t-mod-db \
+	$(nil)
+
+test_scripts = \
+	t-tar.t \
+	$(nil)
+
+test_tmpdir = t.tmp
 TEST_RUNNER = '\
 	my $$harness = TAP::Harness->new({ \
 	    lib => [ "$(top_srcdir)/scripts" ], \
@@ -583,6 +624,10 @@ t-subproc$(EXEEXT): $(t_subproc_OBJECTS) $(t_subproc_DEPENDENCIES) $(EXTRA_t_sub
 	@rm -f t-subproc$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_subproc_OBJECTS) $(t_subproc_LDADD) $(LIBS)
 
+t-tarextract$(EXEEXT): $(t_tarextract_OBJECTS) $(t_tarextract_DEPENDENCIES) $(EXTRA_t_tarextract_DEPENDENCIES) 
+	@rm -f t-tarextract$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_tarextract_OBJECTS) $(t_tarextract_LDADD) $(LIBS)
+
 t-test$(EXEEXT): $(t_test_OBJECTS) $(t_test_DEPENDENCIES) $(EXTRA_t_test_DEPENDENCIES) 
 	@rm -f t-test$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_test_OBJECTS) $(t_test_LDADD) $(LIBS)
@@ -624,6 +669,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-progname.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-subproc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-tarextract.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-test-skip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-trigger.Po@am__quote@
@@ -777,7 +823,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+clean-am: clean-checkPROGRAMS clean-generic clean-libtool clean-local \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -849,15 +895,15 @@ uninstall-am:
 .MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am check-local clean \
-	clean-checkPROGRAMS clean-generic clean-libtool cscopelist-am \
-	ctags ctags-am distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	clean-checkPROGRAMS clean-generic clean-libtool clean-local \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am
@@ -868,7 +914,7 @@ TEST_VERBOSE ?= 0
 check-clean:
 	[ -z "$(test_tmpdir)" ] || rm -fr $(test_tmpdir)
 
-check-local: $(test_data) $(test_cases)
+check-local: $(test_data) $(test_programs) $(test_scripts)
 	[ -z "$(test_tmpdir)" ] || $(MKDIR_P) $(test_tmpdir)
 	PATH="$(top_builddir)/src:$(top_builddir)/scripts:$(top_builddir)/utils:$(PATH)" \
 	  LC_ALL=C \
@@ -877,9 +923,10 @@ check-local: $(test_data) $(test_cases)
 	  PERL_DL_NONLAZY=1 \
 	  PERL5OPT=$(TEST_COVERAGE) \
 	  $(PERL) -MTAP::Harness -e $(TEST_RUNNER) \
-	    $(if $(TEST_PREFIX), \
-	         $(addprefix $(TEST_PREFIX)/,$(test_cases)), \
-	         $(addprefix $(srcdir)/,$(test_cases)))
+	    $(addprefix $(builddir)/,$(test_programs)) \
+	    $(addprefix $(srcdir)/,$(test_scripts))
+
+clean-local: check-clean
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

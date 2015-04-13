@@ -46,6 +46,7 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/arch.h>
+#include <dpkg/path.h>
 #include <dpkg/subproc.h>
 #include <dpkg/command.h>
 #include <dpkg/options.h>
@@ -103,7 +104,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "  -L|--listfiles <package> ...     List files `owned' by package(s).\n"
 "  -l|--list [<pattern> ...]        List packages concisely.\n"
 "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
-"  -C|--audit                       Check for broken package(s).\n"
+"  -C|--audit [<package> ...]       Check for broken package(s).\n"
 "  --add-architecture <arch>        Add <arch> to the list of architectures.\n"
 "  --remove-architecture <arch>     Remove <arch> from the list of architectures.\n"
 "  --print-architecture             Print dpkg architecture.\n"
@@ -344,11 +345,23 @@ set_verify_format(const struct cmdinfo *cip, const char *value)
 }
 
 static void
+set_instdir(const struct cmdinfo *cip, const char *value)
+{
+  char *new_instdir;
+
+  new_instdir = m_strdup(value);
+  path_trim_slash_slashdot(new_instdir);
+
+  instdir = new_instdir;
+}
+
+static void
 set_root(const struct cmdinfo *cip, const char *value)
 {
   char *p;
-  instdir= value;
-  m_asprintf(&p, "%s%s", value, ADMINDIR);
+
+  set_instdir(cip, value);
+  m_asprintf(&p, "%s%s", instdir, ADMINDIR);
   admindir= p;
 }
 
@@ -406,6 +419,8 @@ is_invoke_action(enum action action)
   case act_triggers:
   case act_remove:
   case act_purge:
+  case act_arch_add:
+  case act_arch_remove:
     return true;
   default:
     return false;
@@ -710,7 +725,7 @@ static const struct cmdinfo cmdinfos[]= {
   { "root",              0,   1, NULL,          NULL,      set_root,      0 },
   { "abort-after",       0,   1, &errabort,     NULL,      set_integer,   0 },
   { "admindir",          0,   1, NULL,          &admindir, NULL,          0 },
-  { "instdir",           0,   1, NULL,          &instdir,  NULL,          0 },
+  { "instdir",           0,   1, NULL,          NULL,      set_instdir,   0 },
   { "ignore-depends",    0,   1, NULL,          NULL,      set_ignore_depends, 0 },
   { "force",             0,   2, NULL,          NULL,      set_force,     1 },
   { "refuse",            0,   2, NULL,          NULL,      set_force,     0 },

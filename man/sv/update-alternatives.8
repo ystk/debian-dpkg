@@ -69,7 +69,7 @@ När ett paket som tillhandahåller en fil med en specifik funktionalitet
 installeras, ändras eller tas bort, anropas \fBupdate\-alternatives\fP för att
 uppdatera information om filen i alternativsystemet. \fBupdate\-alternatives\fP
 anropas normalt från \fBpostinst\fP\- (configure) eller \fBprerm\fP\-skripten
-(install) i Debianpaket.
+(remove och deconfigure) i Debianpaket.
 .PP
 Det är ofta lämpligt för ett antal alternativ att vara synkroniserade, så
 att de ändras i grupp. Till exempel, om det är flera versioner av

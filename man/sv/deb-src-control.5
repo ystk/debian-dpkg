@@ -177,14 +177,16 @@ vertikalstreck (rör) ("|"). Grupperna avdelas med kommatecken. Komma utläses
 som "OCH", och vertikalstrecken som "ELLER", där vertikalstrecken binder
 hårdare. Varje paketnamn kan eventuellt följas av en versionsnummerangivelse
 inom parenteser, en arkitekturangivelse inom hakparenteser och en
-profilangivelse inom vinkelparenteser.
+begränsningsformel som består av en eller flera listor med profilnamn inom
+vinkelparenteser.
 
 Syntaxen för fälten \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP och
 \fBBuild\-Conflicts\-Indep\fP\-fälten är en kommaseparerad lista med paketnamn,
 där komma utläses som "OCH". Det är inte möjligt att ange alternativa paket
 med "rör". Varje paketnamn kan eventuellt följas av en
 versionsnummerangivelse inom parenteseren arkitekturangivelse inom
-hakparenteser och en profilangivelse inom vinkelparenteser.
+hakparenteser och en begränsningsformel bestående av en eller flera listor
+med profilnamn inom vinkelparenteser.
 
 Ett versionsnummer kan börja med ">>", vilket betyder att vilken som
 helst senare version matchar, där det är valfritt att ange
@@ -197,9 +199,11 @@ En arkitekturangivelse består av ett eller flera arkitekturnamn, avdelade
 med blanktecken. Varje namn kan föregås av ett utropstecken, vilket betyder
 "ICKE".
 
-En profilangivelse består av ett eller flera profilnamn, inlett med
-namnrymden "\fBprofile.\fP", avdelade med blanktecken. Varje namn kan föregås
-av ett utropstecken, vilket betyder "ICKE".
+En begränsningsformel består av en eller flera begränsningslistor, avdelade
+med blanksteg. Varje begränsningslista skrivs inom vinkelparenteser. Poster
+i begränsningslistan är namn på byggprofiler, avdelade av blanksteg och kan
+föregås av ett utropstecken, vilket betyder "INTE". En begränsningsformel
+representerar ett uttryck i disjunktiv normalform.
 
 Observera att beroenden på paket i \fBbuild\-essential\fP\-uppsättningen kan
 utelämnas och att det är omöjligt att deklarera byggkonflikter mot dem. En
@@ -294,8 +298,7 @@ changes\-filen och visas inte i styrfilerna för binär\- och källkodspaketen.
 Tänk på att dess användardefinierade fält använder den globala namnrymden,
 vilket en gång i framtiden kan komma att kollidera med officiellt erkända
 fält. För att undvika sådana potentiella situationer kan du använda prefixet
-\fBPrivate\-\fP för dessa fält, som \fBXB\-Private\-New\-Field\fP, vilket har som
-sidoeffekt att \fBdpkg\-deb\fP inte varnar för dem som okända fält.
+\fBPrivate\-\fP för dessa fält, som \fBXB\-Private\-New\-Field\fP.
 
 .SH EXEMPEL
 .\" .RS

@@ -1,6 +1,7 @@
 .\" dpkg manual page - dpkg-maintscript-helper(1)
 .\"
 .\" Copyright Â© 2010-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2011-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-maintscript\-helper 1 28\-04\-2014 "Projet Debian" "suite dpkg"
+.TH dpkg\-maintscript\-helper 1 01\-09\-2014 "Projet Debian" "suite dpkg"
 .SH NOM
 dpkg\-maintscript\-helper \- contournement des limitations connues de dpkg dans
 les scripts du responsable
@@ -191,9 +192,10 @@ suivent, dans les scripts \fBpreinst\fP, \fBpostinst\fP et \fBpostrm\fP\ :
     dpkg\-maintscript\-helper symlink_to_dir \e
         \fInom\-de\-chemin\fP \fIancienne\-cible\fP \fIversion\-précédente\fP \fIpaquet\fP \-\- "$@"
 .P
-\fIpathname\fP is the absolute name of the old symlink (the path will be a
-directory at the end of the installation) and \fIold\-target\fP the absolute
-target name of the former symlink at \fIpathname\fP.
+\fInom\-de\-chemin\fP est le nom absolu de l'ancien lien symbolique (le chemin
+sera un répertoire à la fin de l'installation) et \fIancienne\-cible\fP la cible
+de l'ancien lien symbolique vers \fInom\-de\-chemin\fP. Cela peut être un chemin
+absolu ou relatif vers le répertoire contenant \fInom\-de\-chemin\fP.
 .P
 Détails de la mise en ?uvre actuelle\ :\ dans le script \fBpreinst\fP, il est
 vérifié si le lien symbolique existe et pointe vers \fIancienne\-cible\fP. Si ce
@@ -220,10 +222,10 @@ qui suivent, dans les scripts \fBpreinst\fP, \fBpostinst\fP et \fBpostrm\fP\ :
     dpkg\-maintscript\-helper dir_to_symlink \e
         \fInom\-de\-chemin\fP \fInouvelle\-cible\fP \fIversion\-précédente\fP \fIpaquet\fP \-\- "$@"
 .P
-\fIpathname\fP is the absolute name of the old directory (the path will be a
-symlink at the end of the installation) and \fInew\-target\fP is the target of
-the new symlink at \fIpathname\fP. It can either be absolute or relative to the
-directory containing \fIpathname\fP.
+\fInom\-de\-chemin\fP est le nom absolu de l'ancien répertoire (le chemin sera un
+lien symbolique à la fin de l'installation) et \fInouvelle\-cible\fP la cible du
+nouveau lien symbolique vers \fInom\-de\-chemin\fP. Cela peut être un chemin
+absolu ou relatif vers le répertoire contenant \fInom\-de\-chemin\fP.
 .P
 Détails de la mise en ?uvre actuelle\ :\ dans le script \fBpreinst\fP, il est
 vérifié si le répertoire existe et ne contient pas de fichiers de
@@ -244,14 +246,18 @@ mise à jour ou l'installation sont interrompues, le script \fBpostrm\fP renomme
 .
 .SH "INTÉGRATION DANS LES PAQUETS"
 .P
+Lors de l'utilisation d'un assistant d'empaquetage, veuillez vérifier s'il
+ne dispose pas d'une intégration native de \fBdpkg\-maintscript\-helper\fP ce qui
+vous facilitera la tâche. Voir par exemple \fBdh_installdeb\fP(1).
+.P
 Comme \fBdpkg\-maintscript\-helper\fP est utilisé dans le script \fBpreinst\fP,
 l'utiliser sans conditions impose une pré\-dépendance afin de garantir que la
 version minimale nécessaire de \fBdpkg\fP ait bien été préalablement
 configurée. La version minimale dépend de la commande utilisée\ : ainsi pour
 \fBrm_conffile\fP et \fBmv_conffile\fP, cette version est 1.15.7.2, pour
-\fBsymlink_to_dir\fP et \fBdir_to_symlink\fP, c'est 1.17.5\ :
+\fBsymlink_to_dir\fP et \fBdir_to_symlink\fP, c'est 1.17.14\ :
 .P
-    \fBPre\-Depends:\fP dpkg (>= 1.17.5)
+    \fBPre\-Depends:\fP dpkg (>= 1.17.14)
 .P
 Cependant, dans de nombreux cas, l'opération réalisée par le programme n'est
 pas critique pour le paquet et au lieu d'utiliser une pré\-dépendance, il est
@@ -266,6 +272,10 @@ La commande \fBsupports\fP retournera  0 en cas de réussite, 1 autrement. Elle
 vérifiera si les variables d'environnement telles que définies par \fBdpkg\fP
 et requises par le script sont présentes, et considérera que c'est un échec
 si l'environnement n'est pas suffisant.
+.SH "VOIR AUSSI"
+.ad l
+.nh
+\fBdh_installdeb\fP(1)
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 1999 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
-.\" Copyright Â© 2007-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2007-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 "27 marzo 2013" "Progetto Debian" "suite dpkg"
+.TH dpkg\-deb 1 "20 agosto 2014" "Progetto Debian" "suite dpkg"
 .SH NOME
 dpkg\-deb \- strumento per la manipolazione di archivi di pacchetto Debian
 (.deb)
@@ -108,7 +108,7 @@ Elenca il contenuto della porzione dell'archivio di pacchetto con l'albero
 del file system. Attualmente viene prodotto nel formato generato dall'elenco
 prolisso di \fBtar\fP.
 .TP 
-\fB\-x\fP, \fB\-\-extract\fP \fIdirectory archivio\fP
+\fB\-x\fP, \fB\-\-extract\fP \fIarchivio directory\fP
 Estrae l'albero del file system da un archivio di pacchetto nella directory
 specificata.
 
@@ -119,17 +119,24 @@ Se necessario verrà creata \fIdirectory\fP (ma non le directory sovrastanti) e
 i suoi permessi saranno modificati per corrispondere al contenuto del
 pacchetto.
 .TP 
-\fB\-X\fP, \fB\-\-vextract\fP \fIdirectory archivio\fP
+\fB\-X\fP, \fB\-\-vextract\fP \fIarchivio directory\fP
 Come \fB\-\-extract\fP (\fB\-x\fP) con \fB\-\-verbose\fP (\fB\-v\fP), che visualizza un elenco
 dei file processati mentre vengono estratti.
 .TP 
-\fB\-R\fP, \fB\-\-raw\-extract\fP \fIdirectory archivio\fP
+\fB\-R\fP, \fB\-\-raw\-extract\fP \fIarchivio directory\fP
 Estrae l'albero del file system da un archivio di pacchetto in una directory
 specificata, e i file con le informazioni di controllo in una sottodirectory
 DEBIAN della directory specificata.
 
 Se necessario verrà creata la directory di destinazione (ma non le directory
 sovrastanti).
+.TP 
+\fB\-\-ctrl\-tarfile\fP \fIarchivio\fP
+Estrae i dati di controllo da un pacchetto binario e lo invia allo standard
+output in formato \fBtar\fP (a partire da dpkg 1.17.14). Insieme a \fBtar\fP(1)
+può essere usata per estrarre un file di controllo specifico da un archivio
+di pacchetto. L'archivio in input verrà sempre elaborato in modo
+sequenziale.
 .TP 
 \fB\-\-fsys\-tarfile\fP \fIarchivio\fP
 Estrae l'albero del file system da un pacchetto binario e lo invia allo
@@ -184,9 +191,9 @@ sono \fInone\fP (a partire da dpkg 1.16.4), \fIfiltered\fP, \fIhuffman\fP, \fIrl
 \fIfixed\fP per gzip (a partire da dpkg 1.17.0) e \fIextreme\fP per xz.
 .TP 
 \fB\-Z\fP\fItipo\-di\-compressione\fP
-Specify which compression type to use when building a package. Allowed
-values are \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecated), \fIlzma\fP (deprecated), and
-\fInone\fP (default is \fIxz\fP).
+Specifica quale tipo di compressione usare quando si crea un pacchetto. I
+valori permessi sono \fIgzip\fP, \fIxz\fP, \fIbzip2\fP (deprecato), \fIlzma\fP
+(deprecato) e \fInone\fP (il valore predefinito è \fIxz\fP).
 .TP 
 \fB\-\-uniform\-compression\fP
 Specifica che devono essere usati gli stessi parametri di compressione per

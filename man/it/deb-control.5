@@ -118,17 +118,18 @@ e l'elenco delle etichette supportate possono essere trovati nel pacchetto
 \fBdebtags\fP.
 .TP 
 \fBMulti\-Arch:\fP \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP
-This field is used to indicate how this package should behave on a
-multi\-arch installations. The value \fBsame\fP means that the package is
-co\-installable with itself, but it must not be used to satisfy the
-dependency of any package of a different architecture from itself. The value
-\fBforeign\fP means that the package is not co\-installable with itself, but
-should be allowed to satisfy the dependency of a package of a different arch
-from itself. The value \fBallowed\fP allows reverse\-dependencies to indicate in
-their Depends field that they accept a package from a foreign architecture,
-but has no effect otherwise.  The value \fBno\fP is the default when the field
-is omitted, in which case adding the field with an explicit \fBno\fP value is
-generally not needed.
+Questo campo viene usato per indicare come questo pacchetto dovrebbe
+comportarsi nelle installazioni multi\-arch. Il valore \fBsame\fP significa che
+il pacchetto è co\-installabile insieme a sé stesso, ma non deve essere usato
+per soddisfare le dipendenze di un qualsiasi pacchetto di un'architettura
+diversa dalla propria. Il valore \fBforeign\fP significa che il pacchetto non è
+co\-installabile insieme a sé stesso, ma può soddisfare le dipendenze di un
+pacchetto di un'architettura diversa dalla propria. Il valore \fBallowed\fP
+permette alle dipendenze inverse di indicare nel loro campo Depends di
+accettare un pacchetto da un'architettura diversa, ma non ha altri
+effetti. Il valore \fBno\fP è il valore predefinito quando il campo viene
+omesso, nel qual caso aggiungere il campo con un valore \fBno\fP esplicito è
+generalmente non necessario.
 .TP 
 \fBSource:\fP\fI nome\-sorgente\fP
 Il nome del pacchetto sorgente da cui deriva questo pacchetto binario, se è

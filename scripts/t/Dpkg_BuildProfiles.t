@@ -16,12 +16,34 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;
+use Test::More tests => 6;
 
 BEGIN {
-    use_ok('Dpkg::BuildProfiles');
+    use_ok('Dpkg::BuildProfiles', qw(parse_build_profiles));
 }
 
 # TODO: Add actual test cases.
+
+my $formula;
+
+$formula = [ ];
+is_deeply([ parse_build_profiles('') ], $formula,
+    'parse build profiles formula empty');
+
+$formula = [ [ qw(nocheck) ] ];
+is_deeply([ parse_build_profiles('<nocheck>') ], $formula,
+    'parse build profiles formula single');
+
+$formula = [ [ qw(nocheck nodoc stage1) ] ];
+is_deeply([ parse_build_profiles('<nocheck nodoc stage1>') ], $formula,
+    'parse build profiles formula AND');
+
+$formula = [ [ qw(nocheck) ], [ qw(nodoc) ] ];
+is_deeply([ parse_build_profiles('<nocheck> <nodoc>') ], $formula,
+    'parse build profiles formula OR');
+
+$formula = [ [ qw(nocheck nodoc) ], [ qw(stage1) ] ];
+is_deeply([ parse_build_profiles('<nocheck nodoc> <stage1>') ], $formula,
+    'parse build profiles formula AND, OR');
 
 1;

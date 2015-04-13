@@ -51,12 +51,23 @@
 static struct pkginfo *progress_bytrigproc;
 static struct pkg_queue queue = PKG_QUEUE_INIT;
 
-int sincenothing = 0, dependtry = 0;
+int sincenothing = 0, dependtry = 1;
 
 void
 enqueue_package(struct pkginfo *pkg)
 {
+  ensure_package_clientdata(pkg);
+  if (pkg->clientdata->enqueued)
+    return;
+  pkg->clientdata->enqueued = true;
   pkg_queue_push(&queue, pkg);
+}
+
+void
+enqueue_package_mark_seen(struct pkginfo *pkg)
+{
+  enqueue_package(pkg);
+  pkg->clientdata->cmdline_seen++;
 }
 
 static void
@@ -115,8 +126,11 @@ enqueue_specified(const char *const *argv)
       badusage(_("you must specify packages by their own names, "
                  "not by quoting the names of the files they come in"));
     }
-    enqueue_package(pkg);
+    enqueue_package_mark_seen(pkg);
   }
+
+  if (cipaction->arg_int == act_configure)
+    trigproc_populate_deferred();
 }
 
 int
@@ -181,8 +195,10 @@ void process_queue(void) {
   }
   for (rundown = queue.head; rundown; rundown = rundown->next) {
     ensure_package_clientdata(rundown->pkg);
-    if (rundown->pkg->clientdata->istobe == istobe) {
-      /* Erase the queue entry - this is a second copy! */
+
+    /* We have processed this package more than once. There are no duplicates
+     * as we make sure of that when enqueuing them. */
+    if (rundown->pkg->clientdata->cmdline_seen > 1) {
       switch (cipaction->arg_int) {
       case act_triggers:
       case act_configure: case act_remove: case act_purge:
@@ -197,10 +213,8 @@ void process_queue(void) {
       default:
         internerr("unknown action '%d'", cipaction->arg_int);
       }
-      rundown->pkg = NULL;
-   } else {
-      rundown->pkg->clientdata->istobe= istobe;
     }
+    rundown->pkg->clientdata->istobe = istobe;
   }
 
   while (!pkg_queue_is_empty(&queue)) {
@@ -208,9 +222,20 @@ void process_queue(void) {
     if (!pkg)
       continue; /* Duplicate, which we removed earlier. */
 
+    ensure_package_clientdata(pkg);
+    pkg->clientdata->enqueued = false;
+
     action_todo = cipaction->arg_int;
 
-    if (sincenothing++ > queue.length * 2 + 2) {
+    if (sincenothing++ > queue.length * 3 + 2) {
+      /* Make sure that even if we have exceeded the queue since not having
+       * made any progress, we are not getting stuck trying to progress by
+       * trigger processing, w/o jumping into the next dependtry. */
+      dependtry++;
+      sincenothing = 0;
+      assert(dependtry <= 4);
+    } else if (sincenothing > queue.length * 2 + 2) {
+      /* XXX: This probably needs moving into a new dependtry instead. */
       if (progress_bytrigproc && progress_bytrigproc->trigpend_head) {
         enqueue_package(pkg);
         pkg = progress_bytrigproc;
@@ -221,6 +246,9 @@ void process_queue(void) {
         assert(dependtry <= 4);
       }
     }
+
+    debug(dbg_general, "process queue pkg %s queue.len %d progress %d, try %d",
+          pkg_name(pkg, pnaw_always), queue.length, sincenothing, dependtry);
 
     if (pkg->status > PKG_STAT_INSTALLED)
       internerr("package status (%d) > PKG_STAT_INSTALLED", pkg->status);
@@ -253,7 +281,7 @@ void process_queue(void) {
     case act_configure:
       /* Do whatever is most needed. */
       if (pkg->trigpend_head)
-        trigproc(pkg);
+        trigproc(pkg, TRIGPROC_REQUIRED);
       else
         deferred_configure(pkg);
       break;

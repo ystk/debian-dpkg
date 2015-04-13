@@ -44,7 +44,7 @@ EXTRA_DIST = \
 	dpkg-source.pl \
 	dpkg-vendor.pl \
 	changelog/debian.pl \
-	$(test_cases) \
+	$(test_scripts) \
 	$(test_data)
 
 
@@ -82,6 +82,7 @@ nobase_dist_perllib_DATA = \
 	Dpkg/ErrorHandling.pm \
 	Dpkg/Exit.pm \
 	Dpkg/File.pm \
+	Dpkg/Getopt.pm \
 	Dpkg/Gettext.pm \
 	Dpkg/Index.pm \
 	Dpkg/Interface/Storable.pm \
@@ -188,7 +189,7 @@ TEST_COVERAGE = $(PERL_COVERAGE)
 
 test_tmpdir = t.tmp
 
-test_cases = \
+test_scripts = \
 	t/Dpkg_Version.t \
 	t/Dpkg_Arch.t \
 	t/Dpkg_Package.t \
@@ -202,6 +203,7 @@ test_cases = \
 	t/Dpkg_ErrorHandling.t \
 	t/Dpkg_Exit.t \
 	t/Dpkg_File.t \
+	t/Dpkg_Getopt.t \
 	t/Dpkg_Gettext.t \
 	t/Dpkg_Conf.t \
 	t/Dpkg_Deps.t \

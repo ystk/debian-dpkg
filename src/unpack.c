@@ -103,8 +103,8 @@ deb_reassemble(const char **filename, const char **pfilename)
     ohshite(_("unable to execute %s (%s)"),
             _("split package reassembly"), SPLITTER);
   }
-  status = subproc_wait(pid, SPLITTER);
-  switch (WIFEXITED(status) ? WEXITSTATUS(status) : -1) {
+  status = subproc_reap(pid, SPLITTER, SUBPROC_RETERROR);
+  switch (status) {
   case 0:
     /* It was a part - is it complete? */
     if (!stat(reasmbuf, &stab)) {
@@ -120,7 +120,7 @@ deb_reassemble(const char **filename, const char **pfilename)
     /* No, it wasn't a part. */
     break;
   default:
-    subproc_check(status, SPLITTER, 0);
+    internerr("unexpected exit status %d from %s", status, SPLITTER);
   }
 
   return true;
@@ -145,7 +145,7 @@ deb_verify(const char *filename)
   } else {
     int status;
 
-    status = subproc_wait(pid, "debsig-verify");
+    status = subproc_reap(pid, "debsig-verify", SUBPROC_NOCHECK);
     if (!(WIFEXITED(status) && WEXITSTATUS(status) == 0)) {
       if (!fc_badverify)
         ohshit(_("verification on package %s failed!"), filename);
@@ -195,6 +195,106 @@ get_control_dir(char *cidir)
   strcat(cidir, "/");
 
   return cidir;
+}
+
+/**
+ * Read the conffiles, and copy the hashes across.
+ */
+static void
+deb_parse_conffiles(struct pkginfo *pkg, const char *control_conffiles,
+                    struct filenamenode_queue *newconffiles)
+{
+  FILE *conff;
+  char conffilenamebuf[MAXCONFFILENAME];
+
+  conff = fopen(control_conffiles, "r");
+  if (conff == NULL) {
+    if (errno == ENOENT)
+      return;
+    ohshite(_("error trying to open %.250s"), control_conffiles);
+  }
+
+  push_cleanup(cu_closestream, ehflag_bombout, NULL, 0, 1, conff);
+
+  while (fgets(conffilenamebuf, MAXCONFFILENAME - 2, conff)) {
+    struct pkginfo *otherpkg;
+    struct filepackages_iterator *iter;
+    struct filenamenode *namenode;
+    struct fileinlist *newconff;
+    struct conffile *searchconff;
+    char *p;
+
+    p = conffilenamebuf + strlen(conffilenamebuf);
+    assert(p != conffilenamebuf);
+    if (p[-1] != '\n')
+      ohshit(_("conffile name '%s' is too long, or missing final newline"),
+             conffilenamebuf);
+    while (p > conffilenamebuf && isspace(p[-1]))
+      --p;
+    if (p == conffilenamebuf)
+      continue;
+    *p = '\0';
+
+    namenode = findnamenode(conffilenamebuf, 0);
+    namenode->oldhash = NEWCONFFILEFLAG;
+    newconff = filenamenode_queue_push(newconffiles, namenode);
+
+    /*
+     * Let's see if any packages have this file.
+     *
+     * If they do we check to see if they listed it as a conffile,
+     * and if they did we copy the hash across. Since (for plain
+     * file conffiles, which is the only kind we are supposed to
+     * have) there will only be one package which ‘has’ the file,
+     * this will usually mean we only look in the package which
+     * we are installing now.
+     *
+     * The ‘conffiles’ data in the status file is ignored when a
+     * package is not also listed in the file ownership database as
+     * having that file. If several packages are listed as owning
+     * the file we pick one at random.
+     */
+    searchconff = NULL;
+
+    iter = filepackages_iter_new(newconff->namenode);
+    while ((otherpkg = filepackages_iter_next(iter))) {
+      debug(dbg_conffdetail,
+            "process_archive conffile '%s' in package %s - conff ?",
+            newconff->namenode->name, pkg_name(otherpkg, pnaw_always));
+      for (searchconff = otherpkg->installed.conffiles;
+           searchconff && strcmp(newconff->namenode->name, searchconff->name);
+           searchconff = searchconff->next)
+        debug(dbg_conffdetail,
+              "process_archive conffile '%s' in package %s - conff ? not '%s'",
+              newconff->namenode->name, pkg_name(otherpkg, pnaw_always),
+              searchconff->name);
+      if (searchconff) {
+        debug(dbg_conff,
+              "process_archive conffile '%s' package=%s %s hash=%s",
+              newconff->namenode->name, pkg_name(otherpkg, pnaw_always),
+              otherpkg == pkg ? "same" : "different!",
+              searchconff->hash);
+        if (otherpkg == pkg)
+          break;
+      }
+    }
+    filepackages_iter_free(iter);
+
+    if (searchconff) {
+      /* We don't copy ‘obsolete’; it's not obsolete in the new package. */
+      newconff->namenode->oldhash = searchconff->hash;
+    } else {
+      debug(dbg_conff, "process_archive conffile '%s' no package, no hash",
+            newconff->namenode->name);
+    }
+    newconff->namenode->flags |= fnnf_new_conff;
+  }
+
+  if (ferror(conff))
+    ohshite(_("read error in %.250s"), control_conffiles);
+  pop_cleanup(ehflag_normaltidy); /* conff = fopen() */
+  if (fclose(conff))
+    ohshite(_("error closing %.250s"), control_conffiles);
 }
 
 static struct pkg_queue conflictors = PKG_QUEUE_INIT;
@@ -409,8 +509,6 @@ void process_archive(const char *filename) {
    * we unwind the stack before processing the cleanup list, and these
    * variables had better still exist ... */
   static int p1[2];
-  static char *cidir = NULL;
-  static struct fileinlist *newconffiles, *newfileslist;
   static enum pkgstatus oldversionstatus;
   static struct varbuf depprobwhy;
   static struct tarcontext tc;
@@ -422,18 +520,18 @@ void process_archive(const char *filename) {
   struct pkgiterator *it;
   struct pkginfo *pkg, *otherpkg;
   struct pkg_list *conflictor_iter;
-  char *cidirrest, *p;
-  char conffilenamebuf[MAXCONFFILENAME];
+  char *cidir = NULL;
+  char *cidirrest;
   char *psize;
   const char *pfilename;
-  struct fileinlist *newconff, **newconffileslastp;
+  struct fileinlist *newfileslist;
   struct fileinlist *cfile;
+  struct filenamenode_queue newconffiles;
   struct reversefilelistiter rlistit;
-  struct conffile *searchconff, **iconffileslastp, *newiconff;
+  struct conffile **iconffileslastp, *newiconff;
   struct dependency *dsearch, *newdeplist, **newdeplistlastp;
   struct dependency *newdep, *dep, *providecheck;
   struct deppossi *psearch, **newpossilastp, *possi, *newpossi, *pdep;
-  FILE *conff;
   struct filenamenode *namenode;
   struct stat stab, oldfs;
   struct pkg_deconf_list *deconpil;
@@ -467,7 +565,7 @@ void process_archive(const char *filename) {
     ohshite(_("unable to execute %s (%s)"),
             _("package control information extraction"), BACKEND);
   }
-  subproc_wait_check(pid, BACKEND " --control", 0);
+  subproc_reap(pid, BACKEND " --control", 0);
 
   /* We want to guarantee the extracted files are on the disk, so that the
    * subsequent renames to the info database do not end up with old or zero
@@ -571,7 +669,7 @@ void process_archive(const char *filename) {
       if (!depisok(dsearch, &depprobwhy, NULL, &fixbytrigaw, true)) {
         if (fixbytrigaw) {
           while (fixbytrigaw->trigaw.head)
-            trigproc(fixbytrigaw->trigaw.head->pend);
+            trigproc(fixbytrigaw->trigaw.head->pend, TRIGPROC_REQUIRED);
         } else {
           varbuf_end_str(&depprobwhy);
           notice(_("regarding %s containing %s, pre-dependency problem:\n%s"),
@@ -618,79 +716,11 @@ void process_archive(const char *filename) {
   trig_parse_ci(cidir, NULL, trig_cicb_statuschange_activate, pkg, &pkg->available);
 
   /* Read the conffiles, and copy the hashes across. */
-  newconffiles = NULL;
-  newconffileslastp = &newconffiles;
+  newconffiles.head = NULL;
+  newconffiles.tail = &newconffiles.head;
   push_cleanup(cu_fileslist, ~0, NULL, 0, 0);
   strcpy(cidirrest,CONFFILESFILE);
-  conff= fopen(cidir,"r");
-  if (conff) {
-    push_cleanup(cu_closestream, ehflag_bombout, NULL, 0, 1, (void *)conff);
-    while (fgets(conffilenamebuf,MAXCONFFILENAME-2,conff)) {
-      struct filepackages_iterator *iter;
-
-      p= conffilenamebuf + strlen(conffilenamebuf);
-      assert(p != conffilenamebuf);
-      if (p[-1] != '\n')
-        ohshit(_("conffile name '%s' is too long, or missing final newline"),
-               conffilenamebuf);
-      while (p > conffilenamebuf && isspace(p[-1])) --p;
-      if (p == conffilenamebuf) continue;
-      *p = '\0';
-      namenode= findnamenode(conffilenamebuf, 0);
-      namenode->oldhash= NEWCONFFILEFLAG;
-      newconff= newconff_append(&newconffileslastp, namenode);
-
-      /* Let's see if any packages have this file. If they do we
-       * check to see if they listed it as a conffile, and if they did
-       * we copy the hash across. Since (for plain file conffiles,
-       * which is the only kind we are supposed to have) there will
-       * only be one package which ‘has’ the file, this will usually
-       * mean we only look in the package which we're installing now.
-       * The ‘conffiles’ data in the status file is ignored when a
-       * package isn't also listed in the file ownership database as
-       * having that file. If several packages are listed as owning
-       * the file we pick one at random. */
-      searchconff = NULL;
-
-      iter = filepackages_iter_new(newconff->namenode);
-      while ((otherpkg = filepackages_iter_next(iter))) {
-        debug(dbg_conffdetail,
-              "process_archive conffile '%s' in package %s - conff ?",
-              newconff->namenode->name, pkg_name(otherpkg, pnaw_always));
-        for (searchconff = otherpkg->installed.conffiles;
-             searchconff && strcmp(newconff->namenode->name, searchconff->name);
-             searchconff = searchconff->next)
-          debug(dbg_conffdetail,
-                "process_archive conffile '%s' in package %s - conff ? not '%s'",
-                newconff->namenode->name, pkg_name(otherpkg, pnaw_always),
-                searchconff->name);
-        if (searchconff) {
-          debug(dbg_conff,
-                "process_archive conffile '%s' package=%s %s hash=%s",
-                newconff->namenode->name, pkg_name(otherpkg, pnaw_always),
-                otherpkg == pkg ? "same" : "different!",
-                searchconff->hash);
-          if (otherpkg == pkg)
-            break;
-        }
-      }
-      filepackages_iter_free(iter);
-
-      if (searchconff) {
-        newconff->namenode->oldhash= searchconff->hash;
-	/* We don't copy ‘obsolete’; it's not obsolete in the new package. */
-      } else {
-        debug(dbg_conff, "process_archive conffile '%s' no package, no hash",
-              newconff->namenode->name);
-      }
-      newconff->namenode->flags |= fnnf_new_conff;
-    }
-    if (ferror(conff)) ohshite(_("read error in %.250s"),cidir);
-    pop_cleanup(ehflag_normaltidy); /* conff = fopen() */
-    if (fclose(conff)) ohshite(_("error closing %.250s"),cidir);
-  } else {
-    if (errno != ENOENT) ohshite(_("error trying to open %.250s"),cidir);
-  }
+  deb_parse_conffiles(pkg, cidir, &newconffiles);
 
   /* All the old conffiles are marked with a flag, so that we don't delete
    * them if they seem to disappear completely. */
@@ -948,7 +978,7 @@ void process_archive(const char *filename) {
     ohshit(_("cannot zap possible trailing zeros from dpkg-deb: %s"), err.str);
   close(p1[0]);
   p1[0] = -1;
-  subproc_wait_check(pid, BACKEND " --fsys-tarfile", PROCPIPE);
+  subproc_reap(pid, BACKEND " --fsys-tarfile", SUBPROC_NOPIPE);
 
   tar_deferred_extract(newfileslist, pkg);
 
@@ -1012,6 +1042,10 @@ void process_archive(const char *filename) {
     if (S_ISDIR(oldfs.st_mode)) {
       trig_path_activate(usenode, pkg);
 
+      /* Do not try to remove the root directory. */
+      if (strcmp(usenode->name, "/.") == 0)
+        continue;
+
       if (rmdir(fnamevb.buf)) {
 	warning(_("unable to delete old directory '%.250s': %s"),
 	        namenode->name, strerror(errno));
@@ -1054,7 +1088,6 @@ void process_archive(const char *filename) {
 
 	  varbuf_reset(&cfilename);
 	  varbuf_add_str(&cfilename, instdir);
-	  varbuf_add_char(&cfilename, '/');
 	  varbuf_add_str(&cfilename, cfile->namenode->name);
 	  varbuf_end_str(&cfilename);
 
@@ -1103,7 +1136,7 @@ void process_archive(const char *filename) {
 	  debug(dbg_eachfile, "process_archive: old conff %s"
 		" is disappearing", namenode->name);
 	  namenode->flags |= fnnf_obs_conff;
-	  newconff_append(&newconffileslastp, namenode);
+	  filenamenode_queue_push(&newconffiles, namenode);
 	  addfiletolist(&tc, namenode);
 	}
 	continue;
@@ -1214,7 +1247,7 @@ void process_archive(const char *filename) {
   /* We have to generate our own conffiles structure. */
   pkg->installed.conffiles = NULL;
   iconffileslastp = &pkg->installed.conffiles;
-  for (cfile= newconffiles; cfile; cfile= cfile->next) {
+  for (cfile = newconffiles.head; cfile; cfile = cfile->next) {
     newiconff= nfmalloc(sizeof(struct conffile));
     newiconff->next = NULL;
     newiconff->name= nfstrsave(cfile->namenode->name);
@@ -1410,10 +1443,18 @@ void process_archive(const char *filename) {
    * They stay recorded as obsolete conffiles and will eventually
    * (if not taken over by another package) be forgotten. */
   for (cfile= newfileslist; cfile; cfile= cfile->next) {
+    struct filenamenode *usenode;
+
     if (cfile->namenode->flags & fnnf_new_conff) continue;
+
+    usenode = namenodetouse(cfile->namenode, pkg, &pkg->installed);
+
+    /* Do not try to remove backups for the root directory. */
+    if (strcmp(usenode->name, "/.") == 0)
+      continue;
+
     varbuf_trunc(&fnametmpvb, fnameidlu);
-    varbuf_add_str(&fnametmpvb,
-                   namenodetouse(cfile->namenode, pkg, &pkg->installed)->name);
+    varbuf_add_str(&fnametmpvb, usenode->name);
     varbuf_add_str(&fnametmpvb, DPKGTEMPEXT);
     varbuf_end_str(&fnametmpvb);
     ensure_pathname_nonexisting(fnametmpvb.buf);
@@ -1439,5 +1480,5 @@ void process_archive(const char *filename) {
   }
 
   if (cipaction->arg_int == act_install)
-    enqueue_package(pkg);
+    enqueue_package_mark_seen(pkg);
 }

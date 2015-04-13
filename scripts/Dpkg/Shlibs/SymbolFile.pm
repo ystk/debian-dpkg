@@ -88,8 +88,7 @@ sub symbol_is_blacklisted {
 }
 
 sub new {
-    my $this = shift;
-    my %opts=@_;
+    my ($this, %opts) = @_;
     my $class = ref($this) || $this;
     my $self = \%opts;
     bless $self, $class;
@@ -216,8 +215,8 @@ sub parse {
         $$obj_ref = undef;
     }
 
-    while (defined($_ = <$fh>)) {
-	chomp($_);
+    while (<$fh>) {
+	chomp;
 
 	if (/^(?:\s+|#(?:DEPRECATED|MISSING): ([^#]+)#\s*)(.*)/) {
 	    if (not defined ($$obj_ref)) {

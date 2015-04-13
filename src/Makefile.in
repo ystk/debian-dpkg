@@ -16,12 +16,12 @@
 
 # Variables to be defined:
 #
-#  TEST_PREFIX - set to the path to prefix to each test case for execution
 #  TEST_VERBOSE - set to 0 (default) or 1 to control test suite verbosity
 #  TEST_ENV_VARS - environment variables to be set for the test suite
 #  TEST_COVERAGE - set to the perl module in charge of getting test coverage
 #  test_tmpdir - test suite temporary directory
-#  test_cases - list of test case files
+#  test_scripts - list of test case scripts
+#  test_programs - list of test case programs
 #  test_data - list of test data files
 
 
@@ -300,6 +300,7 @@ OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+PACKAGE_COPYRIGHT_HOLDER = @PACKAGE_COPYRIGHT_HOLDER@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
@@ -400,7 +401,8 @@ LDADD = \
 	$(LIBINTL)
 
 EXTRA_DIST = \
-	$(test_cases)
+	$(test_scripts) \
+	$(nil)
 
 noinst_HEADERS = \
 	filesdb.h \
@@ -461,7 +463,7 @@ dpkg_trigger_SOURCES = \
 	trigcmd.c
 
 test_tmpdir = t.tmp
-test_cases = \
+test_scripts = \
 	t/dpkg_divert.t
 
 TEST_RUNNER = '\
@@ -861,7 +863,7 @@ TEST_VERBOSE ?= 0
 check-clean:
 	[ -z "$(test_tmpdir)" ] || rm -fr $(test_tmpdir)
 
-check-local: $(test_data) $(test_cases)
+check-local: $(test_data) $(test_programs) $(test_scripts)
 	[ -z "$(test_tmpdir)" ] || $(MKDIR_P) $(test_tmpdir)
 	PATH="$(top_builddir)/src:$(top_builddir)/scripts:$(top_builddir)/utils:$(PATH)" \
 	  LC_ALL=C \
@@ -870,9 +872,8 @@ check-local: $(test_data) $(test_cases)
 	  PERL_DL_NONLAZY=1 \
 	  PERL5OPT=$(TEST_COVERAGE) \
 	  $(PERL) -MTAP::Harness -e $(TEST_RUNNER) \
-	    $(if $(TEST_PREFIX), \
-	         $(addprefix $(TEST_PREFIX)/,$(test_cases)), \
-	         $(addprefix $(srcdir)/,$(test_cases)))
+	    $(addprefix $(builddir)/,$(test_programs)) \
+	    $(addprefix $(srcdir)/,$(test_scripts))
 
 clean-local: check-clean
 

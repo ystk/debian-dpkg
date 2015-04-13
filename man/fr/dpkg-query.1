@@ -235,10 +235,10 @@ sont pas valables comme noms de champs dans le fichiers de contrôle)\ :
 .RS
 .TP 
 \fBbinary:Package\fP
-It contains the binary package name with a possible architecture qualifier
-like "libc6:amd64" (since dpkg 1.16.2). The architecture qualifier will only
-be present if the package has a \fBMulti\-Arch\fP field with a value of
-\fBsame\fP. This makes the package name unambiguous.
+Contient le nom du paquet binaire avec éventuellement le type d'architecture
+tel que «\ libc6:amd64\ » (depuis dpkg 1.16.2). Le type d'architecture sera
+présent uniquement si le champ \fBMulti\-Arch\fP du paquet a la valeur
+\fBsame\fP. Le nom du paquet est ainsi non ambigu.
 .TP 
 \fBbinary:Summary\fP
 Il contient la description courte du paquet (depuis dpkg 1.16.2).
@@ -268,11 +268,12 @@ Il contient la version du paquet source de ce paquet binaire (depuis dpkg
 1.16.2).
 .RE
 .IP
-The default format string is \(lq\fB${binary:Package}\et${Version}\en\fP\(rq.
-Actually, all other fields found in the status file (i.e. user defined
-fields) can be requested, too. They will be printed as\-is, though, no
-conversion nor error checking is done on them. To get the name of the
-\fBdpkg\fP maintainer and the installed version, you could run:
+Le format par défaut est le suivant\ :
+\(lq\fB${binary:Package}\et${Version}\en\fP\(rq. Tous les autres champs du
+fichier d'état, par exemple des champs définis par l'utilisateur, peuvent
+être demandés. Ils seront affichés mais sans aucune mise en forme et aucune
+conversion ou vérification n'est faite. Pour obtenir le nom du responsable
+de \fBdpkg\fP et la version installée, exécutez par exemple\ :
 
 .nf
   \fBdpkg\-query \-W \-f=\(aq${binary:Package} ${Version}\et${Maintainer}\en\(aq dpkg\fP

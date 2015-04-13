@@ -49,7 +49,7 @@ sub init_options {
 sub parse_cmdline_option {
     my ($self, $opt) = @_;
     return 1 if $self->SUPER::parse_cmdline_option($opt);
-    if ($opt =~ /^--single-debian-patch$/) {
+    if ($opt eq '--single-debian-patch') {
         $self->{options}{single_debian_patch} = 1;
         # For backwards compatibility.
         $self->{options}{auto_commit} = 1;
@@ -167,9 +167,11 @@ sub prepare_build {
     # on debian/patches/series symlinks and d/p/.dpkg-source-applied
     # stamp file created by ourselves
     my $func = sub {
-        return 1 if $_[0] =~ m{^debian/patches/series$} and -l $_[0];
-        return 1 if $_[0] =~ /^\.pc(\/|$)/;
-        return 1 if $_[0] =~ /$self->{options}{diff_ignore_regex}/;
+        my $pathname = shift;
+
+        return 1 if $pathname eq 'debian/patches/series' and -l $pathname;
+        return 1 if $pathname =~ /^\.pc(\/|$)/;
+        return 1 if $pathname =~ /$self->{options}{diff_ignore_regex}/;
         return 0;
     };
     $self->{diff_options}{diff_ignore_func} = $func;

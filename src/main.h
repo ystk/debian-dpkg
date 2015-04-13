@@ -27,6 +27,7 @@
 
 /* These two are defined in filesdb.h. */
 struct fileinlist;
+struct filenamenode_queue;
 struct filenamenode;
 
 enum pkg_istobe {
@@ -49,6 +50,8 @@ struct perpackagestate {
   /** Used during cycle detection. */
   enum pkg_cycle_color color;
 
+  bool enqueued;
+
   /**
    * filelistvalid  files  Meaning
    * -------------  -----  -------
@@ -61,6 +64,7 @@ struct perpackagestate {
   bool fileslistvalid;
   struct fileinlist *files;
   int replacingfilesandsaid;
+  int cmdline_seen;
 
   off_t listfile_phys_offs;
 
@@ -149,8 +153,10 @@ struct invoke_hook {
 int archivefiles(const char *const *argv);
 void process_archive(const char *filename);
 bool wanttoinstall(struct pkginfo *pkg);
-struct fileinlist *newconff_append(struct fileinlist ***newconffileslastp_io,
-				   struct filenamenode *namenode);
+
+struct fileinlist *
+filenamenode_queue_push(struct filenamenode_queue *queue,
+                        struct filenamenode *namenode);
 
 /* from update.c */
 
@@ -175,7 +181,7 @@ int cmpversions(const char *const *argv);
 
 /* from verify.c */
 
-int verify_set_output(const char *name);
+bool verify_set_output(const char *name);
 int verify(const char *const *argv);
 
 /* from select.c */
@@ -188,6 +194,7 @@ int clearselections(const char *const *argv);
 
 void md5hash(struct pkginfo *pkg, char *hashbuf, const char *fn);
 void enqueue_package(struct pkginfo *pkg);
+void enqueue_package_mark_seen(struct pkginfo *pkg);
 void process_queue(void);
 int packages(const char *const *argv);
 void removal_bulk(struct pkginfo *pkg);
@@ -265,11 +272,19 @@ void log_action(const char *action, struct pkginfo *pkg, struct pkgbin *pkgbin);
 
 /* from trigproc.c */
 
+enum trigproc_type {
+	/** Opportunistic trigger processing. */
+	TRIGPROC_TRY,
+	/** Required trigger processing. */
+	TRIGPROC_REQUIRED,
+};
+
 void trigproc_install_hooks(void);
+void trigproc_populate_deferred(void);
 void trigproc_run_deferred(void);
 void trigproc_reset_cycle(void);
 
-void trigproc(struct pkginfo *pkg);
+void trigproc(struct pkginfo *pkg, enum trigproc_type type);
 
 void trig_activate_packageprocessing(struct pkginfo *pkg);
 

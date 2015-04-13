@@ -73,6 +73,7 @@ LIBDPKG_PRIVATE {
 	cisdigit;
 
 	str_match_end;
+	str_fnv_hash;
 	str_escape_fmt;
 	str_strip_quotes;
 	str_quote_meta;
@@ -131,12 +132,11 @@ LIBDPKG_PRIVATE {
 	buffer_copy_*;
 
 	# Subprocess and command handling
-	subproc_signals_setup;
+	subproc_signals_ignore;
 	subproc_signals_cleanup;
+	subproc_signals_restore;
 	subproc_fork;
-	subproc_wait;
-	subproc_check;
-	subproc_wait_check;
+	subproc_reap;
 
 	command_init;
 	command_add_arg;

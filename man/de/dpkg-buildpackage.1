@@ -145,23 +145,32 @@ Root\-Rechten ausgeführt wird.
 Wird unverändert an \fBdpkg\-genchanges\fP weitergegeben. Lesen Sie dessen
 Handbuchseite.
 .TP 
-\fB\-a\fP\fIArchitektur\fP
+\fB\-a\fP, \fB\-\-host\-arch\fP \fIArchitektur\fP
 Spezifiziert die Debian\-Architektur, für die gebaut wird. Die Architektur
 der Maschine, auf der gebaut wird, wird automatisch bestimmt, und ist auch
 die Voreinstellung für die Gastgebermaschine (»host machine«).
 .TP 
-\fB\-t\fP\fIGNU\-Systemtyp\fP
-Spezifiziere den GNU\-Systemtyp, für den wir bauen. Er kann anstelle von \-a
-oder als Ergänzung verwandt werden, um den Standard GNU\-Systemtyp der
-Ziel\-Debian\-Architektur zu überschreiben.
+\fB\-t\fP, \fB\-\-host\-type\fP \fIGNU\-Systemtyp\fP
+Spezifiziere den GNU\-Systemtyp, für den wir bauen. Er kann anstelle von
+\-\-host\-arch oder als Ergänzung verwandt werden, um den Standard
+GNU\-Systemtyp der Host\-Debian\-Architektur außer Kraft zu setzen.
+.TP 
+\fB\-\-target\-arch\fP \fIArchitektur\fP
+Spezifiziert die Debian\-Architektur, für die die gebauten Programme bauen
+werden. Die Voreinstellung ist die Host\-Maschine.
+.TP 
+\fB\-\-target\-type\fP \fIGNU\-Systemtyp\fP
+Spezifiziere den GNU\-Systemtyp, für den die gebauten Programme bauen
+werden. Er kann anstelle von \-\-target\-arch oder als Ergänzung verwandt
+werden, um den Standard GNU\-Systemtyp der Ziel\-Debian\-Architektur zu
+überschreiben.
 .TP 
 \fB\-P\fP\fIProfil\fP[\fB,\fP?]
-Gibt als Kommata\-getrennte Liste (ohne den Namensraum\-Präfix »\fBprofile.\fP«)
-die zu bauenden Profile an. Standardmäßig wird für kein bestimmtes Profil
-gebaut. Fügt sie auch (als durch Leerzeichen getrennte Liste) zu der
-Umgebungsvariablen \fBDEB_BUILD_PROFILES\fP hinzu. Dies erlaubt beispielsweise
-\fBdebian/rules\fP\-Dateien, diese Information für den Bau unter bestimmten
-Bedingungen zu nutzen.
+Gibt als Kommata\-getrennte Liste die zu bauenden Profile an. Standardmäßig
+wird für kein bestimmtes Profil gebaut. Setzt sie auch (als durch
+Leerzeichen getrennte Liste) in die Umgebungsvariable
+\fBDEB_BUILD_PROFILES\fP. Dies erlaubt beispielsweise \fBdebian/rules\fP\-Dateien,
+diese Information für den Bau unter bestimmten Bedingungen zu nutzen.
 .TP 
 \fB\-j\fP[\fIAufträge\fP|\fBauto\fP]
 Anzahl an Aufträgen, die simultan laufen dürfen, Anzahl von Aufträgen, die
@@ -335,9 +344,8 @@ Falls gesetzt und falls sie \fBnocheck\fP enthält, wird die Variable
 .TP 
 \fBDEB_BUILD_PROFILES\fP
 Falls gesetzt, wird sie als aktive(s) Bau\-Profil(e) für das zu bauende Paket
-verwandt. Es ist eine durch Leerzeichen getrennte Liste von Profilnamen ohne
-den Namensraum\-Präfix »\fBprofile\fP«. Wird durch die Option \fB\-P\fP außer Kraft
-gesetzt.
+verwandt. Es ist eine durch Leerzeichen getrennte Liste von
+Profilnamen. Wird durch die Option \fB\-P\fP außer Kraft gesetzt.
 
 .SS "Vertrauen auf exportierte Umgebungsvariablen"
 Selbst falls \fBdpkg\-buildpackage\fP einige Variablen exportiert, sollte

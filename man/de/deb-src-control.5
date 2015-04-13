@@ -181,16 +181,17 @@ Paketen. Jede Gruppe ist eine Liste von durch vertikale Striche (oder
 getrennt. Kommata müssen als »UND«, vertikale Striche als »ODER« gelesen
 werden, wobei die vertikalen Striche stärker binden. Jeder Paketname wird
 optional gefolgt von einer Versionsnummer\-Spezifikation in Klammern, einer
-Architekturspezifikation in eckigen Klammern und einer Profilspezifikation
-in spitzen Klammern.
+Architekturspezifikation in eckigen Klammern und einer Einschränkungsformel,
+die aus einer oder mehr Listen von Profilnamen in spitzen Klammern besteht.
 
 Syntaxtisch werden die Felder \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP
 und \fBBuild\-Conflicts\-Indep\fP durch eine Komma\-separierte Liste von
 Paketnamen dargestellt, wobei das Komma als »UND« verstanden wird. Die
 Angabe alternativer Pakete mit dem »Pipe«\-Symbol wird nicht
 unterstützt. Jedem Paketnamen folgt optional eine Versionnummerangabe in
-Klammern, eine Architekturspezifikation in eckigen Klammern und ein
-Profilspezifikation in spitzen Klammern.
+Klammern, eine Architekturspezifikation in eckigen Klammern und einer
+Einschränkungsformel, die aus einer oder mehr Listen von Profilnamen in
+spitzen Klammern besteht.
 
 Eine Versionsnummer kann mit »>>« beginnen, in diesem Falle passen
 alle neueren Versionen, und kann die Debian\-Paketrevision (getrennt durch
@@ -203,10 +204,13 @@ Eine Architekturspezifikation besteht aus einer oder mehreren durch
 Leerzeichen getrennten Architekturnamen. Jedem Namen darf ein Ausrufezeichen
 vorangestellt werden, das »NICHT« bedeutet.
 
-Eine Profilspezifikation besteht aus einer oder mehreren durch Leerzeichen
-getrennten Profilnamen, denen der Namensraum »\fBprofile.\fP« vorangestellt
-wird. Jedem Namen darf ein Ausrufezeichen vorangestellt werden, das »NICHT«
-bedeutet.
+Eine Einschränkungsformel besteht aus einer oder mehrerer durch Leeraum
+getrennten Einschränkungslisten. Jede Einschränkungsliste wird in spitze
+Klammern eingeschlossen. Einträge in den Einschränkungslisten sind
+Bauprofilnamen, getrennt durch Leerraum. Diesen Listen kann ein
+Ausrufezeichen vorangestellt werden, das »NICHT« bedeutet. Eine
+Einschränkungsformel stellt einen Ausdruck in einer disjunkte Normalform
+dar.
 
 Beachten Sie, dass die Abhängigkeiten von Paketen aus der Menge der
 \fBbuild\-essential\fP entfallen kann und die Angabe von Baukonflikten gegen sie
@@ -306,9 +310,7 @@ nicht in den Steuerdateien des Quell\- und Binärpakets auftauchen.
 Beachten Sie, dass diese Benutzer\-definierten Felder den globalen Namensraum
 nutzen werden und somit in der Zukunft mit offiziell erkannten Feldern
 kollidieren könnten. Um solche möglichen Situationen zu vermeiden, können
-Sie den Feldern \fBPrivate\-\fP, wie in \fBXB\-Private\-Neues\-Feld\fP,
-voranstellen. Als Seiteneffekt wird in diesem Fall \fBdpkg\-deb\fP sie nicht mit
-der Warnung eines unbekannten Feldes ausgeben.
+Sie den Feldern \fBPrivate\-\fP, wie in \fBXB\-Private\-Neues\-Feld\fP, voranstellen.
 
 .SH BEISPIEL
 .\" .RS

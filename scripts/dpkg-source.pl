@@ -79,29 +79,32 @@ my $diff_ignore_regex = get_default_diff_ignore_regex();
 my @options;
 my @cmdline_options;
 while (@ARGV && $ARGV[0] =~ m/^-/) {
-    $_ = shift(@ARGV);
-    if (m/^-b$/) {
-        setopmode('-b');
-    } elsif (m/^-x$/) {
-        setopmode('-x');
-    } elsif (m/^--(?:before|after)-build$/) {
-        setopmode($_);
-    } elsif (m/^--commit$/) {
-        setopmode($_);
-    } elsif (m/^--print-format$/) {
-	setopmode('--print-format');
+    my $arg = shift @ARGV;
+
+    if ($arg eq '-b' or $arg eq '--build') {
+        setopmode('build');
+    } elsif ($arg eq '-x' or $arg eq '--extract') {
+        setopmode('extract');
+    } elsif ($arg eq '--before-build') {
+        setopmode('before-build');
+    } elsif ($arg eq '--after-build') {
+        setopmode('after-build');
+    } elsif ($arg eq '--commit') {
+        setopmode('commit');
+    } elsif ($arg eq '--print-format') {
+        setopmode('print-format');
 	report_options(info_fh => \*STDERR); # Avoid clutter on STDOUT
     } else {
-	push @options, $_;
+        push @options, $arg;
     }
 }
 
 my $dir;
 if (defined($options{opmode}) &&
-    $options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/) {
+    $options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     if (not scalar(@ARGV)) {
-	usageerr(_g('%s needs a directory'), $options{opmode})
-	    unless $1 eq '--commit';
+	usageerr(_g('--%s needs a directory'), $options{opmode})
+	    unless $1 eq 'commit';
 	$dir = '.';
     } else {
 	$dir = File::Spec->catdir(shift(@ARGV));
@@ -132,7 +135,7 @@ if (defined($options{opmode}) &&
 	$conf->filter(remove => sub { $_[0] =~ $forbidden_opts_re->{$filename} });
 	if (@$conf) {
 	    info(_g('using options from %s: %s'), $optfile, join(' ', @$conf))
-		unless $options{opmode} eq '--print-format';
+		unless $options{opmode} eq 'print-format';
 	    unshift @options, @$conf;
 	}
     }
@@ -210,10 +213,10 @@ while (@options) {
 }
 
 unless (defined($options{opmode})) {
-    usageerr(_g('need a command (-x, -b, --before-build, --after-build, --print-format, --commit)'));
+    usageerr(_g('need an action option'));
 }
 
-if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/) {
+if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
 
     $options{ARGV} = \@ARGV;
 
@@ -273,8 +276,26 @@ if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/)
         my $pkg_summary = sprintf('%s %s %s %s', $p, $type, $sect, $prio);
 
         $pkg_summary .= ' arch=' . join ',', split /\s+/, $arch;
-        $pkg_summary .= ' profile=' . join ',', split /\s+/, $profile
-            if defined $profile;
+
+        if (defined $profile) {
+            # If the string does not contain brackets then it is using the
+            # old syntax. Emit a fatal error.
+            if ($profile !~ m/^\s*<.*>\s*$/) {
+                error(_g('binary package stanza %s is using an obsolete ' .
+                         'Build-Profiles field syntax'), $p);
+            }
+
+            # Instead of splitting twice and then joining twice, we just do
+            # simple string replacements:
+
+            # Remove the enclosing <>
+            $profile =~ s/^\s*<(.*)>\s*$/$1/;
+            # Join lists with a plus (OR)
+            $profile =~ s/>\s+</+/g;
+            # Join their elements with a comma (AND)
+            $profile =~ s/\s+/,/g;
+            $pkg_summary .= " profile=$profile";
+        }
 
         push @pkglist, $pkg_summary;
 	push @binarypackages, $p;
@@ -346,7 +367,7 @@ if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/)
 	    $fields->{$_} = $v;
 	} elsif (m/^Binary-Only$/) {
 	    error(_g('building source for a binary-only release'))
-	        if $v eq 'yes' and $options{opmode} eq '-b';
+	        if $v eq 'yes' and $options{opmode} eq 'build';
 	} elsif (m/^Maintainer$/i) {
             # Do not replace the field coming from the source entry
 	} else {
@@ -373,7 +394,7 @@ if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/)
 	} else {
 	    warning(_g('no source format specified in %s, ' .
 	               'see dpkg-source(1)'), 'debian/source/format')
-		if $options{opmode} eq '-b';
+		if $options{opmode} eq 'build';
 	    $build_format = '1.0';
 	}
     }
@@ -383,16 +404,16 @@ if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/)
     $srcpkg->init_options();
     $srcpkg->parse_cmdline_options(@cmdline_options);
 
-    if ($options{opmode} eq '--print-format') {
+    if ($options{opmode} eq 'print-format') {
 	print $fields->{'Format'} . "\n";
 	exit(0);
-    } elsif ($options{opmode} eq '--before-build') {
+    } elsif ($options{opmode} eq 'before-build') {
 	$srcpkg->before_build($dir);
 	exit(0);
-    } elsif ($options{opmode} eq '--after-build') {
+    } elsif ($options{opmode} eq 'after-build') {
 	$srcpkg->after_build($dir);
 	exit(0);
-    } elsif ($options{opmode} eq '--commit') {
+    } elsif ($options{opmode} eq 'commit') {
 	$srcpkg->commit($dir);
 	exit(0);
     }
@@ -416,18 +437,20 @@ if ($options{opmode} =~ /^(-b|--print-format|--(before|after)-build|--commit)$/)
 		       substvars => $substvars);
     exit(0);
 
-} elsif ($options{opmode} eq '-x') {
+} elsif ($options{opmode} eq 'extract') {
 
     # Check command line
     unless (scalar(@ARGV)) {
-	usageerr(_g('-x needs at least one argument, the .dsc'));
+        usageerr(_g('--%s needs at least one argument, the .dsc'),
+                 $options{opmode});
     }
     if (scalar(@ARGV) > 2) {
-	usageerr(_g('-x takes no more than two arguments'));
+        usageerr(_g('--%s takes no more than two arguments'), $options{opmode});
     }
     my $dsc = shift(@ARGV);
     if (-d $dsc) {
-	usageerr(_g('-x needs the .dsc file as first argument, not a directory'));
+        usageerr(_g('--%s needs the .dsc file as first argument, not a directory'),
+                 $options{opmode});
     }
 
     # Create the object that does everything
@@ -485,10 +508,13 @@ sub set_testsuite_field
 }
 
 sub setopmode {
+    my $opmode = shift;
+
     if (defined($options{opmode})) {
-	usageerr(_g('only one of -x, -b or --print-format allowed, and only once'));
+        usageerr(_g('two commands specified: --%s and --%s'),
+                 $options{opmode}, $opmode);
     }
-    $options{opmode} = $_[0];
+    $options{opmode} = $opmode;
 }
 
 sub version {
@@ -505,12 +531,11 @@ sub usage {
 'Usage: %s [<option>...] <command>')
     . "\n\n" . _g(
 'Commands:
-  -x <filename>.dsc [<output-dir>]
+  -x, --extract <filename>.dsc [<output-dir>]
                            extract source package.
-  -b <dir>                 build source package.
-  --print-format <dir>     print the source format that would be
-                           used to build the source package.
-  --commit [<dir> [<patch-name>]]
+  -b, --build <dir>        build source package.
+      --print-format <dir> print the format to be used for the source package.
+      --commit [<dir> [<patch-name>]]
                            store upstream changes in a new patch.')
     . "\n\n" . _g(
 "Build options:

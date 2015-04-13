@@ -41,13 +41,14 @@ argument séparé.
 .
 .SH COMMANDES
 .TP 
-\fB\-x \fP\fIfichier\fP\fB.dsc\fP [\fIrépertoire\-de\-sortie\fP]
-Cette option sert à extraire un paquet source. On doit donner un seul
-argument sans option\ : le nom du fichier de contrôle des sources Debian
-(\fB.dsc\fP). Un deuxième argument sans option peut être donné pour indiquer le
-répertoire où extraire le paquet source\ : ce répertoire ne doit pas déjà
-exister. Quand aucun répertoire n'est indiqué, le paquet source est extrait
-dans un répertoire \fIsource\fP\-\fIversion\fP du répertoire courant.
+\fB\-x \fP, \fB\-\-extract\fP \fInom\-de\-fichier\fP.dsc [\fIrépertoire\-de\-sortie\fP]
+Cette option sert à extraire un paquet source. L'alias \fB\-\-extract\fP a été
+ajouté dans dpkg 1.17.14. On doit donner un seul argument sans option\ : le
+nom du fichier de contrôle des sources Debian (\fB.dsc\fP). Un deuxième
+argument sans option peut également être donné pour indiquer le répertoire
+où extraire le paquet source\ : ce répertoire ne doit pas déjà exister. Quand
+aucun répertoire n'est indiqué, le paquet source est extrait dans un
+répertoire \fIsource\fP\-\fIversion\fP du répertoire courant.
 
 \fBdpkg\-source\fP lit, dans le fichier de contrôle, les noms des fichiers qui
 composent le paquet source\ ; il suppose qu'ils sont dans le même répertoire
@@ -67,12 +68,13 @@ signifie tous les formats sauf le «\ 1.0\ »), son nom sera enregistré dans
 utilise le même format par défaut.
 
 .TP 
-\fB\-b\fP \fIrépertoire\fP [\fIparamètres\-dans\-un\-format\-spécifique\fP]
-Construit un paquet source. Le premier argument non optionnel est pris comme
-nom du répertoire contenant l'arborescence des sources Debianisées
-(c'est\-à\-dire avec un sous\-répertoire debian et peut\-être des modifications
-sur les fichiers d'origine). Selon le format du paquet source utilisé pour
-construire le paquet, d'autres paramètres peuvent être acceptés.
+\fB\-b\fP, \fB\-\-build\fP \fIrépertoire\fP [\fIparamètres\-dans\-un\-format\-spécifique\fP]
+Construit un paquet source. L'alias \fB\-\-build\fP a été ajouté dans dpkg
+1.17.14. Le premier argument sans option est pris comme nom du répertoire
+contenant l'arborescence des sources Debianisées (c'est\-à\-dire avec un
+sous\-répertoire debian et peut\-être des modifications sur les fichiers
+d'origine). Selon le format du paquet source utilisé pour construire le
+paquet, d'autres paramètres peuvent être acceptés.
 
 \fBdpkg\-source\fP va construire le paquet source dans le premier format qui
 fonctionnera dans la liste suivante\ : le(s) format(s) indiqué(s) avec le
@@ -86,8 +88,8 @@ différents formats de paquet source.
 .TP 
 \fB\-\-print\-format\fP \fIrépertoire\fP
 Affiche le format source qui serait utilisé pour construire le paquet source
-si \fBdpkg\-source \-b \fP\fIrépertoire\fP était utilisé (dans les mêmes conditions
-et avec les mêmes options).
+si \fBdpkg\-source \-\-build \fP\fIrépertoire\fP était utilisé (dans les mêmes
+conditions et avec les mêmes options).
 
 .TP 
 \fB\-\-before\-build\fP \fIrépertoire\fP
@@ -288,7 +290,7 @@ extraire l'archive d'origine dans un répertoire séparé «\ .orig\ » puis
 régénérer le \fB.diff.gz\fP en comparant le \fIrépertoire\fP du paquet source avec
 répertoire «\ .orig\ ».
 
-\fBOptions de construction (avec \-b):\fP
+\fBOptions de construction (avec \-\-build)\ :\fP
 
 Si l'on donne un second argument, ce sera le nom du répertoire source
 d'origine ou le nom du fichier tar ou bien une chaîne vide si le paquet est
@@ -357,7 +359,7 @@ n'est pas autorisée dans \fBdebian/source/options\fP mais peut être utilisée
 dans \fBdebian/source/local\-options\fP.
 .PP
 
-\fBoptions d'extractions (avec \-x):\fP
+\fBoptions d'extraction (avec \-\-extract)\ :\fP
 
 Dans tous ces cas, l'arborescence existante des sources d'origine est
 supprimée.
@@ -478,11 +480,11 @@ valeur par défaut associée à l'option \fB\-i\fP, voir la sortie de
 \fB\-\-help\fP). En particulier, le répertoire \fB.pc\fP utilisé par \fBquilt\fP est
 ignoré lors de la génération automatique du correctif.
 
-Note\ : \fBdpkg\-source\fP \fB\-\-before\-build\fP (et \fB\-b\fP) prendra soin d'appliquer
-les corrections indiquées dans le fichier series afin qu'un paquet soit
-toujours construit avec toutes les corrections appliquées. Pour effectuer
-cette détection, il recherche la liste des correctifs non appliqués (ils
-sont mentionnés dans le fichier \fBseries\fP mais pas dans
+Note\ : \fBdpkg\-source\fP \fB\-\-before\-build\fP (et \fB\-\-build\fP) prendront soin
+d'appliquer les correctifs indiqués dans le fichier series afin qu'un paquet
+soit toujours construit avec toutes les corrections appliquées. Pour
+effectuer cette détection, il recherche la liste des correctifs non
+appliqués (ils sont mentionnés dans le fichier \fBseries\fP mais pas dans
 \&\fB.pc/applied\-patches\fP) et si le premier de cette liste peut être appliqué
 sans erreur, il les applique tous. L'option \fB\-\-no\-preparation\fP peut être
 utilisée pour désactiver ce comportement.
@@ -509,7 +511,7 @@ ne doivent pas comporter de modifications supplémentaires.
 Si la création de correctif détecte des fichiers binaires modifiés, ils
 seront ajoutés automatiquement à \fBdebian/source/include\-binaries\fP afin de
 pouvoir être inclus dans l'archive debian (de façon analogue à ce que ferait
-\fBdpkg\-source \-\-include\-binaries \-b\fP).
+\fBdpkg\-source \-\-include\-binaries \-\-build\fP).
 .PP
 \fBOptions de construction\fP
 .TP 
@@ -719,9 +721,9 @@ après ces noms sont supprimées. Les lignes commençant par «\ #\ » sont des
 commentaires et sont ignorées, ainsi que les lignes vides.
 .SS debian/source/options
 Ce fichier contient la liste des options qui seront automatiquement ajoutées
-au jeu d'options de ligne de commande utilisées par \fBdpkg\-source \-b\fP ou
-\fBdpkg\-source \-\-print\-format\fP. Des options comme \fB\-\-compression\fP et
-\fB\-\-compression\-level\fP conviennent bien pour ce fichier.
+au jeu d'options de ligne de commande lors de l'appel à \fBdpkg\-source
+\-\-build\fP ou \fBdpkg\-source \-\-print\-format\fP. Des options comme
+\fB\-\-compression\fP et \fB\-\-compression\-level\fP conviennent bien pour ce fichier.
 .P
 Chaque option doit être placée sur une ligne distincte. Les lignes vides et
 les lignes commençant par le caractère «\ #\ » sont ignorées. Les caractères

@@ -136,8 +136,8 @@ elenco di tali valori dalla versione più recente del pacchetto
 .TP 
 \fBBuild\-Depends:\fP\fI elenco\-pacchetti\fP
 Un elenco di pacchetti che devono essere installati e configurati per poter
-compilare il pacchetto sorgente. Includere una dipendenza in questo elenco
-ha lo stesso effetto di includerla in entrambi \fBBuild\-Depends\-Arch\fP e
+creare il pacchetto sorgente. Includere una dipendenza in questo elenco ha
+lo stesso effetto di includerla in entrambi \fBBuild\-Depends\-Arch\fP e
 \fBBuild\-Depends\-Indep\fP, con l'effetto aggiuntivo di essere usata per la
 creazione di archivi solo\-sorgenti.
 
@@ -182,16 +182,18 @@ gruppo è un elenco di pacchetti separati da una barra verticale (o «pipe»):
 «|». I gruppi sono separati da virgole. Le virgole devono essere lette come
 «AND» e le pipe come «OR», con le pipe che hanno la precedenza. Ogni nome di
 pacchetto è seguito opzionalmente da un numero di versione specificato tra
-parentesi, un'architettura specificata tra parentesi quadre e un profilo
-specificato tra parentesi angolari.
+parentesi, un'architettura specificata tra parentesi quadre e una formula di
+restrizione che consiste di uno o più elenchi di nomi di profilo specificati
+tra parentesi angolari.
 
 La sintassi dei campi \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP e
 \fBBuild\-Conflicts\-Indep\fP è un elenco di gruppi di pacchetti separati da
 virgole, dove la virgola viene letta come un «AND». Non è supportato
 specificare pacchetti alternativi usando una «pipe». Ogni nome di pacchetto
 è seguito opzionalmente da un numero di versione specificato tra parentesi,
-da un'architettura specificata tra parentesi quadre e da un profilo
-specificato tra parentesi angolari.
+da un'architettura specificata tra parentesi quadre e da una formula di
+restrizione che consiste di uno o più elenchi di nomi di profilo specificati
+tra parentesi angolari.
 
 Un numero di versione può iniziare con «>>», nel qual caso
 corrisponde ad ogni versione successiva e può specificare o meno la
@@ -204,10 +206,12 @@ L'indicazione di un'architettura è formata da uno o più nomi di
 architettura, separati da spazi bianchi. Ciascun nome può essere fatto
 precedere da un punto esclamativo col significato di «NON».
 
-L'indicazione di un profilo è formata da uno o più nomi di profilo, fatti
-precedere dallo spazio dei nomi «\fBprofile.\fP» e separati da spazi
-bianchi. Ciascun nome può essere fatto precedere da un punto esclamativo col
-significato di «NON».
+Una formula di restrizione è costituita da uno o più elenchi di restrizione,
+separati da uno spazio bianco. Ogni elenco di restrizione e racchiuso tra
+parentesi angolari. Gli elementi nell'elenco di restrizione sono nomi di
+profilo, separati da spazi bianchi e possono essere preceduti da un punto
+esclamativo col significato di «NON». Una formula di restrizione rappresenta
+una espressione in forma normale disgiuntiva.
 
 Notare che le dipendenze dai pacchetti nell'insieme \fBbuild\-essential\fP
 possono essere omesse e che dichiarare conflitti di compilazione con essi è
@@ -234,7 +238,7 @@ valore \fBany\fP. Per i pacchetti che sono indipendenti dall'architettura, come
 gli script Perl e di shell o la documentazione, usare il valore \fBall\fP. Per
 limitare i pacchetti ad un determinato insieme di architetture, specificare
 i nomi delle architetture, separate da uno spazio. In tale elenco è anche
-possibile usare caratteri jolly per le architetture (per maggiori
+possibile usare espressioni jolly per le architetture (per maggiori
 informazioni vedere \fBdpkg\-architecture\fP(1)).
 
 .TP 
@@ -309,8 +313,7 @@ Tenere a mente che questi campi definiti dall'utente useranno lo spazio dei
 nomi globale, che potrebbe in futuro andare in conflitto con i campi
 ufficialmente riconosciuti. Per evitare una potenziale situazione di questo
 tipo, si possono far iniziare questi campi con \fBPrivate\-\fP, come in
-\fBXB\-Private\-Nuovo\-Campo\fP; l'effetto collaterale è che \fBdpkg\-deb\fP non
-avvertirà della loro presenza come campi sconosciuti.
+\fBXB\-Private\-Nuovo\-Campo\fP.
 
 .SH ESEMPIO
 .\" .RS

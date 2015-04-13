@@ -41,9 +41,10 @@ zu speichern.
 .
 .SH BEFEHLE
 .TP 
-\fB\-x \fP\fIDateiname\fP\fB.dsc\fP [\fIAusgabe\-Verzeichnis\fP]
-Extrahiere ein Quellpaket. Ein nicht\-Options\-Argument muss angegeben werden,
-der Name der Debian Quell\-Steuer\-Datei (\fB.dsc\fP). Optional kann ein zweites
+\fB\-x\fP, \fB\-\-extract\fP \fIDateiname\fP.dsc [\fIAusgabe\-Verzeichnis\fP]
+Extrahiere ein Quellpaket. Der Alias \fB\-\-extract\fP wurde in Dpkg 1.17.14
+hinzugefügt. Ein nicht\-Options\-Argument muss angegeben werden, der Name der
+Debian Quell\-Steuer\-Datei (\fB.dsc\fP). Optional kann ein zweites
 nicht\-Options\-Argument angegeben werden, um das Verzeichnis anzugeben, in
 das das Quellpaket extrahiert werden soll. Dieses Verzeichis darf dann nicht
 existieren. Falls kein Ausgabeverzeichnis angegeben ist, wird das Quellpaket
@@ -68,8 +69,9 @@ sind dies alle Formate außer »1.0«) wird sein Name in
 Quellpakets standardmäßig das gleiche Format verwenden.
 
 .TP 
-\fB\-b\fP \fIVerzeichnis\fP [\fIFormat\-abhängige\-Parameter\fP]
-Baue ein Quellpaket. Das erste nicht\-Options\-Argument wird als Name des
+\fB\-b\fP, \fB\-\-build\fP \fIVerzeichnis\fP [\fIFormat\-abhängige\-Parameter\fP]
+Baue ein Quellpaket. Der Alias \fB\-\-build\fP wurde in Dpkg 1.17.14
+hinzugefügt. Das erste nicht\-Options\-Argument wird als Name des
 Verzeichnisses verwandt, das den debianisierten (d.h. mit einem
 Unterverzeichnis debian und ggf. Änderungen an den Originaldateien
 versehenen) Quellbaum enthält. Abhängig vom dem zum Bau verwandten
@@ -87,7 +89,7 @@ beschrieben.
 .TP 
 \fB\-\-print\-format\fP \fIVerzeichnis\fP
 Gibt das Quellformat aus, dass zum Bau des Quellpakets verwandt würde, falls
-\fBdpkg\-source \-b \fP\fIVerzeichnis\fP aufgerufen würde (unter den gleichen
+\fBdpkg\-source \-\-build \fP\fIVerzeichnis\fP aufgerufen würde (unter den gleichen
 Bedingungen und mit den gleichen Parametern).
 
 .TP 
@@ -289,7 +291,7 @@ das Extrahieren des Original\-Tarballs in ein separates Verzeichnis ».orig«
 und die Neuerstellung des \fB.diff.gz\fP durch Vergleich des
 Quellpaket\-\fIVerzeichnisses\fP mit dem Verzeichnis .orig ein.
 
-\fBBau\-Optionen (mit \-b):\fP
+\fBBau\-Optionen (mit \-\-build):\fP
 
 Falls ein zweites nicht\-Options\-Argument angegeben ist, sollte es der Namen
 des Originalquellverzeichnisses oder der Tardatei sein. Falls das Paket
@@ -360,7 +362,7 @@ außerhalb des Unterverzeichnisses »debian« enthält. Diese Option ist in
 \fBdebian/source/local\-options\fP verwandt werden.
 .PP
 
-\fBExtrahierungs\-Optionen (mit \-x):\fP
+\fBExtrahierungs\-Optionen (mit \-\-extract):\fP
 
 In allen Fällen werden die Originalquellbäume entfernt.
 .TP 
@@ -483,9 +485,9 @@ zugeordneten Standardwert in der Ausgabe von \fB\-\-help\fP). Insbesondere wird
 das von \fBquilt\fP verwandte \fB.pc\fP\-Verzeichnis während der Erstellung des
 automatischen Patches ignoriert.
 
-Hinweis: \fBdpkg\-source\fP \fB\-\-before\-build\fP (und \fB\-b\fP) stellen sicher, dass
-alle in der Series\-Datei aufgeführten Patches angewendet sind, so dss ein
-Paketbau immer mit allen angewandten Patches durchgeführt wird. Dies
+Hinweis: \fBdpkg\-source\fP \fB\-\-before\-build\fP (und \fB\-\-build\fP) stellen sicher,
+dass alle in der Series\-Datei aufgeführten Patches angewendet sind, so dass
+ein Paketbau immer mit allen angewandten Patches durchgeführt wird. Dies
 erfolgt, indem nicht angewandte Patches ermittelt werden (sie sind in der
 Datei \fBseries\fP, aber nicht in der Datei \fB.pc/applied\-patches\fP aufgeführt)
 und wenn der erste Patch in dem Satz ohne Fehler angewandt werden kann,
@@ -513,8 +515,8 @@ nicht aufgezeichneten Änderungen enthalten dürfen.
 
 Falls die Patch\-Erzeugung veränderte Binärdateien erkennt, werden diese
 automatisch zu \fBdebian/source/include\-binaries\fP hinzugefügt, so dass sie im
-Debian\-Tarball landen (genau wie dies \fBdpkg\-source \-\-include\-binaries \-b\fP
-machen würde).
+Debian\-Tarball landen (genau wie dies \fBdpkg\-source \-\-include\-binaries
+\-\-build\fP machen würde).
 .PP
 \fBBau\-Optionen\fP
 .TP 
@@ -723,9 +725,10 @@ Zeile werden entfernt. Zeilen, die mit »#« anfangen, sind Kommentare und
 werden übersprungen. Leere Zeilen werden ignoriert.
 .SS debian/source/options
 Diese Datei enhält eine Liste an Optionen, die automatisch vor den Satz an
-Befehlszeilenoptionen bei einem Aufruf \fBdpkg\-source \-b\fP oder \fBdpkg\-source
-\-\-print\-format\fP gesetzt werden sollen. Optionen wie \fB\-compression\fP und
-\fB\-\-compression\-level\fP sind für diese Datei gut geeignet.
+Befehlszeilenoptionen bei einem Aufruf \fBdpkg\-source \-\-build\fP oder
+\fBdpkg\-source \-\-print\-format\fP gesetzt werden sollen. Optionen wie
+\fB\-compression\fP und \fB\-\-compression\-level\fP sind für diese Datei gut
+geeignet.
 .P
 Jede Option sollte auf einer separaten Zeile stehen. Leerzeilen und Zeilen,
 die mit »#« beginnen, werden ignoriert. Das einleitende »\-\-« sollte entfernt

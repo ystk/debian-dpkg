@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1996 Michael Shields <shields@crosslink.net>
 .\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
-.\" Copyright Â© 2007 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2007, 2009, 2011-2014 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -75,6 +75,11 @@ Informationen über deren Format.
 \fB\-a\fP, \fB\-\-arch\fP \fIarch\fP
 Verwende ein Muster, das aus \fI*_all.deb\fP und \fI*_arch.deb\fP besteht, statt
 nach allen Debs zu suchen.
+.TP 
+\fB\-h\fP, \fB\-\-hash\fP \fIHash\-Liste\fP
+Datei\-Hashes nur für angegebene, durch Kommata\-getrennte Liste
+erzeugen. Standardmäßig werden alle derzeit unterstützten Hashes
+erstellt. Unterstützte Werte: \fBmd5\fP, \fBsha1\fP, \fBsha256\fP.
 .TP 
 \fB\-m\fP, \fB\-\-multiversion\fP
 Nimm alle gefundenen Pakete in der Ausgabe auf.

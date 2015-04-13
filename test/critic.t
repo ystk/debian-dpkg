@@ -41,6 +41,7 @@ my @policies = qw(
     BuiltinFunctions::ProhibitStringySplit
     BuiltinFunctions::ProhibitUniversalCan
     BuiltinFunctions::ProhibitUniversalIsa
+    BuiltinFunctions::ProhibitUselessTopic
     BuiltinFunctions::ProhibitVoidGrep
     BuiltinFunctions::ProhibitVoidMap
     BuiltinFunctions::RequireBlockGrep
@@ -56,6 +57,7 @@ my @policies = qw(
     CodeLayout::RequireConsistentNewlines
     ControlStructures::ProhibitCStyleForLoops
     ControlStructures::ProhibitLabelsWithSpecialBlockNames
+    ControlStructures::ProhibitMutatingListFunctions
     ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions
     ControlStructures::ProhibitUntilBlocks
     Documentation::RequirePackageMatchesPodName
@@ -82,6 +84,7 @@ my @policies = qw(
     RegularExpressions::ProhibitSingleCharAlternation
     RegularExpressions::ProhibitUnusedCapture
     RegularExpressions::ProhibitUnusualDelimiters
+    RegularExpressions::ProhibitUselessTopic
     RegularExpressions::RequireBracesForMultiline
     Subroutines::ProhibitExplicitReturnUndef
     Subroutines::ProhibitNestedSubs

@@ -177,15 +177,17 @@ packages. Each group is a list of packages separated by vertical bar (or
 "pipe") symbols, "|". The groups are separated by commas. Commas are to be
 read as "AND", and pipes as "OR", with pipes binding more tightly. Each
 package name is optionally followed by a version number specification in
-parentheses, an architecture specification in square brackets, and a profile
-specification in angle brackets.
+parentheses, an architecture specification in square brackets, and a
+restriction formula consisting of one or more lists of profile names in
+angle brackets.
 
 The syntax of the \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP and
 \fBBuild\-Conflicts\-Indep\fP fields is a list of comma\-separated package names,
 where the comma is read as an "AND". Specifying alternative packages using a
 "pipe" is not supported.  Each package name is optionally followed by a
 version number specification in parentheses, an architecture specification
-in square brackets, and a profile specification in angle brackets.
+in square brackets, and a restriction formula consisting of one or more
+lists of profile names in angle brackets.
 
 Un número de versión puede empezar con «>>», en cuyo caso cualquier
 versión posterior encajaría, siendo posible omitir el número de revisión de
@@ -197,9 +199,11 @@ An architecture specification consists of one or more architecture names,
 separated by whitespace. Exclamation marks may be prepended to each of the
 names, meaning "NOT".
 
-A profile specification consists of one or more profile names, prefixed with
-the "\fBprofile.\fP" namespace, separated by whitespace. Exclamation marks may
-be prepended to each of the names, meaning "NOT".
+A restriction formula consists of one or more restriction lists, separated
+by whitespace. Each restriction list is enclosed in angle brackets. Items in
+the restriction list are build profile names, separated by whitespace and
+can be prefixed with an exclamation mark, meaning "NOT". A restriction
+formula represents a disjunctive normal form expression.
 
 Tenga en cuenta que los paquetes del conjunto de paquetes \fBbuild\-essential\fP
 se pueden omitir, y que es casi imposible declarar conflictos de
@@ -296,12 +300,10 @@ ficheros de salida. Un campo \fBXC\-Approved\-By\fP aparece como \fBApproved\-By
 en el fichero «.changes», y no aparecerá en los ficheros de control de
 paquete fuente o binario.
 
-Tenga en cuenta que estos campos definidos por usuario utilizan el espacio
-de nombres global, que en el futuro podría entrar en conflicto con campos
-oficialmente reconocidos. Para evitar esta situación potencial, puede
-prefijar estos campos con \fBPrivate\-\fP, como por ejemplo
-\fBXB\-Private\-New\-Field\fP, que como efecto añadido impide que \fBdpkg\-deb\fP
-envíe una advertencia de campo desconocido.
+Take into account that these user\-defined fields will be using the global
+namespace, which might at some point in the future collide with officially
+recognized fields. To avoid such potential situation you can prefix those
+fields with \fBPrivate\-\fP, such as \fBXB\-Private\-New\-Field\fP.
 
 .SH EJEMPLO
 .\" .RS

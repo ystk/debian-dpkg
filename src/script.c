@@ -183,9 +183,9 @@ maintscript_exec(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
 		command_exec(cmd);
 	}
-	subproc_signals_setup(cmd->name); /* This does a push_cleanup(). */
-	rc = subproc_wait_check(pid, cmd->name, warn);
-	pop_cleanup(ehflag_normaltidy);
+	subproc_signals_ignore(cmd->name);
+	rc = subproc_reap(pid, cmd->name, warn);
+	subproc_signals_restore();
 
 	pop_cleanup(ehflag_normaltidy);
 
@@ -328,7 +328,7 @@ maintscript_fallback(struct pkginfo *pkg,
 		warning(_("unable to stat %s '%.250s': %s"),
 		        cmd.name, oldscriptpath, strerror(errno));
 	} else {
-		if (!maintscript_exec(pkg, &pkg->installed, &cmd, &stab, PROCWARN)) {
+		if (!maintscript_exec(pkg, &pkg->installed, &cmd, &stab, SUBPROC_WARN)) {
 			command_destroy(&cmd);
 			post_script_tasks();
 			return 1;

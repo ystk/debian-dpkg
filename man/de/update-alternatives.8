@@ -73,8 +73,8 @@ Für jedes Paket, das eine Datei mit einer bestimmten Funktionalität
 bereitstellt, wird bei der Installation, der Änderung oder der Entfernung
 \fBupdate\-alternatives\fP aufgerufen, um die Informationen über diese Datei im
 Alternativ\-System zu aktualisieren. \fBupdate\-alternatives\fP wird gewöhnlich
-vom Skript \fBpostinst\fP (configure) oder \fBprerm\fP (install) eines
-Debian\-Paketes aufgerufen.
+vom Skript \fBpostinst\fP (configure) oder \fBprerm\fP (remove und deconfigure)
+eines Debian\-Paketes aufgerufen.
 .PP
 Es ist oft sinnvoll, dass eine Reihe von Alternativen synchronisiert werden,
 so dass sie als Gruppe geändert werden; wenn beispielsweise mehrere

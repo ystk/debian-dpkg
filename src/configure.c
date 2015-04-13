@@ -212,7 +212,7 @@ show_diff(const char *old, const char *new)
 	}
 
 	/* Parent process. */
-	subproc_wait(pid, _("conffile difference visualizer"));
+	subproc_reap(pid, _("conffile difference visualizer"), SUBPROC_NOCHECK);
 }
 
 /**
@@ -242,7 +242,7 @@ spawn_shell(const char *confold, const char *confnew)
 	}
 
 	/* Parent process. */
-	subproc_wait(pid, _("conffile shell"));
+	subproc_reap(pid, _("conffile shell"), SUBPROC_NOCHECK);
 }
 
 /**
@@ -716,8 +716,6 @@ conffderef(struct pkginfo *pkg, struct varbuf *result, const char *in)
 
 	varbuf_reset(result);
 	varbuf_add_str(result, instdir);
-	if (*in != '/')
-		varbuf_add_char(result, '/');
 	varbuf_add_str(result, in);
 	varbuf_end_str(result);
 

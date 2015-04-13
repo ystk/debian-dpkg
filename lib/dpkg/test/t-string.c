@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdio.h>
+
 static void
 test_str_is_set(void)
 {
@@ -50,6 +52,28 @@ test_str_match_end(void)
 	test_fail(str_match_end("foo bar quux", "foo bar quux zorg"));
 	test_fail(str_match_end("foo bar quux", "foo bar"));
 	test_fail(str_match_end("foo bar quux", "foo"));
+}
+
+static void
+test_str_fnv_hash(void)
+{
+	test_pass(str_fnv_hash("") == 0x811c9dc5U);
+	test_pass(str_fnv_hash("a") == 0xe40c292cUL);
+	test_pass(str_fnv_hash("b") == 0xe70c2de5UL);
+	test_pass(str_fnv_hash("c") == 0xe60c2c52UL);
+	test_pass(str_fnv_hash("d") == 0xe10c2473UL);
+	test_pass(str_fnv_hash("e") == 0xe00c22e0UL);
+	test_pass(str_fnv_hash("f") == 0xe30c2799UL);
+	test_pass(str_fnv_hash("fo") == 0x6222e842UL);
+	test_pass(str_fnv_hash("foo") == 0xa9f37ed7UL);
+	test_pass(str_fnv_hash("foob") == 0x3f5076efUL);
+	test_pass(str_fnv_hash("fooba") == 0x39aaa18aUL);
+	test_pass(str_fnv_hash("foobar") == 0xbf9cf968UL);
+
+	test_pass(str_fnv_hash("test-string") == 0xd28f6e61UL);
+	test_pass(str_fnv_hash("Test-string") == 0x00a54b81UL);
+	test_pass(str_fnv_hash("rest-string") == 0x1cdeebffUL);
+	test_pass(str_fnv_hash("Rest-string") == 0x20464b9fUL);
 }
 
 static void
@@ -160,10 +184,11 @@ test_str_strip_quotes(void)
 static void
 test(void)
 {
-	test_plan(32);
+	test_plan(48);
 
 	test_str_is_set();
 	test_str_match_end();
+	test_str_fnv_hash();
 	test_str_escape_fmt();
 	test_str_quote_meta();
 	test_str_strip_quotes();

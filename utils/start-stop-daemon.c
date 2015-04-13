@@ -66,6 +66,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/ioctl.h>
 
 #include <assert.h>
@@ -102,6 +103,11 @@
 
 #ifdef HAVE_KVM_H
 #include <kvm.h>
+#if defined(OSFreeBSD)
+#define KVM_MEMFILE "/dev/null"
+#else
+#define KVM_MEMFILE NULL
+#endif
 #endif
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
@@ -168,6 +174,7 @@ static int exitnodo = 1;
 static bool background = false;
 static bool close_io = true;
 static bool mpidfile = false;
+static bool rpidfile = false;
 static int signal_nr = SIGTERM;
 static int user_id = -1;
 static int runas_uid = -1;
@@ -352,7 +359,9 @@ detach_controlling_tty(void)
 static pid_t
 setsid(void)
 {
-	setpgid(0, 0);
+	if (setpgid(0, 0) < 0)
+		return -1:
+
 	detach_controlling_tty();
 
 	return 0;
@@ -360,30 +369,30 @@ setsid(void)
 #endif
 
 static void
-daemonize(void)
+wait_for_child(pid_t pid)
 {
-	pid_t pid;
+	pid_t child;
+	int status;
 
-	if (quietmode < 0)
-		printf("Detaching to start %s...", startas);
+	do {
+		child = waitpid(pid, &status, 0);
+	} while (child == -1 && errno == EINTR);
 
-	pid = fork();
-	if (pid < 0)
-		fatal("unable to do first fork");
-	else if (pid) /* Parent. */
-		_exit(0);
+	if (child != pid)
+		fatal("error waiting for child");
 
-	/* Create a new session. */
-	setsid();
+	if (WIFEXITED(status)) {
+		int err = WEXITSTATUS(status);
 
-	pid = fork();
-	if (pid < 0)
-		fatal("unable to do second fork");
-	else if (pid) /* Parent. */
-		_exit(0);
+		if (err != 0)
+			fatal("child returned error exit status %d", err);
+	} else if (WIFSIGNALED(status)) {
+		int signo = WTERMSIG(status);
 
-	if (quietmode < 0)
-		printf("done.\n");
+		fatal("child was killed by signal %d", signo);
+	} else {
+		fatal("unexpected status %d waiting for child", status);
+	}
 }
 
 static void
@@ -405,6 +414,69 @@ write_pidfile(const char *filename, pid_t pid)
 
 	if (fclose(fp))
 		fatal("unable to close pidfile '%s'", filename);
+}
+
+static void
+remove_pidfile(const char *filename)
+{
+	if (unlink(filename) < 0 && errno != ENOENT)
+		fatal("cannot remove pidfile '%s'", filename);
+}
+
+static void
+daemonize(void)
+{
+	pid_t pid;
+	sigset_t mask;
+	sigset_t oldmask;
+
+	if (quietmode < 0)
+		printf("Detaching to start %s...", startas);
+
+	/* Block SIGCHLD to allow waiting for the child process while it is
+	 * performing actions, such as creating a pidfile. */
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCHLD);
+	if (sigprocmask(SIG_BLOCK, &mask, &oldmask) == -1)
+		fatal("cannot block SIGCHLD");
+
+	pid = fork();
+	if (pid < 0)
+		fatal("unable to do first fork");
+	else if (pid) { /* First Parent. */
+		/* Wait for the second parent to exit, so that if we need to
+		 * perform any actions there, like creating a pidfile, we do
+		 * not suffer from race conditions on return. */
+		wait_for_child(pid);
+
+		_exit(0);
+	}
+
+	/* Create a new session. */
+	if (setsid() < 0)
+		fatal("cannot set session ID");
+
+	pid = fork();
+	if (pid < 0)
+		fatal("unable to do second fork");
+	else if (pid) { /* Second parent. */
+		/* Set a default umask for dumb programs, which might get
+		 * overridden by the --umask option later on, so that we get
+		 * a defined umask when creating the pidfille. */
+		umask(022);
+
+		if (mpidfile && pidfile != NULL)
+			/* User wants _us_ to make the pidfile. */
+			write_pidfile(pidfile, pid);
+
+		_exit(0);
+	}
+
+	if (sigprocmask(SIG_SETMASK, &oldmask, NULL) == -1)
+		fatal("cannot restore signal mask");
+
+	if (quietmode < 0)
+		printf("done.\n");
 }
 
 static void
@@ -471,6 +543,7 @@ usage(void)
 "  -b|--background               force the process to detach\n"
 "  -C|--no-close                 do not close any file descriptor\n"
 "  -m|--make-pidfile             create the pidfile before starting\n"
+"    |--remove-pidfile           delete the pidfile after stopping\n"
 "  -R|--retry <schedule>         check whether processes die, and retry\n"
 "  -t|--test                     test mode, don't do anything\n"
 "  -o|--oknodo                   exit status 0 (not 1) if nothing done\n"
@@ -814,6 +887,7 @@ set_action(enum action_code new_action)
 
 #define OPT_PID		500
 #define OPT_PPID	501
+#define OPT_RM_PIDFILE	502
 
 static void
 parse_options(int argc, char * const *argv)
@@ -846,6 +920,7 @@ parse_options(int argc, char * const *argv)
 		{ "background",	  0, NULL, 'b'},
 		{ "no-close",	  0, NULL, 'C'},
 		{ "make-pidfile", 0, NULL, 'm'},
+		{ "remove-pidfile", 0, NULL, OPT_RM_PIDFILE},
 		{ "retry",	  1, NULL, 'R'},
 		{ "chdir",	  1, NULL, 'd'},
 		{ NULL,		  0, NULL, 0  }
@@ -951,6 +1026,9 @@ parse_options(int argc, char * const *argv)
 		case 'm':  /* --make-pidfile */
 			mpidfile = true;
 			break;
+		case OPT_RM_PIDFILE: /* --remove-pidfile */
+			rpidfile = true;
+			break;
 		case 'R':  /* --retry <schedule>|<timeout> */
 			schedule_str = optarg;
 			break;
@@ -1016,6 +1094,8 @@ parse_options(int argc, char * const *argv)
 
 	if (mpidfile && pidfile == NULL)
 		badusage("--make-pidfile requires --pidfile");
+	if (rpidfile && pidfile == NULL)
+		badusage("--remove-pidfile requires --pidfile");
 
 	if (pid_str && pidfile)
 		badusage("need either --pid of --pidfile, not both");
@@ -1163,6 +1243,36 @@ get_proc_stat(pid_t pid, ps_flags_t flags)
 
 	return ps;
 }
+#elif defined(HAVE_KVM_H)
+static kvm_t *
+ssd_kvm_open(void)
+{
+	kvm_t *kd;
+	char errbuf[_POSIX2_LINE_MAX];
+
+	kd = kvm_openfiles(NULL, KVM_MEMFILE, NULL, O_RDONLY, errbuf);
+	if (kd == NULL)
+		errx(1, "%s", errbuf);
+
+	return kd;
+}
+
+static struct kinfo_proc *
+ssd_kvm_get_procs(kvm_t *kd, int op, int arg, int *count)
+{
+	struct kinfo_proc *kp;
+	int lcount;
+
+	if (count == NULL)
+		count = &lcount;
+	*count = 0;
+
+	kp = kvm_getprocs(kd, op, arg, count);
+	if (kp == NULL && errno != ESRCH)
+		errx(1, "%s", kvm_geterr(kd));
+
+	return kp;
+}
 #endif
 
 #if defined(OSLinux)
@@ -1258,19 +1368,18 @@ static bool
 pid_is_exec(pid_t pid, const struct stat *esb)
 {
 	kvm_t *kd;
-	int nentries, argv_len = 0;
+	int argv_len = 0;
 	struct kinfo_proc *kp;
 	struct stat sb;
-	char errbuf[_POSIX2_LINE_MAX], buf[_POSIX2_LINE_MAX];
+	char buf[_POSIX2_LINE_MAX];
 	char **pid_argv_p;
 	char *start_argv_0_p, *end_argv_0_p;
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf);
-	if (kd == NULL)
-		errx(1, "%s", errbuf);
-	kp = kvm_getprocs(kd, KERN_PROC_PID, pid, &nentries);
+	kd = ssd_kvm_open();
+	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		errx(1, "%s", kvm_geterr(kd));
+		return false;
+
 	pid_argv_p = kvm_getargv(kd, kp, argv_len);
 	if (pid_argv_p == NULL)
 		errx(1, "%s", kvm_geterr(kd));
@@ -1349,17 +1458,13 @@ static bool
 pid_is_child(pid_t pid, pid_t ppid)
 {
 	kvm_t *kd;
-	int nentries;
 	struct kinfo_proc *kp;
-	char errbuf[_POSIX2_LINE_MAX];
 	pid_t proc_ppid;
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf);
-	if (kd == NULL)
-		errx(1, "%s", errbuf);
-	kp = kvm_getprocs(kd, KERN_PROC_PID, pid, &nentries);
+	kd = ssd_kvm_open();
+	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		errx(1, "%s", kvm_geterr(kd));
+		return false;
 
 #if defined(OSFreeBSD)
 	proc_ppid = kp->ki_ppid;
@@ -1411,17 +1516,13 @@ static bool
 pid_is_user(pid_t pid, uid_t uid)
 {
 	kvm_t *kd;
-	int nentries; /* Value not used. */
 	uid_t proc_uid;
 	struct kinfo_proc *kp;
-	char errbuf[_POSIX2_LINE_MAX];
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf);
-	if (kd == NULL)
-		errx(1, "%s", errbuf);
-	kp = kvm_getprocs(kd, KERN_PROC_PID, pid, &nentries);
+	kd = ssd_kvm_open();
+	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		errx(1, "%s", kvm_geterr(kd));
+		return false;
 
 #if defined(OSFreeBSD)
 	proc_uid = kp->ki_ruid;
@@ -1499,16 +1600,13 @@ static bool
 pid_is_cmd(pid_t pid, const char *name)
 {
 	kvm_t *kd;
-	int nentries;
 	struct kinfo_proc *kp;
-	char errbuf[_POSIX2_LINE_MAX], *process_name;
+	char *process_name;
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf);
-	if (kd == NULL)
-		errx(1, "%s", errbuf);
-	kp = kvm_getprocs(kd, KERN_PROC_PID, pid, &nentries);
+	kd = ssd_kvm_open();
+	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		errx(1, "%s", kvm_geterr(kd));
+		return false;
 
 #if defined(OSFreeBSD)
 	process_name = kp->ki_comm;
@@ -1673,15 +1771,10 @@ do_procinit(void)
 	kvm_t *kd;
 	int nentries, i;
 	struct kinfo_proc *kp;
-	char errbuf[_POSIX2_LINE_MAX];
 	enum status_code prog_status = STATUS_DEAD;
 
-	kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf);
-	if (kd == NULL)
-		errx(1, "%s", errbuf);
-	kp = kvm_getprocs(kd, KERN_PROC_ALL, 0, &nentries);
-	if (kp == NULL)
-		errx(1, "%s", kvm_geterr(kd));
+	kd = ssd_kvm_open();
+	kp = ssd_kvm_get_procs(kd, KERN_PROC_ALL, 0, &nentries);
 
 	for (i = 0; i < nentries; i++) {
 		enum status_code pid_status;
@@ -1766,6 +1859,9 @@ do_start(int argc, char **argv)
 	if (background)
 		/* Ok, we need to detach this process. */
 		daemonize();
+	else if (mpidfile && pidfile != NULL)
+		/* User wants _us_ to make the pidfile, but detach themself! */
+		write_pidfile(pidfile, getpid());
 	if (background && close_io) {
 		devnull_fd = open("/dev/null", O_RDWR);
 		if (devnull_fd < 0)
@@ -1782,9 +1878,6 @@ do_start(int argc, char **argv)
 		set_io_schedule(io_sched);
 	if (umask_value >= 0)
 		umask(umask_value);
-	if (mpidfile && pidfile != NULL)
-		/* User wants _us_ to make the pidfile. */
-		write_pidfile(pidfile, getpid());
 	if (changeroot != NULL) {
 		if (chdir(changeroot) < 0)
 			fatal("unable to chdir() to %s", changeroot);
@@ -1814,10 +1907,6 @@ do_start(int argc, char **argv)
 			if (setuid(runas_uid))
 				fatal("unable to set uid to %s", changeuser);
 	}
-
-	/* Set a default umask for dumb programs. */
-	if (background && umask_value < 0)
-		umask(022);
 
 	if (background && close_io) {
 		int i;
@@ -1960,6 +2049,9 @@ do_stop_timeout(int timeout, int *n_killed, int *n_notkilled)
 static int
 finish_stop_schedule(bool anykilled)
 {
+	if (rpidfile && pidfile && !testmode)
+		remove_pidfile(pidfile);
+
 	if (anykilled)
 		return 0;
 
@@ -1989,6 +2081,10 @@ run_stop_schedule(void)
 		set_what_stop(execname);
 	else if (pidfile)
 		sprintf(what_stop, "process in pidfile '%.200s'", pidfile);
+	else if (match_pid > 0)
+		sprintf(what_stop, "process with pid %d", match_pid);
+	else if (match_ppid > 0)
+		sprintf(what_stop, "process(es) with parent pid %d", match_ppid);
 	else if (userspec)
 		sprintf(what_stop, "process(es) owned by '%.200s'", userspec);
 	else

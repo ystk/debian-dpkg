@@ -197,7 +197,7 @@ sub parse {
 
     while (<$fh>) {
 	s/\s*\n$//;
-	next if (m/^$/ and $paraborder);
+	next if length == 0 and $paraborder;
 	next if (m/^#/);
 	$paraborder = 0;
 	if (m/^(\S+?)\s*:\s*(.*)$/) {
@@ -232,11 +232,11 @@ sub parse {
 	    } else {
 		$self->parse_error($desc, _g('OpenPGP signature not allowed here'));
 	    }
-	} elsif (m/^$/ || ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE-----$/)) {
+	} elsif (length == 0 || ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE-----$/)) {
 	    if ($expect_pgp_sig) {
 		# Skip empty lines
-		$_ = <$fh> while defined($_) && $_ =~ /^\s*$/;
-		unless (length $_) {
+		$_ = <$fh> while defined && m/^\s*$/;
+		unless (length) {
 		    $self->parse_error($desc, _g('expected OpenPGP signature, ' .
 		                                 'found EOF after blank line'));
 		}
@@ -250,7 +250,7 @@ sub parse {
 		    s/\s*\n$//;
 		    last if m/^-----END PGP SIGNATURE-----$/;
 		}
-		unless (defined($_)) {
+		unless (defined) {
 		    $self->parse_error($desc, _g('unfinished OpenPGP signature'));
                 }
 		# This does not mean the signature is correct, that needs to
@@ -356,7 +356,7 @@ sub output {
 	    $kv .= "\n";
 	    foreach (@lines) {
 		s/\s+$//;
-		if (/^$/ or /^\.+$/) {
+		if (length == 0 or /^\.+$/) {
 		    $kv .= " .$_\n";
 		} else {
 		    $kv .= " $_\n";
@@ -500,7 +500,7 @@ sub DELETE {
     $key = lc($key);
     if (exists $self->[0]->{$key}) {
 	delete $self->[0]->{$key};
-	@$in_order = grep { lc($_) ne $key } @$in_order;
+	@{$in_order} = grep { lc ne $key } @{$in_order};
 	return 1;
     } else {
 	return 0;
@@ -510,8 +510,8 @@ sub DELETE {
 sub FIRSTKEY {
     my $self = shift;
     my $parent = $self->[1];
-    foreach (@{$parent->{in_order}}) {
-	return $_ if exists $self->[0]->{lc($_)};
+    foreach my $key (@{$parent->{in_order}}) {
+	return $key if exists $self->[0]->{lc $key};
     }
 }
 
@@ -519,11 +519,11 @@ sub NEXTKEY {
     my ($self, $last) = @_;
     my $parent = $self->[1];
     my $found = 0;
-    foreach (@{$parent->{in_order}}) {
+    foreach my $key (@{$parent->{in_order}}) {
 	if ($found) {
-	    return $_ if exists $self->[0]->{lc($_)};
+	    return $key if exists $self->[0]->{lc $key};
 	} else {
-	    $found = 1 if $_ eq $last;
+	    $found = 1 if $key eq $last;
 	}
     }
     return;
@@ -538,6 +538,10 @@ sub NEXTKEY {
 =head2 Version 1.01
 
 New method: $c->parse_error().
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =head1 AUTHOR
 

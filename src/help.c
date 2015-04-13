@@ -227,7 +227,7 @@ dir_has_conffiles(struct filenamenode *file, struct pkginfo *pkg)
       if (conff->obsolete)
         continue;
       if (strncmp(file->name, conff->name, namelen) == 0 &&
-          conff->name[namelen] == '/') {
+          strlen(conff->name) > namelen && conff->name[namelen] == '/') {
 	debug(dbg_veryverbose, "directory %s has conffile %s from %s",
 	      file->name, conff->name, pkg_name(pkg, pnaw_always));
 	return true;
@@ -287,6 +287,7 @@ dir_is_used_by_pkg(struct filenamenode *file, struct pkginfo *pkg,
           node->namenode->name);
 
     if (strncmp(file->name, node->namenode->name, namelen) == 0 &&
+        strlen(node->namenode->name) > namelen &&
         node->namenode->name[namelen] == '/') {
       debug(dbg_veryverbose, "dir_is_used_by_pkg yes");
       return true;
@@ -327,8 +328,8 @@ void oldconffsetflags(const struct conffile *searchconff) {
     namenode->flags |= fnnf_old_conff;
     if (!namenode->oldhash)
       namenode->oldhash= searchconff->hash;
-    debug(dbg_conffdetail, "oldconffsetflags '%s' namenode %p flags %o",
-          searchconff->name, namenode, namenode->flags);
+    debug(dbg_conffdetail, "oldconffsetflags '%s' namenode '%s' flags %o",
+          searchconff->name, namenode->name, namenode->flags);
     searchconff= searchconff->next;
   }
 }
@@ -393,7 +394,7 @@ void ensure_pathname_nonexisting(const char *pathname) {
   }
   debug(dbg_eachfile, "ensure_pathname_nonexisting running rm -rf '%s'",
         pathname);
-  subproc_wait_check(pid, "rm cleanup", 0);
+  subproc_reap(pid, _("rm command for cleanup"), 0);
 }
 
 void

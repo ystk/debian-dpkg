@@ -33,9 +33,8 @@ use Dpkg::Shlibs::Cppfilt;
 use constant ALIAS_TYPES => qw(c++ symver);
 
 sub new {
-    my $this = shift;
+    my ($this, %args) = @_;
     my $class = ref($this) || $this;
-    my %args = @_;
     my $self = bless {
 	symbol => undef,
 	symbol_templ => undef,
@@ -51,12 +50,9 @@ sub new {
 
 # Deep clone
 sub clone {
-    my $self = shift;
+    my ($self, %args) = @_;
     my $clone = Storable::dclone($self);
-    if (@_) {
-	my %args=@_;
-	$clone->{$_} = $args{$_} foreach keys %args;
-    }
+    $clone->{$_} = $args{$_} foreach keys %args;
     return $clone;
 }
 
@@ -185,11 +181,15 @@ sub initialize {
 }
 
 sub get_symbolname {
-    return $_[0]->{symbol};
+    my $self = shift;
+
+    return $self->{symbol};
 }
 
 sub get_symboltempl {
-    return $_[0]->{symbol_templ} || $_[0]->{symbol};
+    my $self = shift;
+
+    return $self->{symbol_templ} || $self->{symbol};
 }
 
 sub set_symbolname {
@@ -307,7 +307,9 @@ sub arch_is_concerned {
 
 # Get reference to the pattern the symbol matches (if any)
 sub get_pattern {
-    return $_[0]->{matching_pattern};
+    my $self = shift;
+
+    return $self->{matching_pattern};
 }
 
 ### NOTE: subroutines below require (or initialize) $self to be a pattern ###
@@ -323,23 +325,31 @@ sub init_pattern {
 
 # Is this symbol a pattern or not?
 sub is_pattern {
-    return exists $_[0]->{pattern};
+    my $self = shift;
+
+    return exists $self->{pattern};
 }
 
 # Get pattern type if this symbol is a pattern.
 sub get_pattern_type {
-    return $_[0]->{pattern}{type} // '';
+    my $self = shift;
+
+    return $self->{pattern}{type} // '';
 }
 
 # Get (sub)type of the alias pattern. Returns empty string if current
 # pattern is not alias.
 sub get_alias_type {
-    return ($_[0]->get_pattern_type() =~ /^alias-(.+)/ && $1) || '';
+    my $self = shift;
+
+    return ($self->get_pattern_type() =~ /^alias-(.+)/ && $1) || '';
 }
 
 # Get a list of symbols matching this pattern if this symbol is a pattern
 sub get_pattern_matches {
-    return @{$_[0]->{pattern}{matches}};
+    my $self = shift;
+
+    return @{$self->{pattern}{matches}};
 }
 
 # Create a new symbol based on the pattern (i.e. $self)

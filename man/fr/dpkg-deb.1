@@ -3,7 +3,7 @@
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 1999 Wichert Akkerman <wakkerma@debian.org>
 .\" Copyright Â© 2006 Frank Lichtenheld <djpig@debian.org>
-.\" Copyright Â© 2007-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2007-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-deb 1 27\-03\-2013 "Projet Debian" "suite dpkg"
+.TH dpkg\-deb 1 20\-08\-2014 "Projet Debian" "suite dpkg"
 .SH NOM
 dpkg\-deb \- outil pour la manipulation des archives (.deb) des paquets Debian
 .
@@ -127,6 +127,13 @@ nommé DEBIAN de ce répertoire.
 
 Le répertoire cible est créé si nécessaire (mais pas ses répertoires
 parents).
+.TP 
+\fB\-\-ctrl\-tarfile\fP \fIarchive\fP
+Extrait les données de contrôle d'un paquet binaire et les envoie sur la
+sortie standard dans le format propre à la commande \fBtar\fP (depuis dpkg
+1.17.14). En combinant cette option avec la commande \fBtar\fP(1), on peut
+ainsi extraire un fichier de contrôle précis d'une archive de
+paquet. L'archive d'entrée sera toujours traitée séquentiellement.
 .TP 
 \fB\-\-fsys\-tarfile\fP \fIarchive\fP
 Extrait les données de l'arborescence d'un paquet binaire et les envoie sur

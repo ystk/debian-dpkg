@@ -38,14 +38,15 @@ processus système. En utilisant les options correspondantes,
 \fBstart\-stop\-daemon\fP peut être configuré pour trouver les exemplaires
 présents d'un processus en fonctionnement.
 .PP
-Veuillez noter qu'à moins d'utiliser \fB\-\-pidfile\fP, le programme
+Veuillez noter qu'à moins d'utiliser \fB\-\-pid\fP ou \fB\-\-pidfile\fP, le programme
 \fBstart\-stop\-daemon\fP se comporte comme \fBkillall\fP(1). \fBstart\-stop\-daemon\fP
 recherche dans le tableau des processus tout processus qui correspond au
-nom, uid et/ou gid du processus (si indiqué). Toute correspondance empêchera
-\fB\-\-start\fP de démarrer le démon. Tous les processus qui correspondent
-recevront le signal TERM (ou le signal indiqué par \fB\-\-signal\fP ou
-\fB\-\-retry\fP). Pour les démons avec des processus enfant qui doivent survivre
-à un \fB\-\-stop\fP, il est nécessaire d'indiquer un fichier pid («\ pidfile\ »).
+nom, pid parent, uid et/ou gid du processus (si indiqué). Toute
+correspondance empêchera \fB\-\-start\fP de démarrer le démon. Tous les processus
+qui correspondent recevront le signal TERM (ou le signal indiqué par
+\fB\-\-signal\fP ou \fB\-\-retry\fP) si \fB\-\-stop\fP est indiqué. Pour les démons avec
+des processus enfant qui doivent survivre à un \fB\-\-stop\fP, il est nécessaire
+d'indiquer un fichier pid («\ pidfile\ »).
 .
 .SH COMMANDES
 .TP 
@@ -232,11 +233,18 @@ Cela modifie le masque utilisateur du processus avant qu'il ne soit lancé.
 Utilisé lors du lancement d'un programme qui ne crée pas son propre fichier
 identificateur «\ pid\ ». Cette option indique à \fBstart\-stop\-daemon\fP de créer
 le fichier référencé par \fB\-\-pidfile\fP et placer le «\ pid\ » dans ce fichier
-juste avant d'exécuter le processus. Il faut remarquer que ce fichier n'est
-pas supprimé quand le programme s'arrête. \fBNOTE\ :\fP il se peut que cette
-caractéristique ne marche pas dans tous les cas. Notamment quand le
-programme qui est exécuté se duplique. À cause de cela, cette option n'est
-habituellement utile que combinée avec l'option \fB\-\-background\fP.
+juste avant d'exécuter le processus. Il faut remarquer que ce fichier ne
+sera supprimé quand le programme s'arrête que si \fB\-\-remove\-pidfile\fP est
+utilisé. \fBNOTE\ :\fP il se peut que cette caractéristique ne marche pas dans
+tous les cas. Notamment quand le programme qui est exécuté se duplique. À
+cause de cela, cette option n'est habituellement utile que combinée avec
+l'option \fB\-\-background\fP.
+.TP 
+\fB\-\-remove\-pidfile\fP
+Utilisé lors de l'arrêt d'un programme qui ne supprime pas lui\-même son
+fichier identificateur «\ pid\ ». Cette option indique à \fBstart\-stop\-daemon\fP
+de supprimer le fichier référencé par \fB\-\-pid\-file\fP après l'arrêt du
+processus.
 .TP 
 \fB\-v\fP, \fB\-\-verbose\fP
 Affiche des messages prolixes en renseignements.

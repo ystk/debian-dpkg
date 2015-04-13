@@ -66,8 +66,7 @@ istället för det aktuella systemets arkitektur.
 \fB\-P \fP\fIprofil\fP[\fB,\fP...]
 Kontrollera byggberoenden/\-konflikter med antagandet att paketet som
 beskrivs i kontrollfilen skall byggas för den givna
-byggprofilen(\-erna). Argumentet är en kommaavdelad lista med profilnamn,
-utan namnrymdprefixen "\fBprofile.\fP".
+byggprofilen(\-erna). Argumentet är en kommaavdelad lista med profilnamn.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
@@ -78,8 +77,7 @@ Visar version och avslutar.
 .SH MILJÖVARIABLER
 .TP 
 \fBDEB_BUILD_PROFILES\fP
-Används som aktiv(a) byggprofil(er) för paketet som byggs, om det anges. Det
-är en blankstegsavdelad lista med profilnamn, utan namnrymdprefixet
-"\fBprofile.\fP". Överstyrs av flaggan \fB\-P\fP.
+Om satt, används som aktiv(a) byggprofil(er) för paketet som byggs. Det är
+en blankstegsavdelad lista med profilnamn. Överstyrs av flaggan \fB\-P\fP.
 .SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

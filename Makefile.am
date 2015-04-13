@@ -55,6 +55,7 @@ EXTRA_DIST = \
 	debian/dpkg.preinst \
 	debian/dpkg.prerm \
 	debian/dpkg.logrotate \
+	debian/dpkg.links \
 	debian/dpkg.lintian-overrides \
 	debian/dselect.cfg \
 	debian/dselect.docs \
@@ -75,7 +76,7 @@ EXTRA_DIST = \
 	debian/rules \
 	debian/shlibs.default \
 	debian/shlibs.override \
-	$(test_cases) \
+	$(test_scripts) \
 	$(test_data) \
 	$(nil)
 
@@ -141,7 +142,7 @@ coverage:
 coverage-clean:
 endif
 
-test_cases = \
+test_scripts = \
 	test/pod.t \
 	test/critic.t \
 	$(nil)

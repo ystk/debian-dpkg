@@ -222,44 +222,41 @@ kontrollfiler):
 .RS
 .TP 
 \fBbinary:Package\fP
-It contains the binary package name with a possible architecture qualifier
-like "libc6:amd64" (since dpkg 1.16.2). The architecture qualifier will only
-be present if the package has a \fBMulti\-Arch\fP field with a value of
-\fBsame\fP. This makes the package name unambiguous.
+Innehåller binärpaketnamnet med en möjlig arkitekturkvalificerare, såsom
+"libc6:amd64" (sedan dpkg 1.16.2). Arkitekturkvalificeraren kommer endast
+att vara närvarande om paketet har ett \fBMulti\-Arch\fP\-fält med värdet
+\fBsame\fP. Detta gör paketnamnen entydiga.
 .TP 
 \fBbinary:Summary\fP
-It contains the package short description (since dpkg 1.16.2).
+Innehåller paketets korta beskrivning (sedan dpkg 1.16.2).
 .TP 
 \fBdb:Status\-Abbrev\fP
-It contains the abbreviated package status, such as \(lqii\(rq (since dpkg
+Innehåller den förkortade paketstatusen, såsom \(lqii\(rq (sedan dpkg
 1.16.2).
 .TP 
 \fBdb:Status\-Want\fP
-It contains the package wanted status, part of the Status field (since dpkg
+Innehåller paketets önskade status, del av Status\-fältet (sedan dpkg
 1.17.11).
 .TP 
 \fBdb:Status\-Status\fP
-It contains the package status word, part of the Status field (since dpkg
-1.17.11).
+Innehåller paketets statusord, del av Status\-fältet (sedan dpkg 1.17.11).
 .TP 
 \fBdb:Status\-Eflag\fP
-It contains the package status error flag, part of the Status field (since
-dpkg 1.17.11).
+Innehåller paketets statusfelflagga, del av Status\-fältet (sedan dpkg
+1.17.11).
 .TP 
 \fBsource:Package\fP
-It contains the source package name for this binary package (since dpkg
-1.16.2).
+Innehåller källkodsnamnet för binärpaketet (sedan dpkg 1.16.2).
 .TP 
 \fBsource:Version\fP
-It contains the source package version for this binary package (since dpkg
-1.16.2)
+Innehåller källkodsversionen för binärpaketet (sedan dpkg 1.16.2)
 .RE
 .IP
-The default format string is \(lq\fB${binary:Package}\et${Version}\en\fP\(rq.
-Actually, all other fields found in the status file (i.e. user defined
-fields) can be requested, too. They will be printed as\-is, though, no
-conversion nor error checking is done on them. To get the name of the
-\fBdpkg\fP maintainer and the installed version, you could run:
+Standardformatet är \(lq\fB${binary:Package}\et${Version}\en\fP\(rq. Alla andra
+fält som finns i statusfilen (även användardefinierade fält) kan faktiskt
+också hämtas. De visas dock som de är, ingen konvertering eller
+felkorrigering görs på dem. För att hämta namnet på paketansvarig och
+installerad version av \fBdpkg\fP och kan du köra:
 
 .nf
   \fBdpkg\-query \-W \-f=\(aq${binary:Package} ${Version}\et${Maintainer}\en\(aq dpkg\fP

@@ -1,6 +1,7 @@
 .\" dpkg manual page - dpkg-maintscript-helper(1)
 .\"
 .\" Copyright Â© 2010-2012 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\" Copyright Â© 2011-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-maintscript\-helper 1 2014\-04\-28 Debianprojektet Dpkg\-sviten
+.TH dpkg\-maintscript\-helper 1 2014\-09\-01 Debianprojektet Dpkg\-sviten
 .SH NAMN
 dpkg\-maintscript\-helper \- går runt kända dpkg\-begränsningar i paketskript
 .
@@ -80,7 +81,7 @@ version \fB3.0\-1\fP, bör sätta \fItidigareversion\fP till \fB3.0\-1~\fP.
 .TP 
 \fIpaket\fP
 Paketnamnet. När paketet är "Multi\-Arch: same", måste parametern inkludera
-arkitekturskvalificering. Om tomt eller utelämnat används miljövariablen
+arkitekturskvalificering. Om tomt eller utelämnat används miljövariabeln
 \fBDPKG_MAINTSCRIPT_PACKAGE\fP (som satt av \fBdpkg\fP).
 .TP 
 \fB\-\-\fP
@@ -172,9 +173,10 @@ i paketskripten \fBpreinst\fP, \fBpostinst\fP och \fBpostrm\fP:
     dpkg\-maintscript\-helper symlink_to_dir \e
         \fIsökväg\fP \fIgammalt\-mål\fP \fItidigare\-version\fP \fIpaket\fP \-\- "$@"
 .P
-\fIpathname\fP is the absolute name of the old symlink (the path will be a
-directory at the end of the installation) and \fIold\-target\fP the absolute
-target name of the former symlink at \fIpathname\fP.
+\fIsökväg\fP är den absoluta sökvägen för den gamla symboliska länken (sökvägen
+kommer vara en katalog när installationen är färdig) och \fIgammalt\-mål\fP är
+målet på den tidigare symboliska länken i \fIsökväg\fP. Den kan antingen vara
+absolut eller relativ till katalogen som innehåller \fIsökväg\fP.
 .P
 Aktuell implementation: I \fBpreinst\fP kontrolleras om den symboliska länken
 finns och pekar på \fIgammalt\-mål\fP, om inte lämnas den kvar, i annat fall
@@ -198,10 +200,10 @@ paketskripten \fBpreinst\fP, \fBpostinst\fP och \fBpostrm\fP:
     dpkg\-maintscript\-helper dir_to_symlink \e
         \fIsökväg\fP \fInytt\-mål\fP \fItidigare\-version\fP \fIpaket\fP \-\- "$@"
 .P
-\fIpathname\fP is the absolute name of the old directory (the path will be a
-symlink at the end of the installation) and \fInew\-target\fP is the target of
-the new symlink at \fIpathname\fP. It can either be absolute or relative to the
-directory containing \fIpathname\fP.
+\fIsökväg\fP är det absoluta namnet på den gamla katalogen (sökvägen kommer
+vara en symbolisk länk när installationen är färdig) och \fInytt\-mål\fP är
+målet på den nya symboliska länken i \fIsökväg\fP. Den kan antingen vara
+absolut eller relativ till katalogen som innehåller \fIsökväg\fP.
 .P
 Aktuell implementation: I \fBpreinst\fP kontrolleras om katalogen finns, inte
 innehåller konffiler, sökvägar som ägs av andra paket, eller lokalt skapade
@@ -219,14 +221,18 @@ om så behövs.
 .
 .SH "INTEGRERA I PAKET"
 .P
+När ett paketeringshjälpprogram används, kontrollera att det har direkt
+integrering med \fBdpkg\-maintscript\-helper\fP, något som kan göra ditt liv
+enklare. Se till exempel \fBdh_installdeb\fP(1).
+.P
 Givet att \fBdpkg\-maintscript\-helper\fP används i \fBpreinst\fP så innebär detta
 villkorslöst att ett förhandsberoende ("pre\-dependency") krävs för att
 försäkra att den nödvändiga versionen av \fBdpkg\fP redan har packats upp. Den
 version som krävs beror på vilket kommando som används, för \fBrm_conffile\fP
 och \fBmv_conffile\fP är det 1.15.7.2, för \fBsymlink_to_dir\fP och
-\fBdir_to_symlnk\fP är det 1.17.5:
+\fBdir_to_symlnk\fP är det 1.17.14:
 .P
-    \fBPre\-Depends:\fP dpkg (>= 1.17.5)
+    \fBPre\-Depends:\fP dpkg (>= 1.17.14)
 .P
 Men i många fall är operationen som utförs av programmet inte kritiskt för
 paketet, och istället för att använda ett förhandsberoende kan vi anropa
@@ -241,5 +247,9 @@ Kommandot \fBsupports\fP returnerar 0 vid framgång, annars 1. Kommandot
 \fBsupports\fP kontrollerar om miljövariablerna som sätts av dpkg och som krävs
 av skriptet är närvarande, och kommer anse det som ett fel om
 miljövariablerna inte är tillräckliga.
+.SH "SE ÄVEN"
+.ad l
+.nh
+\fBdh_installdeb\fP(1).
 .SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

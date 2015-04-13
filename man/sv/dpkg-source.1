@@ -40,11 +40,12 @@ de tillåter inte att värdet på en flagga anges som ett separat argument.
 .
 .SH KOMMANDON
 .TP 
-\fB\-x \fP\fIfilnamn\fP\fB.dsc \fP[\fIutdatakatalog\fP]
-Extrahera ett källkodspaket. Ett argument som inte är en flagga måste anges,
-namnet på debiankällkodsstyrfilen (\fB.dsc\fP). Ett valfritt andra argument som
-inte är en flagga kan anges för att bestämma vilken katalog källkoden skall
-packas upp i, det får inte existera. Om du inte anger någon utdatakatalog
+\fB\-x\fP, \fB\-\-extract\fP \fIfilename\fP.dsc [\fIutdatakatalog\fP]
+Extrahera ett källkodspaket. Aliaset \fB\-\-extract\fP lades till i dpkg
+1.17.14. Ett argument som inte är en flagga måste anges, namnet på
+debiankällkodsstyrfilen (\fB.dsc\fP). Ett valfritt andra argument som inte är
+en flagga kan anges för att bestämma vilken katalog källkoden skall packas
+upp i, det får inte existera. Om du inte anger någon utdatakatalog
 extraheras källkodspaketet till en katalog som heter \fIkällkod\fP\-\fIversion\fP i
 den aktuella arbetskatalogen.
 
@@ -64,12 +65,13 @@ närvarande alla format förutom "1.0"), kommer dess namn att lagras som
 byggs på nytt.
 
 .TP 
-\fB\-b\fP \fIkatalog\fP [\fIformatspecifika\-flaggor\fP]
-Bygg ett källkodpaket. Det första argumentet som inte är en flagga tas som
-namn på katalogen som innehåller det debianiserade källkodsträdet (dvs. med
-underkatalogen "debian" och kanske ändringar på originalfilerna). Beroende
-på vilket källkodspaketformat som används för att bygga formatet kan
-ytterligare parametrar kanske godtas.
+\fB\-b\fP, \fB\-\-build\fP \fIdirectory\fP [\fIformatspecifika\-flaggor\fP]
+Bygg ett källkodpaket. Aliaset \fB\-\-build\fP lades till i dpkg 1.17.14. Det
+första argumentet som inte är en flagga tas som namn på katalogen som
+innehåller det debianiserade källkodsträdet (dvs. med underkatalogen
+"debian" och kanske ändringar på originalfilerna). Beroende på vilket
+källkodspaketformat som används för att bygga formatet kan ytterligare
+parametrar kanske godtas.
 
 \fBdpkg\-source\fP kommer bygga källkodspaketet med det första format som
 fungerar från denna lista i denna ordning: formatet som anges med
@@ -83,8 +85,8 @@ källkodspaketformaten.
 .TP 
 \fB\-\-print\-format\fP \fIkatalog\fP
 Visa formatet som skulle användas för att bygga källkodspaketet om
-\fBdpkg\-source \-b\fP \fIkatalog\fP skulle köras (under samma förhållanden och med
-samma parametrar).
+\fBdpkg\-source \-\-build\fP \fIkatalog\fP skulle köras (under samma förhållanden och
+med samma parametrar).
 
 .TP 
 \fB\-\-before\-build\fP \fIkatalog\fP
@@ -268,7 +270,7 @@ källkodskatalogen. Att bygga ett icke\-eget paket innefattar att extrahera
 original\-tarbollen i en separat ".orig"\-katalog och skapa \fB.diff.gz\fP\-filen
 på nytt genom att jämföra källkodspaketets \fIkatalog\fP med .orig\-katalogen.
 
-\fBByggflaggor (med \-b):\fP
+\fBByggflaggor (med \-\-build):\fP
 
 Om ett andra argument som inte är en flagga anges skall det vara namnet på
 originalkällkodskatalogen eller \-tarfilen eller den tomma strängen om
@@ -331,7 +333,7 @@ utanför underkatalogen debian. Den här flaggan tillåts inte i
 \fBdebian/source/options\fP, men kan användas i \fBdebian/source/local\-options\fP.
 .PP
 
-\fBExtraheringsflaggor (med \-x):\fP
+\fBExtraheringsflaggor (med \-\-extract):\fP
 
 Oavsett kommer ett befintligt källkodsträd att tas bort.
 .TP 
@@ -445,11 +447,11 @@ VCS\-specifika filer eller för många temporära filer (se standardvärdet som
 katalogen \fB.pc\fP som används av \fBquilt\fP, katalogen kommer att ignoreras när
 den automatiska patchen skapas.
 
-Observera: \fBdpkg\-source\fP \fB\-\-before\-build\fP (och \fB\-b\fP) ser till att alla
-patchar som anges i seriefilen tillämpas så att paketbygget alltid har alla
-patchar tillämpade. Detta görs genom att hitta alla icke\-tillämpade patchar
-(som anges i filen \fBseries\fP men inte i \fB.pc/applied\-patches\fP), och om den
-första patchen i listan kan tillämpas utan fel kommer samtliga att
+Observera: \fBdpkg\-source\fP \fB\-\-before\-build\fP (och \fB\-\-build\fP) ser till att
+alla  patchar som anges i seriefilen tillämpas så att paketbygget alltid har
+alla patchar tillämpade. Detta görs genom att hitta alla icke\-tillämpade
+patchar (som anges i filen \fBseries\fP men inte i \fB.pc/applied\-patches\fP), och
+om den första patchen i listan kan tillämpas utan fel kommer samtliga att
 tillämpas. Flaggan \fB\-\-no\-preparation\fP kan användas för att slå av detta
 beteende.
 
@@ -473,7 +475,7 @@ patchen inte får innehålla ytterligare ej beskrivna ändringar.
 Om genereringen av patchar upptäcker ändringar i binärfiler kommer de
 automatiskt att läggas in i \fBdebian/source/include\-binaries\fP så att de
 dyker upp i debian\-tarbollen (precis som \fBdpkg\-source \-\-include\-binaries
-\-b\fP skulle gjort).
+\-\-build\fP skulle gjort).
 .PP
 \fBByggflaggor\fP
 .TP 
@@ -662,7 +664,7 @@ med i debian\-tarbollen. Inledande och avslutande blanksteg tas bort. Rader
 som börjar med "#" är kommentarer och hoppas över. Tomma rader ignoreras.
 .SS debian/source/options
 Filen innehåller en lista över långa flaggor som automatiskt sätts in före
-kommandoradsflaggorna som anges i ett anrop til \fBdpkg\-source \-b\fP eller
+kommandoradsflaggorna som anges i ett anrop til \fBdpkg\-source \-\-build\fP eller
 \fBdpkg\-source \-\-print\-format\fP. Flaggor som \fB\-\-compression\fP och
 \fB\-\-compression\-level\fP är passande att lägga in i den  här filen.
 .P
@@ -685,7 +687,7 @@ filen \fBdebian/source/format\fP istället.
 Precis som \fBdebian/source/options\fP förutom att filen inte inkluderas i det
 genererade källkodspaketet. Det kan vara användbart för att spara ett val
 som gäller för paketansvariga eller VCS\-systemet källkodspaketet hanteras i.
-.SS "debian/source/local\-patch\-header \fRand\fP debian/source/patch\-header"
+.SS "debian/source/local\-patch\-header \fRoch\fP debian/source/patch\-header"
 Friformstext som läggs in på toppen av den automatiskt genererade patchen i
 formaten "2.0" eller "3.0 (quilt)". \fBlocal\-patch\-header\fP tas inte med i det
 genererade källkodspaketet medan \fBpatch\-header\fP tas med.

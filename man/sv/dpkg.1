@@ -174,13 +174,13 @@ hamnar i felaktiga \fBväntar på utlösare\fP\- och \fButlösare
 väntar\fP\-tillstånd. Detta kan rättas senare genom att köra: \fBdpkg
 \-\-configure \-\-pending\fP.
 .TP 
-\fB\-r\fP, \fB\-\-remove\fP \fIpackage\fP\fB...|\-a|\-\-pending\fP
-Remove an installed package. This removes everything except conffiles, which
-may avoid having to reconfigure the package if it is reinstalled later
-(conffiles are configuration files that are listed in the
-\fIDEBIAN/conffiles\fP control file).  If \fB\-a\fP or \fB\-\-pending\fP is given
-instead of a package name, then all packages unpacked, but marked to be
-removed in file \fI/var/lib/dpkg/status\fP, are removed.
+\fB\-r\fP, \fB\-\-remove\fP \fIpaket\fP\fB...|\-a|\-\-pending\fP
+Ta bort ett installerat paket. Detta tar bort allt utom konffiler, vilket
+kan göra att du kan undvika att konfigurera om paketet om du ominstallerar
+det senare (konffiler är konfigurationsfiler som listas i styrfilen
+\fIDEBIAN/conffiles\fP). Om \fB\-a\fP eller \fB\-\-pending\fP anges istället för ett
+paketnamn kommer alla paket som är uppackade, men markerade för borttagning
+i filen \fI/var/lib/dpkg/status\fP, att tas bort.
 
 Borttagning av ett paket består av följande steg:
 .br
@@ -195,27 +195,28 @@ Borttagning av ett paket består av följande steg:
 .br
 
 .TP 
-\fB\-P\fP, \fB\-\-purge \fP\fIpackage\fP...|\fB\-a\fP|\fB\-\-pending\fP
-Purge an installed or already removed package. This removes everything,
-including conffiles.  If \fB\-a\fP or \fB\-\-pending\fP is given instead of a package
-name, then all packages unpacked or removed, but marked to be purged in file
-\fI/var/lib/dpkg/status\fP, are purged.
+\fB\-P\fP, \fB\-\-purge \fP\fIpaket\fP...|\fB\-a\fP|\fB\-\-pending\fP
+Rensa ett installerat eller redan borttaget paket. Detta tar bort allting,
+inklusive konffiler. Om \fB\-a\fP eller \fB\-\-pending\fP anges instället för ett
+paketnamn kommer alla paket som packats upp eller tagits bort, men som är
+markerade för rensning i filen \fI/var/lib/dpkg/status\fP, att rensas.
 
-Note: some configuration files might be unknown to \fBdpkg\fP because they are
-created and handled separately through the configuration scripts. In that
-case, \fBdpkg\fP won't remove them by itself, but the package's \fIpostrm\fP
-script (which is called by \fBdpkg\fP), has to take care of their removal
-during purge. Of course, this only applies to files in system directories,
-not configuration files written to individual users' home directories.
+Observera: det är möjligt att \fBdpkg\fP inte känner till vissa
+konfigurationsfiler på grund av att de skapas och hanteras separat via
+konfigurationsskript. I så fall kommer inte \fBdpkg\fP självt ta bort dem, utan
+paketets \fIpostrm\fP\-skript (som anropas av \fBdpkg\fP) måste ta hand om att de
+tas bort när paketet tas bort med \fB\-\-purge\fP. Detta gäller naturligtvis
+endast för filer i systemkatalogerna, inte konfigurationsfiler som skrivs i
+enstaka användares hemkataloger.
 
-Purging of a package consists of the following steps:
+Rensning av ett paket består av följande steg:
 .br
 
-\fB1.\fP Remove the package, if not already removed. See \fB\-\-remove\fP for
-detailed information about how this is done.
+\fB1.\fP Ta bort paketet, om det inte redan är borttaget. Se \fB\-\-remove\fP för
+detaljerad information om hur det görs.
 .br
 
-\fB2.\fP Run \fIpostrm\fP script.
+\fB2.\fP Kör \fIpostrm\fP\-skriptet
 .br
 .TP 
 \fB\-V\fP, \fB\-\-verify\fP \fIpaketnamn\fP ...
@@ -225,10 +226,10 @@ metadatainformationen som lagras i \fBdpkg\fP\-databasen. Ursprunget till
 filernas metadatainformation i databasen är binärpaketen själva. Metadata
 samlas in från paketen när de packas upp under installationsprocessen.
 
-Currently the only functional check performed is an md5sum verification
-against the stored value in the files database. It will only get checked if
-the database contains the file md5sum. To check for any missing metadata in
-the database, the \fB\-\-audit\fP command can be used.
+Det enda funktionstest som utförs är för närvarande en md5sum\-verifiering
+mot det värde som lagrats i fildatabasen. Det kontrolleras bara om databasen
+innehåller filens md5\-summa. Kommandot \fB\-\-audit\fP kan användas för att söka
+efter saknad metadata i databasen.
 
 Utdataformatet kan väljas med flaggan \fB\-\-verify\-format\fP, vilket som
 standard använder formatet \fBrpm\fP, men detta kan komma att ändras i
@@ -579,13 +580,13 @@ Installera inte paketet om samma version av paketet redan är installerat.
 .TQ
 \fB\-\-post\-invoke=\fP\fIkommando\fP
 Sätter en anropshake \fIkommando\fP som körs via "sh \-c" före eller efter
-\fBdpkg\fP körs för åtgärderna \fIunpack\fP, \fIconfigure\fP, \fIinstal\fP,
-\fItriggers\-only\fP, \fIremove\fP och \fIpurge\fP. Flaggan kan anges flera
-gånger. Ordningen på flaggorna som anges behålls och de som anges i
-konfigurationsfilen har företräde. Miljövariabeln \fBDPKG_HOOK_ACTION\fP sätts
-för hakar i den nuvarande \fBdpkg\fP\-åtgärden. Observera: Skal kan anropa
-\fBdpkg\fP flera gånger per körning, vilket kan göra att hakarna körs fler
-gånger än förväntat.
+\fBdpkg\fP körs för åtgärderna \fIunpack\fP, \fIconfigure\fP, \fIinstall\fP,
+\fItriggers\-only\fP, \fIremove\fP, \fIpurge\fP, \fIadd\-architecture\fP och
+\fIremove\-architecture\fP. Flaggan kan anges flera gånger. Ordningen på
+flaggorna som anges behålls och de som anges i konfigurationsfilen har
+företräde. Miljövariabeln \fBDPKG_HOOK_ACTION\fP sätts för hakar i den
+nuvarande \fBdpkg\fP\-åtgärden. Observera: Skal kan anropa \fBdpkg\fP flera gånger
+per körning, vilket kan göra att hakarna körs fler gånger än förväntat.
 .TP 
 \fB\-\-path\-exclude=\fP\fIfilnamnsmönster\fP
 .TQ
@@ -625,14 +626,15 @@ som motsvarar ett filnamn som fäller avgörandet.
 \fB\-\-verify\-format\fP \fIformatnamn\fP
 Väljer utdataformat för kommandot \fB\-\-verify\fP.
 
-The only currently supported output format is \fBrpm\fP, which consists of a
-line for every path that failed any check. The lines start with 9 characters
-to report each specific check result, a '\fB?\fP' implies the check could not
-be done (lack of support, file permissions, etc), '\fB.\fP' implies the check
-passed, and an alphanumeric character implies a specific check failed; the
-md5sum verification is denoted with a '\fB5\fP' on the third character. The
-line is followed by a space and an attribute character (currently '\fBc\fP' for
-conffiles), another space and the pathname.
+Det enda format som stöd är för närvarande \fBrpm\fP; vilket består av en rad
+för varje sökväg där något test misslyckades. Raden börjar med 9 tecken för
+att rapportera varje specifikt tests resultat, ett "\fB?\fP" betyder att testet
+inte kunde utföras (stöd saknas, filbehörigheter, osv), "\fB.\fP" betyder att
+testet lyckades, och ett alfanumeriskt tecken betyder att ett specifikt test
+misslyckades;  md5\-summeverifieringen anges med en "\fB5\fP" som tredje
+tecknet. Raden följs av ett blanksteg och ett attributtecken (för närvarande
+"\fBc\fP" för konfigurationsfiler), ytterligare ett blanksteg och
+sökvägsnamnet.
 .TP 
 \fB\-\-status\-fd \fP\fIn\fP
 Sänd maskinläsbar paketstatus och förloppsinformation till filhandtag

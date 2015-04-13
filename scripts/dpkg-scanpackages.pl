@@ -48,6 +48,7 @@ my %options = (help            => sub { usage(); exit 0; },
 	       version         => \&version,
 	       type            => undef,
 	       arch            => undef,
+	       hash            => undef,
 	       multiversion    => 0,
 	       'extra-override'=> undef,
                medium          => undef,
@@ -58,6 +59,7 @@ my @options_spec = (
     'version',
     'type|t=s',
     'arch|a=s',
+    'hash|h=s',
     'multiversion|m!',
     'extra-override|e=s',
     'medium|M=s',
@@ -75,6 +77,7 @@ sub usage {
 Options:
   -t, --type <type>        scan for <type> packages (default is 'deb').
   -a, --arch <arch>        architecture to scan for.
+  -h, --hash <hash-list>   only generate hashes for the specified list.
   -m, --multiversion       allow multiple versions of a single package.
   -e, --extra-override <file>
                            use extra override file.
@@ -163,6 +166,13 @@ if (not (@ARGV >= 1 and @ARGV <= 3)) {
 
 my $type = $options{type} // 'deb';
 my $arch = $options{arch};
+my %hash = map { $_ => 1 } split /,/, $options{hash} // '';
+
+foreach my $alg (keys %hash) {
+    if (not checksums_is_supported($alg)) {
+        usageerr(_g('unsupported checksum \'%s\''), $alg);
+    }
+}
 
 my @find_args;
 if ($options{arch}) {
@@ -188,9 +198,8 @@ my $find_h = IO::Handle->new();
 open($find_h, '-|', 'find', '-L', "$binarydir/", @find_args, '-print')
      or syserr(_g("couldn't open %s for reading"), $binarydir);
 FILE:
-    while (<$find_h>) {
-	chomp;
-	my $fn = $_;
+    while (my $fn = <$find_h>) {
+	chomp $fn;
 	my $output;
 	my $pid = spawn(exec => [ 'dpkg-deb', '-I', $fn, 'control' ],
 	                to_pipe => \$output);
@@ -209,19 +218,19 @@ FILE:
 	my $p = $fields->{'Package'};
 
 	if (defined($packages{$p}) and not $options{multiversion}) {
-	    foreach (@{$packages{$p}}) {
+	    foreach my $pkg (@{$packages{$p}}) {
 		if (version_compare_relation($fields->{'Version'}, REL_GT,
-					     $_->{'Version'}))
+		                             $pkg->{'Version'}))
                 {
 		    warning(_g('package %s (filename %s) is repeat but newer version;'),
 		            $p, $fn);
 		    warning(_g('used that one and ignored data from %s!'),
-		            $_->{Filename});
+		            $pkg->{Filename});
 		    $packages{$p} = [];
 		} else {
 		    warning(_g('package %s (filename %s) is repeat;'), $p, $fn);
 		    warning(_g('ignored that one and using data from %s!'),
-		            $_->{Filename});
+		            $pkg->{Filename});
 		    next FILE;
 		}
 	    }
@@ -234,6 +243,8 @@ FILE:
         my $sums = Dpkg::Checksums->new();
 	$sums->add_from_file($fn);
         foreach my $alg (checksums_get_list()) {
+            next if %hash and not $hash{$alg};
+
             if ($alg eq 'md5') {
 	        $fields->{'MD5sum'} = $sums->get_checksum($fn, $alg);
             } else {

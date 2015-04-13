@@ -40,8 +40,9 @@ in der \fBdpkg\fP\-Datenbank aufgeführt sind.
 Liste Pakete auf, deren Namen auf ein bestimmtes Muster passt. Falls kein
 \fIPaketname\-Muster\fP angegeben ist, liste alle Pakete in
 \fI/var/lib/dpkg/status\fP auf. Dabei werden alle Pakete ausgeschlossen, die
-als »nicht\-installiert markiert sind (d.h. früher endgültig entfernt
-wurden). Beachten Sie, dass Sie wahrscheinlich \fIPaketname\-Muster\fP durch
+als »nicht\-installiert« markiert sind (d.h. früher endgültig entfernt
+wurden). Normale Shell\-Jokerzeichen sind im \fIPaketname\-Muster\fP
+erlaubt. Beachten Sie, dass Sie wahrscheinlich \fIPaketname\-Muster\fP durch
 Anführungszeichen schützen müssen, um die Shell an der Dateinamen\-Expansion
 zu hindern. Folgender Befehl listet beispielsweise alle Paketnamen, die mit
 »libc6« beginnen, auf:
@@ -236,10 +237,10 @@ für Felder in Steuerdateien benutzen):
 .RS
 .TP 
 \fBbinary:Package\fP
-It contains the binary package name with a possible architecture qualifier
-like "libc6:amd64" (since dpkg 1.16.2). The architecture qualifier will only
-be present if the package has a \fBMulti\-Arch\fP field with a value of
-\fBsame\fP. This makes the package name unambiguous.
+Es enthält den Binärpaketnamen mit einem möglichen Architektur\-Kennzeichner
+wie »libc6:amd64« (seit Dpkg 1.16.2). Der Architektur\-Kennzeichner wird nur
+vorhanden sein, falls das Paket ein Feld \fBMulti\-Arch\fP mit dem Wert \fBsame\fP
+trägt. Damit wird der Name eindeutig.
 .TP 
 \fBbinary:Summary\fP
 Es enthält die Kurzbeschreibung des Pakets (seit Dpkg 1.16.2).
@@ -265,11 +266,13 @@ Es enthält den Quellpaketnamen für dieses Binärpaket (seit Dpkg 1.16.2).
 Es enthält die Quellpaketversion für dieses Binärpaket (seit Dpkg 1.16.2).
 .RE
 .IP
-The default format string is \(lq\fB${binary:Package}\et${Version}\en\fP\(rq.
-Actually, all other fields found in the status file (i.e. user defined
-fields) can be requested, too. They will be printed as\-is, though, no
-conversion nor error checking is done on them. To get the name of the
-\fBdpkg\fP maintainer and the installed version, you could run:
+Die Standard\-Formatzeichenkette ist
+\(lq\fB${binary:Package}\et${Version}\en\fP\(rq. Tatsächlich können auch alle
+anderen Felder, die in der Statusdatei gefunden werden können
+(d.h. benutzerdefinierte Felder), abgefragt werden. Sie werden so
+dargestellt, wie sie gefunden werden, es erfolgt keine Umwandlung oder
+Fehlerüberprüfung. Um den Namen des \fBdpkg\fP\-Betreuers und die installierte
+Version zu erhalten, könnten Sie folgendes ausführen:
 
 .nf
   \fBdpkg\-query \-W \-f=\(aq${binary:Package} ${Version}\et${Maintainer}\en\(aq dpkg\fP

@@ -438,9 +438,9 @@ sub check_signature {
 
 sub parse_cmdline_options {
     my ($self, @opts) = @_;
-    foreach (@opts) {
-        if (not $self->parse_cmdline_option($_)) {
-            warning(_g('%s is not a valid option for %s'), $_, ref($self));
+    foreach my $option (@opts) {
+        if (not $self->parse_cmdline_option($option)) {
+            warning(_g('%s is not a valid option for %s'), $option, ref $self);
         }
     }
 }
@@ -457,8 +457,7 @@ that if $targetdir already exists, it will be erased.
 =cut
 
 sub extract {
-    my $self = shift;
-    my $newdirectory = $_[0];
+    my ($self, $newdirectory) = @_;
 
     my ($ok, $error) = version_check($self->{fields}{'Version'});
     if (not $ok) {
@@ -488,7 +487,7 @@ sub extract {
     }
 
     # Try extract
-    eval { $self->do_extract(@_) };
+    eval { $self->do_extract($newdirectory) };
     if ($@) {
         run_exit_handlers();
         die $@;
@@ -630,6 +629,10 @@ New functions: get_default_diff_ignore_regex(), set_default_diff_ignore_regex(),
 get_default_tar_ignore_pattern()
 
 Deprecated variables: $diff_ignore_default_regexp, @tar_ignore_default_pattern
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =head1 AUTHOR
 

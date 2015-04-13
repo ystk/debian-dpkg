@@ -38,15 +38,15 @@ Prozessen auf Systemebene verwendet. Durch die Verwendung einer der
 Abgleich\-Optionen kann \fBstart\-stop\-daemon\fP so konfiguriert werden, dass er
 existierende Instanzen von einem laufenden Prozess finden kann.
 .PP
-Hinweis: Falls \fB\-\-pidfile\fP nicht angegeben ist, verhält sich
+Hinweis: Falls \fB\-\-pid\fP oder \fB\-\-pidfile\fP nicht angegeben ist, verhält sich
 \fBstart\-stop\-daemon\fP ähnlich zu \fBkillall\fP(1). \fBstart\-stop\-daemon\fP wird die
-Prozesstabelle nach Prozessen durchsuchen, die auf den Prozessnamen, uid
-und/oder gid (falls angegeben) passen. Jeder passende Prozess wird
-\fB\-\-start\fP daran hindern, den Daemon zu starten. Allen passenden Prozessen
-wird das TERM\-Signal (oder das mit \fB\-\-signal\fP oder \fB\-\-retry\fP angegebene)
-geschickt, falls \fB\-\-stop\fP angegeben ist. Für Daemons die langlebige Kinder
-haben, die ein \fB\-\-stop\fP überleben müssen, müssen Sie eine PID\-Datei
-angeben.
+Prozesstabelle nach Prozessen durchsuchen, die auf den Prozessnamen, die
+Eltern\-PID, uid und/oder gid (falls angegeben) passen. Jeder passende
+Prozess wird \fB\-\-start\fP daran hindern, den Daemon zu starten. Allen
+passenden Prozessen wird das TERM\-Signal (oder das mit \fB\-\-signal\fP oder
+\fB\-\-retry\fP angegebene) geschickt, falls \fB\-\-stop\fP angegeben ist. Für Daemons
+die langlebige Kinder haben, die ein \fB\-\-stop\fP überleben müssen, müssen Sie
+eine PID\-Datei angeben.
 .
 .SH BEFEHLE
 .TP 
@@ -229,11 +229,17 @@ Dies setzt die umask des Prozesses bevor er gestartet wird.
 Verwendet, wenn ein Programm gestartet wird, das keine eigene PID\-Datei
 anlegt. Diese Option sorgt dafür, dass \fBstart\-stop\-daemon\fP die mit
 \fB\-\-pidfile\fP referenzierte Datei anlegt und die PID kurz vor der Ausführung
-des Prozesse hineinlegt. Beachten Sie, dass die Datei nicht entfernt wird,
-wenn das Programm beendet wird. \fBHINWEIS:\fP Diese Funktion könnte in nicht
-allen Fällen funktionieren. Insbesondere wenn das auszuführende Programm
-sich vom Hauptprozess forkt. Deshalb ist diese Option normalerweise nur in
+des Prozesse hineinlegt. Beachten Sie, dass die Datei beim Anhalten des
+Programms nur entfernt wird, falls \fB\-\-remove\-pidfile\fP verwandt
+wird. \fBHINWEIS:\fP Diese Funktion könnte in nicht allen Fällen
+funktionieren. Insbesondere wenn das auszuführende Programm sich vom
+Hauptprozess forkt. Deshalb ist diese Option normalerweise nur in
 Kombination mit der Option \fB\-\-background\fP sinnvoll.
+.TP 
+\fB\-\-remove\-pidfile\fP
+Wird verwandt, wenn ein Programm gestoppt wird, das seine PID\-Datei nicht
+entfernt. Diese Option führt dazu, dass \fBstart\-stop\-daemon\fP die durch
+\fB\-\-pidfile\fP referenzierte Datei nach der Beendigung des Prozesses entfernt.
 .TP 
 \fB\-v\fP, \fB\-\-verbose\fP
 Gibt ausführliche informative Meldungen aus.

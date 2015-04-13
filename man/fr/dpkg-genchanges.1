@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
 .\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
-.\" Copyright Â© 2006-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2006-2014 Guillem Jover <guillem@debian.org>
 .\" Copyright Â© 2008-2010 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-genchanges 1 04\-05\-2012 "Projet Debian" "Utilitaires de dpkg"
+.TH dpkg\-genchanges 1 24\-09\-2014 "Projet Debian" "Utilitaires de dpkg"
 .SH NOM
 dpkg\-genchanges \- Créer des fichiers «\ .changes\ ».
 .
@@ -38,6 +38,16 @@ puis il crée un fichier de contrôle pour la mise en place dans l'archive
 Debian (c'est le fichier \fB.changes\fP).
 .
 .SH OPTIONS
+.TP 
+\fB\-g\fP
+Spécifie que seuls les paquets source ou indépendants d'une architecture
+doivent être téléversés (aucun paquet propre à une architecture ne sera
+inclus).
+.TP 
+\fB\-G\fP
+Spécifie que seuls les paquets source ou propres à une architecture doivent
+être téléversés (aucun paquet indépendant d'une architecture ne sera
+inclus).
 .TP 
 \fB\-b\fP, \fB\-B\fP, \fB\-A\fP
 Précise que l'on veut uniquement une construction du binaire (les fichiers

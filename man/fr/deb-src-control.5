@@ -25,7 +25,7 @@
 .TH deb\-src\-control 5 20\-12\-2013 "Projet Debian" Debian
 .SH NOM
 deb\-src\-control \- Format du fichier principal de contrôle dans les paquets
-Debian
+source Debian
 .
 .SH SYNOPSIS
 contrôle
@@ -60,8 +60,8 @@ caractère alphanumérique.
 .TP 
 \fBMaintainer:\fP \fInom complet et adresse électronique\fP (requis)
 Le format de ce champ sera «\ Jean Dupont <jdupont@foo.com>\ »\ ; il
-indique le créateur du paquet, par opposition à l'auteur du programme mis en
-paquet.
+indique le responsable actuel du paquet, par opposition à l'auteur du
+logiciel ou au responsable originel.
 
 .TP 
 \fBUploaders:\fP\fI nom complet et adresse électronique\fP
@@ -146,9 +146,9 @@ les constructions de paquets source uniquement (« source\-only builds »).
 \fBBuild\-Depends\-Arch:\fP\fIliste\-de\-paquets\fP
 Liste analogue à \fBBuild\-Depends\fP, mais restreinte aux paquets nécessaires
 pour construire les paquets dépendants de l'architecture. Les paquets
-indiqués dans \fBBuild\-Depends\fP sont alors aussi installés. Ce champ est géré
-depuis la version 1.16.4 de dpkg\ ;\ pour pouvoir construire des paquets avec
-des versions plus anciennes de dpkg, il est préférable d'utiliser
+indiqués dans \fBBuild\-Depends\fP sont alors également installés. Ce champ est
+géré depuis la version 1.16.4 de dpkg\ ;\ pour pouvoir construire des paquets
+avec des versions plus anciennes de dpkg, il est préférable d'utiliser
 \fBBuild\-Depends\fP.
 
 .TP 
@@ -182,21 +182,23 @@ paquets indépendants de l'architecture.
 .PP
 La syntaxe des champs \fBBuild\-Depends\fP, \fBBuild\-Depends\-Arch\fP et
 \fBBuild\-Depends\-Indep\fP est une liste de groupes contenant des paquets
-successifs. Chaque groupe est une liste de paquets séparés par une barre
+alternatifs. Chaque groupe est une liste de paquets séparés par une barre
 verticale (le symbole du tube) «\ |\ ». Les groupes sont séparés par des
 virgules. Une virgule représente un «\ ET\ » logique et une barre verticale
 représente un «\ OU\ » logique\ ; le tube représente un lien plus fort. Chaque
-élément est le nom d'un paquet suivi de façon optionnelle par un numéro de
-version entre parenthèses, une indication d'architecture entre accolades et
-une indication de profil entre chevrons.
+nom de paquet est suivi de façon optionnelle par un numéro de version entre
+parenthèses, un type d'architecture entre crochets et une formule de
+restriction constituée d'une ou plusieurs listes de noms de profil entre
+chevrons.
 
 La syntaxe des champs \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP et
 \fBBuild\-Conflicts\-Indep\fP est une liste de paquets séparés par des virgules
 qui représentent le «\ ET\ » logique. L'indication de paquets alternatifs avec
 une barre verticale (le symbole du tube) «\ |\ » n'est pas prise en
 charge. Chaque nom de paquet peut être suivi de façon optionnelle par un
-numéro de version entre parenthèses, une indication d'architecture entre
-accolades et une indication de profil entre chevrons.
+numéro de version entre parenthèses, un type d'architecture entre crochets
+et une formule de restriction constituée d'une ou plusieurs listes de noms
+de profil entre chevrons.
 
 Un numéro de version peut commencer par «\ >>\ », et dans ce cas toute
 version supérieure correspondra, et il peut indiquer (ou pas) le numéro de
@@ -209,10 +211,12 @@ Une indication d'architecture consiste en un ou plusieurs noms
 d'architectures, séparés par des espaces. Un nom d'architecture peut être
 précédé d'un point d'exclamation qui correspond alors au «\ NON\ » logique.
 
-Une indication de profil consiste en un ou plusieurs noms de profil préfixés
-par l'espace de nommage du \fBprofile.\fP, séparés par des espaces. Un nom de
-profil peut être précédé d'un point d'exclamation qui correspond alors au
-«\ NON\ » logique.
+Une formule de restriction consiste en une ou plusieurs listes de
+restriction séparées par des espaces. Chaque liste de restriction est
+incluse entre chevrons. Les éléments des listes de restriction sont des noms
+de profils de construction séparés par des espaces et pouvant être préfixés
+d'un point d'exclamation représentant un «\ NON\ » logique. Une formule de
+restriction représente une forme normale disjonctive.
 
 Veuillez noter que les dépendances des paquets du jeu \fBbuild\-essential\fP
 peuvent être omises et qu'il n'est pas possible de déclarer des conflits
@@ -311,12 +315,11 @@ supprimés lors de ces recopies. Ainsi, un champ \fBXC\-Approved\-By\fP apparaîtr
 sous le nom \fBApproved\-By\fP dans le fichier «\ changes\ » mais pas dans le
 fichier «\ control\ » du paquet binaire ni dans celui du paquet source.
 
-Il est conseillé de tenir compte que ces champs définis par l'utilisateur se
-serviront de l'espace de nommage global et peuvent ainsi, dans le futur,
-entrer en collision avec des champs gérés globalement. Pour éviter de telles
-situations, il est conseillé de les préfixer avec \fBPrivate\-\fP (exemple\ :
-\fBXB\-Private\-New\-Field\fP) ce qui aura pour effet de bord de ne pas provoquer
-d'avertissement de la part de \fBdpkg\-deb\fP.
+Il faut prendre en compte le fait que ces champs définis par l'utilisateur
+se serviront de l'espace de nommage global lequel pourrait, dans le futur,
+entrer en conflit avec des champs officiellement reconnus. Pour éviter de
+telles situations, il est conseillé de les préfixer avec \fBPrivate\-\fP
+(exemple\ : \fBXB\-Private\-New\-Field\fP).
 
 .SH EXEMPLE
 .\" .RS

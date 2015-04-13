@@ -103,6 +103,44 @@ trigproc_enqueue_deferred(struct pkginfo *pend)
 	      pkg_name(pend, pnaw_always));
 }
 
+/**
+ * Populate the deferred trigger queue.
+ *
+ * When dpkg is called with a specific set of packages to act on, we might
+ * have packages pending trigger processing. But because there are frontends
+ * that do not perform a final «dpkg --configure --pending» call (i.e. apt),
+ * the system is left in a state with packages not fully installed.
+ *
+ * We have to populate the deferred trigger queue from the entire package
+ * database, so that we might try to do opportunistic trigger processing
+ * when going through the deferred trigger queue, because a fixed apt will
+ * not request the necessary processing anyway.
+ *
+ * XXX: This can be removed once apt is fixed in the next stable release.
+ */
+void
+trigproc_populate_deferred(void)
+{
+	struct pkgiterator *iter;
+	struct pkginfo *pkg;
+
+	iter = pkg_db_iter_new();
+	while ((pkg = pkg_db_iter_next_pkg(iter))) {
+		if (!pkg->trigpend_head)
+			continue;
+
+		if (pkg->status != PKG_STAT_TRIGGERSAWAITED &&
+		    pkg->status != PKG_STAT_TRIGGERSPENDING)
+			continue;
+
+		if (pkg->want != PKG_WANT_INSTALL)
+			continue;
+
+		trigproc_enqueue_deferred(pkg);
+	}
+	pkg_db_iter_free(iter);
+}
+
 void
 trigproc_run_deferred(void)
 {
@@ -124,7 +162,7 @@ trigproc_run_deferred(void)
 		                        pkg_name(pkg, pnaw_nonambig));
 
 		pkg->clientdata->trigprocdeferred = NULL;
-		trigproc(pkg);
+		trigproc(pkg, TRIGPROC_TRY);
 
 		pop_error_context(ehflag_normaltidy);
 	}
@@ -294,7 +332,7 @@ check_trigger_cycle(struct pkginfo *processing_now)
 
 	/* We give up on the _earliest_ package involved. */
 	giveup = tortoise->pkgs->pkg;
-	debug(dbg_triggers, "check_triggers_cycle pnow=%s giveup=%p",
+	debug(dbg_triggers, "check_triggers_cycle pnow=%s giveup=%s",
 	      pkg_name(processing_now, pnaw_always),
 	      pkg_name(giveup, pnaw_always));
 	assert(giveup->status == PKG_STAT_TRIGGERSAWAITED ||
@@ -312,7 +350,7 @@ check_trigger_cycle(struct pkginfo *processing_now)
  * that case does nothing but fix up any stale awaiters.
  */
 void
-trigproc(struct pkginfo *pkg)
+trigproc(struct pkginfo *pkg, enum trigproc_type type)
 {
 	static struct varbuf namesarg;
 

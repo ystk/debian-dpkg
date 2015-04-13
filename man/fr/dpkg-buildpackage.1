@@ -143,24 +143,34 @@ privilèges du superutilisateur.
 \fB\-e\fP\fIadresse\-du\-responsable\fP
 Passé tel quel à \fBdpkg\-genchanges\fP. Voir sa page de manuel.
 .TP 
-\fB\-a\fP\fIarchitecture\fP
+\fB\-a\fP, \fB\-\-host\-arch\fP \fIarchitecture\fP
 Précise l'architecture Debian pour laquelle on construit. L'architecture de
 la machine sur laquelle on construit est automatiquement déterminée\ ; c'est
 aussi l'architecture par défaut de la machine hôte.
 .TP 
-\fB\-t\fP\fItype\-de\-système\-gnu\fP
+\fB\-t\fP, \fB\-\-host\-type\fP \fItype\-de\-système\-gnu\fP
 Précise le type de système GNU pour lequel construire. Il peut être utilisé
-à la place de \fB\-a\fP ou en tant que complément afin de remplacer le type de
-système GNU par défaut de l'architecture Debian cible.
+à la place de \fB\-\-host\-arch\fP ou en tant que complément afin de remplacer le
+type de système GNU par défaut de l'architecture Debian cible.
+.TP 
+\fB\-\-target\-arch\fP \fIarchitecture\fP
+Précise l'architecture Debian pour laquelle les binaires compilés vont
+construire. La valeur par défaut est l'architecture de la machine hôte.
+.TP 
+\fB\-\-target\-type\fP \fItype\-de\-système\-gnu\fP
+Précise le type de système GNU pour lequel les binaires compilés vont
+construire. Il peut être utilisé à la place de \fB\-\-target\-arch\fP ou en tant
+que complément afin de remplacer le type de système GNU par défaut de
+l'architecture Debian cible.
 .TP 
 \fB\-P\fP\fIprofil\fP[\fB,\fP...]
-Précise le ou les profils pour lesquels on construit, sous forme d'une liste
-séparée par des virgules, sans le préfixe de l'espace de nommage du
-\fBprofile.\fP. Le comportement par défaut est de ne pas construire pour un
-profil spécifique. Ajoute aussi les profils (sous forme d'une liste séparée
-par des espaces) à la variable d'environnement \fBDEB_BUILD_PROFILES\fP, ce qui
-permet, par exemple, au fichiers \fBdebian/rules\fP d'utiliser cette
-information pour des constructions conditionnelles.
+Précise le ou les profils que l'on construit, sous forme d'une liste séparée
+par des virgules. Le comportement par défaut est de construire pour un
+profil non spécifique. Cela les définit également (sous la forme d'une liste
+séparée par des espaces) en tant que variable d'environnement
+\fBDEB_BUILD_PROFILES\fP, ce qui permet, par exemple, au fichiers
+\fBdebian/rules\fP d'utiliser cette information pour des constructions
+conditionnelles.
 .TP 
 \fB\-j\fP[\fIjobs\fP|\fBauto\fP]
 Nombre de processus simultanés qui peuvent être exécutés, nombre de
@@ -338,8 +348,8 @@ Si cette option est utilisée et contient la valeur \fBnocheck\fP, la variable
 \fBDEB_BUILD_PROFILES\fP
 Si cette option est utilisée, elle sera utilisée comme profil(s) de
 construction actif(s) pour le paquet à construire. C'est une liste séparée
-par des espaces de nom de profils, sans le préfixe de l'espace de nommage de
-«\ \fBprofile.\fP\ ». Remplacée par l'option \fB\-P\fP.
+par des espaces de noms de profil. Cette option est outrepassée par l'option
+\fB\-P\fP.
 
 .SS "Dépendance des drapeaux d'environnement exportés"
 Même si \fBdpkg\-buildpackage\fP exporte certaines variables, \fBdebian/rules\fP ne

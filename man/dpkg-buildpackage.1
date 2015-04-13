@@ -139,22 +139,31 @@ run with root rights.
 .BI \-e maintainer-address
 Passed unchanged to \fBdpkg\-genchanges\fP. See its manual page.
 .TP
-.BI \-a architecture
+.BR \-a ", " \-\-host\-arch " \fIarchitecture\fP"
 Specify the Debian architecture we build for. The architecture of the
 machine we build on is determined automatically, and is also the default
 for the host machine.
 .TP
-.BI \-t gnu-system-type
+.BR \-t ", " \-\-host\-type " \fIgnu-system-type\fP"
 Specify the GNU system type we build for. It can be used in place
-of \-a or as a complement to override the default GNU system type
-of the target Debian architecture.
+of \-\-host\-arch or as a complement to override the default GNU system type
+of the host Debian architecture.
+.TP
+.BR \-\-target\-arch " \fIarchitecture\fP"
+Specify the Debian architecture the binaries built will build for.
+The default value is the host machine.
+.TP
+.BR \-\-target\-type " \fIgnu-system-type\fP"
+Specify the GNU system type the binaries built will build for. It can be
+used in place of \-\-target\-arch or as a complement to override the
+default GNU system type of the target Debian architecture.
 .TP
 .BR \-P \fIprofile\fP[ , ...]
-Specify the profile(s) we build, as a comma-separated list, without the
-"\fBprofile.\fP" namespace prefix. The default behavior is to build for
-no specific profile. Also adds them (as a space separated list) to the
-\fBDEB_BUILD_PROFILES\fP environment variable which allows, for example,
-\fBdebian/rules\fP files to use this information for conditional builds.
+Specify the profile(s) we build, as a comma-separated list. The default
+behavior is to build for no specific profile. Also sets them (as a space
+separated list) as the \fBDEB_BUILD_PROFILES\fP environment variable which
+allows, for example, \fBdebian/rules\fP files to use this information for
+conditional builds.
 .TP
 .BR \-j [\fIjobs\fP|\fBauto\fP]
 Number of jobs allowed to be run simultaneously, number of jobs matching
@@ -341,8 +350,8 @@ will be ignored.
 .TP
 .B DEB_BUILD_PROFILES
 If set, it will be used as the active build profile(s) for the package
-being built. It is a space separated list of profile names, without the
-"\fBprofile.\fP" namespace prefix. Overridden by the \fB\-P\fP option.
+being built. It is a space separated list of profile names. Overridden
+by the \fB\-P\fP option.
 
 .SS Reliance on exported environment flags
 Even if \fBdpkg\-buildpackage\fP exports some variables, \fBdebian/rules\fP

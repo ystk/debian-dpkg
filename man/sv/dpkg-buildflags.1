@@ -2,7 +2,7 @@
 .\"
 .\" Copyright Â© 2010-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
 .\" Copyright Â© 2011 Kees Cook <kees@debian.org>
-.\" Copyright Â© 2011-2013 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2011-2014 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-buildflags 1 2013\-10\-20 Debianprojektet Dpkg\-sviten
+.TH dpkg\-buildflags 1 2014\-09\-04 Debianprojektet Dpkg\-sviten
 .SH NAMN
 dpkg\-buildflags \- returnerar byggflaggor att använda för att bygga paket
 .
@@ -138,9 +138,10 @@ flaggan är satt/modifierad av en miljöspecifik konfiguration.
 .RE
 .TP 
 \fB\-\-query\-features\fP \fIarea\fP
-Visa funktioner aktiverade för ett given område. Det enda kända området är
-för närvarande \fBhardening\fP, se avsnittet \fBFUNKTIONSOMRÅDEN\fP för fler
-detaljer. Avslutar med 0 om området är okänt, avslutar annars med 1.
+Visa funktioner aktiverade för ett givet område. De enda kända områdena är
+för närvarande \fBqa\fP, \fBreproducible\fP och \fBhardening\fP, se avsnittet
+\fBFUNKTIONSOMRÅDEN\fP för fler detaljer. Avslutar med 0 om området är okänt,
+avslutar annars med 1.
 .IP
 Utdata är på RFC822\-headerformat, med en sektion per funktion. Till exempel:
 .IP
@@ -195,25 +196,44 @@ Nya flaggor kan komma att läggas till i framtiden om behovet uppstår (till
 exempel för att stöda andra språk).
 .
 .SH FUNKTIONSOMRÅDEN
+.P
+Varje områdesfunktion kan aktiveras och inaktiveras i områdesvärdet i
+miljövariablerna \fBDEB_BUILD_OPTIONS\fP och \fBDEB_BUILD_MAINT_OPTIONS\fP
+modifierarna "+" och "\-". Till exempel, för att aktivera
+\fBhardening\fP\-funktionen "pie" och inaktivera funktionen "fortify" genom att
+ange detta i \fBdebian/rules\fP:
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
+.P
+Den speciella funktionen \fBall\fP kan användas för att aktivera eller
+inaktivera alla områdesfunktioner samtidigt. Du kan till exempel inaktivera
+allt i området \fBhardening\fP och endast aktivera "format" och "fortify" med:
+.P
+  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
+.
+.SS "Kvalitetskontroll (Quality assurance, QA)"
+Flera kommandoradsflaggor (beskrivna nedan) kan användas för att göra det
+lättare att hitta problem i källkoden eller byggsystemet.
+.TP 
+\fBbug\fP
+Den här inställningen (inaktiverad som standard) lägger till alla
+varningsflaggor som på ett pålitligt sätt detekterar problematisk
+källkod. Varningarna är ödesdigra.
+.TP 
+\fBcanary\fP
+Den här inställningen (inaktiverad som standard) lägger till overksamma
+tjallarflaggor till byggflaggorna, så att byggloggarna kan kontrolleras för
+att se hur byggflaggor vidarebefordras för att göra det enklare att hitta
+när vanliga byggflagor utesluts. De enda flaggor som stöds är för närvarande
+\fBCPPFLAGS\fP, \fBCFLAGS\fP, \fBOBJCFLAGS\fP, \fBCXXFLAGS\fP och \fBOBJCXXFLAGS\fP med
+flaggorna satta till \fB\-D__DEB_CANARY_\fP\fIflag\fP_\fIslumpmässigt\-id\fP\fB__\fP, och
+\fBLDFLAGS\fP satt till \fB\-Wl,\-z,deb\-canary\-\fP\fIslumpmässigt\-id\fP.
+.
 .SS Härdning
 Du kan använda flera kompileringsflaggor (se detaljer nedan) för att härda
 den färdiga binären mot minnesfördärvningsangrepp, eller för att ge
 ytterligare varningsmeddelanden under kompileringen. Förutom det som anges
 nedan aktiveras dessa som standard för arkitekturer som stöder dem.
-.P
-Varje härdningsfunktion kan aktiveras och inaktiveras i miljövariabeln
-\fBDEB_BUILD_MAINT_OPTIONS\fP värde \fBhardening\fP med modifierarna "+" och
-"\-". Du kan till exempel aktivera och funktionen "pie" och inaktivera
-funktionen "fortify" genom att ange detta i \fBdebian/rules\fP:
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,\-fortify
-.P
-Den speciella funktionen \fBall\fP kan användas för att aktivera eller
-inaktivera alla härdningsfunktioner samtidigt. Du kan till exempel
-inaktivera allt och endast aktivera "format" och "fortify" med:
-.P
-  export DEB_BUILD_MAINT_OPTIONS=hardening=\-all,+format,+fortify
-.
 .TP 
 \fBformat\fP
 Inställningen (aktiverad som standard) lägger till \fB\-Wformat
@@ -243,13 +263,13 @@ också kompileras med \fB\-O1\fP eller högre. Om miljövariabeln
 inaktiverats, på grund av nya varningar som ges av glibc 2.16 och senare.
 .TP 
 \fBstackprotector\fP
-This setting (enabled by default if stackprotectorstrong is not in use) adds
-\fB\-fstack\-protector \-\-param=ssp\-buffer\-size=4\fP to \fBCFLAGS\fP, \fBCXXFLAGS\fP,
-\fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP and \fBFCFLAGS\fP.  This
-adds safety checks against stack overwrites. This renders many potential
-code injection attacks into aborting situations. In the best case this turns
-code injection vulnerabilities into denial of service or into non\-issues
-(depending on the application).
+Inställningen (aktiverad som standard om stackprotectorstrong inte används)
+lägger till \fB\-fstack\-protector \-\-param=ssp\-buffer\-size=4\fP till \fBCFLAGS\fP,
+\fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP och
+\fBFCFLAGS\fP. Detta lägger till säkerhetskontroller mot stacköverskrivningar,
+vilket gör att många möjliga kodinjiceringsangrepp istället avbryter
+programmet. I det bästa fallet gör det kodinjiceringsangrepp till
+överbelastnignsangrepp eller icke\-problem (beroende på programmet).
 
 Den här funktionen kräver länkning mot glibc (eller ett annat bibliotek som
 tillhandahåller \fB__stack_chk_fail\fP), så det måste inaktiveras när du bygger
@@ -257,15 +277,15 @@ med \fB\-nostdlib\fP eller \fB\-ffreestanding\fP eller liknande.
 .
 .TP 
 \fBstackprotectorstrong\fP
-This setting (enabled by default) adds \fB\-fstack\-protector\-strong\fP to
-\fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP, \fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP
-and \fBFCFLAGS\fP.  This is a stronger variant of \fBstackprotector\fP, but
-without significant performance penalties.
+Inställningen (aktiverad som standard) lägger till
+\fB\-fstack\-protector\-strong\fP till \fBCFLAGS\fP, \fBCXXFLAGS\fP, \fBOBJCFLAGS\fP,
+\fBOBJCXXFLAGS\fP, \fBGCJFLAGS\fP, \fBFFLAGS\fP och \fBFCFLAGS\fP. Detta är en starkare
+variant av \fBstackprotector\fP, men utan markanta prestandaminskningar.
 
-Disabling \fBstackprotector\fP will also disable this setting.
+Om du inaktiverar \fBstackprotector\fP inaktiveras även denna inställning.
 
-This feature has the same requirements as \fBstackprotector\fP, and in addition
-also requires gcc 4.9 and later.
+Funktionen har samma krav som \fBstackprotector\fP, och kräver dessutom gcc 4.9
+eller senare.
 .
 .TP 
 \fBrelro\fP
@@ -306,6 +326,16 @@ arkitekturer (huvudsakligen i386) se prestandaförluster upp till 15% i
 väldigt textsegment\-tunga programs körning; de flesta körningar ser mindre
 än 1%. Arkitekturer med många generella register (t.ex amd64) ser inte en
 lika stor värsta falls\-förlust.
+.SS Reproducerbarhet
+Kompileringsflaggorna som anges nedan kan användas för att göra det lättare
+att reproducera byggbarhet eller tillhandahålla ytterligare varningsflaggor
+under kompileringen. Förutom det som anges nedan aktiveras dessa som
+standard för arkitekturer som stöder dem.
+.TP 
+\fBtimeless\fP
+Inställningen (inaktiverad som standard) lägger till \fB\-Wdate\-time\fP till
+\fBCPPFLAGS\fP. Detta ger varningar när makrona \fB__TIME__\fP, \fB__DATE__\fP eller
+\fB__TIMESTAMP__\fP används.
 .
 .SH MILJÖVARIABLER
 Det finns två uppsättningar miljövariabler som utför samma operationer, den
@@ -340,10 +370,14 @@ värdet som returneras för given \fIflagga\fP.
 Denna variabel kan användas för att lägga till ytterligare flaggor först i
 värdet som returneras för given \fIflagga\fP.
 .TP 
+\fBDEB_BUILD_OPTIONS\fP
+.TQ
 \fBDEB_BUILD_MAINT_OPTIONS\fP
-Den här variabeln kan användas för att slå av/på olika härdningsbyggflaggor
-genom alternativet \fBhardening\fP. Se avsnittet \fBFUNKTIONSOMRÅDEN\fP för mer
-information.
+De här variablerna kan användas av en användare eller utvecklare för att slå
+av/på olika områdesfunktioner som påverkar byggflaggorna. Variabeln
+\fBDEB_BUILD_MAINT_OPTIONS\fP\-variabeln överstyr alla inställningar i
+funktionsområden i \fBDEB_BUILD_OPTIONS\fP. Se avsnittet \fBFUNKTIONSOMRÅDEN\fP
+för mer information.
 .
 .SH FILER
 .SS Konfigurationsfiler

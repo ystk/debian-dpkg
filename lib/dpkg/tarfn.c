@@ -50,6 +50,8 @@ struct tar_header {
 	char checksum[8];
 	char linkflag;
 	char linkname[100];
+
+	/* Only valid on ustar and gnu. */
 	char magic[8];
 	char user[32];
 	char group[32];
@@ -101,6 +103,7 @@ get_unix_mode(struct tar_header *h)
 	switch (type) {
 	case TAR_FILETYPE_FILE0:
 	case TAR_FILETYPE_FILE:
+	case TAR_FILETYPE_HARDLINK:
 		mode = S_IFREG;
 		break;
 	case TAR_FILETYPE_SYMLINK:
@@ -118,7 +121,6 @@ get_unix_mode(struct tar_header *h)
 	case TAR_FILETYPE_FIFO:
 		mode = S_IFIFO;
 		break;
-	case TAR_FILETYPE_HARDLINK:
 	default:
 		mode = 0;
 		break;
@@ -155,8 +157,6 @@ tar_header_checksum(struct tar_header *h)
 static int
 tar_header_decode(struct tar_header *h, struct tar_entry *d)
 {
-	struct passwd *passwd = NULL;
-	struct group *group = NULL;
 	long checksum;
 
 	if (memcmp(h->magic, TAR_MAGIC_GNU, 6) == 0)
@@ -182,19 +182,19 @@ tar_header_decode(struct tar_header *h, struct tar_entry *d)
 	d->dev = makedev(OtoM(h->devmajor, sizeof(h->devmajor)),
 			 OtoM(h->devminor, sizeof(h->devminor)));
 
-	if (*h->user)
-		passwd = getpwnam(h->user);
-	if (passwd)
-		d->stat.uid = passwd->pw_uid;
-	else
-		d->stat.uid = (uid_t)OtoM(h->uid, sizeof(h->uid));
+	if (*h->user) {
+		d->stat.uname = m_strndup(h->user, sizeof(h->user));
+	} else {
+		d->stat.uname = NULL;
+	}
+	d->stat.uid = (uid_t)OtoM(h->uid, sizeof(h->uid));
 
-	if (*h->group)
-		group = getgrnam(h->group);
-	if (group)
-		d->stat.gid = group->gr_gid;
-	else
-		d->stat.gid = (gid_t)OtoM(h->gid, sizeof(h->gid));
+	if (*h->group) {
+		d->stat.gname = m_strndup(h->group, sizeof(h->group));
+	} else {
+		d->stat.gname = NULL;
+	}
+	d->stat.gid = (gid_t)OtoM(h->gid, sizeof(h->gid));
 
 	checksum = OtoM(h->checksum, sizeof(h->checksum));
 
@@ -250,16 +250,55 @@ tar_gnu_long(void *ctx, const struct tar_operations *ops, struct tar_entry *te,
 }
 
 static void
+tar_entry_copy(struct tar_entry *dst, struct tar_entry *src)
+{
+	memcpy(dst, src, sizeof(struct tar_entry));
+
+	dst->name = m_strdup(src->name);
+	dst->linkname = m_strdup(src->linkname);
+
+	if (src->stat.uname)
+		dst->stat.uname = m_strdup(src->stat.uname);
+	if (src->stat.gname)
+		dst->stat.gname = m_strdup(src->stat.gname);
+}
+
+static void
 tar_entry_destroy(struct tar_entry *te)
 {
 	free(te->name);
 	free(te->linkname);
+	free(te->stat.uname);
+	free(te->stat.gname);
 }
 
 struct symlinkList {
 	struct symlinkList *next;
 	struct tar_entry h;
 };
+
+/**
+ * Update the tar entry from system information.
+ *
+ * Normalize UID and GID relative to the current system.
+ */
+void
+tar_entry_update_from_system(struct tar_entry *te)
+{
+	struct passwd *passwd;
+	struct group *group;
+
+	if (te->stat.uname) {
+		passwd = getpwnam(te->stat.uname);
+		if (passwd)
+			te->stat.uid = passwd->pw_uid;
+	}
+	if (te->stat.gname) {
+		group = getgrnam(te->stat.gname);
+		if (group)
+			te->stat.gid = group->gr_gid;
+	}
+}
 
 int
 tar_extractor(void *ctx, const struct tar_operations *ops)
@@ -277,6 +316,8 @@ tar_extractor(void *ctx, const struct tar_operations *ops)
 
 	h.name = NULL;
 	h.linkname = NULL;
+	h.stat.uname = NULL;
+	h.stat.gname = NULL;
 
 	while ((status = ops->read(ctx, buffer, TARBLKSZ)) == TARBLKSZ) {
 		int name_len;
@@ -335,10 +376,8 @@ tar_extractor(void *ctx, const struct tar_operations *ops)
 			break;
 		case TAR_FILETYPE_SYMLINK:
 			symlink_node = m_malloc(sizeof(*symlink_node));
-			memcpy(&symlink_node->h, &h, sizeof(struct tar_entry));
-			symlink_node->h.name = m_strdup(h.name);
-			symlink_node->h.linkname = m_strdup(h.linkname);
 			symlink_node->next = NULL;
+			tar_entry_copy(&symlink_node->h, &h);
 
 			if (symlink_head)
 				symlink_tail->next = symlink_node;

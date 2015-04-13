@@ -49,7 +49,7 @@ All the deps_* functions are exported by default.
 use strict;
 use warnings;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 use Dpkg::Version;
 use Dpkg::Arch qw(get_host_arch get_build_arch);
@@ -58,7 +58,8 @@ use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
 
 use Exporter qw(import);
-our @EXPORT = qw(deps_concat deps_parse deps_eval_implication deps_compare);
+our @EXPORT = qw(deps_concat deps_parse deps_eval_implication
+                deps_iterate deps_compare);
 
 =item deps_eval_implication($rel_p, $v_p, $rel_q, $v_q)
 
@@ -163,7 +164,7 @@ joining them with ", " if appropriate, and always returning a valid string.
 sub deps_concat {
     my (@dep_list) = @_;
 
-    return join(', ', grep { defined $_ } @dep_list);
+    return join ', ', grep { defined } @dep_list;
 }
 
 =item my $dep = deps_parse($line, %options)
@@ -208,15 +209,16 @@ Define the active build profiles. By default no profile is defined.
 =item reduce_profiles (defaults to 0)
 
 If set to 1, ignore dependencies that do not concern the current build
-profile. This implicitly strips off the profile restriction list so
+profile. This implicitly strips off the profile restriction formula so
 that the resulting dependencies are directly applicable to the current
 profiles.
 
 =item reduce_restrictions (defaults to 0)
 
 If set to 1, ignore dependencies that do not concern the current set of
-restrictions. This implicitly strips off any restriction list so that the
-resulting dependencies are directly applicable to the current restriction.
+restrictions. This implicitly strips off any architecture restriction list
+or restriction formula so that the resulting dependencies are directly
+applicable to the current restriction.
 This currently implies C<reduce_arch> and C<reduce_profiles>, and overrides
 them if set.
 
@@ -235,8 +237,8 @@ This should be set whenever working with build-deps.
 =cut
 
 sub deps_parse {
-    my $dep_line = shift;
-    my %options = (@_);
+    my ($dep_line, %options) = @_;
+
     $options{use_arch} //= 1;
     $options{reduce_arch} //= 0;
     $options{host_arch} //= get_host_arch();
@@ -306,6 +308,38 @@ sub deps_parse {
         $dep_and->add($dep);
     }
     return $dep_and;
+}
+
+=item my $bool = deps_iterate($deps, $callback_func)
+
+This function visits all elements of the dependency object, calling the
+callback function for each element.
+
+The callback function is expected to return true when everything is fine,
+or false if something went wrong, in which case the iteration will stop.
+
+Return the same value as the callback function.
+
+=cut
+
+sub deps_iterate {
+    my ($deps, $callback_func) = @_;
+
+    my $visitor_func;
+    $visitor_func = sub {
+        foreach my $dep (@_) {
+            return unless defined $dep;
+
+            if ($dep->isa('Dpkg::Deps::Simple')) {
+                return unless &{$callback_func}($dep);
+            } else {
+                return unless &{$visitor_func}($dep->get_deps());
+            }
+        }
+        return 1;
+    };
+
+    return &{$visitor_func}($deps);
 }
 
 =item deps_compare($a, $b)
@@ -508,6 +542,7 @@ use warnings;
 use Carp;
 
 use Dpkg::Arch qw(debarch_is);
+use Dpkg::BuildProfiles qw(parse_build_profiles evaluate_restriction_formula);
 use Dpkg::Version;
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
@@ -567,7 +602,7 @@ sub parse_string {
               )?                            # end of optional architecture
               (?:                           # start of optional restriction
                 \s* <                       # open bracket for restriction
-                \s* (.*?)                   # don't parse restrictions now
+                \s* (.*)                    # do not parse restrictions now
                 \s* >                       # closing bracket
               )?                            # end of optional restriction
               \s*$                          # trailing spaces at end
@@ -585,7 +620,7 @@ sub parse_string {
 	$self->{arches} = [ split(/\s+/, $5) ];
     }
     if (defined($6)) {
-	$self->{restrictions} = [ map { lc } split /\s+/, $6 ];
+	$self->{restrictions} = [ parse_build_profiles($6) ];
     }
 }
 
@@ -602,7 +637,9 @@ sub output {
 	$res .= ' [' . join(' ', @{$self->{arches}}) . ']';
     }
     if (defined($self->{restrictions})) {
-	$res .= ' <' . join(' ', @{$self->{restrictions}}) . '>';
+        for my $restrlist (@{$self->{restrictions}}) {
+            $res .= ' <' . join(' ', @{$restrlist}) . '>';
+        }
     }
     if (defined($fh)) {
 	print { $fh } $res;
@@ -823,34 +860,7 @@ sub profile_is_concerned {
 
     return 0 if not defined $self->{package}; # Empty dep
     return 1 if not defined $self->{restrictions}; # Dep without restrictions
-
-    my $seen_profile = 0;
-    foreach my $restriction (@{$self->{restrictions}}) {
-        # Determine if this restriction is negated, and within the "profile"
-        # namespace, otherwise it does not concern this check.
-        next if $restriction !~ m/^(!)?profile\.(.*)/;
-
-        my $negated = defined $1 && $1 eq '!';
-        my $profile = $2;
-
-        # Determine if the restriction matches any of the specified profiles.
-        my $found = any { $_ eq $profile } @{$build_profiles};
-
-        if ($negated) {
-            if ($found) {
-                $seen_profile = 0;
-                last;
-            } else {
-                # "!profile.this" includes by default all other profiles
-                # unless they also appear in a "!profile.other".
-                $seen_profile = 1;
-            }
-        } elsif ($found) {
-            $seen_profile = 1;
-            last;
-        }
-    }
-    return $seen_profile;
+    return evaluate_restriction_formula($self->{restrictions}, $build_profiles);
 }
 
 sub reduce_profiles {
@@ -1317,6 +1327,8 @@ Creates a new object.
 use strict;
 use warnings;
 
+use Carp;
+
 use Dpkg::Version;
 
 sub new {
@@ -1358,7 +1370,7 @@ sub add_installed_package {
 
 Records that the "$by" package provides the $virtual package. $relation
 and $version correspond to the associated relation given in the Provides
-field. This might be used in the future for versioned provides.
+field (if present).
 
 =cut
 
@@ -1386,6 +1398,10 @@ methods where appropriate, but it should not be directly queried.
 
 sub check_package {
     my ($self, $pkg) = @_;
+
+    carp 'obsolete function, pass Dpkg::Deps::KnownFacts to Dpkg::Deps ' .
+         'methods instead';
+
     if (exists $self->{pkg}{$pkg}) {
 	return (1, $self->{pkg}{$pkg}[0]{version});
     }
@@ -1447,16 +1463,26 @@ sub _evaluate_simple_dep {
 	}
     }
     foreach my $virtpkg ($self->_find_virtual_packages($pkg)) {
-	# XXX: Adapt when versioned provides are allowed
-	next if defined $virtpkg->[1];
-	next if defined $dep->{relation}; # Provides don't satisfy versioned deps
-	return 1;
+	next if defined $virtpkg->[1] and $virtpkg->[1] ne REL_EQ;
+
+	if (defined $dep->{relation}) {
+	    next if not defined $virtpkg->[2];
+	    return 1 if version_compare_relation($virtpkg->[2],
+	                                         $dep->{relation},
+	                                         $dep->{version});
+	} else {
+	    return 1;
+	}
     }
     return if $lackinfos;
     return 0;
 }
 
 =head1 CHANGES
+
+=head2 Version 1.05
+
+New function: Dpkg::Deps::deps_iterate().
 
 =head2 Version 1.04
 
@@ -1486,6 +1512,10 @@ supplementary parameters ($arch and $multiarch).
 
 Deprecated method: Dpkg::Deps::KnownFacts->check_package() is obsolete,
 it should not have been part of the public API.
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =cut
 

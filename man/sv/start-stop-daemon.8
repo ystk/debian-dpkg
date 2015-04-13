@@ -38,13 +38,14 @@ skapas och avslutas. Med hjälp av en av sökflaggorna kan
 \fBstart\-stop\-daemon\fP ställas in att hitta befintliga instanser av en körande
 process.
 .PP
-Observera att om inte \fB\-\-pidfile\fP anges kommer \fBstart\-stop\-daemon\fP att
-jobba på ett sätt som liknar \fBkillall(1).\fP \fBstart\-stop\-daemon\fP kommer att
-söka i processtabellen efter processer med motsvarande namn på processen,
-användar\-id och/eller grupp\-id (om sådant anges). Alla processer som stämmer
-överens kommer tillsändas signalen TERM (eller den som anges med \fB\-\-signal\fP
-eller \fB\-\-retry\fP) om \fB\-\-stop\fP anges. För processer som har långlivade barn
-som måste överleva en \fB\-\-stop\fP, måste du ange en pidfil.
+Observera att om inte \fB\-\-pid\fP eller \fB\-\-pidfile\fP anges kommer
+\fBstart\-stop\-daemon\fP att jobba på ett sätt som liknar \fBkillall(1).\fP
+\fBstart\-stop\-daemon\fP kommer att söka i processtabellen efter processer med
+motsvarande namn på processen, användar\-id och/eller grupp\-id (om sådant
+anges). Alla processer som stämmer överens kommer tillsändas signalen TERM
+(eller den som anges med \fB\-\-signal\fP eller \fB\-\-retry\fP) om \fB\-\-stop\fP
+anges. För processer som har långlivade barn som måste överleva en
+\fB\-\-stop\fP, måste du ange en pidfil.
 .
 .SH KOMMANDON
 .TP 
@@ -213,11 +214,16 @@ Ställer in umaskvärdet på processen innan den startas.
 Används när ett program som inte skapar sin egen pidfil startas. Flaggan
 kommer att få \fBstart\-stop\-daemon\fP att skapa filen som anges med
 \fB\-\-pidfile\fP och lägga process\-id i den precis innan processen
-startas. Observera att den inte kommer att tas bort när programmet
-stoppas. \fBOBSERVERA:\fP Funktionen kanske inte alltid fungerar. Framförallt
-inte när programmet som startas förgrenar sig (fork) från sin
-huvudprocess. Därför är flaggan oftast bara användbar i samband med flaggan
-\fB\-\-background\fP.
+startas. Observera att den endast kommer att tas bort när programmet stoppas
+om \fB\-\-remove\-pidfile\fP används. \fBOBSERVERA:\fP Funktionen kanske inte alltid
+fungerar. Framförallt inte när programmet som startas förgrenar sig (fork)
+från sin huvudprocess. Därför är flaggan oftast bara användbar i samband med
+flaggan \fB\-\-background\fP.
+.TP 
+\fB\-\-remove\-pidfile\fP
+Används när ett program som inte tar bort sin egen pid\-fil stoppas. Flaggan
+gör att \fBstart\-stop\-daemon\fP tar bort filen som anges med \fB\-\-pidfile\fP efter
+att processen stoppats.
 .TP 
 \fB\-v\fP, \fB\-\-verbose\fP
 Skriv ut pratsamma informationsmeddelanden.

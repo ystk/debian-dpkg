@@ -25,7 +25,9 @@ use warnings;
 
 use Carp;
 use Cwd;
+use File::Temp qw(tempdir);
 use File::Basename;
+use File::Copy;
 use POSIX qw(:sys_wait_h);
 
 use Dpkg ();
@@ -98,8 +100,10 @@ sub usage {
       --version  show the version.')
     . "\n\n" . _g(
 'Options passed to dpkg-architecture:
-  -a<arch>       Debian architecture we build for.
-  -t<system>     set GNU system type.')
+  -a, --host-arch <arch>    set the host Debian architecture.
+  -t, --host-type <type>    set the host GNU system type.
+      --target-arch <arch>  set the target Debian architecture.
+      --target-type <type>  set the target GNU system type.')
     . "\n\n" . _g(
 'Options passed to dpkg-genchanges:
   -si (default)  source includes orig, if new upstream.
@@ -143,8 +147,10 @@ my $signsource = 1;
 my $signchanges = 1;
 my $buildtarget = 'build';
 my $binarytarget = 'binary';
-my $targetarch = '';
-my $targetgnusystem = '';
+my $host_arch = '';
+my $host_type = '';
+my $target_arch = '';
+my $target_type = '';
 my @build_profiles = ();
 my $call_target = '';
 my $call_target_as_root = 0;
@@ -258,8 +264,10 @@ while (@ARGV) {
 	$signchanges = 0;
     } elsif (/^-ap$/) {
 	$signpause = 1;
-    } elsif (/^-a(.*)$/) {
-	$targetarch = $1;
+    } elsif (/^-a$/ or /^--host-arch$/) {
+	$host_arch = shift;
+    } elsif (/^-a(.*)$/ or /^--host-arch=(.*)$/) {
+	$host_arch = $1;
     } elsif (/^-P(.*)$/) {
 	my $arg = $1;
 	@build_profiles = split /,/, $arg;
@@ -269,8 +277,18 @@ while (@ARGV) {
 	push @source_opts, $_; # passed to dpkg-source
     } elsif (/^-tc$/) {
 	$cleansource = 1;
-    } elsif (/^-t(.*)$/) {
-	$targetgnusystem = $1; # Order DOES matter!
+    } elsif (/^-t$/ or /^--host-type$/) {
+	$host_type = shift; # Order DOES matter!
+    } elsif (/^-t(.*)$/ or /^--host-type=(.*)$/) {
+	$host_type = $1; # Order DOES matter!
+    } elsif (/^--target-arch$/) {
+	$target_arch = shift;
+    } elsif (/^--target-arch=(.*)$/) {
+	$target_arch = $1;
+    } elsif (/^--target-type$/) {
+	$target_type = shift;
+    } elsif (/^--target-type=(.*)$/) {
+	$target_type = $1;
     } elsif (/^(?:--target|-T)$/) {
         $call_target = shift @ARGV;
     } elsif (/^(?:--target=|-T)(.+)$/) {
@@ -409,9 +427,16 @@ if ($changedby) {
     $maintainer = mustsetvar($changelog->{maintainer}, _g('source changed by'));
 }
 
-open my $arch_env, '-|', 'dpkg-architecture', "-a$targetarch",
-    "-t$targetgnusystem", '-f' or subprocerr('dpkg-architecture');
-while ($_ = <$arch_env>) {
+
+my @arch_opts;
+push @arch_opts, ('--host-arch', $host_arch) if $host_arch;
+push @arch_opts, ('--host-type', $host_type) if $host_type;
+push @arch_opts, ('--target-arch', $target_arch) if $target_arch;
+push @arch_opts, ('--target-type', $target_type) if $target_type;
+
+open my $arch_env, '-|', 'dpkg-architecture', '-f', @arch_opts
+    or subprocerr('dpkg-architecture');
+while (<$arch_env>) {
     chomp;
     my ($key, $value) = split /=/, $_, 2;
     $ENV{$key} = $value;
@@ -663,21 +688,27 @@ sub run_hook {
 
 sub signfile {
     my ($file) = @_;
-    print { *STDERR } " signfile $file\n";
-    my $qfile = quotemeta($file);
 
-    system("(cat ../$qfile ; echo '') | " .
-           "$signcommand --utf8-strings --local-user " .
-           quotemeta($signkey || $maintainer) .
-           " --clearsign --armor --textmode  > ../$qfile.asc");
+    print { *STDERR } " signfile $file\n";
+
+    my $signdir = tempdir('dpkg-sign.XXXXXXXX', CLEANUP => 1);
+    my $signfile = "$signdir/$file";
+
+    # Make sure the file to sign ends with a newline.
+    copy("../$file", $signfile);
+    open my $signfh, '>>', $signfile or syserr(_g('cannot open %s'), $signfile);
+    print { $signfh } "\n";
+    close $signfh or syserr(_g('cannot close %s'), $signfile);
+
+    system($signcommand, '--utf8-strings', '--textmode', '--armor',
+           '--local-user', $signkey || $maintainer, '--clearsign',
+           '--output', "$signfile.asc", $signfile);
     my $status = $?;
-    unless ($status) {
-	system('mv', '--', "../$file.asc", "../$file")
+    if ($status == 0) {
+	system('mv', '--', "$signfile.asc", "../$file")
 	    and subprocerr('mv');
-    } else {
-	system('rm', '-f', "../$file.asc")
-	    and subprocerr('rm -f');
     }
+
     print "\n";
     return $status
 }

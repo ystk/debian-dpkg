@@ -155,9 +155,9 @@ am_libdpkg_la_OBJECTS = ar.lo arch.lo atomic-file.lo buffer.lo \
 	parse.lo parsehelp.lo path.lo pkg.lo pkg-db.lo pkg-array.lo \
 	pkg-format.lo pkg-list.lo pkg-namevalue.lo pkg-queue.lo \
 	pkg-show.lo pkg-spec.lo progname.lo program.lo progress.lo \
-	report.lo string.lo strwide.lo subproc.lo tarfn.lo trigname.lo \
-	trignote.lo triglib.lo trigdeferred.lo utils.lo varbuf.lo \
-	version.lo
+	report.lo string.lo strhash.lo strwide.lo subproc.lo tarfn.lo \
+	trigname.lo trignote.lo triglib.lo trigdeferred.lo utils.lo \
+	varbuf.lo version.lo
 libdpkg_la_OBJECTS = $(am_libdpkg_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -356,6 +356,7 @@ OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+PACKAGE_COPYRIGHT_HOLDER = @PACKAGE_COPYRIGHT_HOLDER@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
@@ -514,6 +515,7 @@ libdpkg_la_SOURCES = \
 	progress.c \
 	report.c \
 	string.c \
+	strhash.c \
 	strwide.c \
 	subproc.c \
 	tarfn.c \
@@ -691,6 +693,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/program.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/progress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/report.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strhash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strwide.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subproc.Plo@am__quote@

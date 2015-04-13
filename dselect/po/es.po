@@ -6,7 +6,7 @@
 #
 #
 #   - Translation maintainer:
-#     Javier Fernández-Sanguino Peña <jfs@computer.org>, 2000, 2010
+#     Javier Fernández-Sanguino Peña <jfs@computer.org>, 2000, 2010, 2014
 #
 #   - Previous translators and reviewers:
 #     	Nicolás Lichtmaier <nick@debian.org>, 1999.
@@ -41,8 +41,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dselect 1.16\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-08-17 15:46+0200\n"
-"PO-Revision-Date: 2012-07-08 01:48+0200\n"
+"POT-Creation-Date: 2015-02-10 19:54+0100\n"
+"PO-Revision-Date: 2014-12-02 20:30+0100\n"
 "Last-Translator: Javier Fernández-Sanguino <jfs@debian.org>\n"
 "Language-Team: Spanish <debian-l10n-spanish@lists.debian.org>\n"
 "Language: es\n"
@@ -323,38 +323,6 @@ msgid "Keystrokes"
 msgstr "Pulsaciones"
 
 #: dselect/helpmsgs.cc:29
-#, fuzzy
-#| msgid ""
-#| "Motion keys: Next/Previous, Top/End, Up/Down, Backwards/Forwards:\n"
-#| "  j, Down-arrow         k, Up-arrow             move highlight\n"
-#| "  N, Page-down, Space   P, Page-up, Backspace   scroll list by 1 page\n"
-#| "  ^n                    ^p                      scroll list by 1 line\n"
-#| "  t, Home               e, End                  jump to top/end of list\n"
-#| "  u                     d                       scroll info by 1 page\n"
-#| "  ^u                    ^d                      scroll info by 1 line\n"
-#| "  B, Left-arrow         F, Right-arrow          pan display by 1/3 "
-#| "screen\n"
-#| "  ^b                    ^f                      pan display by 1 "
-#| "character\n"
-#| "\n"
-#| "Mark packages for later processing:\n"
-#| " +, Insert  install or upgrade      =, H  hold in present state\n"
-#| " -, Delete  remove                  :, G  unhold: upgrade or leave "
-#| "uninstalled\n"
-#| " _          remove & purge config\n"
-#| "                                             Miscellaneous:\n"
-#| "Quit, exit, overwrite (note capitals!):       ?, F1 request help (also "
-#| "Help)\n"
-#| " Return  Confirm, quit (check dependencies)   i, I  toggle/cycle info "
-#| "displays\n"
-#| "   Q     Confirm, quit (override dep.s)       o, O  cycle through sort "
-#| "options\n"
-#| " X, Esc  eXit, abandoning any changes made    v, V  change status display "
-#| "opts\n"
-#| "   R     Revert to state before this list      ^l   redraw display\n"
-#| "   U     set all to sUggested state             /   search (Return to "
-#| "cancel)\n"
-#| "   D     set all to Directly requested state  n, \\  repeat last search\n"
 msgid ""
 "Motion keys: Next/Previous, Top/End, Up/Down, Backwards/Forwards:\n"
 "  j, Down-arrow         k, Up-arrow             move highlight\n"
@@ -417,7 +385,7 @@ msgstr ""
 "                                          o, O  circula por la opciones de "
 "ordenación\n"
 "  X, Esc  sale, (eXit), abandonando cualquier cambio realizado\n"
-"                                          v, V  cambia las opciones de la "
+"                                          v, A, V  cambia las opciones de la "
 "muestra de estado\n"
 "  R      Establece el estado antes de esta lista\n"
 "                                          ^l    refresca la visualización\n"
@@ -1154,6 +1122,30 @@ msgstr ""
 "\n"
 "Pulse <intro> para continuar."
 
+#: dselect/method.cc:82
+msgid "cannot unlock access method area"
+msgstr "no se puede desbloquear el área de acceso del método"
+
+#: dselect/method.cc:96
+msgid "no access methods are available"
+msgstr "no hay métodos de acceso disponibles"
+
+#: dselect/method.cc:115
+msgid "requested operation requires superuser privilege"
+msgstr "la operación solicitada requiere privilegios de superusuario"
+
+#: dselect/method.cc:118
+msgid "cannot open or create access method lockfile"
+msgstr "no se puede abrir o crear el fichero de bloqueo del método de acceso"
+
+#: dselect/method.cc:125
+msgid "the access method area is already locked"
+msgstr "el área del método de acceso ya está bloqueada"
+
+#: dselect/method.cc:128
+msgid "cannot lock access method area"
+msgstr "no se puede bloquear el área del método de acceso"
+
 #: dselect/method.cc:161
 #, c-format
 msgid "Press <enter> to continue.\n"
@@ -1166,6 +1158,10 @@ msgstr "<error estándar>"
 #: dselect/method.cc:165
 msgid "error reading acknowledgement of program failure message"
 msgstr "error al leer reconocimiento del mensaje de fallo del programa"
+
+#: dselect/method.cc:187
+msgid "no access method is selected or configured"
+msgstr "no se ha seleccionado o configurado un método de acceso"
 
 # Pongo "el" porque es comienzo de una frase que termina por ejemplo
 # como "... devolvió el código de error %d". sv
@@ -1563,16 +1559,12 @@ msgid "Package"
 msgstr "Paquete"
 
 #: dselect/pkgdisplay.cc:161 dselect/pkgdisplay.cc:165
-#, fuzzy
-#| msgid "Avail.ver"
 msgid "Avail.arch"
-msgstr "Ver.disp."
+msgstr "Arq.disp."
 
 #: dselect/pkgdisplay.cc:164
-#, fuzzy
-#| msgid "Inst.ver"
 msgid "Inst.arch"
-msgstr "Ver.inst."
+msgstr "Inst.arq."
 
 #: dselect/pkgdisplay.cc:178 dselect/pkgdisplay.cc:182
 msgid "Avail.ver"

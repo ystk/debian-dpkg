@@ -400,42 +400,48 @@ sub analyze {
     my $patch_header = '';
     my $diff_count = 0;
 
-    $_ = _getline($self);
+    my $line = _getline($self);
 
   HUNK:
-    while (defined($_) or not eof($self)) {
+    while (defined $line or not eof $self) {
 	my (%path, %fn);
 
 	# Skip comments leading up to the patch (if any). Although we do not
 	# look for an Index: pseudo-header in the comments, because we would
 	# not use it anyway, as we require both ---/+++ filename headers.
 	while (1) {
-	    if (/^(?:--- |\+\+\+ |@@ -)/) {
+	    if ($line =~ /^(?:--- |\+\+\+ |@@ -)/) {
 		last;
 	    } else {
-		$patch_header .= "$_\n";
+		$patch_header .= "$line\n";
 	    }
-	    last HUNK if not defined($_ = _getline($self));
+	    $line = _getline($self);
+	    last HUNK if not defined $line;
 	}
 	$diff_count++;
 	# read file header (---/+++ pair)
-	unless (s/^--- //) {
+	unless ($line =~ s/^--- //) {
 	    error(_g("expected ^--- in line %d of diff `%s'"), $., $diff);
 	}
-	$path{old} = $_ = _fetch_filename($diff, $_);
-	$fn{old} = $_ if $_ ne '/dev/null' and s{^[^/]*/+}{$destdir/};
-	if (/\.dpkg-orig$/) {
+	$path{old} = $line = _fetch_filename($diff, $line);
+	if ($line ne '/dev/null' and $line =~ s{^[^/]*/+}{$destdir/}) {
+	    $fn{old} = $line;
+	}
+	if ($line =~ /\.dpkg-orig$/) {
 	    error(_g("diff `%s' patches file with name ending .dpkg-orig"), $diff);
 	}
 
-	unless (defined($_ = _getline($self))) {
+	$line = _getline($self);
+	unless (defined $line) {
 	    error(_g("diff `%s' finishes in middle of ---/+++ (line %d)"), $diff, $.);
 	}
-	unless (s/^\+\+\+ //) {
+	unless ($line =~ s/^\+\+\+ //) {
 	    error(_g("line after --- isn't as expected in diff `%s' (line %d)"), $diff, $.);
 	}
-	$path{new} = $_ = _fetch_filename($diff, $_);
-	$fn{new} = $_ if $_ ne '/dev/null' and s{^[^/]*/+}{$destdir/};
+	$path{new} = $line = _fetch_filename($diff, $line);
+	if ($line ne '/dev/null' and $line =~ s{^[^/]*/+}{$destdir/}) {
+	    $fn{new} = $line;
+	}
 
 	unless (defined $fn{old} or defined $fn{new}) {
 	    error(_g("none of the filenames in ---/+++ are valid in diff '%s' (line %d)"),
@@ -491,14 +497,14 @@ sub analyze {
 
 	# read hunks
 	my $hunk = 0;
-	while (defined($_ = _getline($self))) {
+	while (defined($line = _getline($self))) {
 	    # read hunk header (@@)
-	    next if /^\\ /;
-	    last unless (/^@@ -\d+(,(\d+))? \+\d+(,(\d+))? @\@(?: .*)?$/);
+	    next if $line =~ /^\\ /;
+	    last unless $line =~ /^@@ -\d+(,(\d+))? \+\d+(,(\d+))? @\@(?: .*)?$/;
 	    my ($olines, $nlines) = ($1 ? $2 : 1, $3 ? $4 : 1);
 	    # read hunk
 	    while ($olines || $nlines) {
-		unless (defined($_ = _getline($self))) {
+		unless (defined($line = _getline($self))) {
                     if (($olines == $nlines) and ($olines < 3)) {
                         warning(_g("unexpected end of diff `%s'"), $diff)
                             if $opts{verbose};
@@ -507,12 +513,16 @@ sub analyze {
                         error(_g("unexpected end of diff `%s'"), $diff);
                     }
 		}
-		next if /^\\ /;
+		next if $line =~ /^\\ /;
 		# Check stats
-		if    (/^ / || /^$/)  { --$olines; --$nlines; }
-		elsif (/^-/)  { --$olines; }
-		elsif (/^\+/) { --$nlines; }
-		else {
+		if ($line =~ /^ / or length $line == 0) {
+		    --$olines;
+		    --$nlines;
+		} elsif ($line =~ /^-/) {
+		    --$olines;
+		} elsif ($line =~ /^\+/) {
+		    --$nlines;
+		} else {
 		    error(_g("expected [ +-] at start of line %d of diff `%s'"),
 		          $., $diff);
 		}
