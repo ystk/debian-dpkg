@@ -1,3 +1,225 @@
+commit 28a5e83bddf576db41984e05849a3bcca7e8c9a8
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Apr 9 23:40:52 2015 +0200
+
+    Release 1.17.25
+
+ debian/changelog | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit efd39abfd99ca5ea9c3f08b248ebf9fd7bf086d6
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Apr 10 01:10:48 2015 +0200
+
+    Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 ++--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 ++--
+ po/ast.po               |  2 +-
+ po/bs.po                |  2 +-
+ po/ca.po                |  2 +-
+ po/cs.po                |  2 +-
+ po/da.po                |  2 +-
+ po/de.po                |  2 +-
+ po/dpkg.pot             |  4 ++--
+ po/dz.po                |  2 +-
+ po/el.po                |  2 +-
+ po/eo.po                |  2 +-
+ po/es.po                |  2 +-
+ po/et.po                |  2 +-
+ po/eu.po                |  2 +-
+ po/fr.po                |  2 +-
+ po/gl.po                |  2 +-
+ po/hu.po                |  2 +-
+ po/id.po                |  2 +-
+ po/it.po                |  2 +-
+ po/ja.po                |  2 +-
+ po/km.po                |  2 +-
+ po/ko.po                |  2 +-
+ po/ku.po                |  2 +-
+ po/lt.po                |  2 +-
+ po/mr.po                |  2 +-
+ po/nb.po                |  2 +-
+ po/ne.po                |  2 +-
+ po/nl.po                |  2 +-
+ po/nn.po                |  2 +-
+ po/pa.po                |  2 +-
+ po/pl.po                |  2 +-
+ po/pt.po                |  2 +-
+ po/pt_BR.po             |  2 +-
+ po/ro.po                |  2 +-
+ po/ru.po                |  2 +-
+ po/sk.po                |  2 +-
+ po/sv.po                |  2 +-
+ po/th.po                |  2 +-
+ po/tl.po                |  2 +-
+ po/tr.po                |  2 +-
+ po/vi.po                |  2 +-
+ po/zh_CN.po             |  2 +-
+ po/zh_TW.po             |  2 +-
+ scripts/po/ca.po        | 16 ++++++++--------
+ scripts/po/de.po        | 16 ++++++++--------
+ scripts/po/dpkg-dev.pot | 18 +++++++++---------
+ scripts/po/es.po        | 16 ++++++++--------
+ scripts/po/fr.po        | 16 ++++++++--------
+ scripts/po/pl.po        | 16 ++++++++--------
+ scripts/po/ru.po        | 16 ++++++++--------
+ scripts/po/sv.po        | 16 ++++++++--------
+ 82 files changed, 142 insertions(+), 142 deletions(-)
+
+commit 23e354ae1211a754fdafd6718e3e61398f6c1d37
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Mar 24 23:57:35 2015 +0100
+
+    dpkg-genchanges: Fix perl warning when parsing BY-HAND file entries
+    
+    Regression introduced in commit e1749d77a44ee1c82c2d047cf9be4b071554832d.
+    
+    Closes: #781074
+
+ debian/changelog           | 2 ++
+ scripts/dpkg-genchanges.pl | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit fe6f993a29d67d29f4d7cdfa02efda61f5b0ae3d
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Apr 3 18:29:04 2015 +0200
+
+    debian: Use backports friendly versions in Breaks/Conflicts
+    
+    Given that dpkg is Essential, and in practice it cannot be removed,
+    having very strict Breaks/Conflicts disallowing backports makes life
+    unnecessarily hard for people wanting to package and use them.
+    
+    Reported-by: Thorsten Glaser <tg@debian.org>
+
+ debian/changelog |  2 ++
+ debian/control   | 84 +++++++++++++++++++++++++++++---------------------------
+ 2 files changed, 45 insertions(+), 41 deletions(-)
+
+commit 5622a53277b7140ab496c1a549db6b5bb2616f90
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Apr 3 18:28:42 2015 +0200
+
+    debian: Use correct versions in Conflicts for removed packages
+    
+    Use the versions when the unfixed packages got removed, instead of the
+    version present in the Debian release before they got removed.
+    
+    Closes: #776984
+
+ debian/changelog | 1 +
+ debian/control   | 6 +++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+commit b4ccfe4982161b8beb44f1d0c98f791c4f238edd
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Mar 19 22:51:46 2015 +0100
+
+    Dpkg::Control::HashCore: Fix OpenPGP Armor Header Line parsing
+    
+    We should only accept [\r\t ] as trailing whitespace, although RFC4880
+    does not clarify what whitespace really maps to, we should really match
+    the GnuPG implementation anyway, as that is what we use to verify the
+    signatures.
+    
+    Fixes: CVE-2015-0840
+    Reported-by: Jann Horn <jann@thejh.net>
+
+ debian/changelog                                |  5 +++++
+ scripts/Dpkg/Control/HashCore.pm                | 19 +++++++++++--------
+ scripts/Makefile.am                             |  1 +
+ scripts/t/Dpkg_Control.t                        |  5 ++++-
+ scripts/t/Dpkg_Control/bogus-armor-formfeed.dsc | 19 +++++++++++++++++++
+ 5 files changed, 40 insertions(+), 9 deletions(-)
+
+commit eaa073bc37901a6d8c46abc9fa5e7ec5551df04b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Mar 1 22:22:04 2015 +0100
+
+    s-s-d: Do not leak kvm descriptors
+    
+    We should close the kvm instances after every operation, so not to leak
+    them, as they might exhaust the file descriptor pool, or leak into the
+    started process.
+    
+    Closes: #779467
+    Based-on-patch-by: Jeff Epler <jepler@unpythonic.net>
+
+ debian/changelog          |  4 ++++
+ utils/start-stop-daemon.c | 44 ++++++++++++++++++++++++++++++++++----------
+ 2 files changed, 38 insertions(+), 10 deletions(-)
+
+commit 00b64fc5ed050e1f7358348c40fcb246e915af93
+Author: Úr Balázs <urbalazs@gmail.com>
+Date:   Sat Mar 21 21:55:55 2015 +0100
+
+    po: Update Hungarian programs translation
+    
+    [guillem@debian.org:
+     - Update some strings from the shadow project. ]
+    
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog |    1 +
+ po/hu.po         | 5341 ++++++++++++++++++++----------------------------------
+ 2 files changed, 1931 insertions(+), 3411 deletions(-)
+
+commit e668ef63a819474e844df5a9fb9bc5535fa91ff5
+Author: Frans Spiesschaert <Frans.Spiesschaert@yucom.be>
+Date:   Tue Mar 10 03:01:02 2015 +0100
+
+    po: Update Dutch programs translation
+    
+    [guillem@debian.org:
+     - Update some strings from the shadow project. ]
+    
+    Closes: #779953
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog |    3 +-
+ po/nl.po         | 3774 +++++++++++++++++++++++++-----------------------------
+ 2 files changed, 1763 insertions(+), 2014 deletions(-)
+
+commit 9349d74e5f817e400760a818b2d15fdcfb628436
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Mar 1 22:21:06 2015 +0100
+
+    Bump version to 1.17.25
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit cb19877e326b8fa0d804c622c5d244d50015e91a
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Feb 22 22:55:06 2015 +0100
