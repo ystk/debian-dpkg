@@ -1,3 +1,155 @@
+commit eebef52b8a1f04046b020dcf3e191a0cac458488
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri May 1 22:24:16 2015 +0200
+
+    Release 1.15.12
+
+ debian/changelog |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+commit a705d806c7a489c545a7cabb9ecbcdfa5266259c
+Author: Raphaël Hertzog <hertzog@debian.org>
+Date:   Wed Feb 11 08:33:21 2015 +0100
+
+    debian: drop myself from Uploaders
+    
+    Cherry picked from commit 10ff6c4fc598dbc9697c825a8c8e1bf25caa2fcb.
+    
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog |    1 +
+ debian/control   |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+commit f0d03807e297fbc46b5923027591756ac53e2400
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Mar 19 22:51:46 2015 +0100
+
+    Dpkg::Control::Hash: Fix OpenPGP Armor Header Line parsing
+    
+    Cherry picked from commit c49d104601b673c11c981dc9b6d8247e6da64edd.
+    
+    We should only accept [\r\t ] as trailing whitespace, although RFC4880
+    does not clarify what whitespace really maps to, we should really match
+    the GnuPG implementation anyway, as that is what we use to verify the
+    signatures.
+    
+    Fixes: CVE-2015-0840
+    Reported-by: Jann Horn <jann@thejh.net>
+    Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog                                   |    5 ++++
+ scripts/Dpkg/Control/Hash.pm                       |   28 +++++++++++---------
+ scripts/Makefile.am                                |    1 +
+ scripts/t/700_Dpkg_Control.t                       |    5 +++-
+ .../t/700_Dpkg_Control/bogus-armor-formfeed.dsc    |   19 +++++++++++++
+ 5 files changed, 45 insertions(+), 13 deletions(-)
+
+commit 06028473a921c12e96440a59d49d67514062d2d2
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Dec 23 03:03:44 2012 +0100
+
+    Dpkg::Control::Hash: Do not accept Armor Header Lines inside a paragraph
+    
+    Cherry picked from commit afe626640a81a0191b06e2f4ae16eb2bd1b228c3.
+    
+    Make sure that no fields are injected before a signed block.
+    
+    Although the only possible attack is to add fields not present in the
+    signed block, as otherwise a syntax error due to duplicate field is
+    triggered.
+    
+    Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog                                  |    1 +
+ scripts/Dpkg/Control/Hash.pm                      |    4 +++-
+ scripts/Makefile.am                               |    1 +
+ scripts/t/700_Dpkg_Control.t                      |    5 ++++-
+ scripts/t/700_Dpkg_Control/bogus-armor-inline.dsc |    9 +++++++++
+ 5 files changed, 18 insertions(+), 2 deletions(-)
+
+commit 7c9e955239105fc79339f1079914b9ac6297645e
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Dec 16 00:33:25 2012 +0100
+
+    Dpkg::Control::Hash: Check for presence of OpenPGP signatures
+    
+    Cherry picked from commit b08f7a8306f872b077af4040ebeab8853faaf0cd.
+    
+    Make sure the OpenGPG armor contains a signature block, even on EOF.
+    
+    This should get detected and rejected by gpgv anyway, but it's better
+    to check the structure of the message before doing any further parsing
+    on it.
+    
+    Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog                                  |    1 +
+ scripts/Dpkg/Control/Hash.pm                      |   10 ++++++++++
+ scripts/Makefile.am                               |    1 +
+ scripts/t/700_Dpkg_Control.t                      |    5 ++++-
+ scripts/t/700_Dpkg_Control/bogus-armor-no-sig.dsc |    4 ++++
+ 5 files changed, 20 insertions(+), 1 deletion(-)
+
+commit 9e1f15ad8d237d2fd27ca758492cbb5992854e13
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Dec 16 00:33:25 2012 +0100
+
+    Dpkg: Fix OpenPGP armored signature parsing
+    
+    Cherry picked from commit 9945c52208fa7520bb307868d6c152ced8238969.
+    
+    Change parsing code to honour RFC4880. Handle whitespaces at EOL, and
+    correctly expect five trailing dashes on the Armor Header Lines.
+    
+    Closes: #695919
+    
+    Reported-by: Ansgar Burchardt <ansgar@debian.org>
+    [ben@decadent.org.uk:
+     - Resolve conflict in whitespace in scripts/t/700_Dpkg_Control.t. ]
+    Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog                                  |    4 +++
+ scripts/Dpkg/Control/Hash.pm                      |   13 +++----
+ scripts/Dpkg/Source/Package.pm                    |    2 +-
+ scripts/Makefile.am                               |    5 +++
+ scripts/t/700_Dpkg_Control.t                      |   40 +++++++++++++++++++--
+ scripts/t/700_Dpkg_Control/bogus-armor-double.dsc |   13 +++++++
+ scripts/t/700_Dpkg_Control/bogus-armor-nested.dsc |   15 ++++++++
+ scripts/t/700_Dpkg_Control/bogus-armor-spaces.dsc |   18 ++++++++++
+ scripts/t/700_Dpkg_Control/bogus-armor-trail.dsc  |   14 ++++++++
+ scripts/t/700_Dpkg_Control/bogus-unsigned.dsc     |    5 +++
+ 10 files changed, 120 insertions(+), 9 deletions(-)
+
+commit c171377edf7739a9661d9ac15bd1d9b61082be9e
+Author: Roger Leigh <rleigh@debian.org>
+Date:   Sat Mar 12 16:04:31 2011 +0000
+
+    Dpkg::Control::Hash: accept PGP signature as end of block
+    
+    Cherry picked from commit 898936120e987d9faf27002e2d01844edbfbb538.
+    
+    Improved-by: Raphaël Hertzog <hertzog@debian.org>
+    Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog             |    5 ++++-
+ scripts/Dpkg/Control/Hash.pm |    2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 1d6c7d56572ab59a117d5d083115303926c6a871
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri May 1 22:07:56 2015 +0200
+
+    Bump version to 1.15.12
+
+ debian/changelog |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 0e174275c842ee92f880304e27466a350142ecbb
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Jun 5 22:53:04 2014 +0200

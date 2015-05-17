@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-06-05 20:54+0000\n"
+"POT-Creation-Date: 2015-05-03 04:57+0000\n"
 "PO-Revision-Date: 2010-09-10 18:02+0200\n"
 "Last-Translator: Christian Perrier <bubulle@debian.org>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
@@ -2488,38 +2488,38 @@ msgstr "le premier bloc ne comporte pas de champ source"
 msgid "block lacks a package field"
 msgstr "le bloc ne comporte pas de champ de paquet"
 
-#: scripts/Dpkg/Control/Hash.pm:172
+#: scripts/Dpkg/Control/Hash.pm:177
 #, perl-format
 msgid "duplicate field %s found"
 msgstr "champ %s en double"
 
-#: scripts/Dpkg/Control/Hash.pm:180
+#: scripts/Dpkg/Control/Hash.pm:186
 msgid "continued value line not in field"
 msgstr "la ligne continuée n'est pas dans le champ"
 
-#: scripts/Dpkg/Control/Hash.pm:194
+#: scripts/Dpkg/Control/Hash.pm:201
 msgid "PGP signature not allowed here"
 msgstr "signature PGP non autorisée ici"
 
-#: scripts/Dpkg/Control/Hash.pm:201
+#: scripts/Dpkg/Control/Hash.pm:209
 msgid "expected PGP signature, found EOF after blank line"
 msgstr "signature PGP attendue, EOF après ligne blanche trouvé"
 
-#: scripts/Dpkg/Control/Hash.pm:205
+#: scripts/Dpkg/Control/Hash.pm:213
 #, perl-format
 msgid "expected PGP signature, found something else `%s'"
 msgstr "signature PGP attendue, « %s » trouvé"
 
-#: scripts/Dpkg/Control/Hash.pm:213
+#: scripts/Dpkg/Control/Hash.pm:222 scripts/Dpkg/Control/Hash.pm:236
 msgid "unfinished PGP signature"
 msgstr "signature PGP non terminée"
 
-#: scripts/Dpkg/Control/Hash.pm:219
+#: scripts/Dpkg/Control/Hash.pm:231
 msgid "line with unknown format (not field-colon-value)"
 msgstr ""
 "ligne de format inconnu, format différent de « champ-deux points-valeur »"
 
-#: scripts/Dpkg/Control/Hash.pm:316
+#: scripts/Dpkg/Control/Hash.pm:333
 msgid "write error on control data"
 msgstr "erreur d'écriture sur des données de contrôle"
 

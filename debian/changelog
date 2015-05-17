@@ -1,3 +1,27 @@
+dpkg (1.15.12) squeeze-lts; urgency=high
+
+  [ Ben Hutchings ]
+  * Search and backport required security patches.
+
+  [ Raphaël Hertzog ]
+  * Improve parser in Dpkg::Control::Hash to not require an empty line
+    before the PGP signature. Closes: #617923
+    Thanks to Roger Leigh for the initial patch.
+  * Drop myself from Uploaders.
+
+  [ Guillem Jover ]
+  * Fix OpenPGP armored signature parsing, to be resilient against doctored
+    input, including source package control files. Closes: #695919
+  * Make sure the OpenGPG armor contains a signature block, even on EOF.
+  * Do not accept Armor Header Lines inside a paragraph.
+  * Fix OpenPGP Armor Header Line parsing in Dpkg::Control::Hash. We should
+    only accept [\r\t ] as trailing whitespace, although RFC4880 does not
+    clarify what whitespace really maps to, we should really match the GnuPG
+    implementation anyway, as that's what we use to verify the signatures.
+    Reported by Jann Horn <jann@thejh.net>. Fixes CVE-2015-0840.
+
+ -- Guillem Jover <guillem@debian.org>  Fri, 01 May 2015 22:22:35 +0200
+
 dpkg (1.15.11) squeeze-security; urgency=high
 
   [ Guillem Jover ]

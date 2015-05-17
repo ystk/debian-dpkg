@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.15.8.6\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-06-05 20:54+0000\n"
+"POT-Creation-Date: 2015-05-03 04:57+0000\n"
 "PO-Revision-Date: 2010-10-24 18:10+0200\n"
 "Last-Translator: Jordi Mallach <jordi@debian.org>\n"
 "Language-Team: Catalan <debian-l10n-catalan@lists.debian.org>\n"
@@ -1992,37 +1992,37 @@ msgstr ""
 msgid "block lacks a package field"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:172
+#: scripts/Dpkg/Control/Hash.pm:177
 #, perl-format
 msgid "duplicate field %s found"
 msgstr "s'ha trobat un camp %s duplicat"
 
-#: scripts/Dpkg/Control/Hash.pm:180
+#: scripts/Dpkg/Control/Hash.pm:186
 msgid "continued value line not in field"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:194
+#: scripts/Dpkg/Control/Hash.pm:201
 msgid "PGP signature not allowed here"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:201
+#: scripts/Dpkg/Control/Hash.pm:209
 msgid "expected PGP signature, found EOF after blank line"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:205
+#: scripts/Dpkg/Control/Hash.pm:213
 #, perl-format
 msgid "expected PGP signature, found something else `%s'"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:213
+#: scripts/Dpkg/Control/Hash.pm:222 scripts/Dpkg/Control/Hash.pm:236
 msgid "unfinished PGP signature"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:219
+#: scripts/Dpkg/Control/Hash.pm:231
 msgid "line with unknown format (not field-colon-value)"
 msgstr ""
 
-#: scripts/Dpkg/Control/Hash.pm:316
+#: scripts/Dpkg/Control/Hash.pm:333
 #, fuzzy
 msgid "write error on control data"
 msgstr "s'ha produït un error d'escriptura en vsnprintf"

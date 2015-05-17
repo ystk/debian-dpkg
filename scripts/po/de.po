@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg-scripts\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-06-05 20:54+0000\n"
+"POT-Creation-Date: 2015-05-03 04:57+0000\n"
 "PO-Revision-Date: 2011-07-17 15:33+0200\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: de <debian-l10n-german@lists.debian.org>\n"
@@ -2390,37 +2390,37 @@ msgstr "im ersten Block fehlt ein Feld »source«"
 msgid "block lacks a package field"
 msgstr "im Block fehlt ein Feld »package«"
 
-#: scripts/Dpkg/Control/Hash.pm:172
+#: scripts/Dpkg/Control/Hash.pm:177
 #, perl-format
 msgid "duplicate field %s found"
 msgstr "doppeltes Feld %s gefunden"
 
-#: scripts/Dpkg/Control/Hash.pm:180
+#: scripts/Dpkg/Control/Hash.pm:186
 msgid "continued value line not in field"
 msgstr "fortgeführte Wertzeile nicht im Feld"
 
-#: scripts/Dpkg/Control/Hash.pm:194
+#: scripts/Dpkg/Control/Hash.pm:201
 msgid "PGP signature not allowed here"
 msgstr "PGP-Signatur hier nicht erlaubt"
 
-#: scripts/Dpkg/Control/Hash.pm:201
+#: scripts/Dpkg/Control/Hash.pm:209
 msgid "expected PGP signature, found EOF after blank line"
 msgstr "PGP-Signatur erwartet, EOF nach einer Leerzeile gefunden"
 
-#: scripts/Dpkg/Control/Hash.pm:205
+#: scripts/Dpkg/Control/Hash.pm:213
 #, perl-format
 msgid "expected PGP signature, found something else `%s'"
 msgstr "PGP-Signatur erwartet, etwas anderes gefunden »%s«"
 
-#: scripts/Dpkg/Control/Hash.pm:213
+#: scripts/Dpkg/Control/Hash.pm:222 scripts/Dpkg/Control/Hash.pm:236
 msgid "unfinished PGP signature"
 msgstr "unvollständige PGP-Signatur"
 
-#: scripts/Dpkg/Control/Hash.pm:219
+#: scripts/Dpkg/Control/Hash.pm:231
 msgid "line with unknown format (not field-colon-value)"
 msgstr "Zeile mit unbekanntem Format (nicht Feld-Doppelpunkt-Wert)"
 
-#: scripts/Dpkg/Control/Hash.pm:316
+#: scripts/Dpkg/Control/Hash.pm:333
 msgid "write error on control data"
 msgstr "Schreibfehler bei Steuerdaten (»control data«)"
 

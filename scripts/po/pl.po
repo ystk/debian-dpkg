@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.15.4\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-06-05 20:54+0000\n"
+"POT-Creation-Date: 2015-05-03 04:57+0000\n"
 "PO-Revision-Date: 2010-01-03 16:42+0100\n"
 "Last-Translator: Wiktor Wandachowicz <siryes@gmail.com>\n"
 "Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
@@ -2373,37 +2373,37 @@ msgstr "pierwszy blok nie zawiera pola Source"
 msgid "block lacks a package field"
 msgstr "blok nie zawiera pola Package"
 
-#: scripts/Dpkg/Control/Hash.pm:172
+#: scripts/Dpkg/Control/Hash.pm:177
 #, perl-format
 msgid "duplicate field %s found"
 msgstr "znaleziono powtórzone pole w %s"
 
-#: scripts/Dpkg/Control/Hash.pm:180
+#: scripts/Dpkg/Control/Hash.pm:186
 msgid "continued value line not in field"
 msgstr "linia kontynuowanej wartości nie należy do pola"
 
-#: scripts/Dpkg/Control/Hash.pm:194
+#: scripts/Dpkg/Control/Hash.pm:201
 msgid "PGP signature not allowed here"
 msgstr "sygnatura PGP nie może występować w tym miejscu"
 
-#: scripts/Dpkg/Control/Hash.pm:201
+#: scripts/Dpkg/Control/Hash.pm:209
 msgid "expected PGP signature, found EOF after blank line"
 msgstr "po pustej linii oczekiwano sygnatury PGP, a napotkano koniec pliku"
 
-#: scripts/Dpkg/Control/Hash.pm:205
+#: scripts/Dpkg/Control/Hash.pm:213
 #, perl-format
 msgid "expected PGP signature, found something else `%s'"
 msgstr "oczekiwano sygnatury PGP, a napotkano coś innego \"%s\""
 
-#: scripts/Dpkg/Control/Hash.pm:213
+#: scripts/Dpkg/Control/Hash.pm:222 scripts/Dpkg/Control/Hash.pm:236
 msgid "unfinished PGP signature"
 msgstr "niezakończona sygnatura PGP"
 
-#: scripts/Dpkg/Control/Hash.pm:219
+#: scripts/Dpkg/Control/Hash.pm:231
 msgid "line with unknown format (not field-colon-value)"
 msgstr "nieznany format linii (oczekiwano: pole-dwukropek-wartość)"
 
-#: scripts/Dpkg/Control/Hash.pm:316
+#: scripts/Dpkg/Control/Hash.pm:333
 msgid "write error on control data"
 msgstr "błąd zapisu danych kontrolnych"
 

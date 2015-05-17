@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.18.8.5\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2014-06-05 20:54+0000\n"
+"POT-Creation-Date: 2015-05-03 04:57+0000\n"
 "PO-Revision-Date: 2010-12-09 02:35+0100\n"
 "Last-Translator: Omar Campagne <ocampagne@gmail.com>\n"
 "Language-Team: Debian l10n Spanish <debian-l10n-spanish@lists.debian.org>\n"
@@ -2517,41 +2517,41 @@ msgstr "falta un campo de fuente en el primer bloque"
 msgid "block lacks a package field"
 msgstr "falta un campo de paquete en el bloque"
 
-#: scripts/Dpkg/Control/Hash.pm:172
+#: scripts/Dpkg/Control/Hash.pm:177
 #, perl-format
 msgid "duplicate field %s found"
 msgstr "se ha encontrado un campo duplicado «%s»"
 
-#: scripts/Dpkg/Control/Hash.pm:180
+#: scripts/Dpkg/Control/Hash.pm:186
 msgid "continued value line not in field"
 msgstr "la continuación de la línea del valor no está el campo"
 
-#: scripts/Dpkg/Control/Hash.pm:194
+#: scripts/Dpkg/Control/Hash.pm:201
 msgid "PGP signature not allowed here"
 msgstr "No se permite la firma PGP aquí"
 
-#: scripts/Dpkg/Control/Hash.pm:201
+#: scripts/Dpkg/Control/Hash.pm:209
 msgid "expected PGP signature, found EOF after blank line"
 msgstr ""
 "se esperaba la firma PGP, pero se ha encontrado un fin de líneadespués de "
 "una línea vacía"
 
-#: scripts/Dpkg/Control/Hash.pm:205
+#: scripts/Dpkg/Control/Hash.pm:213
 #, perl-format
 msgid "expected PGP signature, found something else `%s'"
 msgstr "se esperaba una firma PGP, pero se ha encontrado algo distinto «%s»"
 
-#: scripts/Dpkg/Control/Hash.pm:213
+#: scripts/Dpkg/Control/Hash.pm:222 scripts/Dpkg/Control/Hash.pm:236
 msgid "unfinished PGP signature"
 msgstr "firma PGP inacabada"
 
-#: scripts/Dpkg/Control/Hash.pm:219
+#: scripts/Dpkg/Control/Hash.pm:231
 msgid "line with unknown format (not field-colon-value)"
 msgstr ""
 "se ha detectado una línea con formato desconocido (no es un valor de campo "
 "separado por dos puntos)"
 
-#: scripts/Dpkg/Control/Hash.pm:316
+#: scripts/Dpkg/Control/Hash.pm:333
 msgid "write error on control data"
 msgstr "se ha detectado un error de escritura en los datos de control"
 
