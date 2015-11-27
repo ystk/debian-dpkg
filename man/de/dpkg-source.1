@@ -64,9 +64,9 @@ werden dies die extrahierten Verzeichnisse auch sein, und alle Dateien und
 Verzeichnisse werden die Gruppeneigentümerschaft erben.
 
 Falls das Quellpaket ein nicht\-Standard\-Format verwendet (derzeit bedeutet
-sind dies alle Formate außer »1.0«) wird sein Name in
-\fBdebian/source/format\fP gespeichert, so dass alle folgenden Bauversuchen des
-Quellpakets standardmäßig das gleiche Format verwenden.
+dies alle Formate außer »1.0«) wird sein Name in \fBdebian/source/format\fP
+gespeichert, so dass alle folgenden Bauversuchen des Quellpakets
+standardmäßig das gleiche Format verwenden.
 
 .TP 
 \fB\-b\fP, \fB\-\-build\fP \fIVerzeichnis\fP [\fIFormat\-abhängige\-Parameter\fP]
@@ -78,7 +78,7 @@ versehenen) Quellbaum enthält. Abhängig vom dem zum Bau verwandten
 Quellpaketformat könnten zusätzliche Parameter akzeptiert werden.
 
 \fBdpkg\-source\fP wird das Quellpaket mit dem ersten gefundenen Format aus der
-folgenden geordneten Liste bauen: dem mit der Kommandozeilenoption(en)
+folgenden geordneten Liste bauen: dem mit der Befehlszeilenoption(en)
 \fI\-\-format\fP angegeben Format, dem in \fBdebian/source/format\fP angegebenen
 Format, »1.0«. Die Rückfalloption »1.0« ist veraltet und wird irgendwann in
 der Zukunft entfernt werden, Sie sollten das gewünschte Quellformat immmer
@@ -94,7 +94,7 @@ Bedingungen und mit den gleichen Parametern).
 
 .TP 
 \fB\-\-before\-build\fP \fIVerzeichnis\fP
-Der entsprechende Hook dess Quellpaketformats soll ausgeführt werden. Dieser
+Der entsprechende Hook des Quellpaketformats soll ausgeführt werden. Dieser
 Hook wird vor jedem Bau des Pakets aufgerufen (\fBdpkg\-buildpackage\fP ruft ihn
 sehr früh, sogar vor \fBdebian/rules clean\fP auf). Dieser Befehl ist
 idempotent und kann mehrfach aufgerufen werden. Nicht alle Quellformate
@@ -104,7 +104,7 @@ sichergestellt wird, dass alle Debian\-Patches angewandt sind.
 
 .TP 
 \fB\-\-after\-build\fP \fIVerzeichnis\fP
-Der entsprechende Hook dess Quellpaketformats soll ausgeführt werden. Dieser
+Der entsprechende Hook des Quellpaketformats soll ausgeführt werden. Dieser
 Hook wird nach jedem Bau des Pakets aufgerufen (\fBdpkg\-buildpackage\fP ruft
 als letztes auf). Dieser Befehl ist idempotent und kann mehrfach aufgerufen
 werden. Nicht alle Quellformate implementieren in diesem Hook etwas und wenn
@@ -164,7 +164,7 @@ Substitutionsvariablen aus mehreren Dateien einzulesen.
 Entferne ein Ausgabe\-Steuerdatei\-Feld.
 .TP 
 \fB\-Z\fP\fIKomprimierung\fP, \fB\-\-compression\fP=\fIKomprimierung\fP
-Gibt die Komprimierung an, die für die angelegte Dateien (Tarbälle und
+Gibt die Komprimierung an, die für die angelegten Dateien (Tarbälle und
 Diffs) verwendet wird. Beachten Sie, dass diese Option nicht dazu führt,
 dass existierende Tarbälle rekomprimiert werden, sie betrifft nur neue
 Dateien. Unterstützte Werte sind \fIgzip\fP, \fIbzip2\fP, \fIlzma\fP und \fIxz\fP. \fIxz\fP
@@ -242,7 +242,8 @@ in der Ausgabe des Befehls \fB\-\-help\fP gesehen werden.
 .SS "Generische Extrahierungs\-Optionen"
 .TP 
 \fB\-\-no\-copy\fP
-Kopiere die Original\-Tarbälle in die Nähe des extrahierten Quellpakets.
+Kopiere die Original\-Tarbälle nicht in die Nähe des extrahierten
+Quellpakets.
 .TP 
 \fB\-\-no\-check\fP
 Prüfe Signaturen und Prüfsummen vor dem Entpacken nicht.
@@ -542,7 +543,7 @@ standardmäßig hinzugefügt und diese Option wird daher dann nicht mehr
 benötigt.
 .TP 
 \fB\-\-no\-preparation\fP
-Versuche nicht den Bau\-Baum durch Anwenden aller derzeit nicht angewandten
+Versuche nicht, den Bau\-Baum durch Anwenden aller derzeit nicht angewandten
 Patches vorzubreiten.
 .TP 
 \fB\-\-single\-debian\-patch\fP
@@ -771,7 +772,7 @@ bis zum Zeilenende geht) können optionale \fBquilt\fP\-Befehle folgen.
 Die Stelle, an der das Überschreiben von Feldern passiert, verglichen mit
 bestimmten Standard\-Ausgabe\-Feldeinstellungen, ist eher konfus.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2014 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2015 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
