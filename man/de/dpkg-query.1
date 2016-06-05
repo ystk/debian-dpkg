@@ -96,7 +96,7 @@ Genau wie die \fB\-\-list\fP\-Option wird dies alle Pakete, die auf das angegebe
 Muster passen, aufführen. Allerdings kann die Ausgabe mit der
 \fB\-\-showformat\fP\-Option angepasst werden. Im Standardausgabeformat wird eine
 Zeile pro passendem Paket ausgegeben, wobei in jeder Zeile Name (erweitert
-mit dem Architektur\-Kennzeichner für \fBMulti\-Arch\fP\-\fBsame\fP\-Pakete) und
+mit der Architektur\-Spezifikation für \fBMulti\-Arch\fP\-\fBsame\fP\-Pakete) und
 installierte Version des Pakets getrennt durch einen Tabulator enthalten
 sind.
 .TP 
@@ -237,8 +237,8 @@ für Felder in Steuerdateien benutzen):
 .RS
 .TP 
 \fBbinary:Package\fP
-Es enthält den Binärpaketnamen mit einem möglichen Architektur\-Kennzeichner
-wie »libc6:amd64« (seit Dpkg 1.16.2). Der Architektur\-Kennzeichner wird nur
+Es enthält den Binärpaketnamen mit einer möglichen Architektur\-Spezifikation
+wie »libc6:amd64« (seit Dpkg 1.16.2). Die Architektur\-Spezifikation wird nur
 vorhanden sein, falls das Paket ein Feld \fBMulti\-Arch\fP mit dem Wert \fBsame\fP
 trägt. Damit wird der Name eindeutig.
 .TP 
@@ -299,7 +299,7 @@ Diese Einstellung beeinflusst die Ausgabe der \fB\-\-list\fP\-Option durch
 Verändern der Breite ihrer Ausgabe.
 .
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2015 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2016 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

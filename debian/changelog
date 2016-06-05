@@ -1,3 +1,45 @@
+dpkg (1.17.27) jessie; urgency=medium
+
+  [ Guillem Jover ]
+  * Add more Conflicts for removed packages expecting dpkg to ship
+    install-info. Namely ada-mode and octave2.1-info. Closes: #783657
+    Thanks to Andreas Beckmann <anbe@debian.org>.
+  * Remove trailing space before handling blank line dot-separator in
+    Dpkg::Control::HashCore. Regression introduced in dpkg 1.17.25.
+    Reported by Jakub Wilk <jwilk@debian.org>. Closes: #789580
+  * Only use the SHELL environment variable for interactive shells.
+    Closes: #788819
+  * Move tar option --no-recursion before -T in dpkg-deb. With tar > 1.28 the
+    --no-recursion option is now positional, and needs to be passed before
+    the -T option, otherwise the tarball will end up with duplicated entries.
+    Thanks to Richard Purdie <richard.purdie@linuxfoundation.org>.
+    Closes: #807940
+  * Initialize Config-Version also for packages previously in triggers-pending
+    state, otherwise we end up not passing the previously configured version
+    to «postinst configure», which might consider this a first install instead
+    of an upgrade. Closes: #801156
+  * Fix memory leak in dpkg infodb format upgrade logic.
+  * Fix physical file offset comparison in dpkg. Closes: #808912
+    Thanks to Yuri Gribov <tetra2005@gmail.com>.
+  * Add kfreebsd-armhf support to ostable and triplettable. Closes: #796283
+    Thanks to Steven Chamberlain <steven@pyro.eu.org>.
+  * Add NIOS2 support to cputable. Thanks to Marek Vasut <marex@denx.de>.
+  * Build system:
+    - Set PERL5LIB globally for the test suite to the local modules directory,
+      to avoid using the system modules. Regression introduced in dpkg 1.17.8.
+      Reported by Jérémy Bobbio <lunar@debian.org>. Closes: #801329
+    - When sys_siglist is defined in the system, try to use NSIG as we cannot
+      compute the array size with sizeof(). If NSIG is missing fallback to 32
+      items. Prompted by Igor Pashev <pashev.igor@gmail.com>.
+
+  [ Updated scripts translations ]
+  * German (Helge Kreutzmann). (Various fixes)
+
+  [ Updated manpages translations ]
+  * German (Helge Kreutzmann). (Various fixes)
+
+ -- Guillem Jover <guillem@debian.org>  Sun, 20 Mar 2016 11:40:28 +0100
+
 dpkg (1.17.26) jessie-security; urgency=high
 
   [ Guillem Jover ]

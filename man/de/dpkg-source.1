@@ -295,24 +295,24 @@ Quellpaket\-\fIVerzeichnisses\fP mit dem Verzeichnis .orig ein.
 \fBBau\-Optionen (mit \-\-build):\fP
 
 Falls ein zweites nicht\-Options\-Argument angegeben ist, sollte es der Namen
-des Originalquellverzeichnisses oder der Tardatei sein. Falls das Paket
+des Originalquellverzeichnisses oder der Tar\-Datei sein. Falls das Paket
 Debian\-spezifisch ist, dann sollte dieses Argument die leere Zeichenkette
 sein, da es kein Debianisierungs\-Diff gibt. Falls kein zweites Argument
-übergeben wird, dann schaut \fBdpkg\-source\fP nach der ursprünglichen Tardatei
+übergeben wird, dann schaut \fBdpkg\-source\fP nach der ursprünglichen Tar\-Datei
 \fIPaket\fP\fB_\fP\fIUpstream\-Version\fP\fB.orig.tar.\fP\fIErweiterung\fP oder dem
 ursprünglichen Quellverzeichnis \fIVerzeichnis\fP\fB.orig\fP, abhängig von den
 \fB\-sX\fP\-Argumenten.
 
 \fB\-sa\fP, \fB\-sp\fP, \fB\-sk\fP, \fB\-su\fP und \fB\-sr\fP werden keine existierenden
-Tardateien oder Verzeichnisse überschreiben. Falls dies gewünscht ist,
+Tar\-Dateien oder Verzeichnisse überschreiben. Falls dies gewünscht ist,
 sollten stattdessen \fB\-sA\fP, \fB\-sP\fP, \fB\-sK\fP, \fB\-sU\fP und \fB\-sR\fP verwendet
 werden.
 .PP
 .TP 
 \fB\-sk\fP
-Gibt an, dass die Originalquellen als Tardatei erwartet werden sollen,
+Gibt an, dass die Originalquellen als Tar\-Datei erwartet werden sollen,
 standardmäßig \fIPaket\fP\fB_\fP\fIUrsprungsversion\fP\fB.orig.tar\fP\fIErweiterung\fP. Es
-wird diese Originalquellen als Tardatei am Platz belassen, oder sie in das
+wird diese Originalquellen als Tar\-Datei am Platz belassen, oder sie in das
 aktuelle Verzeichnis kopieren, falls sie dort noch nicht sind. Der Tarball
 wird nach \fIVerzeichnis\fP\fB.orig\fP für die Erstellung des Diffs entpackt.
 .TP 
@@ -329,10 +329,10 @@ Wie \fB\-su\fP, aber das Verzeichnis wird nach der Verwendung entfernt.
 .TP 
 \fB\-ss\fP
 Gibt an, dass die Originalquellen sowohl als Verzeichnis als auch als
-Tardatei verfügbar sind. \fBdpkg\-source\fP wird das Verzeichnis zur Erstellung
-des Diffs verwenden, aber die Tardatei für die \fB.dsc\fP. Diese Option muss
-mit Vorsicht verwendet werden \- falls das Verzeichnis und die Tardatei nicht
-zusammen passen, wird ein fehlerhaftes Quellarchiv erstellt.
+Tar\-Datei verfügbar sind. \fBdpkg\-source\fP wird das Verzeichnis zur Erstellung
+des Diffs verwenden, aber die Tar\-Datei für die \fB.dsc\fP. Diese Option muss
+mit Vorsicht verwendet werden \- falls das Verzeichnis und die Tar\-Datei
+nicht zusammen passen, wird ein fehlerhaftes Quellarchiv erstellt.
 .TP 
 \fB\-sn\fP
 Gibt an, dass nicht nach Originalquellen geschaut und kein Diff erstellt
@@ -341,10 +341,10 @@ Zeichenkette sein. Dies wird für Debian\-spezifische Pakete verwendet, die
 keine Quellen von Originalautoren und somit kein Debianisierungs\-Diff haben.
 .TP 
 \fB\-sa\fP oder \fB\-sA\fP
-Gibt an, dass nach dem Original\-Quellarchiv als Tardatei oder als
+Gibt an, dass nach dem Original\-Quellarchiv als Tar\-Datei oder als
 Verzeichnis gesucht werden soll \- das zweite Argument, falls vorhanden, kann
 eines von beiden sein, oder die leere Zeichenkette (dies ist äquivalent zur
-Verwendung von \fB\-sn\fP). Falls eine Tardatei gefunden wird, wird diese zur
+Verwendung von \fB\-sn\fP). Falls eine Tar\-Datei gefunden wird, wird diese zur
 Erstellung eines Diffs entpackt und danach entfernt (dies ist äquivalent zu
 \fB\-sp\fP); falls ein Verzeichnis gefunden wird, wird dieses gepackt, um die
 Originalquellen zu erstellen und danach entfernt (dies ist äquivalent zu
@@ -772,7 +772,7 @@ bis zum Zeilenende geht) können optionale \fBquilt\fP\-Befehle folgen.
 Die Stelle, an der das Überschreiben von Feldern passiert, verglichen mit
 bestimmten Standard\-Ausgabe\-Feldeinstellungen, ist eher konfus.
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2015 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2016 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

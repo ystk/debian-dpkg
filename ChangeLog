@@ -1,3 +1,329 @@
+commit a026cd453a12cb0ceedcb39241d0565bdd97c3dc
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Mar 20 11:40:43 2016 +0100
+
+    Release 1.17.27
+
+ debian/changelog | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 3deb58bba7dabf38b15e9d9e41bbfc439842f6e6
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Mar 20 12:02:58 2016 +0100
+
+    Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 +--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 +--
+ po/ast.po               | 70 ++++++++++++++++++------------------
+ po/bs.po                | 70 ++++++++++++++++++------------------
+ po/ca.po                | 94 ++++++++++++++++++++++++++-----------------------
+ po/cs.po                | 70 ++++++++++++++++++------------------
+ po/da.po                | 70 ++++++++++++++++++------------------
+ po/de.po                | 70 ++++++++++++++++++------------------
+ po/dpkg.pot             | 72 ++++++++++++++++++-------------------
+ po/dz.po                | 70 ++++++++++++++++++------------------
+ po/el.po                | 70 ++++++++++++++++++------------------
+ po/eo.po                | 70 ++++++++++++++++++------------------
+ po/es.po                | 70 ++++++++++++++++++------------------
+ po/et.po                | 70 ++++++++++++++++++------------------
+ po/eu.po                | 70 ++++++++++++++++++------------------
+ po/fr.po                | 70 ++++++++++++++++++------------------
+ po/gl.po                | 70 ++++++++++++++++++------------------
+ po/hu.po                | 70 ++++++++++++++++++------------------
+ po/id.po                | 70 ++++++++++++++++++------------------
+ po/it.po                | 70 ++++++++++++++++++------------------
+ po/ja.po                | 70 ++++++++++++++++++------------------
+ po/km.po                | 70 ++++++++++++++++++------------------
+ po/ko.po                | 70 ++++++++++++++++++------------------
+ po/ku.po                | 70 ++++++++++++++++++------------------
+ po/lt.po                | 70 ++++++++++++++++++------------------
+ po/mr.po                | 70 ++++++++++++++++++------------------
+ po/nb.po                | 70 ++++++++++++++++++------------------
+ po/ne.po                | 70 ++++++++++++++++++------------------
+ po/nl.po                | 70 ++++++++++++++++++------------------
+ po/nn.po                | 70 ++++++++++++++++++------------------
+ po/pa.po                | 70 ++++++++++++++++++------------------
+ po/pl.po                | 70 ++++++++++++++++++------------------
+ po/pt.po                | 70 ++++++++++++++++++------------------
+ po/pt_BR.po             | 70 ++++++++++++++++++------------------
+ po/ro.po                | 70 ++++++++++++++++++------------------
+ po/ru.po                | 70 ++++++++++++++++++------------------
+ po/sk.po                | 70 ++++++++++++++++++------------------
+ po/sv.po                | 70 ++++++++++++++++++------------------
+ po/th.po                | 70 ++++++++++++++++++------------------
+ po/tl.po                | 70 ++++++++++++++++++------------------
+ po/tr.po                | 70 ++++++++++++++++++------------------
+ po/vi.po                | 70 ++++++++++++++++++------------------
+ po/zh_CN.po             | 70 ++++++++++++++++++------------------
+ po/zh_TW.po             | 70 ++++++++++++++++++------------------
+ scripts/po/ca.po        |  2 +-
+ scripts/po/de.po        | 14 +++++---
+ scripts/po/dpkg-dev.pot |  4 +--
+ scripts/po/es.po        |  8 +++--
+ scripts/po/fr.po        |  2 +-
+ scripts/po/pl.po        |  2 +-
+ scripts/po/ru.po        |  2 +-
+ scripts/po/sv.po        |  2 +-
+ 82 files changed, 1540 insertions(+), 1530 deletions(-)
+
+commit ef226ba418c8706f7b8f2c15b24bc13dd1e61a7b
+Author: Marek Vasut <marex@denx.de>
+Date:   Thu Dec 24 12:32:03 2015 +0100
+
+    Add NIOS2 support to cputable
+    
+    NIOS2 is a little endian soft-core by Altera.
+    
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ cputable         | 1 +
+ debian/changelog | 1 +
+ 2 files changed, 2 insertions(+)
+
+commit e0f5f1e278f1c6fb85a3b0f062860a85a50b6e7b
+Author: Steven Chamberlain <steven@pyro.eu.org>
+Date:   Mon Aug 31 04:40:53 2015 +0200
+
+    Add new kfreebsd-armhf support
+    
+    Closes: #796283
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog | 2 ++
+ ostable          | 1 +
+ triplettable     | 1 +
+ 3 files changed, 4 insertions(+)
+
+commit 99c2e1081a41ed8070c18b959cb46f3d0772d2b3
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jul 29 19:19:18 2015 +0200
+
+    libcompat: Try to use NSIG when sys_siglist is defined
+    
+    We cannot compute the size of the array with sizeof when the only thing
+    we have is an extern declaration. Try to use NSIG, and fallback to 32
+    items in case it is not defined.
+    
+    Prompted-by: Igor Pashev <pashev.igor@gmail.com>
+
+ debian/changelog       | 3 +++
+ lib/compat/strsignal.c | 7 ++++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+commit adbdfb0dd9cec401609fd3eef232b7ff2153db7f
+Author: Yuri Gribov <tetra2005@gmail.com>
+Date:   Thu Dec 24 12:22:26 2015 +0100
+
+    dpkg: Fix physical file offset comparison
+    
+    The comparison function pkg_sorter_by_listfile_phys_offs passed to qsort
+    does not satisfy qsort symmetry requirements, for some inputs
+    
+      pkg_sorter_by_listfile_phys_offs(a, b) != -
+      pkg_sorter_by_listfile_phys_offs(b, a)
+    
+    This may cause various qsort misbehaviors e.g. failing to properly sort
+    the input array (on some platforms qsort could even abort although that
+    seems to not be the case for glibc-based systems).
+    
+    Closes: #808912
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog | 2 ++
+ src/filesdb.c    | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+commit 3a84a6cc7781ad01adcf25d5556ad44118a171e9
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Oct 17 05:54:25 2015 +0200
+
+    dpkg: Fix varbuf memory leaks
+    
+    In the dpkg infodb format upgrade logic.
+    
+    This is not a big leak, is just one instance of a leaked varbuf.
+
+ debian/changelog     | 1 +
+ src/infodb-upgrade.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+commit 56ac2a6132cbd0bea2bab27f20409999201ef5d7
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Oct 10 16:06:41 2015 +0200
+
+    libdpkg: Config-Version should also be initialized on triggers-pending
+    
+    A package in triggers-pending state should be considered an installed
+    package, by not doing so we might end up not passing the correct version
+    to the configure maintainer script and making it look like we are doing
+    a configuration for a first install, instead of an upgrade.
+    
+    Closes: #801156
+    Reported-by: Andreas Beckmann <anbe@debian.org>
+
+ debian/changelog |  4 ++++
+ lib/dpkg/parse.c | 19 ++++++++++++-------
+ 2 files changed, 16 insertions(+), 7 deletions(-)
+
+commit a51613c2d2372d31aff403b8b51a48e895b25814
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Oct 9 16:55:35 2015 +0200
+
+    build: Set PERL5LIB globally for the test suite to the local modules directory
+    
+    Regression introduced in commit 34b26c7db232b300991df5fb6f52707b381df28f.
+    
+    Some functional tests are passing through makefile and exec barriers,
+    where the lib parameter for TAP::Harness is lost. Reintroduce the
+    explicit global setting of PERL5LIB so that it gets inherited for all
+    subprocesses.
+    
+    Closes: #801329
+    Reported-by: Jérémy Bobbio <lunar@debian.org>
+
+ check.am         | 1 +
+ debian/changelog | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+commit 4e7b495047f70ef846b78205535e9d4ecab84e4a
+Author: Richard Purdie <richard.purdie@linuxfoundation.org>
+Date:   Mon Jul 13 16:29:09 2015 +0200
+
+    dpkg-deb: Move tar option --no-recursion before -T
+    
+    With tar > 1.28 the --no-recursion option is now positional, and needs
+    to be passed before the -T option, otherwise the tarball will end up
+    with duplicated entries.
+    
+    Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ debian/changelog | 5 +++++
+ dpkg-deb/build.c | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+commit 089305baca3bce048e17fd8af2fe4a20ad3b759b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jun 16 01:33:43 2015 +0200
+
+    libdpkg: Only use the SHELL environment variable for interactive shells
+    
+    SHELL is the user preferred shell, but it does not guarantee a POSIX
+    shell. Use it only for interactive shells, and use «sh» otherwise.
+    
+    Closes: #788819
+
+ debian/changelog   |  2 ++
+ lib/dpkg/command.c | 14 ++++++++------
+ 2 files changed, 10 insertions(+), 6 deletions(-)
+
+commit a6ce9fa253b013e5c11d144e1f49f153af2f62b0
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon Jun 22 13:15:03 2015 +0200
+
+    Dpkg::Control::HashCore: Remove trailing space before handling dot-separators
+    
+    Regression introduced in commit b4ccfe4982161b8beb44f1d0c98f791c4f238edd.
+    
+    Any spaces after the blank line dot-separator should be stripped before
+    handling the dot-separator, otherwise we get duplicated dots in field
+    contents.
+    
+    Closes: #789580
+
+ debian/changelog                 | 3 +++
+ scripts/Dpkg/Control/HashCore.pm | 2 +-
+ scripts/t/Dpkg_Control.t         | 2 ++
+ scripts/t/Dpkg_Control/control-1 | 1 +
+ 4 files changed, 7 insertions(+), 1 deletion(-)
+
+commit 017e0450fef66eff309fc5caf3ae2f8f981ed268
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Aug 8 03:05:25 2015 +0200
+
+    debian: Add more Conflicts for packages expecting install-info in dpkg
+    
+    Closes: #783657
+    Thanks-to: Andreas Beckmann <anbe@debian.org>
+
+ debian/changelog | 7 ++++++-
+ debian/control   | 2 ++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+commit f4b6356cb4d68d9d4b887869fe1c39efff8eb35b
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Thu Apr 21 11:32:46 2016 +0200
+
+    Fixes noted while working on master translation
+
+ man/po/de.po | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+commit a2a77e8a23a9068e9a6f790a0a942fd434a1ff05
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Fri Mar 11 19:32:47 2016 +0100
+
+    Fixes noted while proofreading scripts translation
+
+ debian/changelog |  3 +++
+ man/po/de.add    |  2 +-
+ man/po/de.po     | 26 +++++++++++++-------------
+ 3 files changed, 17 insertions(+), 14 deletions(-)
+
+commit ed26075e2b282e2348226dcc3e9768a99edac68a
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Fri Mar 11 19:29:47 2016 +0100
+
+    Various fixes
+    
+    Found during review on debian-l10n-german
+
+ scripts/po/de.po | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+
+commit 3c688af2897e050672eade169e044c0ab854fc3e
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Sun Dec 20 06:32:53 2015 +0100
+
+    Various fixes
+    
+    Found during review on debian-l10n-german
+
+ debian/changelog | 7 +++++++
+ scripts/po/de.po | 8 ++++----
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
 commit e56028a7a8fc9c72694edd5bb35becb0318a3444
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Nov 25 22:56:13 2015 +0100
