@@ -1,4 +1,198 @@
-commit a026cd453a12cb0ceedcb39241d0565bdd97c3dc
+commit 6b458f0fb279d99463ba9298bf68935b0b1df922 (HEAD, tag: 1.17.28, 1.17.x)
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jul 3 13:43:11 2022 +0200
+
+    Release 1.17.28
+
+ debian/changelog | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+commit bf3477c2d36140af925f83d208899bae55a235b7
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jul 3 13:36:23 2022 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 +--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 +--
+ po/ast.po               |  2 +-
+ po/bs.po                |  2 +-
+ po/ca.po                |  2 +-
+ po/cs.po                |  2 +-
+ po/da.po                |  2 +-
+ po/de.po                |  2 +-
+ po/dpkg.pot             |  4 +--
+ po/dz.po                |  2 +-
+ po/el.po                |  2 +-
+ po/eo.po                |  2 +-
+ po/es.po                |  2 +-
+ po/et.po                |  2 +-
+ po/eu.po                |  2 +-
+ po/fr.po                |  2 +-
+ po/gl.po                |  2 +-
+ po/hu.po                |  2 +-
+ po/id.po                |  2 +-
+ po/it.po                |  2 +-
+ po/ja.po                |  2 +-
+ po/km.po                |  2 +-
+ po/ko.po                |  2 +-
+ po/ku.po                |  2 +-
+ po/lt.po                |  2 +-
+ po/mr.po                |  2 +-
+ po/nb.po                |  2 +-
+ po/ne.po                |  2 +-
+ po/nl.po                |  2 +-
+ po/nn.po                |  2 +-
+ po/pa.po                |  2 +-
+ po/pl.po                |  2 +-
+ po/pt.po                |  2 +-
+ po/pt_BR.po             |  2 +-
+ po/ro.po                |  2 +-
+ po/ru.po                |  2 +-
+ po/sk.po                |  2 +-
+ po/sv.po                |  2 +-
+ po/th.po                |  2 +-
+ po/tl.po                |  2 +-
+ po/tr.po                |  2 +-
+ po/vi.po                |  2 +-
+ po/zh_CN.po             |  2 +-
+ po/zh_TW.po             |  2 +-
+ scripts/po/ca.po        | 62 ++++++++++++++++++++++++++++++++++++++++-----
+ scripts/po/de.po        | 67 ++++++++++++++++++++++++++++++++++++++++++-------
+ scripts/po/dpkg-dev.pot | 59 +++++++++++++++++++++++++++++++++++++------
+ scripts/po/es.po        | 62 ++++++++++++++++++++++++++++++++++++++++-----
+ scripts/po/fr.po        | 67 ++++++++++++++++++++++++++++++++++++++++++-------
+ scripts/po/pl.po        | 67 ++++++++++++++++++++++++++++++++++++++++++-------
+ scripts/po/ru.po        | 67 ++++++++++++++++++++++++++++++++++++++++++-------
+ scripts/po/sv.po        | 67 ++++++++++++++++++++++++++++++++++++++++++-------
+ 82 files changed, 531 insertions(+), 141 deletions(-)
+
+commit 36fa3e37b84530fe678bae2311e6de4a5b9945a5
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jun 4 05:48:21 2022 +0200
+
+    Dpkg::Source::Package::V2: Always fix the permissions for upstream tarballs
+    
+    The change to fix the directory traversal for source package unpacks
+    with in-place extractions of the debian.tar archive modified the way
+    that last extraction was done, to extract it also out-of-place, then
+    move the result into the destination. This had the consequence of
+    no longer fixing the permissions for the entire source tree, and instead
+    only for the debian/ directory. The previous calls for the orig tarballs
+    were not fixing up the permissions to avoid duplicating work, which
+    meant that now these did not get fixed any longer.
+    
+    Remove the options that avoid fixing the permissions for all calls,
+    restoring the previous behavior.
+    
+    Fixes: commit 7a6c03cb34d4a09f35df2f10779cbf1b70a5200b
+    Closes: #1012195
+    Stable-Candidates: 1.18.x 1.19.x 1.20.x
+    (cherry picked from commit 52d285fecbec8ba3cbd8255ef4de2be392d1e0de)
+
+ scripts/Dpkg/Source/Package/V2.pm | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 2220cb698808e626787b8ebc1d15e8ed267c4761
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue May 3 02:09:32 2022 +0200
+
+    Dpkg::Source::Archive: Prevent directory traversal for in-place extracts
+    
+    For untrusted v2 and v3 source package formats that include a debian.tar
+    archive, when we are extracting it, we do that as an in-place extraction,
+    which can lead to directory traversal situations on specially crafted
+    orig.tar and debian.tar tarballs.
+    
+    GNU tar replaces entries on the filesystem by the entries present on
+    the tarball, but it will follow symlinks when the symlink pathname
+    itself is not present as an actual directory on the tarball.
+    
+    This means we can create an orig.tar where there's a symlink pointing
+    out of the source tree root directory, and then a debian.tar that
+    contains an entry within that symlink as if it was a directory, without
+    a directory entry for the symlink pathname itself, which will be
+    extracted following the symlink outside the source tree root.
+    
+    This is currently noted as expected in GNU tar documentation. But even
+    if there was a new extraction mode avoiding this problem we'd need such
+    new version. Using perl's Archive::Tar would solve the problem, but
+    switching to such different pure perl implementation, could cause
+    compatibility or performance issues.
+    
+    What we do is when we are requested to perform an in-place extract, we
+    instead still use a temporary directory, then walk that directory and
+    remove any matching entry in the destination directory, replicating what
+    GNU tar would do, but in addition avoiding the directory traversal issue
+    for symlinks. Which should work with any tar implementation and be safe.
+    
+    [cherry-pick changes:
+     - Remove Test::Dpkg import, unused.
+     - Replace g_() with _g().
+     - Expand «(undef) x N» with N undef instances.
+     - Use 'tar' instead of $Dpkg::PROGTAR. ]
+    
+    Reported-by: Max Justicz <max@justi.cz>
+    Stable-Candidates: 1.18.x 1.19.x 1.20.x
+    Fixes: commit 0c0057a27fecccab77d2b3cffa9a7d172846f0b4 (1.14.17)
+    Fixes: CVE-2022-1664
+    (cherry picked from commit 7a6c03cb34d4a09f35df2f10779cbf1b70a5200b)
+    (cherry picked from commit faa4c92debe45412bfcf8a44f26e827800bb24be)
+
+ scripts/Dpkg/Source/Archive.pm  | 122 +++++++++++++++++++++++++++++++---------
+ scripts/t/Dpkg_Source_Archive.t | 109 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 203 insertions(+), 28 deletions(-)
+
+commit e1698c106bfe02a875fc8eae194359923ecbb142
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jul 3 13:29:10 2022 +0200
+
+    Bump version to 1.17.28
+
+ debian/changelog | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 82bd3108b66e737996348cbd8742ff2e4a2e589d (salsa/jessie, salsa/1.17.x, salsa-mirror/jessie, salsa-mirror/1.17.x, origin/jessie, origin/1.17.x, hadrons/jessie, hadrons/1.17.x)
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Sun Nov 6 09:12:21 2016 +0100
+
+    Fixe noted while working on master translation
+
+ debian/changelog | 7 +++++++
+ man/po/de.po     | 4 ++--
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+commit a026cd453a12cb0ceedcb39241d0565bdd97c3dc (tag: 1.17.27, l10n-sv/1.17.x, github/1.17.x)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Mar 20 11:40:43 2016 +0100
 
@@ -324,7 +518,7 @@ Date:   Sun Dec 20 06:32:53 2015 +0100
  scripts/po/de.po | 8 ++++----
  2 files changed, 11 insertions(+), 4 deletions(-)
 
-commit e56028a7a8fc9c72694edd5bb35becb0318a3444
+commit e56028a7a8fc9c72694edd5bb35becb0318a3444 (tag: 1.17.26)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Nov 25 22:56:13 2015 +0100
 
@@ -545,7 +739,7 @@ Date:   Fri Apr 10 03:25:33 2015 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 28a5e83bddf576db41984e05849a3bcca7e8c9a8
+commit 28a5e83bddf576db41984e05849a3bcca7e8c9a8 (tag: 1.17.25)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Apr 9 23:40:52 2015 +0200
 
@@ -703,12 +897,12 @@ Date:   Thu Mar 19 22:51:46 2015 +0100
     Fixes: CVE-2015-0840
     Reported-by: Jann Horn <jann@thejh.net>
 
- debian/changelog                                |  5 +++++
- scripts/Dpkg/Control/HashCore.pm                | 19 +++++++++++--------
- scripts/Makefile.am                             |  1 +
- scripts/t/Dpkg_Control.t                        |  5 ++++-
- scripts/t/Dpkg_Control/bogus-armor-formfeed.dsc | 19 +++++++++++++++++++
- 5 files changed, 40 insertions(+), 9 deletions(-)
+ debian/changelog                                   |  5 +++++
+ scripts/Dpkg/Control/HashCore.pm                   | 19 +++++++++-------
+ scripts/Makefile.am                                |  1 +
+ scripts/t/Dpkg_Control.t                           |  5 ++++-
+ ...s-armor-spaces.dsc => bogus-armor-formfeed.dsc} | 25 +++++++++++-----------
+ 5 files changed, 34 insertions(+), 21 deletions(-)
 
 commit eaa073bc37901a6d8c46abc9fa5e7ec5551df04b
 Author: Guillem Jover <guillem@debian.org>
@@ -767,7 +961,7 @@ Date:   Sun Mar 1 22:21:06 2015 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit cb19877e326b8fa0d804c622c5d244d50015e91a
+commit cb19877e326b8fa0d804c622c5d244d50015e91a (tag: 1.17.24)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Feb 22 22:55:06 2015 +0100
 
@@ -1037,7 +1231,7 @@ Date:   Sun Feb 22 07:38:30 2015 +0100
  man/po/de.po     | 9 +++++----
  2 files changed, 12 insertions(+), 4 deletions(-)
 
-commit 84a3a0408e778454c7fb110d6556f05548d23fd7
+commit 84a3a0408e778454c7fb110d6556f05548d23fd7 (tag: 1.17.23)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Dec 23 17:45:58 2014 +0100
 
@@ -1255,7 +1449,7 @@ Date:   Tue Dec 2 19:04:18 2014 +0100
  4 files changed, 1008 insertions(+), 819 deletions(-)
 
 commit 231d3c11b5657cda7a11d424b9762f6dd4f7dd07
-Author: Felipe Castro <fefcas@gmail.com>
+Author: Felipe E. F. de Castro <fefcas@gmail.com>
 Date:   Tue Dec 9 01:03:33 2014 +0100
 
     po: Update Esperanto programs translation
@@ -1423,7 +1617,7 @@ Date:   Thu Dec 4 23:47:40 2014 +0100
  9 files changed, 9 insertions(+), 9 deletions(-)
 
 commit a385487cb08c5c755fab75e57a22ad00a5e548f3
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Tue Dec 2 20:30:20 2014 +0100
 
     Update dselect translation to Spanish
@@ -1433,7 +1627,7 @@ Date:   Tue Dec 2 20:30:20 2014 +0100
  2 files changed, 20 insertions(+), 69 deletions(-)
 
 commit 6f256bd13d10453bfdb693a3e0cdccaf8fb01e62
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Tue Dec 2 20:25:30 2014 +0100
 
     Fix errors in translation
@@ -1442,7 +1636,7 @@ Date:   Tue Dec 2 20:25:30 2014 +0100
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit 501edbfd6cfe5225dd553f92e1e8fe583c4bedd3
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Tue Dec 2 20:24:32 2014 +0100
 
     Partial update
@@ -1451,7 +1645,7 @@ Date:   Tue Dec 2 20:24:32 2014 +0100
  1 file changed, 118 insertions(+), 197 deletions(-)
 
 commit 07cf5ca27c9a1ef0f90fb9e113bc3a413c0cb6ab
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Tue Dec 2 19:56:52 2014 +0100
 
     Updated Spanish translation
@@ -1514,7 +1708,7 @@ Date:   Fri Nov 28 02:41:35 2014 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 384c3bd70cd0ef568716eef267a15d20fa3b2d2b
+commit 384c3bd70cd0ef568716eef267a15d20fa3b2d2b (tag: 1.17.22)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Nov 28 02:02:51 2014 +0100
 
@@ -1973,11 +2167,11 @@ Date:   Sat Nov 1 17:01:57 2014 +0100
     Closes: #767573
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- debian/changelog |     1 +
- man/po/po4a.cfg  |     5 +-
- man/po/zh_CN.add |     0
- man/po/zh_CN.po  | 16919 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 16923 insertions(+), 2 deletions(-)
+ debian/changelog                  |   1 +
+ man/po/po4a.cfg                   |   5 +-
+ man/po/zh_CN.add                  |   0
+ man/po/{dpkg-man.pot => zh_CN.po} | 569 ++++++++++++++++++++++++++------------
+ 4 files changed, 399 insertions(+), 176 deletions(-)
 
 commit ef41da3479b6c0d116b2e5492b82903c8a6c3432
 Author: Zhou Mo <cdluminate@gmail.com>
@@ -2189,7 +2383,7 @@ Date:   Sat Oct 25 03:45:59 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 6fc9e281551e0d851e38249679688bbabbad5c5f
+commit 6fc9e281551e0d851e38249679688bbabbad5c5f (tag: 1.17.21)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Oct 25 02:24:41 2014 +0200
 
@@ -2472,7 +2666,7 @@ Date:   Thu Oct 23 02:12:23 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 824353a6a263b0a2a2bc424dbdb28c544a5ff624
+commit 824353a6a263b0a2a2bc424dbdb28c544a5ff624 (tag: 1.17.20)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Oct 23 00:43:14 2014 +0200
 
@@ -2765,7 +2959,7 @@ Date:   Mon Oct 20 16:06:42 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 2846468164a5cb5e008409bc5288df30a31b05f6
+commit 2846468164a5cb5e008409bc5288df30a31b05f6 (tag: 1.17.19)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Oct 20 15:17:53 2014 +0200
 
@@ -2978,7 +3172,7 @@ Date:   Thu Oct 16 22:34:35 2014 +0200
  3 files changed, 30 insertions(+), 1 deletion(-)
 
 commit af9a54d1f985a3c513adda9a44e4cc3bf7240ab3
-Author: lumin <cdluminate@gmail.com>
+Author: Zhou Mo <cdluminate@gmail.com>
 Date:   Sat Oct 18 23:30:21 2014 +0200
 
     po: Update Simplified Chinese programs translation
@@ -3089,7 +3283,7 @@ Date:   Sun Oct 12 16:42:10 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 45a0a65b2ccf4c29bbf0ba95583a14f4c1bb2185
+commit 45a0a65b2ccf4c29bbf0ba95583a14f4c1bb2185 (tag: 1.17.18)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Oct 12 15:47:49 2014 +0200
 
@@ -3148,7 +3342,7 @@ Date:   Sun Oct 12 07:00:25 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit fbfc2aa1c004aa9e6088f5c5e9a9bcb6abbea66a
+commit fbfc2aa1c004aa9e6088f5c5e9a9bcb6abbea66a (tag: 1.17.17)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Oct 12 04:59:36 2014 +0200
 
@@ -3483,12 +3677,12 @@ Date:   Fri Oct 10 05:38:01 2014 +0200
 
     Dpkg::Getopt: New private module
 
- debian/changelog        |  1 +
- scripts/Dpkg/Getopt.pm  | 43 +++++++++++++++++++++++++++++++++++++++++++
- scripts/Makefile.am     |  2 ++
- scripts/po/POTFILES.in  |  1 +
- scripts/t/Dpkg_Getopt.t | 37 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 84 insertions(+)
+ debian/changelog                               |  1 +
+ scripts/{t/Dpkg_Checksums.t => Dpkg/Getopt.pm} | 28 ++++++++++++++++++++------
+ scripts/Makefile.am                            |  2 ++
+ scripts/po/POTFILES.in                         |  1 +
+ scripts/t/{Dpkg_BuildEnv.t => Dpkg_Getopt.t}   | 14 +++++++++++--
+ 5 files changed, 38 insertions(+), 8 deletions(-)
 
 commit e68f081acd9f1c210d3464b0a5e2c732e1b5c025
 Author: Guillem Jover <guillem@debian.org>
@@ -3709,7 +3903,7 @@ Date:   Mon Oct 6 13:47:14 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit d344b6cf462f4b90a6bd2c5d777453fb3f68272e
+commit d344b6cf462f4b90a6bd2c5d777453fb3f68272e (tag: 1.17.16)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Oct 6 13:29:24 2014 +0200
 
@@ -3795,7 +3989,7 @@ Date:   Mon Oct 6 03:37:28 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 3bdb2496c6b7fdb7766d3a056d7815ba545ff247
+commit 3bdb2496c6b7fdb7766d3a056d7815ba545ff247 (tag: 1.17.15)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Oct 6 03:22:03 2014 +0200
 
@@ -3848,7 +4042,7 @@ Date:   Mon Oct 6 02:43:57 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 0a8c971b020eded716a196a9a5d1cf083d42e882
+commit 0a8c971b020eded716a196a9a5d1cf083d42e882 (tag: 1.17.14)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Oct 6 00:11:48 2014 +0200
 
@@ -4092,14 +4286,14 @@ Date:   Fri Sep 26 05:42:13 2014 +0200
      - Uppercase preprocessor macros.
      - Add unit tests.
 
- debian/changelog         |  1 +
- lib/dpkg/Makefile.am     |  1 +
- lib/dpkg/libdpkg.map     |  1 +
- lib/dpkg/pkg-db.c        | 23 +++-------------------
- lib/dpkg/strhash.c       | 50 ++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/string.h        |  2 ++
- lib/dpkg/test/t-string.c | 27 +++++++++++++++++++++++++-
- 7 files changed, 84 insertions(+), 21 deletions(-)
+ debian/changelog               |  1 +
+ lib/dpkg/Makefile.am           |  1 +
+ lib/dpkg/libdpkg.map           |  1 +
+ lib/dpkg/pkg-db.c              | 23 +++------------------
+ lib/dpkg/{glob.c => strhash.c} | 46 +++++++++++++++++++++---------------------
+ lib/dpkg/string.h              |  2 ++
+ lib/dpkg/test/t-string.c       | 27 ++++++++++++++++++++++++-
+ 7 files changed, 57 insertions(+), 44 deletions(-)
 
 commit a8b3ff906c1d01082c435ede40f6241529c9e409
 Author: Guillem Jover <guillem@debian.org>
@@ -5495,10 +5689,10 @@ Date:   Fri Oct 3 06:34:45 2014 +0200
     
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- debian/changelog |    1 +
- po/LINGUAS       |    3 +
- po/tr.po         | 6433 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 6437 insertions(+)
+ debian/changelog    |    1 +
+ po/LINGUAS          |    3 +
+ po/{da.po => tr.po} | 3184 ++++++++++++++++++++++++++-------------------------
+ 3 files changed, 1611 insertions(+), 1577 deletions(-)
 
 commit 2ea951ed8f8e490bbf36a3be7917a97502c05a6e
 Author: Łukasz Dulny <bartekchom@poczta.onet.pl>
@@ -5617,7 +5811,7 @@ Date:   Tue Aug 19 20:33:41 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 9f7937f78805ce4022236add3d76809f4071fd30
+commit 9f7937f78805ce4022236add3d76809f4071fd30 (tag: 1.17.13)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Aug 17 15:35:34 2014 +0200
 
@@ -6036,7 +6230,7 @@ Date:   Fri Aug 15 04:38:34 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 5fb7e7e63bf5f5fd323138d281f2ed5e1a83c0dd
+commit 5fb7e7e63bf5f5fd323138d281f2ed5e1a83c0dd (tag: 1.17.12)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Aug 15 03:30:46 2014 +0200
 
@@ -6374,7 +6568,7 @@ Date:   Sun Aug 10 03:02:09 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 23b8f2a3e2650b78c4448ba437afb20f04850674
+commit 23b8f2a3e2650b78c4448ba437afb20f04850674 (tag: 1.17.11)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Aug 9 17:16:36 2014 +0200
 
@@ -7530,7 +7724,7 @@ Date:   Thu Jun 5 20:49:38 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit e0d235697883fc71720e831a2cf53c987b2f121e
+commit e0d235697883fc71720e831a2cf53c987b2f121e (tag: 1.17.10)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Jun 5 13:40:24 2014 +0200
 
@@ -8847,26 +9041,26 @@ Date:   Sun May 4 16:25:21 2014 +0200
     
     The remaining modules should be covered by one of their parents.
 
- debian/changelog                    |  1 +
- scripts/Makefile.am                 | 17 +++++++++++++++++
- scripts/t/Dpkg_BuildEnv.t           | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_BuildFlags.t         | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_BuildProfiles.t      | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Checksums.t          | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Conf.t               | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_ErrorHandling.t      | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Exit.t               | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_File.t               | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Gettext.t            | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Index.t              | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Interface_Storable.t | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Source_Archive.t     | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Source_Functions.t   | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Source_Package.t     | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Source_Patch.t       | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Source_Quilt.t       | 27 +++++++++++++++++++++++++++
- scripts/t/Dpkg_Vars.t               | 27 +++++++++++++++++++++++++++
- 19 files changed, 477 insertions(+)
+ debian/changelog                                        |  1 +
+ scripts/Makefile.am                                     | 17 +++++++++++++++++
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_BuildEnv.t}  | 12 +++++++++---
+ .../t/{Dpkg_Changelog_Ubuntu.t => Dpkg_BuildFlags.t}    | 12 +++++++++---
+ .../t/{Dpkg_Changelog_Ubuntu.t => Dpkg_BuildProfiles.t} | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Checksums.t} | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Conf.t}      | 12 +++++++++---
+ .../t/{Dpkg_Changelog_Ubuntu.t => Dpkg_ErrorHandling.t} | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Exit.t}      | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_File.t}      | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Gettext.t}   | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Index.t}     | 12 +++++++++---
+ ...pkg_Changelog_Ubuntu.t => Dpkg_Interface_Storable.t} | 12 +++++++++---
+ .../{Dpkg_Changelog_Ubuntu.t => Dpkg_Source_Archive.t}  | 12 +++++++++---
+ ...{Dpkg_Changelog_Ubuntu.t => Dpkg_Source_Functions.t} | 12 +++++++++---
+ .../{Dpkg_Changelog_Ubuntu.t => Dpkg_Source_Package.t}  | 12 +++++++++---
+ .../t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Source_Patch.t}  | 12 +++++++++---
+ .../t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Source_Quilt.t}  | 12 +++++++++---
+ scripts/t/{Dpkg_Changelog_Ubuntu.t => Dpkg_Vars.t}      | 12 +++++++++---
+ 19 files changed, 171 insertions(+), 51 deletions(-)
 
 commit 79a6978160ccf752d058786ab8fb61ad7fa1646a
 Author: Guillem Jover <guillem@debian.org>
@@ -9210,7 +9404,7 @@ Date:   Wed Apr 30 08:56:43 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 8c0c62688da4faa66acad269532ebbe6d50bd95f
+commit 8c0c62688da4faa66acad269532ebbe6d50bd95f (tag: 1.17.9)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Apr 30 05:46:12 2014 +0200
 
@@ -9590,7 +9784,7 @@ Date:   Mon Apr 28 15:41:58 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit c9feb7a20b04f9fd05fe8c268b31dee4f5f7c11d
+commit c9feb7a20b04f9fd05fe8c268b31dee4f5f7c11d (tag: 1.17.8)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Apr 28 13:33:26 2014 +0200
 
@@ -10197,7 +10391,7 @@ Date:   Mon Apr 21 17:59:33 2014 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 3ee521be308cd0e2fe6d9d49f38d3a78d925080e
+commit 3ee521be308cd0e2fe6d9d49f38d3a78d925080e (tag: 1.17.7)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Apr 21 05:04:11 2014 +0200
 
@@ -10584,31 +10778,31 @@ Date:   Wed Feb 19 21:40:03 2014 +0100
     
     This also switches the build system to use the automake TAP driver.
 
- configure.ac                            |  1 +
- debian/changelog                        |  1 +
- lib/dpkg/test.h                         | 64 +++++++++++++++++++++++++++------
- lib/dpkg/test/.gitignore                |  1 +
- lib/dpkg/test/Makefile.am               |  2 ++
- lib/dpkg/test/t-ar.c                    |  2 ++
- lib/dpkg/test/t-arch.c                  |  2 ++
- lib/dpkg/test/t-buffer.c                |  2 ++
- lib/dpkg/test/t-command.c               |  2 ++
- lib/dpkg/test/t-deb-version.c           |  2 ++
- lib/dpkg/test/t-macros.c                |  2 ++
- lib/dpkg/test/t-mod-db.c                |  2 ++
- lib/dpkg/test/t-path.c                  |  2 ++
- lib/dpkg/test/t-pkg-list.c              |  2 ++
- lib/dpkg/test/t-pkg-queue.c             |  2 ++
- lib/dpkg/test/t-pkginfo.c               |  2 ++
- lib/dpkg/test/t-progname.c              |  2 ++
- lib/dpkg/test/t-string.c                |  2 ++
- lib/dpkg/test/t-subproc.c               |  5 ++-
- lib/dpkg/test/{t-ar.c => t-test-skip.c} | 23 +++---------
- lib/dpkg/test/t-test.c                  | 18 +++++++++-
- lib/dpkg/test/t-trigger.c               |  2 ++
- lib/dpkg/test/t-varbuf.c                |  2 ++
- lib/dpkg/test/t-version.c               |  2 ++
- 24 files changed, 117 insertions(+), 30 deletions(-)
+ configure.ac                                       |  1 +
+ debian/changelog                                   |  1 +
+ lib/dpkg/test.h                                    | 64 ++++++++++++++++++----
+ lib/dpkg/test/.gitignore                           |  1 +
+ lib/dpkg/test/Makefile.am                          |  2 +
+ lib/dpkg/test/t-ar.c                               |  2 +
+ lib/dpkg/test/t-arch.c                             |  2 +
+ lib/dpkg/test/t-buffer.c                           |  2 +
+ lib/dpkg/test/t-command.c                          |  2 +
+ lib/dpkg/test/t-deb-version.c                      |  2 +
+ lib/dpkg/test/t-macros.c                           |  2 +
+ lib/dpkg/test/t-mod-db.c                           |  2 +
+ lib/dpkg/test/t-path.c                             |  2 +
+ lib/dpkg/test/t-pkg-list.c                         |  2 +
+ lib/dpkg/test/t-pkg-queue.c                        |  2 +
+ lib/dpkg/test/t-pkginfo.c                          |  2 +
+ lib/dpkg/test/t-progname.c                         |  2 +
+ lib/dpkg/test/t-string.c                           |  2 +
+ lib/dpkg/test/t-subproc.c                          |  5 +-
+ lib/{compat/unsetenv.c => dpkg/test/t-test-skip.c} | 23 +++-----
+ lib/dpkg/test/t-test.c                             | 18 +++++-
+ lib/dpkg/test/t-trigger.c                          |  2 +
+ lib/dpkg/test/t-varbuf.c                           |  2 +
+ lib/dpkg/test/t-version.c                          |  2 +
+ 24 files changed, 121 insertions(+), 26 deletions(-)
 
 commit 75e991baaeb1d27dd81c1366573b4e765bd49d9e
 Author: Guillem Jover <guillem@debian.org>
@@ -10916,12 +11110,12 @@ Date:   Wed Apr 2 16:11:19 2014 +0200
     
     Closes: #735978
 
- debian/changelog            |  3 +++
- scripts/Dpkg/Vendor.pm      | 21 ++++++++++++++-------
- scripts/Makefile.am         |  2 ++
- scripts/t/Dpkg_Vendor.t     | 33 +++++++++++++++++++++++++++++++++
- scripts/t/origins/gnewsense |  4 ++++
- 5 files changed, 56 insertions(+), 7 deletions(-)
+ debian/changelog                      |  3 +++
+ scripts/Dpkg/Vendor.pm                | 21 ++++++++++++++-------
+ scripts/Makefile.am                   |  2 ++
+ test/pod.t => scripts/t/Dpkg_Vendor.t | 21 +++++++++++----------
+ scripts/t/origins/gnewsense           |  4 ++++
+ 5 files changed, 34 insertions(+), 17 deletions(-)
 
 commit 82d38b898e5d3ca243460f705c949c14a16a7c8a
 Author: Guillem Jover <guillem@debian.org>
@@ -11654,7 +11848,7 @@ Date:   Wed Jan 15 19:03:13 2014 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 4d60c8934f1db37ed64188d3549a44c26de5f63b
+commit 4d60c8934f1db37ed64188d3549a44c26de5f63b (tag: 1.17.6)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Jan 15 05:30:01 2014 +0100
 
@@ -12765,7 +12959,7 @@ Date:   Thu Dec 12 09:00:15 2013 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit a365cc920906434e72ced7bdc4d505d317675674
+commit a365cc920906434e72ced7bdc4d505d317675674 (tag: 1.17.5)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Dec 12 08:29:50 2013 +0100
 
@@ -12995,7 +13189,7 @@ Date:   Sat Dec 7 08:34:39 2013 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit d9d254481e5ae5f62889195a309bf563fd2851ac
+commit d9d254481e5ae5f62889195a309bf563fd2851ac (tag: 1.17.4)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Dec 7 07:35:00 2013 +0100
 
@@ -13658,7 +13852,7 @@ Date:   Thu Dec 5 11:09:12 2013 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit dddaeb2e58c1b310c2b7d7ed064b33eae16380a6
+commit dddaeb2e58c1b310c2b7d7ed064b33eae16380a6 (tag: 1.17.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Dec 5 10:19:50 2013 +0100
 
@@ -13793,7 +13987,7 @@ Date:   Thu Dec 5 06:51:33 2013 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 55c90333c5e7faecb4c1f9b726a39ac8f5bb58b7
+commit 55c90333c5e7faecb4c1f9b726a39ac8f5bb58b7 (tag: 1.17.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Dec 5 04:56:47 2013 +0100
 
@@ -14878,20 +15072,20 @@ Date:   Sun Nov 17 06:46:28 2013 +0100
     
     Switch all program to use the new function instead of open-coding it.
 
- dpkg-deb/main.c             |  5 +----
- dpkg-split/main.c           |  5 +----
- dselect/main.cc             |  5 +----
- lib/dpkg/Makefile.am        |  2 +-
- lib/dpkg/{i18n.h => i18n.c} | 41 ++++++++++++-----------------------------
- lib/dpkg/i18n.h             |  2 ++
- lib/dpkg/libdpkg.map        |  2 ++
- po/POTFILES.in              |  1 +
- src/divertcmd.c             |  5 +----
- src/main.c                  |  5 +----
- src/querycmd.c              |  5 +----
- src/statcmd.c               |  5 +----
- src/trigcmd.c               |  5 +----
- 13 files changed, 26 insertions(+), 62 deletions(-)
+ dpkg-deb/main.c                |  5 +----
+ dpkg-split/main.c              |  5 +----
+ dselect/main.cc                |  5 +----
+ lib/dpkg/Makefile.am           |  2 +-
+ lib/dpkg/{program.h => i18n.c} | 31 +++++++++++--------------------
+ lib/dpkg/i18n.h                |  2 ++
+ lib/dpkg/libdpkg.map           |  2 ++
+ po/POTFILES.in                 |  1 +
+ src/divertcmd.c                |  5 +----
+ src/main.c                     |  5 +----
+ src/querycmd.c                 |  5 +----
+ src/statcmd.c                  |  5 +----
+ src/trigcmd.c                  |  5 +----
+ 13 files changed, 25 insertions(+), 53 deletions(-)
 
 commit 62841baecfc474fd1bf61ae8ee75a636ccf8f909
 Author: Helge Kreutzmann <debian@helgefjell.de>
@@ -15786,19 +15980,19 @@ Date:   Sat Oct 12 10:34:15 2013 +0200
     These will perform any necessary action when starting and exiting a
     dpkg-based program.
 
- dpkg-deb/main.c      |  6 ++----
- dpkg-split/main.c    |  7 ++-----
- dselect/main.cc      |  4 ++--
- lib/dpkg/Makefile.am |  2 ++
- lib/dpkg/dpkg.h      | 13 +-----------
- lib/dpkg/program.c   | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/program.h   | 41 +++++++++++++++++++++++++++++++++++++
- src/divertcmd.c      |  7 +++----
- src/main.c           |  7 ++-----
- src/querycmd.c       |  6 ++----
- src/statcmd.c        |  6 ++----
- src/trigcmd.c        |  7 ++-----
- 12 files changed, 118 insertions(+), 45 deletions(-)
+ dpkg-deb/main.c                    |  6 ++--
+ dpkg-split/main.c                  |  7 ++---
+ dselect/main.cc                    |  4 +--
+ lib/dpkg/Makefile.am               |  2 ++
+ lib/dpkg/dpkg.h                    | 13 +--------
+ lib/dpkg/{cleanup.c => program.c}  | 60 +++++++++++++++-----------------------
+ lib/dpkg/{progname.h => program.h} | 14 ++++-----
+ src/divertcmd.c                    |  7 ++---
+ src/main.c                         |  7 ++---
+ src/querycmd.c                     |  6 ++--
+ src/statcmd.c                      |  6 ++--
+ src/trigcmd.c                      |  7 ++---
+ 12 files changed, 51 insertions(+), 88 deletions(-)
 
 commit 50c1cb4d6e8b4c3ee739646f9df05992b806ea5e
 Author: Guillem Jover <guillem@debian.org>
@@ -16070,7 +16264,7 @@ Date:   Thu Sep 5 21:21:43 2013 +0200
  2 files changed, 354 insertions(+), 409 deletions(-)
 
 commit bbee509d24194279754d65a3e8d6e66d0a34e7a8
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Aug 24 15:18:55 2013 +0200
 
     French (Christian Perrier): fix incorrectly translated sentence, thanks to Fabien Givors.
@@ -16490,7 +16684,7 @@ Date:   Sun Jul 28 15:06:47 2013 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 48b8451ce4d0d52aa221774e04978cd27846ee48
+commit 48b8451ce4d0d52aa221774e04978cd27846ee48 (tag: 1.17.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Jul 28 14:44:54 2013 +0200
 
@@ -16615,7 +16809,7 @@ Date:   Sat Jul 27 05:32:43 2013 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 0a6abec3007e5521dc1c379964a272780cad8a04
+commit 0a6abec3007e5521dc1c379964a272780cad8a04 (tag: 1.17.0)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Jul 26 23:55:04 2013 +0200
 
@@ -16950,12 +17144,12 @@ Date:   Sun Jun 23 02:32:23 2013 +0200
     
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- debian/changelog |     3 +
- man/.gitignore   |     1 +
- man/po/it.add    |     1 +
- man/po/it.po     | 17821 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- man/po/po4a.cfg  |     3 +-
- 5 files changed, 17828 insertions(+), 1 deletion(-)
+ debian/changelog             |    3 +
+ man/.gitignore               |    1 +
+ man/po/{pt_BR.add => it.add} |    1 -
+ man/po/{ru.po => it.po}      | 7119 ++++++++++++++++++++++++------------------
+ man/po/po4a.cfg              |    3 +-
+ 5 files changed, 4034 insertions(+), 3093 deletions(-)
 
 commit babd1c3a37f2e4de4f5d0644e9f39982faa9a6cf
 Author: TAKAHASHI Motonobu <monyo@monyo.com>
@@ -17186,10 +17380,10 @@ Date:   Wed Jul 10 01:21:36 2013 +0200
     List::MoreUtils, as that is not a core module and we want to avoid
     the additional dependency.
 
- scripts/Dpkg/Util.pm      | 51 +++++++++++++++++++++++++++++++++++++++++++++++
- scripts/Makefile.am       |  2 ++
- scripts/t/550_Dpkg_Util.t | 38 +++++++++++++++++++++++++++++++++++
- 3 files changed, 91 insertions(+)
+ scripts/Dpkg/{Package.pm => Util.pm}        | 39 ++++++++++++++++++-----------
+ scripts/Makefile.am                         |  2 ++
+ test/000_pod.t => scripts/t/550_Dpkg_Util.t | 26 +++++++++++--------
+ 3 files changed, 42 insertions(+), 25 deletions(-)
 
 commit 9581f11d5efb591cd95baeae38054ab37d30df8c
 Author: Guillem Jover <guillem@debian.org>
@@ -18086,7 +18280,7 @@ Date:   Mon Jun 10 01:09:49 2013 +0200
  2 files changed, 4 insertions(+)
 
 commit 1d90dd12ef938b14c8388329a8b0c7ab31595f31
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Jun 21 19:29:04 2013 +0200
 
     Fix incorrect translation of "fortify" in French manpage for dpkg-buildflags Closes: #712976
@@ -18096,7 +18290,7 @@ Date:   Fri Jun 21 19:29:04 2013 +0200
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 commit c6bbbe2a2b055880991568ff7066f8a9f2c7f4ad
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Jun 20 01:56:14 2013 +0200
 
     Typo fix
@@ -21094,7 +21288,7 @@ Date:   Sat Jun 30 22:32:13 2012 +0200
  scripts/Dpkg.pm  | 2 +-
  3 files changed, 8 insertions(+), 2 deletions(-)
 
-commit 0a1af42295d04b46cdb48eb11996dbb1b3e8111f
+commit 0a1af42295d04b46cdb48eb11996dbb1b3e8111f (tag: 1.16.10)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Mar 8 04:42:06 2013 +0100
 
@@ -21242,12 +21436,12 @@ Date:   Sun Dec 23 03:03:44 2012 +0100
     signed block, as otherwise a syntax error due to duplicate field is
     triggered.
 
- debian/changelog                                  | 1 +
- scripts/Dpkg/Control/Hash.pm                      | 4 +++-
- scripts/Makefile.am                               | 1 +
- scripts/t/700_Dpkg_Control.t                      | 5 ++++-
- scripts/t/700_Dpkg_Control/bogus-armor-inline.dsc | 9 +++++++++
- 5 files changed, 18 insertions(+), 2 deletions(-)
+ debian/changelog                                           |  1 +
+ scripts/Dpkg/Control/Hash.pm                               |  4 +++-
+ scripts/Makefile.am                                        |  1 +
+ scripts/t/700_Dpkg_Control.t                               |  5 ++++-
+ .../{bogus-armor-nested.dsc => bogus-armor-inline.dsc}     | 14 ++++----------
+ 5 files changed, 13 insertions(+), 12 deletions(-)
 
 commit b08f7a8306f872b077af4040ebeab8853faaf0cd
 Author: Guillem Jover <guillem@debian.org>
@@ -21339,7 +21533,7 @@ Date:   Fri Dec 21 00:21:26 2012 +0100
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 commit b4eeb17645b942e81f438ea91516e9f28cc5e009
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Mar 9 12:08:42 2013 +0100
 
     Fix typos in French translation
@@ -21349,7 +21543,7 @@ Date:   Sat Mar 9 12:08:42 2013 +0100
  2 files changed, 4 insertions(+), 2 deletions(-)
 
 commit c62b36ff0a52078c0a7404fd1aa0033fa9861c3a
-Author: Felipe Castro <fefcas@gmail.com>
+Author: Felipe E. F. de Castro <fefcas@gmail.com>
 Date:   Sun Jan 27 15:34:55 2013 +0100
 
     Update Esperanto programs translation
@@ -21371,7 +21565,7 @@ Date:   Fri Jan 25 18:52:11 2013 +0100
  2 files changed, 17 insertions(+), 11 deletions(-)
 
 commit 9019141314b8df60a24088ec7e82e8d6559f61d5
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jan 20 07:48:28 2013 +0100
 
     Fix mistranslation in French translation of scripts. Thanks to Filipus Klutiero. Closes: #698530
@@ -21417,7 +21611,7 @@ Date:   Sun Nov 4 07:15:04 2012 +0100
  1 file changed, 7 insertions(+)
 
 commit b37f1607324bad3a410106d4eb572ab544c0fdcd
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Sat Nov 3 23:23:19 2012 +0100
 
     Update Spanish translation, remove all fuzzy and untranslated strings
@@ -21427,7 +21621,7 @@ Date:   Sat Nov 3 23:23:19 2012 +0100
 
 commit 94e02b5c111cf862d987e68985295031dac40e25
 Merge: 8c92278 5de3f21
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Sat Nov 3 23:20:29 2012 +0100
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
@@ -21436,7 +21630,7 @@ Date:   Sat Nov 3 23:20:29 2012 +0100
     	po/es.po
 
 commit 8c92278d29f36061cb422874d94a38de70976461
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Sat Nov 3 23:12:26 2012 +0100
 
     Updated Spanish translation
@@ -21444,7 +21638,7 @@ Date:   Sat Nov 3 23:12:26 2012 +0100
  po/es.po | 1940 +++++++++++++++++++++-----------------------------------------
  1 file changed, 662 insertions(+), 1278 deletions(-)
 
-commit 5de3f2176ccfe28688f8f825c54936767660d039
+commit 5de3f2176ccfe28688f8f825c54936767660d039 (tag: 1.16.9)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Oct 20 06:04:58 2012 +0200
 
@@ -21710,7 +21904,7 @@ Date:   Sun Oct 14 17:34:29 2012 +0900
  1 file changed, 4 insertions(+), 10 deletions(-)
 
 commit 311637a600283fb1790f75cd642b20880cd26315
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Oct 14 10:05:43 2012 +0200
 
     Update French translation of man pages
@@ -21722,7 +21916,7 @@ Date:   Sun Oct 14 10:05:43 2012 +0200
  2 files changed, 156 insertions(+), 69 deletions(-)
 
 commit 85bca39016405d7b4c3f17cad66f521548beb3d2
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Oct 14 10:00:28 2012 +0200
 
     Update French traslation
@@ -22500,7 +22694,7 @@ Date:   Tue Jul 24 04:24:37 2012 +0200
  2 files changed, 690 insertions(+), 1200 deletions(-)
 
 commit d4927ccaf10f398f37ad5e9be67b2d218fc21596
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 29 20:37:35 2012 -0600
 
     Corrections in French by Thomas Vincent
@@ -22529,7 +22723,7 @@ Date:   Sat Jul 21 02:57:01 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 6bcd5ee20874f28e1c026a7cbebc09491246ac1d
+commit 6bcd5ee20874f28e1c026a7cbebc09491246ac1d (tag: 1.16.8)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jul 21 02:11:40 2012 +0200
 
@@ -22637,7 +22831,7 @@ Date:   Sat Jul 21 02:33:52 2012 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit ece7b7258feb781487870e1b4d5f0c19e80c460c
-Author: Felipe Castro <fefcas@gmail.com>
+Author: Felipe E. F. de Castro <fefcas@gmail.com>
 Date:   Thu Jul 19 01:08:31 2012 +0200
 
     Update Esperanto dpkg translation
@@ -22718,7 +22912,7 @@ Date:   Sun Jul 8 02:24:48 2012 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 55df418b08943316f50499fbc5d8aa0b1f60e813
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Sun Jul 8 00:35:15 2012 +0200
 
     Small update of the Spanish translation of dpkg
@@ -22727,7 +22921,7 @@ Date:   Sun Jul 8 00:35:15 2012 +0200
  1 file changed, 35 insertions(+), 35 deletions(-)
 
 commit 56eed5cba8519cfcd169e3123be42cd29bc8fe29
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Sun Jul 8 00:25:16 2012 +0200
 
     Updated Spanish translation for dselect
@@ -22785,7 +22979,7 @@ Date:   Mon Jul 2 22:43:29 2012 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit f65ea0d4d5f4ac48af3e0d4b717ee6fd4aec050a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 2 15:58:14 2012 -0400
 
     Merge changelog entries
@@ -22795,7 +22989,7 @@ Date:   Mon Jul 2 15:58:14 2012 -0400
 
 commit 3b92f3e93a42387026a59081f0eaa8005abcbfef
 Merge: 10df436 03ea6d8
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 2 15:55:59 2012 -0400
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
@@ -22809,7 +23003,7 @@ Date:   Mon Jul 2 21:38:41 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 1bb15619ffc305dc46ec63d0861e93884cadc4c8
+commit 1bb15619ffc305dc46ec63d0861e93884cadc4c8 (tag: 1.16.7)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Jul 2 21:16:54 2012 +0200
 
@@ -22851,7 +23045,7 @@ Date:   Mon Jul 2 21:13:41 2012 +0200
  2 files changed, 8 insertions(+)
 
 commit 10df436ba35393ae904a0743ebdc538ab67c0f5b
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 2 12:14:00 2012 -0400
 
     French translation update for scripts
@@ -22863,7 +23057,7 @@ Date:   Mon Jul 2 12:14:00 2012 -0400
  2 files changed, 190 insertions(+), 160 deletions(-)
 
 commit 746f9e27dc9a867fb52f13a87655c30f232aaf15
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 2 17:20:09 2012 +0200
 
     Updated French translation of manpages
@@ -22884,7 +23078,7 @@ Date:   Tue Jul 3 00:10:58 2012 +0900
  1 file changed, 535 insertions(+), 1485 deletions(-)
 
 commit 0338e9aa7d56fda654e6f66c62d290a39cac05c3
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 2 12:56:29 2012 +0200
 
     French translation update
@@ -22924,13 +23118,13 @@ Date:   Sun Jul 1 22:19:01 2012 +0100
 
 commit 83779ed287a17a723c657671d07df85a6c658a8a
 Merge: eae3849 9cbfa60
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 1 22:26:08 2012 +0200
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
 
 commit eae38493234c560b85f119bf119ab1ce8adb6849
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 1 22:24:37 2012 +0200
 
     French translation update
@@ -22941,7 +23135,7 @@ Date:   Sun Jul 1 22:24:37 2012 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 493f7b9465b37033a0ffcbe5ec6f562a88c36849
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 1 22:23:26 2012 +0200
 
     Update French translation of programs
@@ -23044,7 +23238,7 @@ Date:   Sun Jul 1 09:36:15 2012 +0200
  2 files changed, 10 insertions(+), 17 deletions(-)
 
 commit 11f56ed5d5116037ac5064da8551ff9cdf8655b8
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 1 08:36:33 2012 +0200
 
     Update French programs translation
@@ -23056,7 +23250,7 @@ Date:   Sun Jul 1 08:36:33 2012 +0200
  2 files changed, 21 insertions(+), 25 deletions(-)
 
 commit 86ac9ea598f5a04c29f55b9f8063492fc7df72c4
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Jul 1 08:31:39 2012 +0200
 
     Update French translation of dselect
@@ -23165,7 +23359,7 @@ Date:   Sat Jun 30 22:18:26 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 9954497af19336cb46f56762cb8ef24027b441ca
+commit 9954497af19336cb46f56762cb8ef24027b441ca (tag: 1.16.6)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jun 30 21:45:26 2012 +0200
 
@@ -23306,7 +23500,7 @@ Date:   Sat Jun 30 07:06:01 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit b2e974771c21c120d11f9c0b4ba5a6f0197f9398
+commit b2e974771c21c120d11f9c0b4ba5a6f0197f9398 (tag: 1.16.5)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jun 30 04:29:08 2012 +0200
 
@@ -23756,14 +23950,14 @@ Date:   Fri Apr 20 19:35:22 2012 +0200
 
     libdpkg: Move warning functions to a new report module
 
- lib/dpkg/Makefile.am |  2 ++
- lib/dpkg/dpkg.h      |  1 +
- lib/dpkg/ehandle.c   | 28 -------------------------
- lib/dpkg/ehandle.h   |  4 ----
- lib/dpkg/report.c    | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/report.h    | 45 +++++++++++++++++++++++++++++++++++++++
- po/POTFILES.in       |  1 +
- 7 files changed, 108 insertions(+), 32 deletions(-)
+ lib/dpkg/Makefile.am             |  2 ++
+ lib/dpkg/dpkg.h                  |  1 +
+ lib/dpkg/ehandle.c               | 28 ------------------------
+ lib/dpkg/ehandle.h               |  4 ----
+ lib/dpkg/{cleanup.c => report.c} | 46 +++++++++++++++++++---------------------
+ lib/dpkg/{dir.h => report.h}     | 25 +++++++++++-----------
+ po/POTFILES.in                   |  1 +
+ 7 files changed, 39 insertions(+), 68 deletions(-)
 
 commit 27e75257edb3bf98b83b421f4f5d03e8d8da9856
 Author: Guillem Jover <guillem@debian.org>
@@ -24253,7 +24447,7 @@ Date:   Sun Jun 17 11:06:00 2012 +0200
     Conflicts:
     	debian/changelog
 
-commit 34b3f86bb97b58aaac881fd545808188ab33aafd
+commit 34b3f86bb97b58aaac881fd545808188ab33aafd (tag: 1.16.4.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Jun 17 10:56:24 2012 +0200
 
@@ -24363,7 +24557,7 @@ Date:   Sat Jun 9 16:33:50 2012 +0200
     Conflicts:
     	debian/changelog
 
-commit fb2172feed24b10e394a270d6f7facba5c97e53a
+commit fb2172feed24b10e394a270d6f7facba5c97e53a (tag: 1.16.4.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jun 9 16:16:29 2012 +0200
 
@@ -24399,7 +24593,7 @@ Date:   Sat Jun 9 00:13:14 2012 +0200
     Conflicts:
     	debian/changelog
 
-commit 5e8a4ccb795c0dcff9e9ec44b908ded2484012bd
+commit 5e8a4ccb795c0dcff9e9ec44b908ded2484012bd (tag: 1.16.4.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Jun 8 23:17:20 2012 +0200
 
@@ -24449,7 +24643,7 @@ Date:   Fri Jun 8 09:39:57 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 4fcde1b7afc88a7d847dda0b337693733f5e6e66
+commit 4fcde1b7afc88a7d847dda0b337693733f5e6e66 (tag: 1.16.4)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Jun 7 23:46:32 2012 +0200
 
@@ -24768,13 +24962,13 @@ Date:   Tue Jun 5 06:44:30 2012 +0200
     
     Move libfile-fcntllock-perl dependency from dpkg-dev to libdpkg-perl.
 
- debian/changelog            |  2 ++
- debian/control              |  4 ++--
- scripts/Dpkg/File.pm        | 39 +++++++++++++++++++++++++++++++++++++++
- scripts/Makefile.am         |  1 +
- scripts/dpkg-distaddfile.pl |  6 ++----
- scripts/dpkg-gencontrol.pl  |  6 ++----
- 6 files changed, 48 insertions(+), 10 deletions(-)
+ debian/changelog                  |  2 ++
+ debian/control                    |  4 ++--
+ scripts/{Dpkg.pm => Dpkg/File.pm} | 26 ++++++++++++++++----------
+ scripts/Makefile.am               |  1 +
+ scripts/dpkg-distaddfile.pl       |  6 ++----
+ scripts/dpkg-gencontrol.pl        |  6 ++----
+ 6 files changed, 25 insertions(+), 20 deletions(-)
 
 commit 14e63102e2a962a171e3e781f71d14ca0437ed23
 Author: Guillem Jover <guillem@debian.org>
@@ -25108,11 +25302,11 @@ Date:   Sun May 20 22:37:06 2012 +0200
     
     This includes a public function to validate package names.
 
- scripts/Dpkg/Package.pm      | 42 ++++++++++++++++++++++++++++++++++++++++++
- scripts/Makefile.am          |  2 ++
- scripts/po/POTFILES.in       |  1 +
- scripts/t/150_Dpkg_Package.t | 29 +++++++++++++++++++++++++++++
- 4 files changed, 74 insertions(+)
+ scripts/{Dpkg.pm => Dpkg/Package.pm}        | 29 +++++++++++++++++++----------
+ scripts/Makefile.am                         |  2 ++
+ scripts/po/POTFILES.in                      |  1 +
+ scripts/t/{000_pod.t => 150_Dpkg_Package.t} | 15 ++++++++++-----
+ 4 files changed, 32 insertions(+), 15 deletions(-)
 
 commit bb486d9e2630ec77b798f1730bd7603df69c9013
 Author: Guillem Jover <guillem@debian.org>
@@ -25278,7 +25472,7 @@ Date:   Wed May 23 06:36:40 2012 +0200
  1 file changed, 16 insertions(+), 13 deletions(-)
 
 commit a204c6ecbdd61c5ec02492115e47087dff7ba2ba
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed May 16 18:38:18 2012 +0200
 
     French (Christian Perrier). Fixes a mistranslation and some inconsistencies reported by Vincent Danjean( thanks). Closes: #673158
@@ -25288,7 +25482,7 @@ Date:   Wed May 16 18:38:18 2012 +0200
  2 files changed, 7 insertions(+), 4 deletions(-)
 
 commit 12b5b2c9df466eae47a16bb604f854ca1da41f50
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri May 11 21:44:47 2012 +0200
 
     French translation update
@@ -25756,7 +25950,7 @@ Date:   Fri Apr 27 10:33:36 2012 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit b9a009d61792c711dbd440b7cc3004d1b02569ed
+commit b9a009d61792c711dbd440b7cc3004d1b02569ed (tag: 1.16.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Apr 27 10:10:43 2012 +0200
 
@@ -26098,7 +26292,7 @@ Date:   Tue Apr 24 14:01:11 2012 +0100
  5 files changed, 937 insertions(+), 941 deletions(-)
 
 commit 6b04c0b4432dcaf4ed0adacf1f4821cc096ee317
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Apr 23 19:50:19 2012 +0200
 
     French manpages translation update
@@ -26648,14 +26842,14 @@ Date:   Mon Mar 26 05:10:57 2012 +0200
 
     libdpkg: New deb format version module
 
- lib/dpkg/Makefile.am          |  2 ++
- lib/dpkg/deb-version.c        | 58 ++++++++++++++++++++++++++++++++++++
- lib/dpkg/deb-version.h        | 37 +++++++++++++++++++++++
- lib/dpkg/test/.gitignore      |  1 +
- lib/dpkg/test/Makefile.am     |  1 +
- lib/dpkg/test/t-deb-version.c | 69 +++++++++++++++++++++++++++++++++++++++++++
- po/POTFILES.in                |  1 +
- 7 files changed, 169 insertions(+)
+ lib/dpkg/Makefile.am                   |  2 +
+ lib/dpkg/deb-version.c                 | 58 ++++++++++++++++++++++++++++
+ lib/dpkg/{progname.h => deb-version.h} | 24 +++++-------
+ lib/dpkg/test/.gitignore               |  1 +
+ lib/dpkg/test/Makefile.am              |  1 +
+ lib/dpkg/test/t-deb-version.c          | 69 ++++++++++++++++++++++++++++++++++
+ po/POTFILES.in                         |  1 +
+ 7 files changed, 142 insertions(+), 14 deletions(-)
 
 commit 33cccfc40ec4e199df77d8b9a835898e80fb3bfb
 Author: Guillem Jover <guillem@debian.org>
@@ -26879,7 +27073,7 @@ Date:   Mon Apr 2 03:57:36 2012 +0200
  1 file changed, 4 insertions(+), 9 deletions(-)
 
 commit e754765a6866050f8bb01f58a870e87181bc2bef
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Apr 2 19:09:40 2012 +0200
 
     French translation update for manual pages
@@ -26911,7 +27105,7 @@ Date:   Sun Apr 1 13:37:26 2012 +0200
 
 commit c5b7a167490c65019740f77e27e69582557bc2d9
 Merge: d763efc 38f8d60
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Apr 1 12:03:41 2012 +0200
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
@@ -27076,7 +27270,7 @@ Date:   Sun Apr 1 09:49:16 2012 +0200
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit d763efc9848c3c58cd6d5387f04954bfbe46205c
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Mar 23 07:49:30 2012 +0100
 
     French translation update
@@ -27087,7 +27281,7 @@ Date:   Fri Mar 23 07:49:30 2012 +0100
  1 file changed, 168 insertions(+), 86 deletions(-)
 
 commit e79afa8cc117460ccb0703f2372e5303c58ede2d
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Mar 23 07:40:47 2012 +0100
 
     French translation update for dselect
@@ -27099,7 +27293,7 @@ Date:   Fri Mar 23 07:40:47 2012 +0100
  2 files changed, 7 insertions(+), 4 deletions(-)
 
 commit 314cce28edb12df93024ff73784fc170a46dd2ac
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Mar 23 07:39:02 2012 +0100
 
     French translation update for scripts
@@ -27490,7 +27684,7 @@ Date:   Wed Mar 21 18:11:22 2012 +0100
  2 files changed, 32 insertions(+), 36 deletions(-)
 
 commit f5f018750e080a6f0472b91f347a35025b664e3a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Mar 20 20:03:57 2012 +0100
 
     Update French translation of program messages
@@ -27510,7 +27704,7 @@ Date:   Mon Mar 19 09:54:13 2012 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit ec47fffa942e98dac325a257aa61fc9277fff77f
+commit ec47fffa942e98dac325a257aa61fc9277fff77f (tag: 1.16.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Mar 19 07:27:54 2012 +0100
 
@@ -29044,7 +29238,7 @@ Date:   Thu Feb 16 21:45:19 2012 +0100
 
 commit 03a72bcae549d38bf8f7c5d803cb8fd4dc970aa5
 Merge: 19897e8 b4691d5
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Feb 15 19:48:24 2012 +0100
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
@@ -29053,7 +29247,7 @@ Date:   Wed Feb 15 19:48:24 2012 +0100
     	man/po/fr.po
 
 commit 19897e8723eb751302dc918a7c8bcba9e1de55b0
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Feb 15 19:22:29 2012 +0100
 
     French translation update
@@ -29091,7 +29285,7 @@ Date:   Tue Feb 14 20:05:59 2012 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit f7946eda042307afd5688cda355069ee3dcc285d
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Feb 14 19:22:42 2012 +0100
 
     French translation update
@@ -29102,7 +29296,7 @@ Date:   Tue Feb 14 19:22:42 2012 +0100
  1 file changed, 51 insertions(+), 37 deletions(-)
 
 commit aebc883480aa8ee4835a8fa145fbb5491f23a6b8
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Feb 12 19:22:56 2012 +0100
 
     Fix missing word and spelling error in dpkg-gencontrol(1)
@@ -29111,7 +29305,7 @@ Date:   Sun Feb 12 19:22:56 2012 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit f135ca4c8ef050e880f1e3cbb33433033d2059e9
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Feb 8 07:24:24 2012 +0100
 
     French translation update
@@ -29360,10 +29554,10 @@ Date:   Sat Feb 4 14:46:07 2012 +0100
 
     libdpkg: Add minimal triggers test case for trig_name_is_illegal()
 
- lib/dpkg/test/.gitignore  |  1 +
- lib/dpkg/test/Makefile.am |  1 +
- lib/dpkg/test/t-trigger.c | 48 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 50 insertions(+)
+ lib/dpkg/test/.gitignore                  |  1 +
+ lib/dpkg/test/Makefile.am                 |  1 +
+ lib/dpkg/test/{t-mod-db.c => t-trigger.c} | 44 +++++++++++++------------------
+ 3 files changed, 20 insertions(+), 26 deletions(-)
 
 commit 66aad043c37faba49617a91a1070e3fba142b3a5
 Author: Guillem Jover <guillem@debian.org>
@@ -29586,7 +29780,7 @@ Date:   Mon Jan 30 13:53:44 2012 +0100
  1 file changed, 4 insertions(+)
 
 commit e2afb266c663a5585a62bd3e111b0acf62966209
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jan 30 21:52:38 2012 +0100
 
     French manpages translation update
@@ -29597,7 +29791,7 @@ Date:   Mon Jan 30 21:52:38 2012 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 239df382bb456967e098db93e918f5592b059b27
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jan 30 21:49:46 2012 +0100
 
     French manpages translation update
@@ -29665,7 +29859,7 @@ Date:   Tue Jan 24 11:59:44 2012 +0100
  3 files changed, 42 insertions(+), 7 deletions(-)
 
 commit b274d61afd592336ea6215d4eb7b8d109819449f
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Jan 25 19:56:08 2012 +0100
 
     French translation update
@@ -29676,7 +29870,7 @@ Date:   Wed Jan 25 19:56:08 2012 +0100
  1 file changed, 34 insertions(+), 15 deletions(-)
 
 commit 6bd9c1396c24e8b0e517ae69bd80923f2a4a222c
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Jan 24 19:23:45 2012 +0100
 
     French translation update
@@ -29749,13 +29943,13 @@ Date:   Sun Jan 22 19:33:11 2012 +0100
 
 commit 9fa95645690da284f425f3d7ddbfb19f59601766
 Merge: 492fa0c 56b80c4
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Jan 20 22:30:32 2012 +0100
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
 
 commit 492fa0cb9764cc097756404070974b244a5cb329
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Jan 20 22:30:05 2012 +0100
 
     French translation update
@@ -29843,7 +30037,7 @@ Date:   Thu Jan 19 09:50:35 2012 +0100
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit a92084429e845ae37c6d050c263bf2303668fa30
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Jan 18 19:54:56 2012 +0100
 
     French translation update
@@ -29854,7 +30048,7 @@ Date:   Wed Jan 18 19:54:56 2012 +0100
  1 file changed, 77 insertions(+), 79 deletions(-)
 
 commit 1c9e7e88a596e6d596cea1f581dfa8604cab19da
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Jan 18 18:59:02 2012 +0100
 
     French translation update
@@ -29865,7 +30059,7 @@ Date:   Wed Jan 18 18:59:02 2012 +0100
  1 file changed, 262 insertions(+), 141 deletions(-)
 
 commit a11b6a7f4deaf260dbca5b6403782ee3bf9ce4bf
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jan 16 07:58:38 2012 +0100
 
     Update French translation
@@ -30209,7 +30403,7 @@ Date:   Mon Jan 9 06:50:26 2012 +0100
  1 file changed, 2 deletions(-)
 
 commit 9a814e3ed4d7cbeee8aa814c83b1ab05ca0ea25e
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Jan 7 07:27:03 2012 +0100
 
     Fix translation of -B and -A options of dpkg-buildpackage. Thanks to Vincent Danjean. Closes: #654626
@@ -30323,13 +30517,13 @@ Date:   Tue Nov 22 22:44:07 2011 +0100
 
     libdpkg: New atomic file module
 
- lib/dpkg/Makefile.am   |   2 +
- lib/dpkg/atomic-file.c | 124 +++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/atomic-file.h |  52 +++++++++++++++++++++
- lib/dpkg/dpkg-db.h     |   2 +
- lib/dpkg/libdpkg.map   |   8 ++++
- po/POTFILES.in         |   1 +
- 6 files changed, 189 insertions(+)
+ lib/dpkg/Makefile.am                |   2 +
+ lib/dpkg/atomic-file.c              | 124 ++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{error.h => atomic-file.h} |  41 ++++++------
+ lib/dpkg/dpkg-db.h                  |   2 +
+ lib/dpkg/libdpkg.map                |   8 +++
+ po/POTFILES.in                      |   1 +
+ 6 files changed, 159 insertions(+), 19 deletions(-)
 
 commit 4ceaa71d42fb5a16560c4b2c069f1d6a51d03a9b
 Author: Guillem Jover <guillem@debian.org>
@@ -30939,7 +31133,7 @@ Date:   Thu Dec 8 02:20:26 2011 +0100
  1 file changed, 2 insertions(+), 3 deletions(-)
 
 commit 25107c5ff70f3e440c7e61132373bf4d5720562a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Dec 7 05:53:09 2011 +0100
 
     Minor errors corrected in French manpages translation
@@ -31071,7 +31265,7 @@ Date:   Fri Nov 25 12:06:19 2011 +0100
     Conflicts:
     	scripts/mk/architecture.mk
 
-commit 0d03dd4a12e4f860baf36b46f0dc890a4079d26a
+commit 0d03dd4a12e4f860baf36b46f0dc890a4079d26a (tag: 1.16.1.2)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Nov 25 11:20:03 2011 +0100
 
@@ -31592,11 +31786,11 @@ Date:   Fri Nov 11 05:10:20 2011 +0100
 
     libcompat: Add new strndup()
 
- configure.ac           |  2 +-
- lib/compat/Makefile.am |  4 ++++
- lib/compat/compat.h    |  7 +++++++
- lib/compat/strndup.c   | 45 +++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 57 insertions(+), 1 deletion(-)
+ configure.ac                         |  2 +-
+ lib/compat/Makefile.am               |  4 ++++
+ lib/compat/compat.h                  |  7 +++++++
+ lib/compat/{unsetenv.c => strndup.c} | 28 +++++++++++++++++-----------
+ 4 files changed, 29 insertions(+), 12 deletions(-)
 
 commit ec35d763c042bb13b466734375b720009dbc6692
 Author: Helge Kreutzmann <debian@helgefjell.de>
@@ -31920,11 +32114,11 @@ Date:   Sat Apr 30 04:29:04 2011 +0200
 
     libdpkg: Move versionsatisfied() into a new depcon module
 
- lib/dpkg/Makefile.am |  1 +
- lib/dpkg/depcon.c    | 32 ++++++++++++++++++++++++++++++++
- lib/dpkg/dpkg-db.h   |  5 ++++-
- lib/dpkg/vercmp.c    |  6 ------
- 4 files changed, 37 insertions(+), 7 deletions(-)
+ lib/dpkg/Makefile.am                    |  1 +
+ dselect/curkeys.cc => lib/dpkg/depcon.c | 17 +++++++++--------
+ lib/dpkg/dpkg-db.h                      |  5 ++++-
+ lib/dpkg/vercmp.c                       |  6 ------
+ 4 files changed, 14 insertions(+), 15 deletions(-)
 
 commit 32f3e81f3bfdc5906298612c10837a0a537ab7a6
 Author: Guillem Jover <guillem@debian.org>
@@ -32038,11 +32232,11 @@ Date:   Thu Oct 27 02:10:50 2011 +0200
 
     dpkg: Move match_node functions into a new file-match module
 
- src/Makefile.am  |  1 +
- src/file-match.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- src/file-match.h | 35 +++++++++++++++++++++++++++++++++++
- src/processarc.c | 28 +---------------------------
- 4 files changed, 86 insertions(+), 27 deletions(-)
+ src/Makefile.am                     |  1 +
+ lib/dpkg/glob.c => src/file-match.c | 35 +++++++++++++++++------------------
+ src/{infodb.h => file-match.h}      | 25 +++++++++++++------------
+ src/processarc.c                    | 28 +---------------------------
+ 4 files changed, 32 insertions(+), 57 deletions(-)
 
 commit 9235d163efbe224c11dc95e30c44c54aef2802f1
 Author: Guillem Jover <guillem@debian.org>
@@ -32277,15 +32471,15 @@ Date:   Fri Jan 14 12:44:21 2011 +0100
     
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- lib/dpkg/Makefile.am      |   2 +
- lib/dpkg/arch.c           | 174 ++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/arch.h           |  51 ++++++++++++++
- lib/dpkg/libdpkg.Versions |   7 ++
- lib/dpkg/pkg-db.c         |   3 +
- lib/dpkg/test/.gitignore  |   1 +
- lib/dpkg/test/Makefile.am |   1 +
- lib/dpkg/test/t-arch.c    | 134 +++++++++++++++++++++++++++++++++++
- 8 files changed, 373 insertions(+)
+ lib/dpkg/Makefile.am             |   2 +
+ lib/dpkg/arch.c                  | 174 +++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{namevalue.h => arch.h} |  38 +++++----
+ lib/dpkg/libdpkg.Versions        |   7 ++
+ lib/dpkg/pkg-db.c                |   3 +
+ lib/dpkg/test/.gitignore         |   1 +
+ lib/dpkg/test/Makefile.am        |   1 +
+ lib/dpkg/test/t-arch.c           | 134 ++++++++++++++++++++++++++++++
+ 8 files changed, 344 insertions(+), 16 deletions(-)
 
 commit e215e2795f47feec839025972ac56e647ab04822
 Author: Guillem Jover <guillem@debian.org>
@@ -32502,7 +32696,7 @@ Date:   Fri Oct 14 08:14:44 2011 +0200
 
     Merge commit '1.16.1.1'
 
-commit 9babd2d62709dd694c74fd716543c5561e169038
+commit 9babd2d62709dd694c74fd716543c5561e169038 (tag: 1.16.1.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Oct 14 07:08:40 2011 +0200
 
@@ -33173,7 +33367,7 @@ Date:   Fri Sep 23 17:30:36 2011 +0200
  man/po/de.po     | 14 ++++----------
  2 files changed, 11 insertions(+), 10 deletions(-)
 
-commit 437f8b53910c0b59df6182fc23a1485f8638c745
+commit 437f8b53910c0b59df6182fc23a1485f8638c745 (tag: 1.16.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Sep 23 06:00:18 2011 +0200
 
@@ -33590,10 +33784,10 @@ Date:   Tue May 10 19:50:15 2011 +0200
     responsible for the outcome, including just forwarding the error
     to its own caller.
 
- lib/dpkg/Makefile.am |  2 ++
- lib/dpkg/error.c     | 93 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/error.h     | 49 +++++++++++++++++++++++++++
- 3 files changed, 144 insertions(+)
+ lib/dpkg/Makefile.am             |  2 +
+ lib/dpkg/error.c                 | 93 ++++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{progname.h => error.h} | 28 +++++++++---
+ 3 files changed, 117 insertions(+), 6 deletions(-)
 
 commit 07a8f6d882c019ed039442237c53d8333dc9c4a5
 Author: Guillem Jover <guillem@debian.org>
@@ -33648,12 +33842,12 @@ Date:   Sat Sep 17 05:09:56 2011 +0200
 
     libdpkg: Add new mod-db, progname and subproc modules test cases
 
- lib/dpkg/test/.gitignore   |  3 ++
- lib/dpkg/test/Makefile.am  |  6 ++-
- lib/dpkg/test/t-mod-db.c   | 56 ++++++++++++++++++++++++++++
- lib/dpkg/test/t-progname.c | 46 +++++++++++++++++++++++
- lib/dpkg/test/t-subproc.c  | 91 ++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 201 insertions(+), 1 deletion(-)
+ lib/dpkg/test/.gitignore                    |  3 +
+ lib/dpkg/test/Makefile.am                   |  6 +-
+ lib/dpkg/test/{t-pkginfo.c => t-mod-db.c}   | 35 ++++++-----
+ lib/dpkg/test/{t-pkginfo.c => t-progname.c} | 31 +++++-----
+ lib/dpkg/test/t-subproc.c                   | 91 +++++++++++++++++++++++++++++
+ 5 files changed, 132 insertions(+), 34 deletions(-)
 
 commit 7e26acd008d38f6d56c26e6a595430636ea40211
 Author: Guillem Jover <guillem@debian.org>
@@ -33952,12 +34146,12 @@ Date:   Mon Sep 5 16:03:21 2011 +0200
     This detangles the function from the triglib module, avoiding
     dpkg-trigger to pull it, and reducing its size.
 
- debian/changelog     |  2 ++
- lib/dpkg/Makefile.am |  1 +
- lib/dpkg/triglib.c   | 16 ----------------
- lib/dpkg/trigname.c  | 42 ++++++++++++++++++++++++++++++++++++++++++
- po/POTFILES.in       |  1 +
- 5 files changed, 46 insertions(+), 16 deletions(-)
+ debian/changelog                         |  2 ++
+ lib/dpkg/Makefile.am                     |  1 +
+ lib/dpkg/triglib.c                       | 16 ----------------
+ lib/dpkg/{test/t-macros.c => trigname.c} | 31 +++++++++++++++++--------------
+ po/POTFILES.in                           |  1 +
+ 5 files changed, 21 insertions(+), 30 deletions(-)
 
 commit 8ed2e04c2b1bfa247e34da01c0e84612ce7dc84b
 Author: Guillem Jover <guillem@debian.org>
@@ -34728,7 +34922,7 @@ Date:   Tue Aug 9 07:19:09 2011 +0200
  2 files changed, 24 insertions(+), 10 deletions(-)
 
 commit 85dcf82c6ed722d9cfb664a87a41315791cbb3b4
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Aug 8 20:29:13 2011 +0200
 
     Changelog for French translation update
@@ -34737,7 +34931,7 @@ Date:   Mon Aug 8 20:29:13 2011 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit c22b83466766bfc146179fb93884f1f9374b0453
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Aug 8 20:27:40 2011 +0200
 
     Fix Sylvestre's translation
@@ -35378,7 +35572,7 @@ Date:   Mon Aug 1 22:26:56 2011 +0200
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 commit de998911d4af4effc8be60cab78a244f5951bfe2
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Aug 1 09:32:48 2011 +0200
 
     Updated french translation of manpages
@@ -35610,7 +35804,7 @@ Date:   Wed Jul 20 08:29:05 2011 +0200
 
 commit e6b7685a540c24da1f6357fe8869602d84444aee
 Merge: d5aedf7 7627d80
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Jul 19 09:49:06 2011 +0200
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
@@ -35629,7 +35823,7 @@ Date:   Tue Jul 19 08:16:25 2011 +0200
  2 files changed, 15 insertions(+), 2 deletions(-)
 
 commit d5aedf7fdff4dfeb8d329aa45486464d4596ec7a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 18 19:42:01 2011 +0200
 
     French translation of scripts completed
@@ -35641,7 +35835,7 @@ Date:   Mon Jul 18 19:42:01 2011 +0200
  2 files changed, 14 insertions(+), 14 deletions(-)
 
 commit 189eaa27d4d3e7c7bbbb1933dfcdbdc597a58476
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Jul 18 19:38:40 2011 +0200
 
     Updated French translation of programs
@@ -36339,13 +36533,13 @@ Date:   Sat Jul 2 01:58:33 2011 +0200
 
     libdpkg: Add new progname module handling functions
 
- configure.ac              |  3 +-
- lib/dpkg/Makefile.am      |  2 ++
- lib/dpkg/libdpkg.Versions |  4 +++
- lib/dpkg/progname.c       | 83 +++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/progname.h       | 33 +++++++++++++++++++
- m4/dpkg-funcs.m4          | 23 +++++++++++++
- 6 files changed, 147 insertions(+), 1 deletion(-)
+ configure.ac                   |  3 +-
+ lib/dpkg/Makefile.am           |  2 +
+ lib/dpkg/libdpkg.Versions      |  4 ++
+ lib/dpkg/progname.c            | 83 ++++++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{dir.h => progname.h} | 17 ++++-----
+ m4/dpkg-funcs.m4               | 23 ++++++++++++
+ 6 files changed, 121 insertions(+), 11 deletions(-)
 
 commit cd92cc77e5103b31ce15b746bd71095b859ac08b
 Author: Guillem Jover <guillem@debian.org>
@@ -37567,7 +37761,7 @@ Date:   Wed May 4 11:00:11 2011 +0200
     Conflicts:
     	debian/changelog
 
-commit bd1d6cd247f8e5eb7f2465c0d686cba363c64a57
+commit bd1d6cd247f8e5eb7f2465c0d686cba363c64a57 (tag: 1.16.0.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed May 4 10:01:44 2011 +0200
 
@@ -37709,11 +37903,11 @@ Date:   Fri Apr 29 07:20:53 2011 +0200
 
     libdpkg: Move version module declarations to a new version.h
 
- lib/dpkg/Makefile.am              |  3 ++-
- lib/dpkg/dpkg-db.h                |  8 +-------
- lib/dpkg/version.c                |  2 +-
- lib/dpkg/{version.c => version.h} | 30 ++++++++++++++++++------------
- 4 files changed, 22 insertions(+), 21 deletions(-)
+ lib/dpkg/Makefile.am          |  3 ++-
+ lib/dpkg/dpkg-db.h            |  8 +-------
+ lib/dpkg/version.c            |  2 +-
+ lib/dpkg/{dir.h => version.h} | 22 ++++++++++++----------
+ 4 files changed, 16 insertions(+), 19 deletions(-)
 
 commit 6de064f083117ed6944d629baf7b543818edcf30
 Author: Guillem Jover <guillem@debian.org>
@@ -38195,7 +38389,7 @@ Date:   Wed Apr 20 23:38:31 2011 +0200
 
     Merge commit '1.16.0.2'
 
-commit 0bfd81b977ed0a3d4fca1c21e9f4e65c92c3fe9e
+commit 0bfd81b977ed0a3d4fca1c21e9f4e65c92c3fe9e (tag: 1.16.0.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Apr 16 00:17:10 2011 +0200
 
@@ -38308,7 +38502,7 @@ Date:   Tue Apr 5 07:41:33 2011 +0200
     Conflicts:
     	debian/changelog
 
-commit fe69ae4874919314c7f0757bb155bae38e7f211b
+commit fe69ae4874919314c7f0757bb155bae38e7f211b (tag: 1.16.0.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Apr 5 07:29:24 2011 +0200
 
@@ -38460,7 +38654,7 @@ Date:   Sat Apr 2 09:22:01 2011 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit d3686b5552f28a357d678b453a869b9d10f1ac4f
+commit d3686b5552f28a357d678b453a869b9d10f1ac4f (tag: 1.16.0)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Apr 1 23:57:06 2011 +0200
 
@@ -39660,10 +39854,10 @@ Date:   Sun Mar 13 05:53:37 2011 +0100
 
     libdpkg: Move blankversion() to new version module
 
- lib/dpkg/Makefile.am |  3 ++-
- lib/dpkg/database.c  |  5 -----
- lib/dpkg/version.c   | 32 ++++++++++++++++++++++++++++++++
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ lib/dpkg/Makefile.am                     |  3 ++-
+ lib/dpkg/database.c                      |  5 -----
+ dselect/curkeys.cc => lib/dpkg/version.c | 17 +++++++++--------
+ 3 files changed, 11 insertions(+), 14 deletions(-)
 
 commit 943de6c0e09760af1f8ad8c1e364fc4bcfbb1418
 Author: Guillem Jover <guillem@debian.org>
@@ -40291,12 +40485,12 @@ Date:   Fri Feb 25 00:21:46 2011 +0100
 
     dpkg: Refactor infodb file existence check into new pkg_infodb_has_file()
 
- src/Makefile.am |  1 +
- src/depcon.c    | 10 +++-------
- src/infodb.c    | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
- src/infodb.h    | 30 ++++++++++++++++++++++++++++++
- src/remove.c    | 18 ++----------------
- 5 files changed, 86 insertions(+), 23 deletions(-)
+ src/Makefile.am                     |  1 +
+ src/depcon.c                        | 10 ++-----
+ lib/dpkg/cleanup.c => src/infodb.c  | 55 +++++++++++++++----------------------
+ lib/dpkg/pkg-show.h => src/infodb.h | 19 ++++++-------
+ src/remove.c                        | 18 ++----------
+ 5 files changed, 36 insertions(+), 67 deletions(-)
 
 commit ae3500585ce59833e7b3094e1615fa273d7b8527
 Author: Guillem Jover <guillem@debian.org>
@@ -40832,15 +41026,15 @@ Date:   Fri Feb 4 04:26:37 2011 +0100
 
     Move and generalize debug API from dpkg to libdpkg
 
- lib/dpkg/Makefile.am      |  2 ++
- lib/dpkg/debug.c          | 84 +++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/debug.h          | 54 ++++++++++++++++++++++++++++++
- lib/dpkg/libdpkg.Versions |  5 +++
- src/depcon.c              |  2 +-
- src/help.c                | 13 +-------
- src/main.c                |  6 ++--
- src/main.h                | 19 +----------
- 8 files changed, 152 insertions(+), 33 deletions(-)
+ lib/dpkg/Makefile.am         |  2 ++
+ lib/dpkg/debug.c             | 84 ++++++++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{file.h => debug.h} | 49 +++++++++++++-------------
+ lib/dpkg/libdpkg.Versions    |  5 +++
+ src/depcon.c                 |  2 +-
+ src/help.c                   | 13 +------
+ src/main.c                   |  6 ++--
+ src/main.h                   | 19 +---------
+ 8 files changed, 123 insertions(+), 57 deletions(-)
 
 commit 469c5fa91e12fdded4e4c6f7131a965e889d5b18
 Author: Guillem Jover <guillem@debian.org>
@@ -41217,7 +41411,7 @@ Date:   Thu Jan 20 18:16:56 2011 +0100
  debian/usertags | 81 ++++++++++++++++++++++++++++++++++-----------------------
  1 file changed, 49 insertions(+), 32 deletions(-)
 
-commit 5f52c08852c672e48ca67ccddb17c83c8d1f9fe8
+commit 5f52c08852c672e48ca67ccddb17c83c8d1f9fe8 (tag: 1.15.8.10)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Jan 30 20:29:05 2011 +0100
 
@@ -41248,7 +41442,7 @@ Date:   Fri Jan 28 08:49:55 2011 +0100
 
     Merge commit '1.15.8.9'
 
-commit 6bdf65bafdc6b25ffd1cae27b6860d84e56823a1
+commit 6bdf65bafdc6b25ffd1cae27b6860d84e56823a1 (tag: 1.15.8.9)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jan 28 08:21:19 2011 +0100
 
@@ -42138,11 +42332,11 @@ Date:   Thu Dec 2 04:56:51 2010 +0100
 
     libdpkg: Add new fdio API
 
- lib/dpkg/Makefile.am      |  2 ++
- lib/dpkg/fdio.c           | 77 +++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/fdio.h           | 35 +++++++++++++++++++++
- lib/dpkg/libdpkg.Versions |  2 ++
- 4 files changed, 116 insertions(+)
+ lib/dpkg/Makefile.am       |  2 ++
+ lib/dpkg/fdio.c            | 77 ++++++++++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{pkg.h => fdio.h} | 19 ++++++------
+ lib/dpkg/libdpkg.Versions  |  2 ++
+ 4 files changed, 91 insertions(+), 9 deletions(-)
 
 commit 5cb9ffc5f9b53691d23ca8e8347eccfa8f130071
 Author: Guillem Jover <guillem@debian.org>
@@ -42712,7 +42906,7 @@ Date:   Thu Jan 6 21:59:44 2011 +0100
 
     Merge commit '1.15.8.8'
 
-commit 1d872bf8ed2a7976c901aff20bf2bd6c20660f65
+commit 1d872bf8ed2a7976c901aff20bf2bd6c20660f65 (tag: 1.15.8.8)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Jan 6 21:04:53 2011 +0100
 
@@ -42769,7 +42963,7 @@ Date:   Mon Jan 3 10:33:28 2011 +0100
  2 files changed, 4 insertions(+), 1 deletion(-)
 
 commit a66c05098e9f05d008e225c7cbc3479d37b0f91f
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Dec 20 07:13:28 2010 +0100
 
     Fix two typos in French manpages translation
@@ -42793,7 +42987,7 @@ Date:   Mon Dec 20 03:30:55 2010 +0100
     	scripts/po/es.po
     	src/archives.c
 
-commit 8edabd23157612c5b9dab88983b34166ea6fb902
+commit 8edabd23157612c5b9dab88983b34166ea6fb902 (tag: 1.15.8.7)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Dec 20 02:26:36 2010 +0100
 
@@ -43180,7 +43374,7 @@ Date:   Wed Dec 1 04:37:32 2010 +0100
  2 files changed, 3 insertions(+), 44 deletions(-)
 
 commit 725933d6f73d7d749c46778cff1cbb7416431a4b
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:34:43 2010 +0100
 
     Updated all Spanish translations to sync with master.
@@ -43193,7 +43387,7 @@ Date:   Fri Dec 10 01:34:43 2010 +0100
  3 files changed, 332 insertions(+), 266 deletions(-)
 
 commit 7c27d584603d6cda82d668f0da1fb64201e456d7
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:27:36 2010 +0100
 
     Updated Spanish translation
@@ -43205,7 +43399,7 @@ Date:   Fri Dec 10 01:27:36 2010 +0100
  2 files changed, 690 insertions(+), 954 deletions(-)
 
 commit 300c089c3e178420915c9805ae73d2b99e25cfcc
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:26:46 2010 +0100
 
     Fix typos in PO file
@@ -43215,13 +43409,13 @@ Date:   Fri Dec 10 01:26:46 2010 +0100
 
 commit 5e702366cba8c98a456740dbb97238b511eec26d
 Merge: 0e238b8 f3fa58a
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:20:59 2010 +0100
 
     Merge branch 'master' of ssh://git.debian.org/git/dpkg/dpkg
 
 commit 0e238b8e0281270a3d12bec69450f728af6f3dbf
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:20:32 2010 +0100
 
     Fix typo
@@ -43230,7 +43424,7 @@ Date:   Fri Dec 10 01:20:32 2010 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 2ba06ea3e29c913ac4f9649b9561cfb1a692a35c
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Fri Dec 10 01:19:17 2010 +0100
 
     Fix typos in translation format strings
@@ -43264,7 +43458,7 @@ Date:   Thu Dec 9 15:58:48 2010 +0100
  2 files changed, 15 insertions(+), 1 deletion(-)
 
 commit b67f29d946683dfdbddf1fffb1aef550a3260fb8
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Dec 9 02:50:14 2010 +0100
 
     Typo fix
@@ -43273,7 +43467,7 @@ Date:   Thu Dec 9 02:50:14 2010 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 76385c55207bb6a0ddb4e8ff3727a0e8e0cddbcd
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Dec 9 02:35:56 2010 +0100
 
     Review translation and fix some typos. Also added PO4spell check headers.
@@ -43282,7 +43476,7 @@ Date:   Thu Dec 9 02:35:56 2010 +0100
  1 file changed, 33 insertions(+), 11 deletions(-)
 
 commit c58875d365ab10cefe6cf83de9e792a19c1201e2
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Dec 9 02:26:38 2010 +0100
 
     Updated Spanish translation for dselect
@@ -43294,7 +43488,7 @@ Date:   Thu Dec 9 02:26:38 2010 +0100
  2 files changed, 297 insertions(+), 255 deletions(-)
 
 commit 48a74f34f5aa54f2506795e8a30fe6a9c50354fd
-Author: Javier Fernandez-Sanguino <jfs@debian.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Dec 9 02:17:17 2010 +0100
 
     Include changes introduced to Spanish translation
@@ -43303,7 +43497,7 @@ Date:   Thu Dec 9 02:17:17 2010 +0100
  1 file changed, 1 insertion(+)
 
 commit 553549620ee08e704f8488d6dd4af947f812b093
-Author: Javier Fernandez-Sanguino Pen~a <jfs@javifsp.no-ip.org>
+Author: Javier Fernández-Sanguino Peña <jfs@debian.org>
 Date:   Thu Dec 9 02:12:42 2010 +0100
 
     Updated Spanish translation
@@ -43322,7 +43516,7 @@ Date:   Wed Dec 1 07:03:03 2010 +0100
  2 files changed, 8 insertions(+), 49 deletions(-)
 
 commit 252f5e0561120d8b6d7bb55a9fc30a004d45a566
-Author: Miguel Figueiredo <elmig@eeepc.debian>
+Author: Miguel Figueiredo <elmig@debianpt.org>
 Date:   Tue Nov 30 20:14:42 2010 +0000
 
     Update Portuguese translation of program
@@ -43354,7 +43548,7 @@ Date:   Sat Nov 27 16:42:49 2010 +0100
  2 files changed, 429 insertions(+), 654 deletions(-)
 
 commit 53165b3620a915d2c16748ba4ce30af31581d6da
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Nov 26 07:16:59 2010 +0100
 
     French translation update for programs: 985t
@@ -43414,7 +43608,7 @@ Date:   Thu Nov 25 07:57:09 2010 +0100
     	m4/dpkg-funcs.m4
     	man/dpkg.1
 
-commit 81aacd4b0a84df492d0ba33110537efb6fef836d
+commit 81aacd4b0a84df492d0ba33110537efb6fef836d (tag: 1.15.8.6)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Nov 25 07:11:02 2010 +0100
 
@@ -43635,7 +43829,7 @@ Date:   Wed Nov 24 20:59:09 2010 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 6b403243270240fd01116532112c287c8cfb688e
-Author: Andrei POPESCU <andreimpopescu@gmail.com>
+Author: Andrei Popescu <andreimpopescu@gmail.com>
 Date:   Wed Nov 24 19:36:01 2010 +0100
 
     Romanian translation update. Closes: #604769
@@ -44546,11 +44740,11 @@ Date:   Sun Oct 24 03:49:22 2010 +0200
 
     libdpkg: Add new namevalue_find_by_name function
 
- lib/dpkg/Makefile.am                  |  1 +
- lib/dpkg/libdpkg.Versions             |  3 +++
- lib/dpkg/{namevalue.h => namevalue.c} | 32 +++++++++++++++-----------------
- lib/dpkg/namevalue.h                  |  5 ++++-
- 4 files changed, 23 insertions(+), 18 deletions(-)
+ lib/dpkg/Makefile.am            |  1 +
+ lib/dpkg/libdpkg.Versions       |  3 +++
+ lib/dpkg/{dir.h => namevalue.c} | 27 ++++++++++++++-------------
+ lib/dpkg/namevalue.h            |  5 ++++-
+ 4 files changed, 22 insertions(+), 14 deletions(-)
 
 commit 8c234c5698645a759f6153fd1be4d7b90059bb88
 Author: Guillem Jover <guillem@debian.org>
@@ -44558,11 +44752,11 @@ Date:   Sun Oct 24 03:28:55 2010 +0200
 
     libdpkg: Move namevalue declarations to its own header file
 
- lib/dpkg/Makefile.am |  1 +
- lib/dpkg/dpkg-db.h   |  5 +----
- lib/dpkg/namevalue.h | 40 ++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/parsehelp.c |  3 ---
- 4 files changed, 42 insertions(+), 7 deletions(-)
+ lib/dpkg/Makefile.am                      |  1 +
+ lib/dpkg/dpkg-db.h                        |  5 +----
+ lib/dpkg/{test/t-macros.c => namevalue.h} | 32 +++++++++++++++----------------
+ lib/dpkg/parsehelp.c                      |  3 ---
+ 4 files changed, 18 insertions(+), 23 deletions(-)
 
 commit b89373e169cf0d90c3143eeac0bded1a5d9e9c5c
 Author: Guillem Jover <guillem@debian.org>
@@ -45180,7 +45374,7 @@ Date:   Sat Sep 11 06:20:37 2010 +0200
  1 file changed, 21 insertions(+), 4 deletions(-)
 
 commit 9d834b3f654f771ab5ae8790cfc83086288fca07
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Nov 9 19:59:35 2010 +0100
 
     Fix translation of "however" in Italian. Thanks to Pietro Battiston Closes: #602518
@@ -45278,7 +45472,7 @@ Date:   Sun Oct 31 10:35:55 2010 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit e12fa2ffc6c2df7446c7957a7875c13f79ff0dfa
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Oct 30 23:14:27 2010 +0200
 
     Some fixes to dpkg-gensymbols manpage, helped by Raphaël's eyes
@@ -45287,7 +45481,7 @@ Date:   Sat Oct 30 23:14:27 2010 +0200
  1 file changed, 17 insertions(+), 20 deletions(-)
 
 commit 25afe6a37eace19f85ad742ed6fdc65242e0f109
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Oct 30 16:07:50 2010 +0200
 
     French (Christian Perrier). Including a typo fix and a typographical change reported by Vincent Danjean Closes: #601852
@@ -45381,7 +45575,7 @@ Date:   Fri Oct 15 07:35:35 2010 +0200
  2 files changed, 1357 insertions(+), 1911 deletions(-)
 
 commit 38ce2434797f726cfa28c53b12d64f3721749329
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Oct 13 20:59:56 2010 +0200
 
     Basque (Iñaki Larrañaga Murgoitio). Closes: #599923
@@ -45453,7 +45647,7 @@ Date:   Wed Sep 29 21:57:03 2010 +0200
  2 files changed, 870 insertions(+), 1882 deletions(-)
 
 commit b1beab8611fb617aca0066d1db8214710554bf8d
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Sep 20 07:11:39 2010 +0200
 
     Re-add originally omitted mention of version 2.0 as mentioning it is not a bug in the original version of manpages
@@ -45501,7 +45695,7 @@ Date:   Sun Sep 19 11:53:43 2010 +0200
  1 file changed, 1 insertion(+)
 
 commit f9710dd96182c6da2e7a310ac9293e7d8983cc30
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Sep 19 13:01:18 2010 +0200
 
     French translation completed (yesssss): 1937t
@@ -45510,7 +45704,7 @@ Date:   Sun Sep 19 13:01:18 2010 +0200
  1 file changed, 79 insertions(+), 54 deletions(-)
 
 commit c781df2c886c4ca40a47b0609aa8ad87ce2f98ef
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Sep 19 12:48:24 2010 +0200
 
     Replace jargonic 'diff' in French translation
@@ -45534,7 +45728,7 @@ Date:   Sat Sep 18 22:40:00 2010 +0200
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 commit c30b08b89e0eee39147c5b10fb8c48ad37522115
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Sep 18 15:27:02 2010 +0200
 
     French translation update: 1894t15f28u
@@ -45543,7 +45737,7 @@ Date:   Sat Sep 18 15:27:02 2010 +0200
  1 file changed, 96 insertions(+), 95 deletions(-)
 
 commit f363698d3be17cb9dca6441d2d28cf7d1a3e92a7
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Sep 17 19:39:14 2010 +0200
 
     French translation update: 1844t37f56u
@@ -45552,7 +45746,7 @@ Date:   Fri Sep 17 19:39:14 2010 +0200
  1 file changed, 35 insertions(+), 16 deletions(-)
 
 commit e4c8520a9170c3de82ba81da5ad55ed3bf6d69fc
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Sep 15 20:00:53 2010 +0200
 
     French translation update: 1827t43f67u
@@ -45580,7 +45774,7 @@ Date:   Tue Sep 14 20:30:06 2010 +0200
  2 files changed, 67 insertions(+), 76 deletions(-)
 
 commit ebe90372984fa3327b5dec3532a17ce5f69db0d3
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Sep 14 20:28:41 2010 +0200
 
     Revert "Portuguese programs translation: 985t"
@@ -45622,7 +45816,7 @@ Date:   Tue Sep 14 20:21:05 2010 +0200
  2 files changed, 588 insertions(+), 720 deletions(-)
 
 commit 0ca8a4c9edfa48ca2161548288ced374044bc51a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Sep 14 20:18:37 2010 +0200
 
     Changelog for french translation update of manpages
@@ -45631,7 +45825,7 @@ Date:   Tue Sep 14 20:18:37 2010 +0200
  1 file changed, 7 insertions(+)
 
 commit f4b87357b968b08d664c0c4e2356d5613a840394
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Sep 14 20:17:37 2010 +0200
 
     French manpages translation update. dpkg-gensymbols completed: 1819t43f75u
@@ -45639,7 +45833,7 @@ Date:   Tue Sep 14 20:17:37 2010 +0200
  man/po/fr.po | 356 +++++++++++++++++++++++++++--------------------------------
  1 file changed, 160 insertions(+), 196 deletions(-)
 
-commit f3a8a022f1a2edc5ff8d0e92ffc3e48e84be8b39
+commit f3a8a022f1a2edc5ff8d0e92ffc3e48e84be8b39 (tag: 1.15.8.5)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Sep 14 01:26:55 2010 +0200
 
@@ -45672,7 +45866,7 @@ Date:   Mon Sep 13 18:25:38 2010 +0200
  2 files changed, 1301 insertions(+), 2052 deletions(-)
 
 commit ec2984de3e0df21bc13cf29427ac3f096f5baee9
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Sep 13 07:54:12 2010 +0200
 
     Updated French translation: 1765t57f115u and an aspirin
@@ -45692,7 +45886,7 @@ Date:   Mon Sep 13 12:16:29 2010 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit e5fc68ee96fe17bb7fbe5d2fe4742bb87843dacd
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Sep 12 13:40:39 2010 +0200
 
     Spanish translation for scripts
@@ -45717,7 +45911,7 @@ Date:   Sat Sep 11 10:13:53 2010 +0200
  2 files changed, 4 insertions(+), 1 deletion(-)
 
 commit 0f3e3a0fba6d7d1613c88158daf9dec2545f58cd
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Sep 10 18:29:45 2010 +0200
 
     French translation update: 1742t58f137u
@@ -45726,7 +45920,7 @@ Date:   Fri Sep 10 18:29:45 2010 +0200
  1 file changed, 18 insertions(+), 9 deletions(-)
 
 commit 2cd3908475ec426938f7bc2fe672cd4a585d8c20
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Sep 10 18:09:08 2010 +0200
 
     More occurrences of the same translation
@@ -45735,7 +45929,7 @@ Date:   Fri Sep 10 18:09:08 2010 +0200
  1 file changed, 14 insertions(+), 14 deletions(-)
 
 commit ac9c5cec1039cd3d4b9ba86d23e35faeaa3f963a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Sep 10 18:03:38 2010 +0200
 
     Fix to French translation for #596333
@@ -45745,7 +45939,7 @@ Date:   Fri Sep 10 18:03:38 2010 +0200
  2 files changed, 4 insertions(+), 3 deletions(-)
 
 commit 1028f4974031505522e122650cded3cefc2209d5
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Thu Sep 9 20:45:37 2010 +0200
 
     French translation update of manpages: 1733t61f143u
@@ -45754,7 +45948,7 @@ Date:   Thu Sep 9 20:45:37 2010 +0200
  1 file changed, 50 insertions(+), 9 deletions(-)
 
 commit 51c03b35f3471579d38af78b9ea7f6d5ba20114b
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Thu Sep 9 20:45:06 2010 +0200
 
     French translation update of programs: 985t
@@ -45773,7 +45967,7 @@ Date:   Thu Sep 9 07:18:10 2010 +0200
  2 files changed, 462 insertions(+), 1077 deletions(-)
 
 commit afa06d045f42754eeb2e547653c6e0fefc692603
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Sep 8 07:14:22 2010 +0200
 
     French translation update: 985t
@@ -45801,7 +45995,7 @@ Date:   Tue Sep 7 10:54:53 2010 +0200
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit c827666cf066f9faf885e69130ffec71801f060e
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Sep 6 20:49:41 2010 +0200
 
     French manpages translation update: 1714t63f160u
@@ -45810,7 +46004,7 @@ Date:   Mon Sep 6 20:49:41 2010 +0200
  1 file changed, 110 insertions(+), 123 deletions(-)
 
 commit a9c7e8795faef90f8068edbaa286bfb622f19d67
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Sep 6 07:48:50 2010 +0200
 
     French translation update: 1633t104f200u
@@ -45819,7 +46013,7 @@ Date:   Mon Sep 6 07:48:50 2010 +0200
  1 file changed, 32 insertions(+), 23 deletions(-)
 
 commit 21f25047bfd3a95152e8607252f8b07fc2a339f6
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Sep 5 19:45:43 2010 +0200
 
     French manpages translation update: 1614t108f215u
@@ -45938,7 +46132,7 @@ Date:   Wed Sep 1 22:10:39 2010 +0200
  2 files changed, 160 insertions(+), 226 deletions(-)
 
 commit d9eb4619108bf6f3006da189eebcf2846529915a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Sep 1 21:52:56 2010 +0200
 
     French translation update: 118f219u
@@ -45947,7 +46141,7 @@ Date:   Wed Sep 1 21:52:56 2010 +0200
  1 file changed, 78 insertions(+), 145 deletions(-)
 
 commit a272d4387c066ed347d6debb0e2ea3786b68bef5
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Sep 1 07:53:30 2010 +0200
 
     French translation update
@@ -45956,7 +46150,7 @@ Date:   Wed Sep 1 07:53:30 2010 +0200
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 commit 99128995b4b0973f0bfa8d971fa784ec8ebdfc4b
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Sep 1 07:51:59 2010 +0200
 
     French translation update
@@ -46246,7 +46440,7 @@ Date:   Thu Aug 26 04:01:04 2010 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit e068a6b1b1821cc57582edaacf1e0ecda8e9291a
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Aug 25 08:19:19 2010 +0200
 
     Review by Florentin Duneau
@@ -46255,7 +46449,7 @@ Date:   Wed Aug 25 08:19:19 2010 +0200
  1 file changed, 3 insertions(+), 4 deletions(-)
 
 commit 62a7593aca5ad7e893ac5234b2e1cc5e7f72c048
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Aug 24 18:26:22 2010 +0200
 
     French scripts translation update
@@ -46265,7 +46459,7 @@ Date:   Tue Aug 24 18:26:22 2010 +0200
  2 files changed, 44 insertions(+), 38 deletions(-)
 
 commit df30246836cfd1dd2bce018cb64d8ae040a11d4c
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Aug 24 18:25:56 2010 +0200
 
     French manpages translation update
@@ -46275,7 +46469,7 @@ Date:   Tue Aug 24 18:25:56 2010 +0200
  2 files changed, 106 insertions(+), 194 deletions(-)
 
 commit 91837cdaa79e97de24491758aa6788de5bc2682c
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Tue Aug 24 18:25:21 2010 +0200
 
     French programs translation update
@@ -46601,7 +46795,7 @@ Date:   Fri Aug 13 06:46:03 2010 +0200
     	debian/changelog
     	scripts/po/de.po
 
-commit 2499850fd03395b37ce77cc84976656767056674
+commit 2499850fd03395b37ce77cc84976656767056674 (tag: 1.15.8.4)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Aug 13 05:21:31 2010 +0200
 
@@ -46904,7 +47098,7 @@ Date:   Mon Aug 2 10:53:35 2010 +0200
     Conflicts:
     	debian/changelog
 
-commit 624aa0fadb9daf2757563197fa376b8223d11f2d
+commit 624aa0fadb9daf2757563197fa376b8223d11f2d (tag: 1.15.8.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Aug 2 10:38:28 2010 +0200
 
@@ -46958,7 +47152,7 @@ Date:   Sat Jul 31 04:39:19 2010 +0200
     Conflicts:
     	debian/changelog
 
-commit 4aed1d728958584769d469540e9ae6103e13d424
+commit 4aed1d728958584769d469540e9ae6103e13d424 (tag: 1.15.8.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jul 31 04:20:18 2010 +0200
 
@@ -47025,7 +47219,7 @@ Date:   Thu Jul 29 20:26:53 2010 +0200
  lib/compat/scandir.c | 1 +
  2 files changed, 4 insertions(+)
 
-commit 44c36ad22adc8234a15bbfcf68a7bedf959443e5
+commit 44c36ad22adc8234a15bbfcf68a7bedf959443e5 (tag: 1.15.8.1)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Jul 29 21:18:39 2010 +0200
 
@@ -47090,7 +47284,7 @@ Date:   Thu Jul 29 11:00:28 2010 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit 189dcd07b4cd62159fb0a28db79249d86c91fb1b
+commit 189dcd07b4cd62159fb0a28db79249d86c91fb1b (tag: 1.15.8)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Jul 29 09:39:30 2010 +0200
 
@@ -47891,14 +48085,14 @@ Date:   Fri Jul 16 14:19:15 2010 +0200
 
     Move pkg-show module to libdpkg
 
- lib/dpkg/Makefile.am                  |  2 ++
- {src => lib/dpkg}/pkg-show.c          |  5 ++---
- src/pkg-show.c => lib/dpkg/pkg-show.h | 33 ++++++++-------------------------
- src/Makefile.am                       |  2 --
- src/enquiry.c                         |  1 +
- src/main.h                            |  2 --
- src/query.c                           |  1 +
- 7 files changed, 14 insertions(+), 32 deletions(-)
+ lib/dpkg/Makefile.am           |  2 ++
+ {src => lib/dpkg}/pkg-show.c   |  5 ++---
+ lib/dpkg/{pkg.h => pkg-show.h} | 15 +++++++--------
+ src/Makefile.am                |  2 --
+ src/enquiry.c                  |  1 +
+ src/main.h                     |  2 --
+ src/query.c                    |  1 +
+ 7 files changed, 13 insertions(+), 15 deletions(-)
 
 commit b4efb601b445580a3a46ce873eec3a80893dd08f
 Author: Guillem Jover <guillem@debian.org>
@@ -48204,10 +48398,10 @@ Date:   Sat Jul 3 13:18:18 2010 +0200
 
     Initial Spanish scripts translation
 
- debian/changelog   |    3 +
- scripts/po/LINGUAS |    3 +
- scripts/po/es.po   | 3579 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 3585 insertions(+)
+ debian/changelog            |    3 +
+ scripts/po/LINGUAS          |    3 +
+ scripts/po/{pl.po => es.po} | 2215 +++++++++++++++++++++----------------------
+ 3 files changed, 1088 insertions(+), 1133 deletions(-)
 
 commit 3a544f8c59b3f9e46f9cfc624edbaaaa5b81d92a
 Author: Guillem Jover <guillem@debian.org>
@@ -49113,14 +49307,14 @@ Date:   Wed May 19 12:41:28 2010 +0200
     Signed-off-by: Martin Pitt <martin.pitt@ubuntu.com>
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- debian/changelog |   4 ++
- man/dpkg.1       |  37 +++++++++++++++-
- src/Makefile.am  |   1 +
- src/archives.c   |   8 ++++
- src/filters.c    | 128 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/filters.h    |  37 ++++++++++++++++
- src/main.c       |  15 ++++++-
- 7 files changed, 228 insertions(+), 2 deletions(-)
+ debian/changelog          |   4 ++
+ man/dpkg.1                |  37 +++++++++++++-
+ src/Makefile.am           |   1 +
+ src/archives.c            |   8 +++
+ src/filters.c             | 128 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/{glob.h => filters.h} |  23 ++++-----
+ src/main.c                |  15 +++++-
+ 7 files changed, 202 insertions(+), 14 deletions(-)
 
 commit 0969a91ef9e645700556947b3a2afd2237e4a26a
 Author: Guillem Jover <guillem@debian.org>
@@ -49211,12 +49405,12 @@ Date:   Sun Jun 6 21:06:34 2010 +0200
     
     Provide compatibility code whenever the system does not.
 
- configure.ac           |  2 +-
- lib/compat/Makefile.am |  4 ++++
- lib/compat/asprintf.c  | 38 ++++++++++++++++++++++++++++++++
- lib/compat/compat.h    |  7 ++++++
- lib/compat/vasprintf.c | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 109 insertions(+), 1 deletion(-)
+ configure.ac                           |  2 +-
+ lib/compat/Makefile.am                 |  4 ++++
+ lib/compat/{snprintf.c => asprintf.c}  | 21 ++++++++---------
+ lib/compat/compat.h                    |  7 ++++++
+ lib/compat/{snprintf.c => vasprintf.c} | 42 ++++++++++++++++++++++++----------
+ 5 files changed, 51 insertions(+), 25 deletions(-)
 
 commit 85c60fecfe245b542ceea503994fef0347f2e51b
 Author: Omar Campagne <ocampagne@gmail.com>
@@ -49304,11 +49498,11 @@ Date:   Wed Feb 24 20:16:34 2010 +0100
 
     Refactor glob functions into its own module
 
- src/Makefile.am |  1 +
- src/glob.c      | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
- src/glob.h      | 38 ++++++++++++++++++++++++++++++++++++++
- src/statcmd.c   | 29 +----------------------------
- 4 files changed, 91 insertions(+), 28 deletions(-)
+ src/Makefile.am                   |  1 +
+ lib/dpkg/pkg-list.c => src/glob.c | 35 +++++++++++++----------------------
+ lib/dpkg/pkg.h => src/glob.h      | 18 +++++++++++-------
+ src/statcmd.c                     | 29 +----------------------------
+ 4 files changed, 26 insertions(+), 57 deletions(-)
 
 commit 77daf2187b0a0c44cf40b93a3886ddcd00a8190d
 Author: Guillem Jover <guillem@debian.org>
@@ -49744,16 +49938,16 @@ Date:   Thu May 20 13:49:06 2010 +0100
     run 600_Dpkg_Changelog.t a second time with DEB_VENDOR set, to avoid
     duplicating lots of code. See the discussion in #536066 for background.
 
- debian/changelog                      |  2 ++
- scripts/Dpkg/Vendor.pm                |  5 ++++-
- scripts/Makefile.am                   |  2 ++
- scripts/t/600_Dpkg_Changelog.t        | 18 +++++++++++++++---
- scripts/t/600_Dpkg_Changelog/fields   |  2 ++
- scripts/t/600_Dpkg_Changelog_Ubuntu.t | 21 +++++++++++++++++++++
- scripts/t/origins/debian              |  3 +++
- scripts/t/origins/default             |  1 +
- scripts/t/origins/ubuntu              |  4 ++++
- 9 files changed, 54 insertions(+), 4 deletions(-)
+ debian/changelog                                     |  2 ++
+ scripts/Dpkg/Vendor.pm                               |  5 ++++-
+ scripts/Makefile.am                                  |  2 ++
+ scripts/t/600_Dpkg_Changelog.t                       | 18 +++++++++++++++---
+ scripts/t/600_Dpkg_Changelog/fields                  |  2 ++
+ scripts/t/{000_pod.t => 600_Dpkg_Changelog_Ubuntu.t} | 11 ++++-------
+ scripts/t/origins/debian                             |  3 +++
+ scripts/t/origins/default                            |  1 +
+ scripts/t/origins/ubuntu                             |  4 ++++
+ 9 files changed, 37 insertions(+), 11 deletions(-)
 
 commit d02ed9451e83309dcc795370661c910e0bd75e8e
 Author: Helge Kreutzmann <debian@helgefjell.de>
@@ -49997,7 +50191,7 @@ Date:   Wed May 19 08:25:44 2010 +0200
     Conflicts:
     	debian/changelog
 
-commit 24f375fd275e29209d94fcd3f2485443d71428e5
+commit 24f375fd275e29209d94fcd3f2485443d71428e5 (tag: 1.15.7.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed May 19 06:31:31 2010 +0200
 
@@ -50447,7 +50641,7 @@ Date:   Thu Apr 29 08:19:26 2010 +0200
  2 files changed, 22 insertions(+)
 
 commit 6a606c37571a2aa25dd7d4d46d4ed45206e4dbeb
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Apr 28 22:27:08 2010 +0200
 
     Russian translation updates
@@ -50459,7 +50653,7 @@ Date:   Wed Apr 28 22:27:08 2010 +0200
  4 files changed, 417 insertions(+), 957 deletions(-)
 
 commit 69e24133f78f34c34d690115551af5acb475a1e9
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Mon Apr 26 18:47:03 2010 +0200
 
     French translation updated to 507t
@@ -50468,7 +50662,7 @@ Date:   Mon Apr 26 18:47:03 2010 +0200
  1 file changed, 73 insertions(+), 68 deletions(-)
 
 commit 1d84cfe8be512b8786d81a024d3a88007f11584d
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Apr 25 18:49:51 2010 +0200
 
     Update changelog
@@ -50477,7 +50671,7 @@ Date:   Sun Apr 25 18:49:51 2010 +0200
  1 file changed, 1 insertion(+)
 
 commit 84bb9c8f8fb00c0b775c2d207e8e1854ae7f6292
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sun Apr 25 11:37:40 2010 +0200
 
     A few more strings
@@ -50525,7 +50719,7 @@ Date:   Thu Apr 22 08:17:36 2010 +0200
 
     Merge commit '1.15.7.1'
 
-commit d97034aa68097c85cdf85895182614e82f24b97f
+commit d97034aa68097c85cdf85895182614e82f24b97f (tag: 1.15.7.1)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Apr 22 08:05:39 2010 +0200
 
@@ -50587,7 +50781,7 @@ Date:   Wed Apr 21 04:42:09 2010 +0200
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit a3a9417a081f19773e9527698e3de73e187d0542
+commit a3a9417a081f19773e9527698e3de73e187d0542 (tag: 1.15.7)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Apr 21 04:06:35 2010 +0200
 
@@ -51168,15 +51362,15 @@ Date:   Fri Apr 9 17:46:15 2010 +0200
     level while still allowing customizations by users who recompile the
     source packages.
 
- debian/changelog           |   5 ++
- debian/dpkg-dev.install    |   2 +
- man/Makefile.am            |   1 +
- man/dpkg-buildflags.1      | 116 +++++++++++++++++++++++++++++++++++++++++++++
- man/po/po4a.cfg            |   5 ++
- scripts/Makefile.am        |   2 +
- scripts/dpkg-buildflags.pl | 105 ++++++++++++++++++++++++++++++++++++++++
- scripts/po/POTFILES.in     |   1 +
- 8 files changed, 237 insertions(+)
+ debian/changelog                               |   5 ++
+ debian/dpkg-dev.install                        |   2 +
+ man/Makefile.am                                |   1 +
+ man/dpkg-buildflags.1                          | 116 +++++++++++++++++++++++++
+ man/po/po4a.cfg                                |   5 ++
+ scripts/Makefile.am                            |   2 +
+ scripts/{dpkg-vendor.pl => dpkg-buildflags.pl} |  75 +++++++---------
+ scripts/po/POTFILES.in                         |   1 +
+ 8 files changed, 165 insertions(+), 42 deletions(-)
 
 commit 4c1743cb6ec8478fc099201a7811caa0d892ebaa
 Author: Raphaël Hertzog <hertzog@debian.org>
@@ -51457,7 +51651,7 @@ Date:   Sun Mar 28 12:04:38 2010 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 48fcb4cea268e2257b9bdd4a89072870f70239bd
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Mar 26 07:25:28 2010 +0100
 
     Updated French translation
@@ -51467,7 +51661,7 @@ Date:   Fri Mar 26 07:25:28 2010 +0100
  2 files changed, 140 insertions(+), 160 deletions(-)
 
 commit 132372df042576ba92df8fe17db95a12b51c7097
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Fri Mar 12 07:17:27 2010 +0100
 
     Update French dselect translation
@@ -51476,7 +51670,7 @@ Date:   Fri Mar 12 07:17:27 2010 +0100
  dselect/po/fr.po | 16 ++++++----------
  2 files changed, 7 insertions(+), 10 deletions(-)
 
-commit a06c587571c1926a6af4176dac9f5066175db45c
+commit a06c587571c1926a6af4176dac9f5066175db45c (tag: 1.15.6.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Mar 24 13:56:47 2010 +0100
 
@@ -51791,7 +51985,7 @@ Date:   Sat Mar 13 05:27:20 2010 +0100
  debian/changelog | 6 ++++++
  1 file changed, 6 insertions(+)
 
-commit cba7601879c20e23d2320dfdc7bd71b0a857d3e8
+commit cba7601879c20e23d2320dfdc7bd71b0a857d3e8 (tag: 1.15.6)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Mar 12 00:15:54 2010 +0100
 
@@ -51937,20 +52131,20 @@ Date:   Thu Mar 11 21:35:25 2010 +0100
     
     Base-on-patch-by: Jean-Baptiste Lallement <jeanbaptiste.lallement@gmail.com>
 
- debian/changelog        |   4 ++
- dpkg-split/queue.c      |   2 +
- lib/dpkg/Makefile.am    |   2 +
- lib/dpkg/dbmodify.c     |   8 ++++
- lib/dpkg/dir.c          | 124 ++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/dir.h          |  37 +++++++++++++++
- lib/dpkg/dump.c         |   5 ++
- lib/dpkg/trigdeferred.l |   3 ++
- lib/dpkg/triglib.c      |   5 ++
- src/filesdb.c           |   3 ++
- src/processarc.c        |  17 +++++++
- src/remove.c            |   5 ++
- src/statcmd.c           |   3 ++
- 13 files changed, 218 insertions(+)
+ debian/changelog         |   4 ++
+ dpkg-split/queue.c       |   2 +
+ lib/dpkg/Makefile.am     |   2 +
+ lib/dpkg/dbmodify.c      |   8 +++
+ lib/dpkg/dir.c           | 124 +++++++++++++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{ar.h => dir.h} |  17 ++++---
+ lib/dpkg/dump.c          |   5 ++
+ lib/dpkg/trigdeferred.l  |   3 ++
+ lib/dpkg/triglib.c       |   5 ++
+ src/filesdb.c            |   3 ++
+ src/processarc.c         |  17 +++++++
+ src/remove.c             |   5 ++
+ src/statcmd.c            |   3 ++
+ 13 files changed, 191 insertions(+), 7 deletions(-)
 
 commit ab9482eb45e27a0b0c058a2662b28b7d3642173d
 Author: Guillem Jover <guillem@debian.org>
@@ -52118,7 +52312,7 @@ Date:   Thu Mar 11 08:25:30 2010 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 5b7ce047b9376613fc6fe6a53890b9a4e0c9b732
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Thu Mar 11 23:00:49 2010 +0100
 
     Spanish dselect translation
@@ -52468,12 +52662,6 @@ Date:   Sat Feb 27 19:55:25 2010 +0100
     
     Based-on-patch-by: Jean-Baptiste Lallement <jeanbaptiste.lallement@gmail.com>
 
-Notes:
-    The crashes and user intervention comment here, refer to abrupt
-    termination of the system, and not just the program, due to an overall
-    malfunction of the kernel, the hardware or the user pulling the plug,
-    for example.
-
  debian/changelog          |  4 ++++
  dpkg-deb/build.c          |  4 ++++
  dpkg-split/join.c         |  5 +++++
@@ -52746,15 +52934,15 @@ Date:   Fri Feb 26 13:50:42 2010 +0100
     
     Clarify the status of the API in README.api.
 
- debian/.gitignore                     |  1 +
- debian/changelog                      |  1 +
- debian/control                        | 39 ++++++++++++++++++++++++++++++++---
- debian/dpkg-dev.install               |  4 ----
- debian/libdpkg-perl.docs              |  4 ++++
- debian/libdpkg-perl.install           |  4 ++++
- debian/libdpkg-perl.lintian-overrides |  2 ++
- doc/README.api                        | 18 +++++++++++-----
- 8 files changed, 61 insertions(+), 12 deletions(-)
+ debian/.gitignore                              |  1 +
+ debian/changelog                               |  1 +
+ debian/control                                 | 39 ++++++++++++++++++++++++--
+ debian/dpkg-dev.install                        |  4 ---
+ debian/{libdpkg-dev.docs => libdpkg-perl.docs} |  1 -
+ debian/libdpkg-perl.install                    |  4 +++
+ debian/libdpkg-perl.lintian-overrides          |  2 ++
+ doc/README.api                                 | 18 ++++++++----
+ 8 files changed, 57 insertions(+), 13 deletions(-)
 
 commit 0934601905ea4546a874a6558f7a2a2552cd62f1
 Author: Raphaël Hertzog <hertzog@debian.org>
@@ -52920,18 +53108,18 @@ Date:   Thu Feb 25 07:04:53 2010 +0100
     resort to building dpkg from source and using the headers and the static
     library from the source tree.
 
- Makefile.am                          |  3 ++
- configure.ac                         |  1 +
- debian/.gitignore                    |  1 +
- debian/changelog                     |  2 ++
- debian/control                       | 12 +++++++
- debian/libdpkg-dev.docs              |  5 +++
- debian/libdpkg-dev.install           |  3 ++
- debian/libdpkg-dev.lintian-overrides |  2 ++
- lib/dpkg/.gitignore                  |  1 +
- lib/dpkg/Makefile.am                 | 69 ++++++++++++++++++++++++------------
- lib/dpkg/libdpkg.pc.in               | 12 +++++++
- 11 files changed, 89 insertions(+), 22 deletions(-)
+ Makefile.am                            |  3 ++
+ configure.ac                           |  1 +
+ debian/.gitignore                      |  1 +
+ debian/changelog                       |  2 +
+ debian/control                         | 12 ++++++
+ debian/{dpkg.docs => libdpkg-dev.docs} |  2 -
+ debian/libdpkg-dev.install             |  3 ++
+ debian/libdpkg-dev.lintian-overrides   |  2 +
+ lib/dpkg/.gitignore                    |  1 +
+ lib/dpkg/Makefile.am                   | 69 +++++++++++++++++++++++-----------
+ lib/dpkg/libdpkg.pc.in                 | 12 ++++++
+ 11 files changed, 84 insertions(+), 24 deletions(-)
 
 commit c406ca71c4fa7b8b49a240f33a36b69decfcc3c9
 Author: Guillem Jover <guillem@debian.org>
@@ -53257,14 +53445,14 @@ Date:   Sun Feb 21 05:52:10 2010 +0100
 
     libdpkg: Add a new pkg-queue module
 
- lib/dpkg/Makefile.am        |   1 +
- lib/dpkg/pkg-queue.c        |  90 ++++++++++++++++++++++++++++++++++
- lib/dpkg/pkg-queue.h        |  47 ++++++++++++++++++
- lib/dpkg/test/.gitignore    |   1 +
- lib/dpkg/test/Makefile.am   |   4 +-
- lib/dpkg/test/t-pkg-queue.c | 115 ++++++++++++++++++++++++++++++++++++++++++++
- po/POTFILES.in              |   1 +
- 7 files changed, 258 insertions(+), 1 deletion(-)
+ lib/dpkg/Makefile.am           |   1 +
+ lib/dpkg/pkg-queue.c           |  90 ++++++++++++++++++++++++++++++++
+ lib/dpkg/{ar.h => pkg-queue.h} |  32 ++++++++----
+ lib/dpkg/test/.gitignore       |   1 +
+ lib/dpkg/test/Makefile.am      |   4 +-
+ lib/dpkg/test/t-pkg-queue.c    | 115 +++++++++++++++++++++++++++++++++++++++++
+ po/POTFILES.in                 |   1 +
+ 7 files changed, 232 insertions(+), 12 deletions(-)
 
 commit fcf328f4d1cbe613b6c9c57b33dabbffb28cbdf0
 Author: Guillem Jover <guillem@debian.org>
@@ -53490,10 +53678,10 @@ Date:   Sat Feb 20 04:29:15 2010 +0100
  lib/dpkg/Makefile.am                 |  2 +-
  lib/dpkg/dpkg-db.h                   |  9 ---------
  lib/dpkg/{showpkg.c => pkg-format.c} |  3 ++-
- lib/dpkg/pkg-format.h                | 38 ++++++++++++++++++++++++++++++++++++
+ lib/dpkg/{file.h => pkg-format.h}    | 22 ++++++++++++----------
  po/POTFILES.in                       |  2 +-
  src/query.c                          |  1 +
- 7 files changed, 44 insertions(+), 12 deletions(-)
+ 7 files changed, 18 insertions(+), 22 deletions(-)
 
 commit 51323231082c34fe87771502593aae50e601ea04
 Author: Guillem Jover <guillem@debian.org>
@@ -54754,7 +54942,7 @@ Date:   Sat Jan 30 09:57:54 2010 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 6978d2e1d798e78a2d94e2b11b60c3c2210ae529
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Sat Jan 30 09:14:01 2010 +0100
 
     French  manpages translation update
@@ -55225,14 +55413,14 @@ Date:   Sun Jan 24 01:07:24 2010 +0100
     For now include a dpkg_ar_normalize_name() function to fix up the
     ar_name member in an ar_hdr structure.
 
- lib/dpkg/Makefile.am      |  1 +
- lib/dpkg/ar.c             | 39 +++++++++++++++++++++++++++++++++++++++
- lib/dpkg/ar.h             | 37 +++++++++++++++++++++++++++++++++++++
- lib/dpkg/test/.gitignore  |  1 +
- lib/dpkg/test/Makefile.am |  2 ++
- lib/dpkg/test/t-ar.c      | 42 ++++++++++++++++++++++++++++++++++++++++++
- po/POTFILES.in            |  1 +
- 7 files changed, 123 insertions(+)
+ lib/dpkg/Makefile.am                  |  1 +
+ lib/dpkg/{myopt-util.c => ar.c}       | 31 +++++++++++++------------------
+ lib/dpkg/{string.h => ar.h}           | 19 +++++++++++--------
+ lib/dpkg/test/.gitignore              |  1 +
+ lib/dpkg/test/Makefile.am             |  2 ++
+ lib/dpkg/test/{t-pkginfo.c => t-ar.c} | 27 +++++++++++++--------------
+ po/POTFILES.in                        |  1 +
+ 7 files changed, 42 insertions(+), 40 deletions(-)
 
 commit 3fe6efee7d7e385ed6e30223a4f93fadca1ca095
 Author: Guillem Jover <guillem@debian.org>
@@ -56008,7 +56196,7 @@ Date:   Fri Jan 8 19:23:22 2010 +0100
 
     Merge branch 'sid'
 
-commit d55c5d39b684c9f08f8f612f5553de5ea409b625
+commit d55c5d39b684c9f08f8f612f5553de5ea409b625 (tag: 1.15.5.6)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jan 8 17:58:11 2010 +0100
 
@@ -56457,7 +56645,7 @@ Date:   Sat Sep 26 07:01:25 2009 +0200
  2 files changed, 1 insertion(+), 4 deletions(-)
 
 commit 75315f6baab0607ff03c578089bf1ca1ad8d6922
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Dec 30 15:25:50 2009 +0100
 
     Updated scripts French translation
@@ -56467,7 +56655,7 @@ Date:   Wed Dec 30 15:25:50 2009 +0100
  2 files changed, 102 insertions(+), 112 deletions(-)
 
 commit da24059eaffbd1084ac94a27da5f64692b2e4771
-Author: Christian PERRIER <bubulle@debian.org>
+Author: Christian Perrier <bubulle@debian.org>
 Date:   Wed Dec 30 14:47:11 2009 +0100
 
     Updated dpkg French translation
@@ -56533,7 +56721,7 @@ Date:   Tue Dec 22 16:56:11 2009 +0100
     Conflicts:
     	debian/changelog
 
-commit 57636efa71bef220006d8d51f56fb83d5b590f27
+commit 57636efa71bef220006d8d51f56fb83d5b590f27 (tag: 1.15.5.5)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Dec 22 09:50:12 2009 +0100
 
@@ -56857,7 +57045,7 @@ Date:   Mon Dec 7 09:41:26 2009 +0100
 
     Merge branch 'sid'
 
-commit f9481448433dbe0e9866586f87bc8bc21e435427
+commit f9481448433dbe0e9866586f87bc8bc21e435427 (tag: 1.15.5.4)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Dec 7 09:25:21 2009 +0100
 
@@ -57089,7 +57277,7 @@ Date:   Sun Nov 29 07:45:26 2009 +0100
  man/po/fr.po     | 52 ++++++++++++++++++++++++++--------------------------
  2 files changed, 28 insertions(+), 26 deletions(-)
 
-commit b6a2926a1670d28583ad38c43981fb2f425057de
+commit b6a2926a1670d28583ad38c43981fb2f425057de (tag: 1.15.5.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Fri Nov 27 19:23:48 2009 +0100
 
@@ -57728,7 +57916,7 @@ Date:   Wed Nov 18 12:57:37 2009 +0100
  scripts/po/sv.po | 10 ++++----
  2 files changed, 42 insertions(+), 40 deletions(-)
 
-commit a71228d1f682566ba4dfbfd59f92bb5d3f2dd10d
+commit a71228d1f682566ba4dfbfd59f92bb5d3f2dd10d (tag: 1.15.5.2)
 Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Wed Nov 18 11:55:52 2009 +0100
 
@@ -57802,7 +57990,7 @@ Date:   Tue Nov 17 17:26:30 2009 +0100
  debian/control   | 2 +-
  2 files changed, 8 insertions(+), 1 deletion(-)
 
-commit dc57a7701902cfb488e5b2d8b856c0f73f01753d
+commit dc57a7701902cfb488e5b2d8b856c0f73f01753d (tag: 1.15.5.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Nov 17 16:42:11 2009 +0100
 
@@ -57831,7 +58019,7 @@ Date:   Tue Nov 17 16:29:33 2009 +0100
  lib/dpkg/test/t-string.c | 4 ++--
  4 files changed, 14 insertions(+), 6 deletions(-)
 
-commit a0e6a6d395b0e152c28a11407ed0f24991cbe5f2
+commit a0e6a6d395b0e152c28a11407ed0f24991cbe5f2 (tag: 1.15.5)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Nov 17 10:18:08 2009 +0100
 
@@ -60033,7 +60221,7 @@ Date:   Sat Oct 24 09:09:01 2009 +0200
  po/fr.po         | 137 +++++++++++++++++++++++--------------------------------
  2 files changed, 59 insertions(+), 79 deletions(-)
 
-commit 3700faf371edb7b6939cf21d144fefbaf9bbdd5b
+commit 3700faf371edb7b6939cf21d144fefbaf9bbdd5b (tag: 1.15.4.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Oct 19 15:16:52 2009 +0200
 
@@ -60465,11 +60653,11 @@ Date:   Mon Sep 28 23:34:29 2009 +0200
     
     Signed-off-by: Guillem Jover <guillem@debian.org>
 
- lib/dpkg/Makefile.am |  1 +
- lib/dpkg/file.c      | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/file.h      | 37 ++++++++++++++++++++++++++++++++++++
- src/configure.c      | 28 ++-------------------------
- 4 files changed, 93 insertions(+), 26 deletions(-)
+ lib/dpkg/Makefile.am           |  1 +
+ lib/dpkg/{cleanup.c => file.c} | 48 +++++++++++++++++-------------------------
+ lib/dpkg/{i18n.h => file.h}    | 17 ++++++++-------
+ src/configure.c                | 28 ++----------------------
+ 4 files changed, 31 insertions(+), 63 deletions(-)
 
 commit f38ab16ec1b15b7326b7a52b39567fa18f806b54
 Author: Guillem Jover <guillem@debian.org>
@@ -60640,14 +60828,14 @@ Date:   Sat Oct 3 21:02:47 2009 +0200
 
     libdpkg: Move pkg_sorter code to a new pkg module
 
- lib/dpkg/Makefile.am            |  1 +
- lib/dpkg/pkg-array.c            |  9 ---------
- lib/dpkg/pkg-array.h            |  3 +--
- lib/dpkg/{pkg-array.h => pkg.c} | 30 ++++++++++++------------------
- lib/dpkg/{pkg-array.h => pkg.h} | 22 ++++++----------------
- po/POTFILES.in                  |  1 +
- src/main.h                      |  5 -----
- 7 files changed, 21 insertions(+), 50 deletions(-)
+ lib/dpkg/Makefile.am           |  1 +
+ lib/dpkg/pkg-array.c           |  9 ---------
+ lib/dpkg/pkg-array.h           |  3 +--
+ lib/dpkg/{pkg-list.h => pkg.c} | 28 ++++++++++++----------------
+ lib/dpkg/{i18n.h => pkg.h}     | 17 ++++++++---------
+ po/POTFILES.in                 |  1 +
+ src/main.h                     |  5 -----
+ 7 files changed, 23 insertions(+), 41 deletions(-)
 
 commit 2510971730a3a4c0f033884dc0bc5c6a82a9f5fb
 Author: Guillem Jover <guillem@debian.org>
@@ -60799,15 +60987,15 @@ Date:   Thu Oct 1 23:22:44 2009 +0200
  debian/copyright                         |   2 +
  debian/dpkg.docs                         |   1 +
  dselect/methods/Makefile.am              |  14 +-
- dselect/methods/multicd/README.multicd   | 131 ++++++
+ dselect/methods/multicd/README.multicd   | 131 ++++++++++++
  dselect/methods/multicd/desc.multi_cd    |   3 +
- dselect/methods/multicd/desc.multi_mount |  12 +
- dselect/methods/multicd/desc.multi_nfs   |  12 +
- dselect/methods/multicd/install          | 294 ++++++++++++++
+ dselect/methods/multicd/desc.multi_mount |  12 ++
+ dselect/methods/multicd/desc.multi_nfs   |  12 ++
+ dselect/methods/multicd/install          | 294 +++++++++++++++++++++++++++
  dselect/methods/multicd/names            |   3 +
- dselect/methods/multicd/setup            | 663 +++++++++++++++++++++++++++++++
- dselect/methods/multicd/update           | 116 ++++++
- 13 files changed, 1253 insertions(+), 4 deletions(-)
+ dselect/methods/{disk => multicd}/setup  | 330 +++++++++++++++++++------------
+ dselect/methods/{disk => multicd}/update |  52 +++--
+ 13 files changed, 719 insertions(+), 141 deletions(-)
 
 commit 5ed64b297e3f9ce9490372abc9b269126e2bd0a4
 Author: Raphaël Hertzog <hertzog@debian.org>
@@ -61519,12 +61707,12 @@ Date:   Fri Sep 25 00:20:19 2009 +0200
 
     libdpkg: Add new buffer_hash and buffer_md5 functions
 
- lib/dpkg/buffer.c         | 13 +++++++++++++
- lib/dpkg/buffer.h         |  4 ++++
- lib/dpkg/test/.gitignore  |  1 +
- lib/dpkg/test/Makefile.am |  2 ++
- lib/dpkg/test/t-buffer.c  | 46 ++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 66 insertions(+)
+ lib/dpkg/buffer.c                         | 13 +++++++++++++
+ lib/dpkg/buffer.h                         |  4 ++++
+ lib/dpkg/test/.gitignore                  |  1 +
+ lib/dpkg/test/Makefile.am                 |  2 ++
+ lib/dpkg/test/{t-pkginfo.c => t-buffer.c} | 24 +++++++++++++-----------
+ 5 files changed, 33 insertions(+), 11 deletions(-)
 
 commit 8c84d22f662e61664b3619117c5c4eabd6b704d8
 Author: Guillem Jover <guillem@debian.org>
@@ -62112,10 +62300,10 @@ Date:   Mon Sep 14 21:52:41 2009 +0200
     
     A new functions to construct and free a list and prepend to a list.
 
- lib/dpkg/Makefile.am |  1 +
- lib/dpkg/pkg-list.c  | 61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/dpkg/pkg-list.h  | 43 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 105 insertions(+)
+ lib/dpkg/Makefile.am                 |  1 +
+ lib/dpkg/{pkg-array.h => pkg-list.c} | 46 ++++++++++++++++++++++++------------
+ lib/dpkg/{pkg-array.h => pkg-list.h} | 22 ++++++++---------
+ 3 files changed, 42 insertions(+), 27 deletions(-)
 
 commit 8b73de55151677444cfc4745e501b8dd0992374d
 Author: Guillem Jover <guillem@debian.org>
@@ -62387,7 +62575,7 @@ Date:   Sun Sep 6 09:49:24 2009 +0200
  debian/changelog | 6 ++++++
  2 files changed, 7 insertions(+), 1 deletion(-)
 
-commit 9eb319a57bffa28f77ec6b7eef7ff5c68e2304e5
+commit 9eb319a57bffa28f77ec6b7eef7ff5c68e2304e5 (tag: 1.15.4)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Sep 6 09:18:39 2009 +0200
 
@@ -62915,7 +63103,7 @@ Date:   Wed Aug 26 16:56:47 2009 +0200
  3 files changed, 115 insertions(+), 113 deletions(-)
 
 commit 75cd1fb8b0e6733fa6ccddf7de74fdfeeea5a634
-Author: Jiri Palecek <jpalecek@web.de>
+Author: Jiří Paleček <jpalecek@web.de>
 Date:   Wed Jul 15 13:53:03 2009 +0200
 
     Dpkg::Shlibs::SymbolFile: cache the minimum version for a particular soname
@@ -63177,7 +63365,7 @@ Date:   Sun Aug 16 18:20:53 2009 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 00b1d9dce71ff7b73ecba3b38d65c4a9ace7a9da
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri May 15 18:09:25 2009 +0200
 
     dpkg-source/dpkg-genchanges: split long Binary: field values
@@ -63647,7 +63835,7 @@ Date:   Thu Jul 30 18:38:57 2009 +0200
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit 37a7407d040e5e6c33ebad6c029cc36d2a2768d5
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jul 25 15:49:35 2009 +0200
 
     update-alternatives: fix a warning message
@@ -63660,7 +63848,7 @@ Date:   Sat Jul 25 15:49:35 2009 +0200
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 commit 74b5b92eaed9566565f522bd896187ed2920310c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jul 25 00:48:14 2009 +0200
 
     Fix apply_patches() funtion of 3.0 (quilt) format to properly skip auto patch
@@ -63771,7 +63959,7 @@ Date:   Tue Jul 21 18:54:33 2009 +0200
  2 files changed, 1114 insertions(+), 898 deletions(-)
 
 commit 3fe3521d247a524a41018486aa2496c7803abed2
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Jul 21 10:14:00 2009 +0200
 
     Dpkg::Changelog: fix heuristic to identify correct start entry
@@ -63810,7 +63998,7 @@ Date:   Mon Jul 20 18:08:07 2009 +0200
  2 files changed, 129 insertions(+), 129 deletions(-)
 
 commit b866c02dfc669dd170680c1bd13b8c0f9898bea5
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Jul 20 08:47:09 2009 +0200
 
     Fix preinst to not fail on read on broken alternatives status files
@@ -63874,23 +64062,23 @@ Date:   Wed Jul 15 16:34:59 2009 +0200
     Make the dependencies on other modules explicit, and avoid clutter by
     not including unneeded stuff.
 
- dpkg-deb/build.c                    |  2 +-
- dselect/method.cc                   |  2 +-
- lib/dpkg/Makefile.am                |  7 +++----
- lib/dpkg/fields.c                   |  2 +-
- lib/dpkg/parsehelp.c                |  2 +-
- lib/dpkg/path.c                     |  2 +-
- lib/dpkg/{dpkg-priv.h => path.h}    | 21 +++++----------------
- lib/dpkg/string.c                   |  2 +-
- lib/dpkg/{string.c => string.h}     | 26 ++++++++------------------
- lib/dpkg/subproc.c                  |  2 +-
- lib/dpkg/{dpkg-priv.h => subproc.h} | 23 ++++-------------------
- lib/dpkg/test/t-path.c              |  2 +-
- lib/dpkg/test/t-string.c            |  2 +-
- src/filesdb.c                       |  2 +-
- src/help.c                          |  3 ++-
- src/query.c                         |  2 +-
- 16 files changed, 33 insertions(+), 69 deletions(-)
+ dpkg-deb/build.c                 |  2 +-
+ dselect/method.cc                |  2 +-
+ lib/dpkg/Makefile.am             |  7 +++----
+ lib/dpkg/fields.c                |  2 +-
+ lib/dpkg/parsehelp.c             |  2 +-
+ lib/dpkg/path.c                  |  2 +-
+ lib/dpkg/{dpkg-priv.h => path.h} | 21 +++++----------------
+ lib/dpkg/string.c                |  2 +-
+ lib/dpkg/{i18n.h => string.h}    | 14 ++++++--------
+ lib/dpkg/subproc.c               |  2 +-
+ lib/dpkg/{i18n.h => subproc.h}   | 15 +++++++--------
+ lib/dpkg/test/t-path.c           |  2 +-
+ lib/dpkg/test/t-string.c         |  2 +-
+ src/filesdb.c                    |  2 +-
+ src/help.c                       |  3 ++-
+ src/query.c                      |  2 +-
+ 16 files changed, 34 insertions(+), 48 deletions(-)
 
 commit 7fa96f351b61259f741bcd952beb9468f0c7516c
 Author: Guillem Jover <guillem@debian.org>
@@ -64259,7 +64447,7 @@ Date:   Wed Jul 15 12:14:29 2009 +0200
  75 files changed, 39 insertions(+), 74 deletions(-)
 
 commit 439f77d84e2d98bfc363fa5b21cae97225df2cef
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Wed Jul 15 21:03:49 2009 +0200
 
     Dpkg::Shlibs::SymbolFile::load(): use a single object reference everywhere
@@ -64286,7 +64474,7 @@ Date:   Wed Jul 15 19:38:45 2009 +0300
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 commit 77f7292128f315e0cd95177241184252604347ce
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Wed Jul 15 16:44:21 2009 +0200
 
     deb-substvars(5): list fields where substvars do not work
@@ -64310,7 +64498,7 @@ Date:   Mon Jun 29 00:18:17 2009 +0300
  2 files changed, 7 insertions(+), 1 deletion(-)
 
 commit a27d14c4423c44b400764c99b669824f4ba6e9a1
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Wed Jul 15 15:59:03 2009 +0200
 
     Add new test case for symbols file parsing
@@ -64629,7 +64817,7 @@ Date:   Thu Jul 9 21:23:25 2009 +0200
  po/de.po | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-commit 30f797c7c1fa1bac2388e47d1c28302804a9c53b
+commit 30f797c7c1fa1bac2388e47d1c28302804a9c53b (tag: 1.15.3.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed Jul 8 11:26:55 2009 +0200
 
@@ -64718,7 +64906,7 @@ Date:   Fri Jul 3 17:31:21 2009 +0200
  2 files changed, 11 insertions(+), 10 deletions(-)
 
 commit 724ddc2dd8ce11dc30249dcb6023b0b8f56a739d
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jul 3 15:58:20 2009 +0200
 
     Update Standards-Version to 3.8.2
@@ -64728,7 +64916,7 @@ Date:   Fri Jul 3 15:58:20 2009 +0200
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 commit 4a1e8173f63c1c7a6807aa76280fc8aec128bc81
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jul 3 15:43:29 2009 +0200
 
     Fix dpkg's preinst when alternatives dir contains unexpected subdirs
@@ -64741,7 +64929,7 @@ Date:   Fri Jul 3 15:43:29 2009 +0200
  3 files changed, 8 insertions(+), 5 deletions(-)
 
 commit 49c5d0bbe00b3922fb07efae60fd65bb91c64bb1
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jul 3 15:35:50 2009 +0200
 
     Add changelog entry for the install-info transition
@@ -64751,7 +64939,7 @@ Date:   Fri Jul 3 15:35:50 2009 +0200
  2 files changed, 8 insertions(+)
 
 commit 72d4a9154d0f7ac2d9a1adad3dd59368d9d86c2f
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Jun 30 12:20:30 2009 +0200
 
     Breaks: xemacs21-support instead instead of all xemacs21-*
@@ -64764,7 +64952,7 @@ Date:   Tue Jun 30 12:20:30 2009 +0200
  1 file changed, 2 insertions(+), 5 deletions(-)
 
 commit dd7baf825098209e1b311b3b5e19eaf8c18fe800
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Jun 25 23:17:18 2009 +0200
 
     Add breaks against all info-browsers that do not depend on install-info
@@ -64833,7 +65021,7 @@ Date:   Tue Mar 17 02:18:18 2009 +0200
  2 files changed, 9 insertions(+), 13 deletions(-)
 
 commit c23407d285734d66aca07ecfbb45d7f8604ce706
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Mar 13 15:47:52 2009 +0100
 
     Replace install-info by a simple wrapper (or no-op command)
@@ -65037,7 +65225,7 @@ Date:   Sat Jun 27 19:26:03 2009 +0200
  debian/changelog | 5 +++++
  2 files changed, 6 insertions(+), 1 deletion(-)
 
-commit 16199a8951e656bf3ef2fda67cb554a26fad785d
+commit 16199a8951e656bf3ef2fda67cb554a26fad785d (tag: 1.15.3)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sat Jun 27 19:07:16 2009 +0200
 
@@ -65297,7 +65485,7 @@ Date:   Wed Jun 24 05:51:33 2009 +0200
  7 files changed, 21 insertions(+), 21 deletions(-)
 
 commit fe930e9bb3e195825cce98e4abe825459a7e81e7
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Jun 25 21:43:29 2009 +0200
 
     Dpkg::Deps: fix dependency parsing code
@@ -65318,7 +65506,7 @@ Date:   Thu Jun 25 21:43:29 2009 +0200
  3 files changed, 11 insertions(+), 3 deletions(-)
 
 commit 2cf5b0f90d4fae8c6287fa0a44e84270ad5326d6
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Jun 23 08:58:35 2009 +0200
 
     Remove all invalid master alternatives found
@@ -65336,7 +65524,7 @@ Date:   Tue Jun 23 08:58:35 2009 +0200
  3 files changed, 33 insertions(+), 14 deletions(-)
 
 commit 85f2eb4dca5ad99cbbb014a5ab88019b06839068
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Jun 22 11:35:58 2009 +0200
 
     Fix a spelling error in changelog (thanks lintian)
@@ -65345,7 +65533,7 @@ Date:   Mon Jun 22 11:35:58 2009 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 52ff937b5b8028dfa0745daafe913397a4e0b7cd
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Jun 22 11:21:19 2009 +0200
 
     Dpkg::Shlibs::Objdump::get_symbol(): try fallback name for version-less symbols
@@ -65357,7 +65545,7 @@ Date:   Mon Jun 22 11:21:19 2009 +0200
  1 file changed, 5 insertions(+)
 
 commit a3587e15b82e0f3a7367769307fe181c8151ce79
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 21 22:29:48 2009 +0200
 
     Dpkg::Shlibs::Objdump: assume version Base when no associated version
@@ -65402,7 +65590,7 @@ Date:   Sun Jun 21 10:50:31 2009 +0200
  1 file changed, 7 insertions(+), 7 deletions(-)
 
 commit 1ae77b82cff5462acffad67e2999973df880f0b7
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 21 02:35:04 2009 +0200
 
     dpkg-scan(packages|sources): support all checksums algo
@@ -65415,7 +65603,7 @@ Date:   Sun Jun 21 02:35:04 2009 +0200
  3 files changed, 46 insertions(+), 45 deletions(-)
 
 commit f60b961d1909103eb6ab68efe9009c4b9580ebda
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 21 00:42:37 2009 +0200
 
     dpkg-genchanges: skip warning about lower version for backports
@@ -65430,7 +65618,7 @@ Date:   Sun Jun 21 00:42:37 2009 +0200
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 commit 012ac74f876b7031165a782dbfeb3f43692bf382
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 21 00:27:44 2009 +0200
 
     Dpkg::Vendor::get_vendor_file(): replaces spaces by dashes
@@ -65443,7 +65631,7 @@ Date:   Sun Jun 21 00:27:44 2009 +0200
  2 files changed, 7 insertions(+), 1 deletion(-)
 
 commit 0a3d3fe21b629b55005c14889faaf8f84c4967c7
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 21 00:16:54 2009 +0200
 
     dpkg-source: ensure trustedkeys.gpg is used to check signatures
@@ -65453,7 +65641,7 @@ Date:   Sun Jun 21 00:16:54 2009 +0200
  2 files changed, 6 insertions(+)
 
 commit ffc5049d6a0faa7b63c423bbb256e7d70662bc7c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 23:39:53 2009 +0200
 
     Dpkg::Shlibs::SymbolFile: add missing explanation
@@ -65462,7 +65650,7 @@ Date:   Sat Jun 20 23:39:53 2009 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 0bdf342a69be47a5d7654114539854ea87702216
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 23:08:09 2009 +0200
 
     Dpkg::Substvars: restructure to have a separate namespace for variables
@@ -65534,7 +65722,7 @@ Date:   Sat Jun 13 22:38:06 2009 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit c43ba8d76c43514206e467211295d8532944a61f
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 21:45:48 2009 +0200
 
     dpkg-gensymbols: add new “ignore-blacklist” tag
@@ -65550,7 +65738,7 @@ Date:   Sat Jun 20 21:45:48 2009 +0200
  3 files changed, 19 insertions(+), 6 deletions(-)
 
 commit b8b229b61746b5bc5ecd51ccc961687f318e278d
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 22:07:47 2009 +0200
 
     Dpkg::Shlibs::Symbol: add new has_tag() and get_tag_value() functions
@@ -65559,7 +65747,7 @@ Date:   Sat Jun 20 22:07:47 2009 +0200
  1 file changed, 12 insertions(+), 2 deletions(-)
 
 commit 211c62c45d5f3d5f8ee3dc26668cd5a04e889076
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 20:55:46 2009 +0200
 
     Dpkg::Shlibs::SymbolFile: assume an implicit version "Base" for unversioned symbols
@@ -65569,7 +65757,7 @@ Date:   Sat Jun 20 20:55:46 2009 +0200
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 commit 49f9f9617800f2b4565e01e51d6481c61c6314ef
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 20:30:59 2009 +0200
 
     dpkg-gensymbols: do not output deprecated symbols
@@ -65582,7 +65770,7 @@ Date:   Sat Jun 20 20:30:59 2009 +0200
  2 files changed, 6 insertions(+), 2 deletions(-)
 
 commit 9093cf1d97b544f2a8400b57fd1eaff69b9c5551
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 19:28:29 2009 +0200
 
     Add changelog entry for new dpkg-gensymbols feature
@@ -65591,7 +65779,7 @@ Date:   Sat Jun 20 19:28:29 2009 +0200
  1 file changed, 6 insertions(+)
 
 commit 2585b24fc60840db17f33db593087e03840f801c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 20 18:42:49 2009 +0200
 
     Dpkg::Shlibs: code cleanup after merge and documentation update
@@ -65744,7 +65932,7 @@ Date:   Sat Jun 20 09:44:52 2009 +0200
  2 files changed, 89 insertions(+), 1741 deletions(-)
 
 commit 2c92025405471a5866fe12bd4bbd6014f0928466
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Jun 19 17:36:30 2009 +0200
 
     Add another alternative that needs to be cleaned up
@@ -65925,7 +66113,7 @@ Date:   Tue Jun 16 22:05:09 2009 +0200
  3 files changed, 189 insertions(+), 127 deletions(-)
 
 commit 644aa62b334863671f881dc3ece4da9e6491d5ad
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Jun 13 21:50:46 2009 +0200
 
     dpkg-buildpackage(1): add missing paragraph separator
@@ -66065,7 +66253,7 @@ Date:   Fri Nov 21 11:38:04 2008 +0200
  2 files changed, 8 insertions(+), 6 deletions(-)
 
 commit 4bca5ba4f9d0cebdfdfff8daf2b46097dc901271
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Jun 11 13:10:38 2009 +0200
 
     Add one more case of alternative to cleanup (Closes: #532739)
@@ -66075,7 +66263,7 @@ Date:   Thu Jun 11 13:10:38 2009 +0200
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 commit f49da9f283b7cfa21ee833cc04cd274600bcd535
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Jun 8 18:05:39 2009 +0200
 
     Dpkg::Source::CompressedFile::cleanup_after_open(): fix error message
@@ -66088,7 +66276,7 @@ Date:   Mon Jun 8 18:05:39 2009 +0200
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 4690e08e95871ac1fc0498749466cf255a840e0c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 7 21:05:41 2009 +0200
 
     update-alternatives: handle dangling alternative symlink
@@ -66104,7 +66292,7 @@ Date:   Sun Jun 7 21:05:41 2009 +0200
  2 files changed, 9 insertions(+), 1 deletion(-)
 
 commit 057523d0a806a3cb5be38c8da1a2fc3f044ef4cc
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Jun 7 18:05:20 2009 +0200
 
     Remove invalid master alternatives on upgrade
@@ -66142,7 +66330,7 @@ Date:   Mon Jun 1 10:52:48 2009 +0200
  2 files changed, 259 insertions(+), 299 deletions(-)
 
 commit bbb33e5b828a2b237399def5ff15cd818245f4d3
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu May 28 15:31:32 2009 +0200
 
     Unset TAR_OPTIONS when handling tar archives for source packages
@@ -66182,7 +66370,7 @@ Date:   Tue May 26 01:26:44 2009 +0200
  debian/changelog | 6 ++++++
  2 files changed, 7 insertions(+), 1 deletion(-)
 
-commit f4ab87b29a4abfe372395d66679d526e888d3559
+commit f4ab87b29a4abfe372395d66679d526e888d3559 (tag: 1.15.2)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue May 26 01:02:00 2009 +0200
 
@@ -66448,7 +66636,7 @@ Date:   Fri May 22 08:56:24 2009 +0200
  2 files changed, 5 insertions(+), 5 deletions(-)
 
 commit d3bd0b6d96436adc76a09a06d2b9a915e401a3c3
-Author: Marcos <marcos.alvarez.costales@gmail.com>
+Author: Marcos Alvarez Costales <marcos.alvarez.costales@gmail.com>
 Date:   Fri May 22 08:53:55 2009 +0200
 
     Asturian translation update
@@ -66508,7 +66696,7 @@ Date:   Thu May 21 07:02:42 2009 +0200
  debian/changelog | 6 ++++++
  2 files changed, 7 insertions(+), 1 deletion(-)
 
-commit 588381c24ec54f97ad980618778df19ac86ffc10
+commit 588381c24ec54f97ad980618778df19ac86ffc10 (tag: 1.15.1)
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu May 21 06:53:44 2009 +0200
 
@@ -66691,7 +66879,7 @@ Date:   Thu May 21 05:26:51 2009 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit ba2706754570efecb9cfba05ebcf2765d222c8a2
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue May 19 16:41:47 2009 +0200
 
     dpkg-scanpackages: be less annoying with warning about overrides
@@ -66775,7 +66963,7 @@ Date:   Tue May 19 07:13:35 2009 +0200
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 commit 398fd2848c4ea056ae4a0a9c404de436aa2f71e4
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue May 19 00:10:46 2009 +0200
 
     dpkg-parsechangelog: documentation update
@@ -66793,7 +66981,7 @@ Date:   Tue May 19 00:10:46 2009 +0200
  3 files changed, 20 insertions(+), 15 deletions(-)
 
 commit 5962f9d2b2f5e70b223d04638302c0f2239af36e
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon May 18 23:22:04 2009 +0200
 
     dpkg-parsechangelog: handle better non-existing versions
@@ -66807,7 +66995,7 @@ Date:   Mon May 18 23:22:04 2009 +0200
  2 files changed, 73 insertions(+), 7 deletions(-)
 
 commit 12c75eb567675b6498b333a416929431c55a558a
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon May 18 22:10:05 2009 +0200
 
     Fix changelog parsing code to differentiate the empty string from 0
@@ -66824,7 +67012,7 @@ Date:   Mon May 18 22:10:05 2009 +0200
  5 files changed, 40 insertions(+), 28 deletions(-)
 
 commit 9d1697bcc1ba87322a3ea6b2c7129656c52524de
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 17 19:16:48 2009 +0200
 
     dpkg-buildpackage: error out properly when dpkg-checkbuilddeps is killed
@@ -66838,7 +67026,7 @@ Date:   Sun May 17 19:16:48 2009 +0200
  2 files changed, 7 insertions(+), 1 deletion(-)
 
 commit 61eae73be741d724a282302fb68417c247ac2780
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 17 16:10:55 2009 +0200
 
     dpkg-buildpackage: don't set DEB_VENDOR anymore
@@ -66852,7 +67040,7 @@ Date:   Sun May 17 16:10:55 2009 +0200
  3 files changed, 2 insertions(+), 14 deletions(-)
 
 commit ffc27eb2fa5e00f65cd6c170fb9083738c125f17
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri May 15 18:17:18 2009 +0200
 
     dpkg-genchanges: use same error string than in dpkg-buildpackage
@@ -66864,7 +67052,7 @@ Date:   Fri May 15 18:17:18 2009 +0200
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit 77270d7bf4dbffba0060635ca58a51f7e66b475c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri May 15 16:41:31 2009 +0200
 
     dpkg-buildpackage: factorize a command line sanity check
@@ -66873,7 +67061,7 @@ Date:   Fri May 15 16:41:31 2009 +0200
  1 file changed, 3 insertions(+), 12 deletions(-)
 
 commit 18dacea0fab9d81e85a5a7d4e9ec25435df7aa5b
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri May 15 16:28:45 2009 +0200
 
     dpkg-buildpackage: allow options -nc and -S together
@@ -66967,7 +67155,7 @@ Date:   Mon May 11 18:14:12 2009 +0200
  4 files changed, 19 insertions(+), 1 deletion(-)
 
 commit 58b04d8f75a8b59bc2ec0f54429e3a47b060ecb6
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 10 21:31:40 2009 +0200
 
     dpkg-buildpackage: add execute right on debian/rules when missing
@@ -66982,7 +67170,7 @@ Date:   Sun May 10 21:31:40 2009 +0200
  2 files changed, 7 insertions(+)
 
 commit 70c760198f9d116d85f20a587f60bb4bc3fff776
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 10 19:18:05 2009 +0200
 
     dpkg-source: do not try to apply empty patch set
@@ -66995,7 +67183,7 @@ Date:   Sun May 10 19:18:05 2009 +0200
  2 files changed, 4 insertions(+), 1 deletion(-)
 
 commit 57c5a9dd52955d5b2fd55f224d70cb4f3f40f437
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 10 19:15:29 2009 +0200
 
     dpkg-source: minor update to "3.0 (quilt)" format
@@ -67014,7 +67202,7 @@ Date:   Sun May 10 19:15:29 2009 +0200
  3 files changed, 6 insertions(+), 3 deletions(-)
 
 commit 50e6ea1dc0193eacc95ec47f2d175c6bfcda14fc
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun May 10 17:30:02 2009 +0200
 
     dpkg-source: fix automatic patch registration in format 3.0 (quilt)
@@ -67146,7 +67334,7 @@ Date:   Thu May 7 18:30:26 2009 +0200
  4 files changed, 22 insertions(+), 11 deletions(-)
 
 commit 349aeaa4f2673678cf09d5a31d4b80db1f534639
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Apr 9 18:07:09 2009 +0200
 
     dpkg-vendor: new script to query various vendor information
@@ -67228,7 +67416,7 @@ Date:   Tue May 5 15:20:21 2009 +0200
  1 file changed, 6 insertions(+)
 
 commit 45a7adc8ac5e8864d3a3865b7c0c9cb4ef3b4388
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon May 4 20:49:42 2009 +0200
 
     update-alternatives: don't remove real files conflicting with link
@@ -67343,7 +67531,7 @@ Date:   Mon Apr 27 11:56:22 2009 +0100
  5 files changed, 23 insertions(+), 1 deletion(-)
 
 commit 609294de1074556ac6194fff7ddbfef0fec80841
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Apr 19 22:05:34 2009 +0200
 
     dpkg-source: do not store user/group names in generated tarballs
@@ -67358,7 +67546,7 @@ Date:   Sun Apr 19 22:05:34 2009 +0200
  2 files changed, 4 insertions(+), 1 deletion(-)
 
 commit f805a6546e7050a1024d924b805cff75cfd082d8
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Apr 19 20:54:12 2009 +0200
 
     Add lintian override for embedded-zlib
@@ -67375,7 +67563,7 @@ Date:   Sun Apr 19 20:54:12 2009 +0200
  1 file changed, 2 insertions(+)
 
 commit 0f6f1016aa501387f60ec9f8b750263904fbf306
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Apr 19 20:51:10 2009 +0200
 
     Update Standards-Version to 3.8.1
@@ -67385,7 +67573,7 @@ Date:   Sun Apr 19 20:51:10 2009 +0200
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 commit 3525f79792cff51757d99d45f51c96a15e6fa779
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Apr 19 20:08:44 2009 +0200
 
     dpkg-source: don't complain on binary files that are ignored
@@ -67405,7 +67593,7 @@ Date:   Sun Apr 19 20:08:44 2009 +0200
  2 files changed, 26 insertions(+), 1 deletion(-)
 
 commit 64439508ccaf2c9a98fa11b7cce4df4d314cc334
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Apr 17 22:24:19 2009 +0200
 
     dpkg-source: accept dashes in component name of additional tarballs
@@ -67422,7 +67610,7 @@ Date:   Fri Apr 17 22:24:19 2009 +0200
  4 files changed, 6 insertions(+), 3 deletions(-)
 
 commit fee30cd37c83bd85465edba36546a3661d273d7d
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Apr 17 22:08:24 2009 +0200
 
     Dpkg::Deps::parse(): parse properly an empty dep with spaces only
@@ -67472,14 +67660,14 @@ Date:   Mon Apr 13 04:57:43 2009 +0200
     detected at configure time. This way we can also cleanly detect the path
     needed by mkcurkeys.pl w/o duplicating the selection logic.
 
- TODO                     |  1 -
- debian/changelog         |  1 +
- dselect/Makefile.am      |  6 ++++--
- dselect/dselect-curses.h | 40 ++++++++++++++++++++++++++++++++++++++++
- dselect/dselect.h        |  3 +--
- dselect/main.cc          |  6 ++++++
- m4/libs.m4               |  2 ++
- 7 files changed, 54 insertions(+), 5 deletions(-)
+ TODO                                             |  1 -
+ debian/changelog                                 |  1 +
+ dselect/Makefile.am                              |  6 ++--
+ lib/test/t-pkginfo.c => dselect/dselect-curses.h | 38 +++++++++++-------------
+ dselect/dselect.h                                |  3 +-
+ dselect/main.cc                                  |  6 ++++
+ m4/libs.m4                                       |  2 ++
+ 7 files changed, 31 insertions(+), 26 deletions(-)
 
 commit f8ff44b68dbec2457bd3dbe0e9c891f73534f7b2
 Author: Guillem Jover <guillem@debian.org>
@@ -67507,7 +67695,7 @@ Date:   Mon Apr 13 04:38:20 2009 +0200
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 commit e5235b174b04cd3662e9b189cd7502fc58a031a6
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Thu Apr 9 18:35:10 2009 +0200
 
     dpkg-source: don't die on SIGPIPE of uncompressors
@@ -67538,16 +67726,16 @@ Date:   Wed Apr 8 18:24:50 2009 +0200
  1 file changed, 34 insertions(+), 33 deletions(-)
 
 commit 8ab2d4a31934027a1824f8ba6458e8de175ccdb5
-Author: Felipe Castro <fefcas@gmail.com>
+Author: Felipe E. F. de Castro <fefcas@gmail.com>
 Date:   Wed Apr 8 06:44:58 2009 +0200
 
     Esperanto translation update
     
     Closes: #523023
 
- debian/changelog |    1 +
- po/eo.po         | 5870 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 5871 insertions(+)
+ debian/changelog    |    1 +
+ po/{lt.po => eo.po} | 2969 ++++++++++++++++++++++++++-------------------------
+ 2 files changed, 1511 insertions(+), 1459 deletions(-)
 
 commit c40bbd831c32b257001bbe6f5d88df16ea20bb07
 Author: Helge Kreutzmann <debian@helgefjell.de>
@@ -67570,7 +67758,7 @@ Date:   Fri Apr 3 20:34:53 2009 +0200
  1 file changed, 112 insertions(+), 42 deletions(-)
 
 commit 28322a61ea6a17f8220dd0f9c7454ee9d03ec588
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Mar 31 12:16:12 2009 +0200
 
     Fix a translation mistake in french version of dpkg(1)
@@ -67582,7 +67770,7 @@ Date:   Tue Mar 31 12:16:12 2009 +0200
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 commit 1b1a8a5773e94a014fc2093436bd1509ad53ff4f
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 30 15:35:38 2009 +0200
 
     Fix syntax in german translation.
@@ -67641,7 +67829,7 @@ Date:   Fri Mar 27 19:31:18 2009 +0100
  2 files changed, 6 insertions(+)
 
 commit 1e1038d76a201b179f900fcfc442a94e4aa3b3eb
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 23 16:01:22 2009 +0100
 
     Global review of error checking associated to strtol functions
@@ -67680,7 +67868,7 @@ Date:   Sun Mar 22 15:12:12 2009 +0100
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit d80d6958a20f3664b7bb0ef49f5fe5b8056836e6
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 22 11:45:10 2009 +0100
 
     dpkg: refuses empty parameters when integer expected
@@ -67711,7 +67899,7 @@ Date:   Sun Mar 22 12:22:22 2009 +0100
  2 files changed, 11 insertions(+), 1 deletion(-)
 
 commit cb4288636728df2a9187d042eea8f57f24790d29
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sat Mar 21 18:05:03 2009 +0100
 
     Small fixes so that a build from a clean checkout works again
@@ -67875,7 +68063,7 @@ Date:   Tue Mar 17 22:13:47 2009 +0100
  1 file changed, 163 insertions(+), 257 deletions(-)
 
 commit 80716257ffb9674d78a606fe7f8e5b035d1dfdf3
-Author: Marcos <marcos.alvarez.costales@gmail.com>
+Author: Marcos Alvarez Costales <marcos.alvarez.costales@gmail.com>
 Date:   Tue Mar 17 07:12:21 2009 +0100
 
     Completed Asturian translation
@@ -67920,7 +68108,7 @@ Date:   Tue Mar 17 21:34:36 2009 +0100
  1 file changed, 251 insertions(+), 314 deletions(-)
 
 commit ed4e04ccef996d5ef715fc9c1da5da6ca9fa372f
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Mar 17 18:44:12 2009 +0100
 
     dpkg-shlibdeps: improve debug messages displayed in verbose mode
@@ -67929,7 +68117,7 @@ Date:   Tue Mar 17 18:44:12 2009 +0100
  1 file changed, 13 insertions(+), 5 deletions(-)
 
 commit 02e3de2f1d687b19d305f7623e08742f6896ae7a
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Tue Mar 17 16:51:44 2009 +0100
 
     dpkg-shlibdeps: fix code to find out minimal version among all symbols
@@ -67952,7 +68140,7 @@ Date:   Tue Mar 17 16:51:44 2009 +0100
  5 files changed, 16 insertions(+), 6 deletions(-)
 
 commit 4eaf5de367581c2a3cf3debafbc21e072a519ef2
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 16 18:54:05 2009 +0100
 
     Drop /etc/dpkg/origins as it's taken over by base-files (see #487437)
@@ -67966,7 +68154,7 @@ Date:   Mon Mar 16 18:54:05 2009 +0100
  6 files changed, 1 insertion(+), 16 deletions(-)
 
 commit 5badd6d7165d2ac04b7b4b47d1c37986f33d5528
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 16 11:12:00 2009 +0100
 
     Dpkg::Deps: refuse to parse ORed deps only when union deps are requested
@@ -67978,7 +68166,7 @@ Date:   Mon Mar 16 11:12:00 2009 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 22f2ea26d7b848a9dc8b66a9c8fa264f5aa29b74
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 16 11:00:16 2009 +0100
 
     dpkg-buildpackage: add back an erroneously removed use statement
@@ -67990,7 +68178,7 @@ Date:   Mon Mar 16 11:00:16 2009 +0100
  1 file changed, 1 insertion(+)
 
 commit f1d3f2dae6581d04743fa4877f78d44be66502df
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 16 10:54:05 2009 +0100
 
     Dpkg::IPC: add sanity check for timeout parameter and a non-regression test
@@ -68000,7 +68188,7 @@ Date:   Mon Mar 16 10:54:05 2009 +0100
  2 files changed, 15 insertions(+), 2 deletions(-)
 
 commit 5b0024349ddbfefdcd45fd9382cc113234ba0f39
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 22:15:41 2009 +0100
 
     dpkg-source: switch to standard info() function for output
@@ -68012,7 +68200,7 @@ Date:   Sun Mar 15 22:15:41 2009 +0100
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 commit 7d7a32b36791ba9c458930c537875c32e9e3a57c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 22:11:43 2009 +0100
 
     Misc updates concerning gpg and dpkg-source
@@ -68027,7 +68215,7 @@ Date:   Sun Mar 15 22:11:43 2009 +0100
  3 files changed, 6 insertions(+), 1 deletion(-)
 
 commit 09721c437877afd1549b1028c4f830898db6c57e
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 21:53:14 2009 +0100
 
     Update dpkg-dev dependencies
@@ -68042,7 +68230,7 @@ Date:   Sun Mar 15 21:53:14 2009 +0100
  2 files changed, 7 insertions(+), 2 deletions(-)
 
 commit eb23ea12c4599ec93c9c5e21929a5dd966991bb7
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 21:44:09 2009 +0100
 
     dpkg-source: don't block indefinitely on gpg
@@ -68055,7 +68243,7 @@ Date:   Sun Mar 15 21:44:09 2009 +0100
  2 files changed, 11 insertions(+), 3 deletions(-)
 
 commit eecd200a7aa51058c950345e60092c7fdd0ec1e2
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 21:14:18 2009 +0100
 
     Dpkg::IPC: implement timeout for subprocesses
@@ -68068,7 +68256,7 @@ Date:   Sun Mar 15 21:14:18 2009 +0100
  1 file changed, 26 insertions(+), 4 deletions(-)
 
 commit fe67e29f17678678091e2ba318d4ec8c0e6bef47
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 21:13:34 2009 +0100
 
     Let git ignore vim swap files
@@ -68077,7 +68265,7 @@ Date:   Sun Mar 15 21:13:34 2009 +0100
  1 file changed, 1 insertion(+)
 
 commit f65e9c9a2e521e32b0de6a963ab1e58790001366
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 19:34:17 2009 +0100
 
     dpkg-gencontrol: improve error message with a bad union dependency
@@ -68091,7 +68279,7 @@ Date:   Sun Mar 15 19:34:17 2009 +0100
  3 files changed, 14 insertions(+), 3 deletions(-)
 
 commit acb9b6e9f20eec9d3799b50cb17c2e192c47c692
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 18:55:03 2009 +0100
 
     dpkg-source: improve ignore regexp to catch vi swap files
@@ -68105,7 +68293,7 @@ Date:   Sun Mar 15 18:55:03 2009 +0100
  2 files changed, 5 insertions(+), 2 deletions(-)
 
 commit edbbd18df03628407f3d3628d0e49014dbc9ba48
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 18:18:44 2009 +0100
 
     Dpkg::Version::check_version() should not die by default
@@ -68149,7 +68337,7 @@ Date:   Sun Mar 15 14:44:15 2009 +0100
  2 files changed, 221 insertions(+), 259 deletions(-)
 
 commit 4f761d89c84cee18e16da472daea38769fbcce0e
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 10:49:52 2009 +0100
 
     dpkg-genchanges, dpkg-gencontrol: avoid perl warnings
@@ -68163,7 +68351,7 @@ Date:   Sun Mar 15 10:49:52 2009 +0100
  3 files changed, 6 insertions(+), 4 deletions(-)
 
 commit b02e87457ceb9c849915180034b9247d0c228df8
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 15 10:30:26 2009 +0100
 
     Update deb-triggers(5) and dpkg-trigger(1)
@@ -68186,19 +68374,19 @@ Date:   Fri Mar 13 20:33:46 2009 +0100
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit ce04415c6b809e4936f9b69d5ea60daa06f0657d
-Author: Marcos <marcos.alvarez.costales@gmail.com>
+Author: Marcos Alvarez Costales <marcos.alvarez.costales@gmail.com>
 Date:   Fri Mar 13 20:32:45 2009 +0100
 
     Add Asturian translation
     
     Closes: #519478
 
- debian/changelog |    3 +
- po/ast.po        | 6509 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 6512 insertions(+)
+ debian/changelog     |    3 +
+ po/{gl.po => ast.po} | 3200 ++++++++++++++++++++++++++------------------------
+ 2 files changed, 1677 insertions(+), 1526 deletions(-)
 
 commit 6e9f17ba8fa0ae75aee08579d08ba3fae8175869
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Fri Mar 13 18:02:35 2009 +0100
 
     Fix Swedish translation so that it doesn't make po4a fail
@@ -68359,7 +68547,7 @@ Date:   Tue Mar 10 15:55:56 2009 +0200
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 commit 8c651a05314924ed5823a8d995e515d34d0cfa4c
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 9 22:54:13 2009 +0100
 
     dpkg-source: add --skip-debianization extract option
@@ -68378,7 +68566,7 @@ Date:   Mon Mar 9 22:54:13 2009 +0100
  4 files changed, 27 insertions(+), 4 deletions(-)
 
 commit 1463ac71babf0432b5753c20eebc060363694e34
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 9 22:21:28 2009 +0100
 
     dpkg-source: drop support of debian/control's Format field
@@ -68394,7 +68582,7 @@ Date:   Mon Mar 9 22:21:28 2009 +0100
  3 files changed, 6 insertions(+), 7 deletions(-)
 
 commit 758986f4ed29e24270f89dc3f53e53f5782be2dd
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 9 21:11:58 2009 +0100
 
     dpkg-source(1): document format of debian/source/* files
@@ -68407,7 +68595,7 @@ Date:   Mon Mar 9 21:11:58 2009 +0100
  2 files changed, 21 insertions(+), 3 deletions(-)
 
 commit 492feedb3e75d99e9003105f5312d052d1156bc2
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 9 20:43:26 2009 +0100
 
     Add missing changelog entry.
@@ -68440,7 +68628,7 @@ Date:   Sun Mar 8 20:42:42 2009 +0100
  2 files changed, 27 insertions(+), 16 deletions(-)
 
 commit 5ee2d60084f43f1b51907e77dd9f07dc4d810618
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 8 19:13:49 2009 +0100
 
     dpkg-shlibdeps: make shlibs.local override symbols files too
@@ -68456,7 +68644,7 @@ Date:   Sun Mar 8 19:13:49 2009 +0100
  2 files changed, 10 insertions(+), 2 deletions(-)
 
 commit 5fd387999d92ef1f47560980cffb54565a72a96b
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 8 16:11:53 2009 +0100
 
     dpkg-shlibdeps: don't fail on binaries outside of a package's dir
@@ -68473,7 +68661,7 @@ Date:   Sun Mar 8 16:11:53 2009 +0100
  2 files changed, 10 insertions(+), 2 deletions(-)
 
 commit ea1530fe45c8b1ad61d91c0791c53ecf363899bf
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Sun Mar 8 15:50:58 2009 +0100
 
     dpkg-source: call quilt only once to apply all patches
@@ -68584,12 +68772,12 @@ Date:   Wed Feb 11 03:28:19 2009 +0200
     Create a new pkg_array structure, and two new functions to initialize
     from the db, and to sort the array.
 
- src/Makefile.am                  |  4 +--
- src/pkg-array.c                  | 29 +++++++++++++++++
- src/{pkg-array.c => pkg-array.h} | 27 ++++++++--------
- src/query.c                      | 69 +++++++++++++++-------------------------
- src/select.c                     | 27 ++++++----------
- 5 files changed, 80 insertions(+), 76 deletions(-)
+ src/Makefile.am                   |  4 +--
+ src/pkg-array.c                   | 29 ++++++++++++++++
+ lib/progress.h => src/pkg-array.h | 26 ++++++---------
+ src/query.c                       | 69 +++++++++++++++------------------------
+ src/select.c                      | 27 +++++----------
+ 5 files changed, 76 insertions(+), 79 deletions(-)
 
 commit 2c0667d06a38c3a31ab43b79a979f29e5fcf0cf3
 Author: Guillem Jover <guillem@debian.org>
@@ -68602,7 +68790,7 @@ Date:   Tue Feb 10 03:23:36 2009 +0200
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 commit 4da4f0145a451a13eab2cdb6b1d5e46d857fd93b
-Author: Raphael Hertzog <hertzog@debian.org>
+Author: Raphaël Hertzog <hertzog@debian.org>
 Date:   Mon Mar 2 18:10:40 2009 +0100
 
     dpkg-genchanges: correctly handles additional upstream tarballs
